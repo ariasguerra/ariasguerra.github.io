@@ -1,0 +1,18 @@
+[
+    { "id": "1", "name": "C-1", "cai": "ALCAZARES", "phone": "3007924218" },
+    { "id": "2", "name": "C-2", "cai": "ALCAZARES", "phone": "3003018192" },
+    { "id": "3", "name": "C-3", "cai": "SIETE DE AGOSTO", "phone": "3007924269" },
+    { "id": "4", "name": "C-4", "cai": "SIETE DE AGOSTO", "phone": "3008001378" },
+    { "id": "5", "name": "C-5", "cai": "SIETE DE AGOSTO", "phone": "3007923486" },
+    { "id": "6", "name": "C-6", "cai": "POLO CLUB", "phone": "3008096782" },
+    { "id": "7", "name": "C-7", "cai": "POLO CLUB", "phone": "3017558727" },
+    { "id": "8", "name": "C-8", "cai": "POLO CLUB", "phone": "3002014491" },
+    { "id": "9", "name": "C-9", "cai": "RIO NEGRO", "phone": "3002026936" },
+    { "id": "10", "name": "C-10", "cai": "RIO NEGRO", "phone": "3008087004" },
+    { "id": "11", "name": "C-11", "cai": "MODELO", "phone": "3008094287" },
+    { "id": "12", "name": "C-12", "cai": "MODELO", "phone": "3008054385" },
+    { "id": "13", "name": "C-13", "cai": "MODELO", "phone": "3017553291" },
+    { "id": "14", "name": "C-14", "cai": "MODELO", "phone": "3008086765" },
+    { "id": "15", "name": "C-15", "cai": "MODELO", "phone": "3008097107" },
+    { "id": "16", "name": "C-16", "cai": "MODELO", "phone": "3008055881" }
+]

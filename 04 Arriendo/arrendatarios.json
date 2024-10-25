@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "nombre": "Carlos Arturo Serrano Rodriguez",
+    "documento": "1234567890",
+    "telefono": "3001234567",
+    "email": "carlos.serrano@email.com"
+  },
+  {
+    "id": 2,
+    "nombre": "Laura Marcela Diaz Salcedo",
+    "documento": "0987654321",
+    "telefono": "3109876543",
+    "email": "laura.diaz@email.com"
+  },
+  {
+    "id": 3,
+    "nombre": "Yudy Alexandra Sanabria Camargo",
+    "documento": "1053606327",
+    "telefono": "3113615042",
+    "email": "flakayudy87@gmail.com"
+  },
+  {
+    "id": 4,
+    "nombre": "Carlos Julio Riaño Quiroga",
+    "documento": "5544332211",
+    "telefono": "3153332211",
+    "email": "carlos.riano@email.com"
+  }
+]

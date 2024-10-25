@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador de Radios</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Buscador de Radios</h1>
+        <form id="search-form">
+            <label for="search-input" class="sr-only">Número de radio</label>
+            <input type="number" id="search-input" placeholder="Ingrese el número de radio" required>
+            <button type="submit" id="search-button" aria-label="Buscar">
+                <i class="fas fa-search" aria-hidden="true"></i>
+            </button>
+        </form>
+        <div id="result" aria-live="polite"></div>
+        <div id="error" aria-live="assertive"></div>
+        <div id="loading" aria-live="polite">Cargando datos...</div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

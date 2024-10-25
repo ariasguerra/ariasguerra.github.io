@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convertidor de JSON a Excel - Policía Nacional de Colombia</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Convertidor de JSON a Excel</h1>
+        <form id="jsonForm">
+            <input type="file" id="jsonFile" class="file-input" accept=".json" required>
+            <button type="submit" class="btn">Cargar y Convertir JSON</button>
+        </form>
+        <a href="index.html" class="home-link">Volver a la página de inicio</a>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="utils.js"></script>
+    <script>
+        document.getElementById('jsonForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const file = document.getElementById('jsonFile').files[0];
+            if (file) {
+                loadJSONFile(file, function(error, jsonData) {
+                    if (error) {
+                        showAlert('Error al cargar el archivo JSON: ' + error, 'error');
+                    } else {
+                        convertToExcel(jsonData);
+                    }
+                });
+            }
+        });
+
+        function convertToExcel(jsonData) {
+            const dataArray = Array.isArray(jsonData) ? jsonData : [jsonData];
+            const worksheet = XLSX.utils.json_to_sheet(dataArray);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Datos");
+            const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+            downloadFile(excelBuffer, "datos_convertidos.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            showAlert('Archivo Excel generado y descargado correctamente.', 'success');
+        }
+    </script>
+</body>
+</html>
