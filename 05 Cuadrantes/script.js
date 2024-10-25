@@ -431,7 +431,7 @@ function showActivityResultDialog(team) {
 function searchActivityResults(query) {
     // Esta es una lista de ejemplo, deberías reemplazarla con tu propia lista de resultados
     const allResults = [
-        'Captura realizada', 'Situación controlada', 'Sin novedad', 'Apoyo brindado',
+        'Captura', 'Comparendo', 'Traslado por Protección', 'Apoyo brindado',
         'Informe elaborado', 'Operativo exitoso', 'Accidente atendido', 'Denuncia recibida'
     ];
     return allResults.filter(result => result.toLowerCase().includes(query.toLowerCase()));
