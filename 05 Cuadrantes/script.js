@@ -432,7 +432,7 @@ function searchActivityResults(query) {
     // Esta es una lista de ejemplo, deberías reemplazarla con tu propia lista de resultados
     const allResults = [
         'Captura', 'Comparendo', 'Traslado por Protección', 'Cierre de Establecimiento',
-        'Informe elaborado', 'Operativo exitoso', 'Accidente atendido', 'Denuncia recibida'
+        'Incautación de Arma Blanca', 'Incautación de Arma de Fuego'
     ];
     return allResults.filter(result => result.toLowerCase().includes(query.toLowerCase()));
 }
