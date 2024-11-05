@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Roles: Jefe de Seguridad de Instalaciones</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="game-title">Juego de Roles</h1>
+        <h2 class="sub-title">Jefe de Seguridad de Instalaciones E-12</h2>
+        <p class="sub-instruction">Mitiga el siguiente riesgo</p>
+        
+        <div id="ball-icon-container">
+            <i class="fas fa-circle-notch ball-icon"></i>
+        </div>
+
+        <div id="number-section" class="hidden">
+            <p id="selected-number" class="number-display"></p>
+        </div>
+
+        <div id="risk-card" class="hidden">
+            <div class="card">
+                <p id="risk-description"></p>
+            </div>
+            <div class="questions">
+                <h4>Preguntas de Reflexión</h4>
+                <div class="question-card">¿En qué escenarios se podría presentar este riesgo en la Estación de Policía Barrios Unidos?</div>
+                <div class="question-card">¿Qué haría usted para mitigar este riesgo?</div>
+                <div class="question-card">¿Qué órdenes le impartiría al personal de la Estación de Policía Barrios Unidos para mitigar este riesgo?</div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
