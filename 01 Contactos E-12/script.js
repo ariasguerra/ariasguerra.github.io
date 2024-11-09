@@ -300,9 +300,8 @@ Dios y Patria, ${greeting}
 Atentamente,
 
 
-Intendente Jefe
-MANUEL ANTONIO ARIAS GUERRA
-Comandante Patrulla de Vigilancia`;
+
+`;
     }
 
     function formatCargo(cargo) {
