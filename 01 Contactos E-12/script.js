@@ -272,7 +272,7 @@ contacts = JSON.parse(storedContacts);
         const greeting = getGreeting();
         const firstName = capitalizeFirstLetter(contact.NOMBRES.split(' ')[0]);
         const lastName = capitalizeFirstLetter(contact.APELLIDOS.split(' ')[0]);
-        return `Dios y Patria, ${greeting} ${firstName} ${lastName}, le escribe Intendente Jefe Manuel Arias`;
+        return `Dios y Patria, ${greeting} ${firstName} ${lastName}`;
     }
 
     function createEmailMessage(contact) {
