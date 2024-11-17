@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Parqueo</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1></h1>
+        <!-- Botón de carga de archivo con texto dinámico -->
+        <label class="file-upload" id="fileLabel">
+            <input type="file" id="fileInput" />
+            <i class="fas fa-upload"></i> <span id="fileText">Cargar Archivo</span>
+        </label>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Ingrese placa sin espacios" />
+            <button onclick="searchPlaca()" class="icon-button">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        <div id="results"></div>
+        <button class="download" onclick="downloadPDF()">Descargar Log en PDF</button>
+        <button class="reset" onclick="resetParkingLog()">Reiniciar Registro</button>
+        
+        <!-- Módulo adicional: Motos en el Parqueadero -->
+        <div id="currentParking">
+            <h2>Motos en el Parqueadero</h2>
+            <div id="parkingList"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
