@@ -1,0 +1,606 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplicación Unificada: Generar Acta & Extractor PDF</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10pt;
+            color: #333;
+            margin: 0;
+        }
+
+        header, nav, main, section {
+            padding: 10px 20px;
+        }
+
+        header {
+            background: #4CAF50;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+
+        nav {
+            background: #f4f4f4;
+            display: flex;
+            gap: 20px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        nav a:hover, nav a.active {
+            background-color: #4CAF50;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            border: 1px solid #ccc;
+            background: #fff;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 14pt;
+        }
+
+        h3 {
+            font-size: 12pt;
+        }
+
+        form input, form button, form textarea {
+            margin: 5px 0;
+            padding: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        form label {
+            font-weight: bold;
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            font-size: 12pt;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #actaGenerada {
+            border-top: 1px solid #ccc;
+            margin-top: 20px;
+            padding-top: 20px;
+            text-align: justify;
+        }
+
+        #primerParrafo {
+            text-transform: uppercase;
+        }
+
+        /* Estilos para el extractor PDF */
+        .drop-zone {
+            border: 2px dashed #ddd;
+            padding: 50px;
+            text-align: center;
+            cursor: pointer;
+            background-color: #f4f4f4;
+            margin-top: 20px;
+        }
+
+        .drop-zone.dragover {
+            border-color: #45a049;
+            background-color: #e6ffe6;
+        }
+
+        #output, #suggestion, #stats {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f4f4f4;
+            border-radius: 4px;
+        }
+
+        .image-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .image-navigation {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .image-navigation button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
+        .image-wrapper {
+            display: inline-block;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            max-width: 100%;
+        }
+
+        .image-wrapper img {
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            cursor: pointer; /* Indicar que se puede hacer clic */
+        }
+
+        /* Responsivo */
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            button {
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Aplicación Unificada</h1>
+    <p>Generación de Acta de Instrucción & Extractor de Contenido PDF</p>
+</header>
+
+<nav>
+    <a href="#" id="tabActa" class="active">Generar Acta</a>
+    <a href="#" id="tabPdf">Extractor PDF</a>
+</nav>
+
+<main>
+    <!-- Sección Acta -->
+    <section id="actaSection" class="container">
+        <h1>Generar Acta de Instrucción</h1>
+        <form id="actaForm">
+            <label for="grado">Grado</label>
+            <input type="text" id="grado" placeholder="Ej: Capitán" required>
+            
+            <label for="nombre">Nombre</label>
+            <input type="text" id="nombre" placeholder="Nombre completo" required>
+            
+            <label for="cargo">Cargo</label>
+            <input type="text" id="cargo" placeholder="Cargo del funcionario" required>
+            
+            <label for="tema">Tema de Instrucción</label>
+            <input type="text" id="tema" placeholder="Tema" required>
+            
+            <label for="temas">Temas a tratar</label>
+            <textarea id="temas" placeholder="Lista de temas a tratar" required rows="4"></textarea>
+            
+            <button type="submit">Generar Acta</button>
+        </form>
+
+        <div id="actaGenerada" style="display:none;">
+            <h1>ACTA DE INSTRUCCIÓN</h1>
+            <p>Lugar: ESTACIÓN DE POLICÍA BARRIOS UNIDOS</p>
+            <p id="primerParrafo">LA INSTRUCCIÓN DIRIGIDA POR PARTE DEL SEÑOR <span id="actaGrado"></span>, <span id="actaCargo"></span>, AL PERSONAL QUE CONFORMA LA ESTACIÓN DE POLICÍA BARRIOS UNIDOS, SOBRE <span id="articuloTema">EL</span> <span id="actaTema"></span>.</p>
+            <br>
+            <h3>ORDEN DEL DÍA</h3>
+            <ol>
+                <li>Verificación de asistentes</li>
+                <li>Lectura del acta anterior</li>
+                <li>Verificación de los compromisos</li>
+                <li>Temas a tratar</li>
+            </ol>
+            <br>
+            <h3>DESARROLLO</h3>
+            <p>Se realiza instrucción al personal adscrito a la Estación de Policía Barrios Unidos por parte del señor <span id="actaGrado2"></span>, <span id="actaCargo2"></span>, a quienes se les socializan los lineamientos sobre <span id="articuloTema2">el</span> <span id="actaTema2"></span>.</p>
+            <br>
+            <h3>1. Verificación de asistentes</h3>
+            <p>Se verifica la asistencia del personal adscrito a la unidad, asimismo, se constata la compatibilidad de los correos electrónicos del personal que integra la Estación de Policía Barrios Unidos. Dejando constancia que, la presente acta de instrucción se surtirá presencialmente, como también, por correo electrónico en virtud a lo dispuesto en el Art. 103 del Código General del Proceso -- Uso de las tecnologías de la información y de las comunicaciones, Ley 527 del 18 de agosto de 1999, Ley 794 del 01 de agosto de 2003 y la Ley 962 del 08 de julio de 2005.</p>
+            <br>
+            <h3>2. Lectura del acta anterior</h3>
+            <p>(NO APLICA)</p>
+            <br>
+            <h3>3. Verificación de los compromisos</h3>
+            <p>(NO APLICA)</p>
+            <br>
+            <h3>4. Temas a tratar</h3>
+            <p id="temasTratar"></p>
+        </div>
+    </section>
+
+    <!-- Sección Extractor PDF -->
+    <section id="pdfSection" class="container" style="display:none;">
+        <h1>Extractor de Contenido PDF Mejorado</h1>
+        <div class="input-group">
+            <label for="fileInput">Seleccionar archivo PDF o arrastrar y soltar:</label>
+            <div id="dropZone" class="drop-zone">
+                <p>Arrastra y suelta el archivo PDF aquí o haz clic para seleccionarlo</p>
+            </div>
+            <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+        </div>
+
+        <div id="suggestion"></div>
+
+        <div class="input-group">
+            <label for="marginInput">Margen sugerido para recorte (píxeles):</label>
+            <input type="number" id="marginInput" value="30" min="0" max="100">
+        </div>
+
+        <button id="processButton">Procesar PDF</button>
+
+        <div id="output"></div>
+        <div id="stats"></div>
+
+        <div class="image-container" id="imageContainer" style="display:none;">
+            <div class="image-wrapper">
+                <img id="currentImage" alt="Imagen actual extraída del PDF">
+            </div>
+            <div class="image-navigation">
+                <button id="prevButton">Anterior</button>
+                <button id="nextButton">Siguiente</button>
+            </div>
+        </div>
+        
+        <button id="downloadAll" style="display: none;">Descargar todas las imágenes</button>
+    </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js"></script>
+<script>
+    // ------------------------------
+    // Lógica Pestañas
+    // ------------------------------
+    const tabActa = document.getElementById('tabActa');
+    const tabPdf = document.getElementById('tabPdf');
+    const actaSection = document.getElementById('actaSection');
+    const pdfSection = document.getElementById('pdfSection');
+
+    tabActa.addEventListener('click', (e) => {
+        e.preventDefault();
+        tabActa.classList.add('active');
+        tabPdf.classList.remove('active');
+        actaSection.style.display = 'block';
+        pdfSection.style.display = 'none';
+    });
+
+    tabPdf.addEventListener('click', (e) => {
+        e.preventDefault();
+        tabPdf.classList.add('active');
+        tabActa.classList.remove('active');
+        pdfSection.style.display = 'block';
+        actaSection.style.display = 'none';
+    });
+
+    // ------------------------------
+    // Funciones Generar Acta
+    // ------------------------------
+    function saveToLocalStorage(data) {
+        localStorage.setItem('actaData', JSON.stringify(data));
+    }
+
+    function loadFromLocalStorage() {
+        const data = localStorage.getItem('actaData');
+        return data ? JSON.parse(data) : null;
+    }
+
+    function updateForm(data) {
+        if (data) {
+            document.getElementById('grado').value = data.grado;
+            document.getElementById('nombre').value = data.nombre;
+            document.getElementById('cargo').value = data.cargo;
+            document.getElementById('tema').value = data.tema;
+            document.getElementById('temas').value = data.temas;
+        }
+    }
+
+    function generateActa(data) {
+        document.getElementById('actaGrado').textContent = data.grado + ' ' + data.nombre;
+        document.getElementById('actaCargo').textContent = data.cargo;
+        document.getElementById('actaTema').textContent = data.tema;
+        document.getElementById('actaGrado2').textContent = data.grado + ' ' + data.nombre;
+        document.getElementById('actaCargo2').textContent = data.cargo;
+        document.getElementById('actaTema2').textContent = data.tema;
+        document.getElementById('temasTratar').textContent = data.temas;
+
+        const primeraLetra = data.tema.trim().charAt(0).toLowerCase();
+        const vocales = ['a', 'e', 'i', 'o', 'u'];
+        let articulo = vocales.includes(primeraLetra) ? 'EL' : 'LA';
+
+        document.getElementById('articuloTema').textContent = articulo;
+        document.getElementById('articuloTema2').textContent = articulo.toLowerCase();
+
+        document.getElementById('actaGenerada').style.display = 'block';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedData = loadFromLocalStorage();
+        updateForm(savedData);
+        if (savedData) {
+            generateActa(savedData);
+        }
+    });
+
+    document.getElementById('actaForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const data = {
+            grado: document.getElementById('grado').value,
+            nombre: document.getElementById('nombre').value,
+            cargo: document.getElementById('cargo').value,
+            tema: document.getElementById('tema').value,
+            temas: document.getElementById('temas').value
+        };
+
+        saveToLocalStorage(data);
+        generateActa(data);
+    });
+
+    // ------------------------------
+    // Funciones Extractor PDF
+    // ------------------------------
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
+
+    const fileInput = document.getElementById('fileInput');
+    const dropZone = document.getElementById('dropZone');
+    const marginInput = document.getElementById('marginInput');
+    const processButton = document.getElementById('processButton');
+    const output = document.getElementById('output');
+    const suggestion = document.getElementById('suggestion');
+    const stats = document.getElementById('stats');
+    const imageContainer = document.getElementById('imageContainer');
+    const currentImage = document.getElementById('currentImage');
+    const downloadAllButton = document.getElementById('downloadAll');
+
+    const prevButton = document.getElementById('prevButton');
+    const nextButton = document.getElementById('nextButton');
+
+    let processedImages = [];
+    let currentIndex = 0;
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length) {
+            fileInput.files = files;
+            handleFileSelection();
+        }
+    });
+
+    fileInput.addEventListener('change', handleFileSelection);
+
+    async function handleFileSelection() {
+        const file = fileInput.files[0];
+        if (!file || file.type !== 'application/pdf') {
+            suggestion.textContent = 'Por favor, sube un archivo PDF válido.';
+            return;
+        }
+        suggestion.textContent = 'Analizando el archivo...';
+        try {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+            suggestion.textContent = 'Archivo PDF cargado correctamente.';
+            processButton.onclick = () => processPDF(pdf);
+        } catch (error) {
+            suggestion.textContent = 'Error al cargar el archivo PDF.';
+            console.error("Error al cargar el archivo PDF: ", error);
+        }
+    }
+
+    async function processPDF(pdf) {
+        output.textContent = 'Procesando PDF...';
+        imageContainer.style.display = 'none';
+        processedImages = [];
+        currentIndex = 0;
+        downloadAllButton.style.display = 'none';
+
+        try {
+            const numPages = pdf.numPages;
+            let processedPages = 0;
+            let blankPages = 0;
+
+            for (let i = 1; i <= numPages; i++) {
+                const isBlank = await processPage(pdf, i);
+                if (isBlank) {
+                    blankPages++;
+                } else {
+                    processedPages++;
+                }
+                output.textContent = `Procesando página ${i} de ${numPages}...`;
+            }
+
+            stats.textContent = `Páginas procesadas: ${processedPages}, Páginas en blanco omitidas: ${blankPages}`;
+            output.textContent = 'Proceso completado. Todas las imágenes han sido generadas.';
+            downloadAllButton.style.display = 'block';
+
+            if (processedImages.length > 0) {
+                currentIndex = 0;
+                showImage(currentIndex);
+                imageContainer.style.display = 'block';
+            } else {
+                imageContainer.style.display = 'none';
+            }
+        } catch (error) {
+            output.textContent = `Error: ${error.message}`;
+            console.error('Error durante el procesamiento del PDF:', error);
+        }
+    }
+
+    async function processPage(pdf, pageNumber) {
+        const page = await pdf.getPage(pageNumber);
+        const scale = 3; 
+        const viewport = page.getViewport({ scale });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        await page.render({ canvasContext: context, viewport }).promise;
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+        if (isPageBlank(imageData)) {
+            return true;
+        }
+
+        const bounds = findContentBounds(imageData);
+        const croppedCanvas = document.createElement('canvas');
+        croppedCanvas.width = bounds.right - bounds.left;
+        croppedCanvas.height = bounds.bottom - bounds.top;
+        const croppedContext = croppedCanvas.getContext('2d');
+        croppedContext.drawImage(canvas, bounds.left, bounds.top, croppedCanvas.width, croppedCanvas.height, 0, 0, croppedCanvas.width, croppedCanvas.height);
+
+        const dataUrl = croppedCanvas.toDataURL('image/png');
+
+        processedImages.push({
+            name: `page_${pageNumber}.png`,
+            dataUrl: dataUrl
+        });
+
+        return false;
+    }
+
+    function showImage(index) {
+        if (processedImages.length === 0) return;
+
+        currentImage.src = processedImages[index].dataUrl;
+        currentImage.alt = `Página ${index + 1}`;
+
+        prevButton.disabled = (index === 0);
+        nextButton.disabled = (index === processedImages.length - 1);
+    }
+
+    prevButton.addEventListener('click', () => {
+        if (currentIndex > 0) {
+            currentIndex--;
+            showImage(currentIndex);
+        }
+    });
+
+    nextButton.addEventListener('click', () => {
+        if (currentIndex < processedImages.length - 1) {
+            currentIndex++;
+            showImage(currentIndex);
+        }
+    });
+
+    // Al hacer clic en la imagen, copiarla y pasar a la siguiente
+    currentImage.addEventListener('click', async () => {
+        try {
+            const dataUrl = processedImages[currentIndex].dataUrl;
+            const blob = await (await fetch(dataUrl)).blob();
+            const clipboardItem = new ClipboardItem({ [blob.type]: blob });
+            await navigator.clipboard.write([clipboardItem]);
+            console.log('Imagen copiada al portapapeles.');
+
+            // Mover a la siguiente imagen si existe
+            if (currentIndex < processedImages.length - 1) {
+                currentIndex++;
+                showImage(currentIndex);
+            }
+        } catch (error) {
+            console.error('Error al copiar la imagen:', error);
+        }
+    });
+
+    function isPageBlank(imageData) {
+        const { data, width, height } = imageData;
+        const threshold = 245;
+        const sampleSize = 100;
+        const totalPixels = width * height;
+        let whitePixels = 0;
+
+        for (let i = 0; i < sampleSize; i++) {
+            const randomPixel = Math.floor(Math.random() * totalPixels);
+            const index = randomPixel * 4;
+            if (data[index] > threshold && data[index + 1] > threshold && data[index + 2] > threshold) {
+                whitePixels++;
+            }
+        }
+
+        return (whitePixels / sampleSize) > 0.98;
+    }
+
+    function findContentBounds(imageData) {
+        const { data, width, height } = imageData;
+        const initialMargin = parseInt(marginInput.value);
+
+        let left = width, top = height, right = 0, bottom = 0;
+        const threshold = 200;
+
+        for (let y = initialMargin; y < height - initialMargin; y++) {
+            for (let x = initialMargin; x < width - initialMargin; x++) {
+                const i = (y * width + x) * 4;
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                
+                if (r < threshold || g < threshold || b < threshold) {
+                    left = Math.min(left, x);
+                    top = Math.min(top, y);
+                    right = Math.max(right, x);
+                    bottom = Math.max(bottom, y);
+                }
+            }
+        }
+
+        const margin = 5;
+        return {
+            left: Math.max(initialMargin, left - margin),
+            top: Math.max(initialMargin, top - margin),
+            right: Math.min(width - initialMargin, right + margin),
+            bottom: Math.min(height - initialMargin, bottom + margin)
+        };
+    }
+
+    async function downloadAllImages() {
+        const zip = new JSZip();
+
+        processedImages.forEach(image => {
+            const base64Data = image.dataUrl.split(',')[1];
+            zip.file(image.name, base64Data, { base64: true });
+        });
+
+        const content = await zip.generateAsync({ type: 'blob' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(content);
+        link.download = 'extracted_images.zip';
+        link.click();
+    }
+
+    downloadAllButton.addEventListener('click', downloadAllImages);
+</script>
+</body>
+</html>
