@@ -100,7 +100,7 @@ function cargarDatos() {
 function verificarIntegridadDatos() {
     recibos.forEach(recibo => {
         if (!recibo.direccionInmueble) {
-            const propiedad = propiedades.find(p => p.codigo === recibo.numeroRecibo.substring(0, 4));
+            const propiedad = propiedades.find(p => p.codigo === recibo.numeroRecibo.substring(0, 5));
             if (propiedad) {
                 recibo.direccionInmueble = propiedad.direccion;
                 console.log(`Corregida dirección para recibo ${recibo.numeroRecibo}`);
