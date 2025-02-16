@@ -1,7 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <!-- Asegura que el archivo se guarde en UTF-8 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aplicación Unificada: Generar Acta & Extractor PDF</title>
     <style>
@@ -202,7 +203,13 @@
         <div id="actaGenerada" style="display:none;">
             <h1>ACTA DE INSTRUCCIÓN</h1>
             <p>Lugar: ESTACIÓN DE POLICÍA BARRIOS UNIDOS</p>
-            <p id="primerParrafo">LA INSTRUCCIÓN DIRIGIDA POR PARTE DEL SEÑOR <span id="actaGrado"></span>, <span id="actaCargo"></span>, AL PERSONAL QUE CONFORMA LA ESTACIÓN DE POLICÍA BARRIOS UNIDOS, SOBRE <span id="articuloTema">EL</span> <span id="actaTema"></span>.</p>
+            <p id="primerParrafo">
+                LA INSTRUCCIÓN DIRIGIDA POR PARTE DEL SEÑOR 
+                <span id="actaGrado"></span>, 
+                <span id="actaCargo"></span>, 
+                AL PERSONAL QUE CONFORMA LA ESTACIÓN DE POLICÍA BARRIOS UNIDOS, 
+                SOBRE <span id="articuloTema">EL</span> <span id="actaTema"></span>.
+            </p>
             <br>
             <h3>ORDEN DEL DÍA</h3>
             <ol>
@@ -213,10 +220,23 @@
             </ol>
             <br>
             <h3>DESARROLLO</h3>
-            <p>Se realiza instrucción al personal adscrito a la Estación de Policía Barrios Unidos por parte del señor <span id="actaGrado2"></span>, <span id="actaCargo2"></span>, a quienes se les socializan los lineamientos sobre <span id="articuloTema2">el</span> <span id="actaTema2"></span>.</p>
+            <p>
+                Se realiza instrucción al personal adscrito a la Estación de Policía Barrios Unidos 
+                por parte del señor <span id="actaGrado2"></span>, <span id="actaCargo2"></span>, 
+                a quienes se les socializan los lineamientos sobre 
+                <span id="articuloTema2">el</span> <span id="actaTema2"></span>.
+            </p>
             <br>
             <h3>1. Verificación de asistentes</h3>
-            <p>Se verifica la asistencia del personal adscrito a la unidad y se constata la compatibilidad de los correos electrónicos del personal que integra la Estación de Policía Barrios Unidos. Dejando constancia que la presente acta de instrucción se surtirá presencialmente, por correo electrónico y a través del Sistema de Información Gestor de Documentos Policiales, en virtud a lo dispuesto en el Art. 103 del Código General del Proceso -- Uso de las tecnologías de la información y de las comunicaciones, Ley 527 del 18 de agosto de 1999, Ley 794 del 01 de agosto de 2003 y la Ley 962 del 08 de julio de 2005.</p>
+            <p>
+                Se verifica la asistencia del personal adscrito a la unidad y se constata la compatibilidad 
+                de los correos electrónicos del personal que integra la Estación de Policía Barrios Unidos. 
+                Dejando constancia que la presente acta de instrucción se surtirá presencialmente, por correo 
+                electrónico y a través del Sistema de Información Gestor de Documentos Policiales, en virtud 
+                a lo dispuesto en el Art. 103 del Código General del Proceso -- Uso de las tecnologías de la 
+                información y de las comunicaciones, Ley 527 del 18 de agosto de 1999, Ley 794 del 01 de agosto 
+                de 2003 y la Ley 962 del 08 de julio de 2005.
+            </p>
             <br>
             <h3>2. Lectura del acta anterior</h3>
             <p>(NO APLICA)</p>
@@ -271,7 +291,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js"></script>
 <script>
     // ------------------------------
-    // Lógica Pestañas
+    // Lógica de Pestañas
     // ------------------------------
     const tabActa = document.getElementById('tabActa');
     const tabPdf = document.getElementById('tabPdf');
@@ -295,7 +315,7 @@
     });
 
     // ------------------------------
-    // Funciones Generar Acta
+    // Funciones para Generar Acta
     // ------------------------------
     function saveToLocalStorage(data) {
         localStorage.setItem('actaData', JSON.stringify(data));
@@ -377,7 +397,8 @@
     const prevButton = document.getElementById('prevButton');
     const nextButton = document.getElementById('nextButton');
 
-    let processedImages = [];
+    let singlePageImages = []; // Aquí guardaremos todas las páginas procesadas individualmente
+    let processedImages = [];  // Aquí guardaremos las imágenes finales (individuales o collages)
     let currentIndex = 0;
 
     dropZone.addEventListener('click', () => fileInput.click());
@@ -423,6 +444,7 @@
     async function processPDF(pdf) {
         output.textContent = 'Procesando PDF...';
         imageContainer.style.display = 'none';
+        singlePageImages = [];
         processedImages = [];
         currentIndex = 0;
         downloadAllButton.style.display = 'none';
@@ -442,6 +464,30 @@
                 output.textContent = `Procesando página ${i} de ${numPages}...`;
             }
 
+            // Agrupar o no, según número de páginas
+            if (singlePageImages.length < 4) {
+                // Si el documento tiene menos de 4 páginas con contenido
+                processedImages = singlePageImages;
+            } else {
+                // Agrupar de 4 en 4 y dejar el sobrante individual
+                let index = 0;
+                while (index < singlePageImages.length) {
+                    let remaining = singlePageImages.length - index;
+                    if (remaining >= 4) {
+                        // Tomar 4 imágenes y convertirlas en collage
+                        const group = singlePageImages.slice(index, index + 4);
+                        const collage = await createCollageOfFour(group);
+                        processedImages.push(collage);
+                        index += 4;
+                    } else {
+                        // Menos de 4: dejarlas individuales
+                        const leftover = singlePageImages.slice(index);
+                        processedImages.push(...leftover);
+                        break;
+                    }
+                }
+            }
+
             stats.textContent = `Páginas procesadas: ${processedPages}, Páginas en blanco omitidas: ${blankPages}`;
             output.textContent = 'Proceso completado. Todas las imágenes han sido generadas.';
             downloadAllButton.style.display = 'block';
@@ -459,6 +505,7 @@
         }
     }
 
+    // Procesa cada página: la renderiza y genera un DataURL
     async function processPage(pdf, pageNumber) {
         const page = await pdf.getPage(pageNumber);
         const scale = 3; 
@@ -472,31 +519,39 @@
         const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
         if (isPageBlank(imageData)) {
-            return true;
+            return true; // Página en blanco
         }
 
+        // Encontrar el área con contenido
         const bounds = findContentBounds(imageData);
+        // Recortar el área con contenido
         const croppedCanvas = document.createElement('canvas');
         croppedCanvas.width = bounds.right - bounds.left;
         croppedCanvas.height = bounds.bottom - bounds.top;
         const croppedContext = croppedCanvas.getContext('2d');
-        croppedContext.drawImage(canvas, bounds.left, bounds.top, croppedCanvas.width, croppedCanvas.height, 0, 0, croppedCanvas.width, croppedCanvas.height);
+        croppedContext.drawImage(
+            canvas, 
+            bounds.left, bounds.top, 
+            croppedCanvas.width, croppedCanvas.height, 
+            0, 0, 
+            croppedCanvas.width, croppedCanvas.height
+        );
 
         const dataUrl = croppedCanvas.toDataURL('image/png');
-
-        processedImages.push({
+        // Guardamos esta imagen individual en singlePageImages
+        singlePageImages.push({
             name: `page_${pageNumber}.png`,
             dataUrl: dataUrl
         });
 
-        return false;
+        return false; // No está en blanco
     }
 
     function showImage(index) {
         if (processedImages.length === 0) return;
 
         currentImage.src = processedImages[index].dataUrl;
-        currentImage.alt = `Página ${index + 1}`;
+        currentImage.alt = processedImages[index].name || `Imagen ${index + 1}`;
 
         prevButton.disabled = (index === 0);
         nextButton.disabled = (index === processedImages.length - 1);
@@ -516,7 +571,7 @@
         }
     });
 
-    // Al hacer clic en la imagen, copiarla y pasar a la siguiente
+    // Al hacer clic en la imagen, se copia al portapapeles y pasa a la siguiente
     currentImage.addEventListener('click', async () => {
         try {
             const dataUrl = processedImages[currentIndex].dataUrl;
@@ -535,6 +590,7 @@
         }
     });
 
+    // Determina si una página está en blanco analizando pixeles aleatorios
     function isPageBlank(imageData) {
         const { data, width, height } = imageData;
         const threshold = 245;
@@ -553,6 +609,7 @@
         return (whitePixels / sampleSize) > 0.98;
     }
 
+    // Encuentra la zona donde hay contenido para recortar
     function findContentBounds(imageData) {
         const { data, width, height } = imageData;
         const initialMargin = parseInt(marginInput.value);
@@ -585,12 +642,65 @@
         };
     }
 
+    // Crea un collage de 4 imágenes en un lienzo tamaño carta (1275x1650),
+    // acomodando cada imagen en un cuadrante de ~637x825 px
+    async function createCollageOfFour(imagesGroup) {
+        // Dimensiones aproximadas de hoja carta
+        const collageWidth = 1275;
+        const collageHeight = 1650;
+
+        // Crear canvas para el collage
+        const collageCanvas = document.createElement('canvas');
+        collageCanvas.width = collageWidth;
+        collageCanvas.height = collageHeight;
+        const collageContext = collageCanvas.getContext('2d');
+
+        // Cada cuadrante
+        const quadrantWidth = collageWidth / 2;
+        const quadrantHeight = collageHeight / 2;
+
+        // Para cada una de las 4 imágenes
+        for (let i = 0; i < 4; i++) {
+            const imgData = imagesGroup[i];
+            if (!imgData) break; // Por si no hay 4
+
+            const imageEl = new Image();
+            await new Promise((resolve) => {
+                imageEl.onload = resolve;
+                imageEl.src = imgData.dataUrl;
+            });
+
+            // Calcular posición (fila y columna)
+            const row = Math.floor(i / 2);
+            const col = i % 2;
+            const dx = col * quadrantWidth;
+            const dy = row * quadrantHeight;
+
+            // Dibujar escalando la imagen al espacio del cuadrante
+            collageContext.drawImage(
+                imageEl,
+                0, 0, imageEl.width, imageEl.height, // recorte completo
+                dx, dy, quadrantWidth, quadrantHeight // destino en collage
+            );
+        }
+
+        // Retornar la imagen tipo "collage"
+        return {
+            name: 'collage.png',
+            dataUrl: collageCanvas.toDataURL('image/png')
+        };
+    }
+
     async function downloadAllImages() {
         const zip = new JSZip();
 
         processedImages.forEach(image => {
             const base64Data = image.dataUrl.split(',')[1];
-            zip.file(image.name, base64Data, { base64: true });
+            let fileName = image.name;
+            if (!fileName) {
+                fileName = 'collage_' + Math.floor(Math.random() * 100000) + '.png';
+            }
+            zip.file(fileName, base64Data, { base64: true });
         });
 
         const content = await zip.generateAsync({ type: 'blob' });
