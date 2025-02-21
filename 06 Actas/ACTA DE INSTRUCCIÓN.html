@@ -153,7 +153,7 @@
             cursor: pointer; /* Indica que se puede hacer clic */
         }
 
-        /* Grupo de íconos (reemplazados por recuadros) */
+        /* Grupo de recuadros (reemplazo de íconos) */
         .icon-group {
             display: flex;
             align-items: center;
@@ -314,8 +314,11 @@
         <div id="suggestion"></div>
 
         <div class="input-group">
-            <label for="marginInput">Margen sugerido para recorte (píxeles):</label>
-            <input type="number" id="marginInput" value="30" min="0" max="100">
+            <label for="marginRange">
+                Margen sugerido para recorte (píxeles): 
+                <span id="rangeValue">30</span>
+            </label>
+            <input type="range" id="marginRange" value="30" min="0" max="200" step="1">
         </div>
 
         <!-- Modo de agrupación: 1 hoja o 4 hojas -->
@@ -361,6 +364,7 @@
     </section>
 </main>
 
+<!-- Librerías externas: pdf.js y JSZip -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js"></script>
@@ -460,7 +464,6 @@
 
     const fileInput = document.getElementById('fileInput');
     const dropZone = document.getElementById('dropZone');
-    const marginInput = document.getElementById('marginInput');
     const processButton = document.getElementById('processButton');
     const output = document.getElementById('output');
     const suggestion = document.getElementById('suggestion');
@@ -468,6 +471,12 @@
     const imageContainer = document.getElementById('imageContainer');
     const currentImage = document.getElementById('currentImage');
     const downloadAllButton = document.getElementById('downloadAll');
+
+    const marginRange = document.getElementById('marginRange');
+    const rangeValueSpan = document.getElementById('rangeValue');
+    marginRange.addEventListener('input', () => {
+        rangeValueSpan.textContent = marginRange.value;
+    });
 
     const prevButton = document.getElementById('prevButton');
     const nextButton = document.getElementById('nextButton');
@@ -543,23 +552,22 @@
                 output.textContent = `Procesando página ${i} de ${numPages}...`;
             }
 
-            // Si es modo 1: simplemente tomamos cada página individual
+            // Si es modo 1: se añaden las imágenes individuales tal cual
             if (pagesMode === 1) {
                 processedImages = singlePageImages;
 
-            // Si es modo 4: agrupamos de 4 en 4
+            // Si es modo 4: se agrupan en collages de 4
             } else if (pagesMode === 4) {
                 let index = 0;
                 while (index < singlePageImages.length) {
-                    let remaining = singlePageImages.length - index;
+                    const remaining = singlePageImages.length - index;
                     if (remaining >= 4) {
-                        // Tomar 4 imágenes y convertirlas en collage
                         const group = singlePageImages.slice(index, index + 4);
                         const collage = await createCollageOfFour(group);
                         processedImages.push(collage);
                         index += 4;
                     } else {
-                        // Si sobran < 4, se agregan individualmente
+                        // si sobran < 4, se añaden individualmente
                         const leftover = singlePageImages.slice(index);
                         processedImages.push(...leftover);
                         break;
@@ -584,7 +592,7 @@
         }
     }
 
-    // Procesa cada página: la renderiza y genera un DataURL
+    // Procesa cada página y genera un DataURL
     async function processPage(pdf, pageNumber) {
         const page = await pdf.getPage(pageNumber);
         const scale = 3; 
@@ -618,7 +626,7 @@
         );
 
         const dataUrl = croppedCanvas.toDataURL('image/png');
-        // Guardamos esta imagen individual en singlePageImages
+        // Guardamos esta imagen individual
         singlePageImages.push({
             name: `page_${pageNumber}.png`,
             dataUrl: dataUrl
@@ -627,7 +635,7 @@
         return false; // No está en blanco
     }
 
-    // Determina si una página está en blanco analizando pixeles aleatorios
+    // Determina si una página está en blanco mediante muestreo aleatorio de pixeles
     function isPageBlank(imageData) {
         const { data, width, height } = imageData;
         const threshold = 245;
@@ -646,13 +654,14 @@
         return (whitePixels / sampleSize) > 0.98;
     }
 
-    // Encuentra la zona donde hay contenido para recortar
+    // Encuentra la zona con contenido para recortar
     function findContentBounds(imageData) {
         const { data, width, height } = imageData;
-        const initialMargin = parseInt(marginInput.value);
+        const initialMargin = parseInt(marginRange.value);
 
         let left = width, top = height, right = 0, bottom = 0;
         const threshold = 200;
+        const extraMargin = 5;
 
         for (let y = initialMargin; y < height - initialMargin; y++) {
             for (let x = initialMargin; x < width - initialMargin; x++) {
@@ -661,7 +670,7 @@
                 const g = data[i + 1];
                 const b = data[i + 2];
                 
-                // Detectar pixeles oscuros para delimitar el contenido
+                // Detectar pixeles "oscuros"
                 if (r < threshold || g < threshold || b < threshold) {
                     left = Math.min(left, x);
                     top = Math.min(top, y);
@@ -671,12 +680,11 @@
             }
         }
 
-        const margin = 5;
         return {
-            left: Math.max(initialMargin, left - margin),
-            top: Math.max(initialMargin, top - margin),
-            right: Math.min(width - initialMargin, right + margin),
-            bottom: Math.min(height - initialMargin, bottom + margin)
+            left: Math.max(initialMargin, left - extraMargin),
+            top: Math.max(initialMargin, top - extraMargin),
+            right: Math.min(width - initialMargin, right + extraMargin),
+            bottom: Math.min(height - initialMargin, bottom + extraMargin)
         };
     }
 
@@ -700,7 +708,6 @@
                 imageEl.onload = resolve;
                 imageEl.src = imageData.dataUrl;
             });
-            // Calculamos la posición
             const row = Math.floor(i / 2);
             const col = i % 2;
             const dx = col * quadrantWidth;
@@ -752,7 +759,6 @@
             await navigator.clipboard.write([clipboardItem]);
             console.log('Imagen copiada al portapapeles.');
 
-            // Mover a la siguiente imagen si existe
             if (currentIndex < processedImages.length - 1) {
                 currentIndex++;
                 showImage(currentIndex);
