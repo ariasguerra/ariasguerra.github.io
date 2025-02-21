@@ -45,7 +45,7 @@ function cargarDatos() {
     console.log('Iniciando carga de datos...');
     propiedades = JSON.parse(localStorage.getItem('propiedades')) || [];
     arrendatarios = JSON.parse(localStorage.getItem('arrendatarios')) || [];
-    
+    recibos = JSON.parse(localStorage.getItem('recibos')) || [];
 
     const promesas = [];
 
