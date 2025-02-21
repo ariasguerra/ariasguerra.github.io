@@ -1,16 +1,9 @@
-/********************************************
- * script.js
- ********************************************/
-
 let propiedades = [];
 let arrendatarios = [];
 let recibos = [];
 let reciboActual = null;
 
-/**
- * Convierte un número entero a palabras en español (función básica).
- * Abarca hasta miles. Para números más grandes, habría que expandirla.
- */
+// Función para convertir números a palabras en español
 function numeroALetras(numero) {
     const unidades = ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
     const decenas = ['diez', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
@@ -35,60 +28,27 @@ function numeroALetras(numero) {
         const resto = numero % 1000;
         return (miles === 1 ? 'mil' : numeroALetras(miles) + ' mil') + (resto ? ' ' + numeroALetras(resto) : '');
     }
-    // Para números más grandes, se puede continuar la lógica.
+    // Puedes continuar para números más grandes si es necesario
 }
 
-/**
- * Ajusta la hora según la zona horaria y devuelve la fecha con formato "día de mes de año" en español.
- */
+// Función para formatear fechas
 function formatearFecha(fecha) {
     const fechaAjustada = new Date(fecha);
-    // Ajusta según offset de zona horaria
     fechaAjustada.setMinutes(fechaAjustada.getMinutes() + fechaAjustada.getTimezoneOffset());
     
     const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
     return fechaAjustada.toLocaleDateString('es-ES', opciones);
 }
 
-/**
- * Función de fusión (merge) para los recibos.
- * - Conserva los que estén solo en local.
- * - Agrega los que estén solo en el JSON.
- * - Sobrescribe con la versión del JSON si coinciden en numeroRecibo.
- */
-function mergeRecibos(localRecibos, serverRecibos) {
-    const merged = [...localRecibos];
-    serverRecibos.forEach(serverItem => {
-        const existingIndex = merged.findIndex(
-            localItem => localItem.numeroRecibo === serverItem.numeroRecibo
-        );
-        if (existingIndex === -1) {
-            // Si no existe en local, lo agregamos
-            merged.push(serverItem);
-        } else {
-            // Si existe, se sobrescribe con la versión del JSON (prioridad JSON)
-            merged[existingIndex] = serverItem;
-        }
-    });
-    return merged;
-}
-
-/**
- * Carga los datos desde localStorage o desde los archivos JSON.
- * Se hace un merge para 'recibos': local vs JSON, dando prioridad al JSON.
- */
+// Función para cargar datos desde localStorage o desde archivos JSON
 function cargarDatos() {
     console.log('Iniciando carga de datos...');
-
-    // 1) Cargar de localStorage (si hay)
     propiedades = JSON.parse(localStorage.getItem('propiedades')) || [];
     arrendatarios = JSON.parse(localStorage.getItem('arrendatarios')) || [];
     recibos = JSON.parse(localStorage.getItem('recibos')) || [];
 
-    // 2) Preparar promesas para fetch
     const promesas = [];
 
-    // Si no hay propiedades en localStorage, las traemos del JSON
     if (propiedades.length === 0) {
         promesas.push(
             fetch('propiedades.json')
@@ -102,7 +62,6 @@ function cargarDatos() {
         );
     }
 
-    // Si no hay arrendatarios en localStorage, los traemos del JSON
     if (arrendatarios.length === 0) {
         promesas.push(
             fetch('arrendatarios.json')
@@ -116,36 +75,28 @@ function cargarDatos() {
         );
     }
 
-    // Siempre hacemos fetch de 'recibos.json' para mezclar
-    promesas.push(
-        fetch('recibos.json')
-            .then(response => response.json())
-            .then(serverRecibos => {
-                // Hacemos merge: local tiene X, servidor(archivo) tiene Y
-                // Damos prioridad a lo que viene del JSON en caso de repetición
-                recibos = mergeRecibos(recibos, serverRecibos);
-                localStorage.setItem('recibos', JSON.stringify(recibos));
-                console.log('Recibos cargados (tras merge):', recibos);
-            })
-            .catch(error => console.error('Error al cargar recibos:', error))
-    );
+    if (recibos.length === 0) {
+        promesas.push(
+            fetch('recibos.json')
+                .then(response => response.json())
+                .then(data => {
+                    recibos = data;
+                    localStorage.setItem('recibos', JSON.stringify(recibos));
+                    console.log('Recibos cargados:', recibos);
+                })
+                .catch(error => console.error('Error al cargar recibos:', error))
+        );
+    }
 
-    // 3) Una vez terminan todas las promesas, se llama a cargar la UI
-    Promise.all(promesas)
-        .then(() => {
-            console.log('Todos los datos cargados. Iniciando carga de UI...');
-            verificarIntegridadDatos();
-            cargarPropiedades();
-            cargarArrendatarios();
-            cargarRecibos();
-        })
-        .catch(error => console.error('Error durante la carga de datos:', error));
+    Promise.all(promesas).then(() => {
+        console.log('Todos los datos cargados. Iniciando carga de UI...');
+        verificarIntegridadDatos();
+        cargarPropiedades();
+        cargarArrendatarios();
+        cargarRecibos();
+    }).catch(error => console.error('Error durante la carga de datos:', error));
 }
 
-/**
- * Verifica la integridad de los datos de los recibos.
- * Por ejemplo, si falta 'direccionInmueble', lo corrige basándose en el código.
- */
 function verificarIntegridadDatos() {
     recibos.forEach(recibo => {
         if (!recibo.direccionInmueble) {
@@ -161,9 +112,6 @@ function verificarIntegridadDatos() {
     guardarRecibos();
 }
 
-/**
- * Carga la lista de propiedades en el <select> del formulario.
- */
 function cargarPropiedades() {
     const select = document.getElementById('seleccionPropiedad');
     select.innerHTML = '<option value="">Seleccione una propiedad</option>';
@@ -174,13 +122,10 @@ function cargarPropiedades() {
         select.appendChild(option);
     });
     
-    // Evento para autocompletar arrendatario y monto al cambiar de propiedad
+    // Añadir evento para cargar arrendatario y monto automáticamente
     select.addEventListener('change', cargarUltimoArrendatarioYMonto);
 }
 
-/**
- * Carga la lista de arrendatarios en el <select>.
- */
 function cargarArrendatarios() {
     const select = document.getElementById('seleccionArrendatario');
     select.innerHTML = '<option value="">Seleccione un arrendatario</option>';
@@ -192,10 +137,6 @@ function cargarArrendatarios() {
     });
 }
 
-/**
- * Carga el historial de recibos y los agrupa por inmueble.
- * Muestra el último recibo de cada inmueble y permite 'Ver más'.
- */
 function cargarRecibos() {
     const listaRecibos = document.getElementById('listaRecibos');
     listaRecibos.innerHTML = '';
@@ -218,7 +159,6 @@ function cargarRecibos() {
     // Mostrar el último recibo por inmueble
     Object.keys(recibosPorInmueble).forEach(direccion => {
         const propiedadRecibos = recibosPorInmueble[direccion];
-        // Ordenar descendente por fecha de pago
         propiedadRecibos.sort((a, b) => new Date(b.fechaPago) - new Date(a.fechaPago));
 
         const seccionInmueble = document.createElement('div');
@@ -235,9 +175,7 @@ function cargarRecibos() {
             const botonVerMas = document.createElement('button');
             botonVerMas.textContent = 'Ver más';
             botonVerMas.classList.add('boton-ver-mas');
-            botonVerMas.addEventListener('click', () =>
-                mostrarTodosLosRecibos(direccion, propiedadRecibos, seccionInmueble)
-            );
+            botonVerMas.addEventListener('click', () => mostrarTodosLosRecibos(direccion, propiedadRecibos, seccionInmueble));
             seccionInmueble.appendChild(botonVerMas);
         }
 
@@ -245,9 +183,6 @@ function cargarRecibos() {
     });
 }
 
-/**
- * Muestra todos los recibos de un inmueble.
- */
 function mostrarTodosLosRecibos(direccion, propiedadRecibos, seccionInmueble) {
     // Eliminar los recibos existentes y el botón "Ver más"
     while (seccionInmueble.children.length > 1) {
@@ -268,9 +203,6 @@ function mostrarTodosLosRecibos(direccion, propiedadRecibos, seccionInmueble) {
     seccionInmueble.appendChild(botonVerMenos);
 }
 
-/**
- * Crea el elemento en pantalla (div) que representa un recibo.
- */
 function crearElementoRecibo(recibo) {
     const elementoRecibo = document.createElement('div');
     elementoRecibo.classList.add('recibo');
@@ -290,16 +222,18 @@ function crearElementoRecibo(recibo) {
     return elementoRecibo;
 }
 
-/**
- * Autocompleta el formulario según el último recibo de la propiedad seleccionada.
- */
+
+
+
+
 function cargarUltimoArrendatarioYMonto() {
     const codigoPropiedad = document.getElementById('seleccionPropiedad').value;
+    
     // Filtrar recibos por la propiedad seleccionada
     const recibosPropiedad = recibos.filter(r => r.numeroRecibo.startsWith(codigoPropiedad));
     
     if (recibosPropiedad.length > 0) {
-        // Obtener el último recibo según el array actual
+        // Obtener el último recibo de la propiedad
         const ultimoRecibo = recibosPropiedad[recibosPropiedad.length - 1];
         
         // Cargar datos del último arrendatario
@@ -311,12 +245,12 @@ function cargarUltimoArrendatarioYMonto() {
         // Cargar el monto del último recibo
         document.getElementById('monto').value = ultimoRecibo.montoPagado;
         
-        // Calcular la nueva fecha de inicio (1 día después de la fechaFin del último recibo)
+        // Calcular la nueva fecha de inicio (1 día después de la fecha de fin del último recibo)
         const fechaFinAnterior = new Date(ultimoRecibo.periodoFin);
         const nuevaFechaInicio = new Date(fechaFinAnterior);
         nuevaFechaInicio.setDate(fechaFinAnterior.getDate() + 1);
         
-        // Calcular la nueva fecha de fin (un mes después del inicio)
+        // Calcular la nueva fecha de fin
         const nuevaFechaFin = new Date(nuevaFechaInicio);
         nuevaFechaFin.setMonth(nuevaFechaFin.getMonth() + 1);
         nuevaFechaFin.setDate(nuevaFechaFin.getDate() - 1);
@@ -333,13 +267,16 @@ function cargarUltimoArrendatarioYMonto() {
     }
 }
 
-/**
- * Genera el siguiente número de recibo para una propiedad dada (siempre y cuando no se edite uno existente).
- */
+
+
+
+
+
+
+
 function obtenerSiguienteNumeroRecibo(direccionInmueble) {
     const recibosPropiedad = recibos.filter(r => r.direccionInmueble === direccionInmueble);
     if (recibosPropiedad.length > 0) {
-        // Tomar el último recibo y aumentar en 1
         const ultimoRecibo = recibosPropiedad[recibosPropiedad.length - 1];
         const codigoPropiedad = ultimoRecibo.numeroRecibo.substring(0, 4);
         const ultimoNumero = parseInt(ultimoRecibo.numeroRecibo.slice(-3));
@@ -350,9 +287,6 @@ function obtenerSiguienteNumeroRecibo(direccionInmueble) {
     }
 }
 
-/**
- * Evento 'submit' para crear/editar recibo.
- */
 document.getElementById('formularioRecibo').addEventListener('submit', function(e) {
     e.preventDefault();
     
@@ -392,13 +326,13 @@ document.getElementById('formularioRecibo').addEventListener('submit', function(
     };
 
     if (reciboActual) {
-        // Editando un recibo existente
+        // Estamos editando un recibo existente
         const index = recibos.findIndex(r => r.numeroRecibo === reciboActual.numeroRecibo);
         if (index > -1) {
             recibos[index] = recibo;
         }
     } else {
-        // Creando un nuevo recibo
+        // Estamos creando un nuevo recibo
         recibos.push(recibo);
     }
 
@@ -409,17 +343,15 @@ document.getElementById('formularioRecibo').addEventListener('submit', function(
     cambiarSeccion('seccionRecibo');
 });
 
-/**
- * Muestra el recibo generado (HTML) en la sección correspondiente.
- */
 function mostrarReciboGenerado(recibo) {
     const reciboGenerado = document.getElementById('reciboGenerado');
     reciboGenerado.innerHTML = generarHTMLRecibo(recibo);
 }
 
-/**
- * Devuelve el HTML para un recibo concreto, con su maquetado.
- */
+
+
+
+
 function generarHTMLRecibo(recibo) {
     return `
         <div class="recibo-contenedor">
@@ -463,9 +395,13 @@ function generarHTMLRecibo(recibo) {
     `;
 }
 
-/**
- * Al cargar datos para editar un recibo, rellenamos el formulario.
- */
+
+
+
+
+
+
+
 function cargarDatosParaEdicion(recibo) {
     document.getElementById('seleccionPropiedad').value = recibo.numeroRecibo.substring(0, 4);
     document.getElementById('seleccionArrendatario').value = arrendatarios.find(a => a.nombre === recibo.nombreArrendatario).id;
@@ -477,19 +413,14 @@ function cargarDatosParaEdicion(recibo) {
     document.getElementById('fechaFin').value = recibo.periodoFin;
 }
 
-/**
- * Guarda en localStorage el array 'recibos' actual.
- */
 function guardarRecibos() {
     localStorage.setItem('recibos', JSON.stringify(recibos));
 }
 
-// Botón para imprimir el recibo
 document.getElementById('botonImprimir').addEventListener('click', function() {
     window.print();
 });
 
-// Botón para editar el recibo actual
 document.getElementById('botonEditar').addEventListener('click', function() {
     if (reciboActual) {
         cargarDatosParaEdicion(reciboActual);
@@ -497,7 +428,6 @@ document.getElementById('botonEditar').addEventListener('click', function() {
     }
 });
 
-// Botón para eliminar el recibo actual
 document.getElementById('botonEliminar').addEventListener('click', function() {
     if (reciboActual && confirm('¿Está seguro de que desea eliminar este recibo? Esta acción no se puede deshacer.')) {
         const index = recibos.findIndex(r => r.numeroRecibo === reciboActual.numeroRecibo);
@@ -511,14 +441,12 @@ document.getElementById('botonEliminar').addEventListener('click', function() {
     }
 });
 
-// Botón para crear nuevo recibo
 document.getElementById('botonNuevoRecibo').addEventListener('click', function() {
     reciboActual = null;
     document.getElementById('formularioRecibo').reset();
     cambiarSeccion('seccionFormulario');
 });
 
-// Exportar a JSON
 document.getElementById('botonExportar').addEventListener('click', function() {
     const datosJSON = JSON.stringify(recibos, null, 2);
     const blob = new Blob([datosJSON], { type: 'application/json' });
@@ -534,9 +462,6 @@ document.getElementById('botonExportar').addEventListener('click', function() {
     URL.revokeObjectURL(url);
 });
 
-/**
- * Muestra/oculta las secciones de la interfaz según el 'seccionId'.
- */
 function cambiarSeccion(seccionId) {
     document.getElementById('seccionFormulario').style.display = 'none';
     document.getElementById('seccionRecibo').style.display = 'none';
@@ -544,9 +469,6 @@ function cambiarSeccion(seccionId) {
     document.getElementById(seccionId).style.display = 'block';
 }
 
-/**
- * Manejo de la navegación principal (Formulario, Recibo, Historial).
- */
 document.getElementById('navFormulario').addEventListener('click', function(e) {
     e.preventDefault();
     cambiarSeccion('seccionFormulario');
@@ -567,9 +489,7 @@ document.getElementById('navHistorial').addEventListener('click', function(e) {
     cambiarSeccion('seccionHistorial');
 });
 
-/**
- * Inicializa la aplicación al cargar la ventana.
- */
+// Inicializar la aplicación
 function inicializarApp() {
     console.log('Inicializando aplicación...');
     cargarDatos();
@@ -577,5 +497,5 @@ function inicializarApp() {
     console.log('Aplicación inicializada.');
 }
 
+// Cargar datos al iniciar la aplicación
 window.addEventListener('load', inicializarApp);
-
