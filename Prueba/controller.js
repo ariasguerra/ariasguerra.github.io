@@ -16,6 +16,12 @@ const AppController = (function(model, ui, utils) {
             PersonalSummary.setContacts(contacts);
             PersonalSummary.updateSummary();
             
+            // Inicializar y actualizar el gráfico
+            PersonalChart.initialize();
+            PersonalChart.setupFilterButtons();
+            PersonalChart.setupCategoryCounters();
+            PersonalChart.updateChart(getSummaryData());
+            
             // Mostrar el primer contacto
             model.setCurrentIndex(0);
             updateCurrentContactView();
@@ -67,6 +73,9 @@ const AppController = (function(model, ui, utils) {
                 if (contacts && contacts.length > 0) {
                     PersonalSummary.setContacts(contacts);
                     PersonalSummary.updateSummary();
+                    
+                    // Actualizar el gráfico con los nuevos datos
+                    PersonalChart.updateChart(getSummaryData());
                     
                     model.setCurrentIndex(0);
                     updateCurrentContactView();
@@ -141,6 +150,65 @@ const AppController = (function(model, ui, utils) {
         
         ui.displayContact(contact);
         ui.updateNavigation(currentIndex, results.length);
+    }
+    
+    function resetToFirstContact() {
+        if (model.getAllContacts().length > 0) {
+            // Reiniciar resultados a todos los contactos
+            model.searchContacts('');  // Una búsqueda vacía muestra todos
+            model.setCurrentIndex(0);
+            updateCurrentContactView();
+            ui.showMessage("Mostrando todos los contactos", 2000);
+        }
+    }
+    
+    function getSummaryData() {
+        // Esta función obtiene los datos del resumen del personal para el gráfico
+        const summary = {
+            oficiales: {},
+            suboficiales: {},
+            patrulleros: {},
+            patrullerosPolicia: {},
+            auxiliares: {},
+            personalCivil: {}
+        };
+        
+        const contacts = model.getAllContacts();
+        
+        contacts.forEach(contact => {
+            switch(contact.GR) {
+                case 'ST':
+                case 'TE':
+                case 'CT':
+                case 'MY':
+                case 'TC':
+                case 'CR':
+                case 'BG':
+                case 'MG':
+                case 'GR':
+                    summary.oficiales[contact.GR] = (summary.oficiales[contact.GR] || 0) + 1;
+                    break;
+                case 'SI':
+                case 'IT':
+                case 'IJ':
+                    summary.suboficiales[contact.GR] = (summary.suboficiales[contact.GR] || 0) + 1;
+                    break;
+                case 'PT':
+                    summary.patrulleros[contact.GR] = (summary.patrulleros[contact.GR] || 0) + 1;
+                    break;
+                case 'PP':
+                    summary.patrullerosPolicia[contact.GR] = (summary.patrullerosPolicia[contact.GR] || 0) + 1;
+                    break;
+                case 'AP':
+                    summary.auxiliares[contact.GR] = (summary.auxiliares[contact.GR] || 0) + 1;
+                    break;
+                case 'N/U':
+                    summary.personalCivil[contact.GR] = (summary.personalCivil[contact.GR] || 0) + 1;
+                    break;
+            }
+        });
+        
+        return summary;
     }
     
     function handleCall() {
@@ -250,6 +318,8 @@ const AppController = (function(model, ui, utils) {
     }
     
     return {
-        init: init
+        init: init,
+        resetToFirstContact: resetToFirstContact,
+        updateCurrentContactView: updateCurrentContactView
     };
 })(ContactModel, UIController, ContactUtils);
