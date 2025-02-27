@@ -185,9 +185,11 @@ const UIController = (function() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = new SpeechRecognition();
         
+        // Configurar reconocimiento de voz
         recognition.lang = 'es-ES';
         recognition.continuous = false;
         recognition.interimResults = false;
+        recognition.maxAlternatives = 3; // Obtener múltiples alternativas para mejorar precisión
         
         elements.voiceSearchBtn.classList.add('listening');
         
@@ -196,14 +198,19 @@ const UIController = (function() {
         };
         
         recognition.onresult = function(event) {
+            // Obtener el resultado más probable
             const transcript = event.results[0][0].transcript;
-            elements.searchInput.value = transcript;
-            showMessage(`Buscando: "${transcript}"`, 2000);
+            
+            // Limpiar el texto reconocido: eliminar palabras innecesarias
+            const cleanedTranscript = cleanTranscript(transcript);
+            
+            elements.searchInput.value = cleanedTranscript;
+            showMessage(`Buscando: "${cleanedTranscript}"`, 2000);
             
             // Disparar evento personalizado para la búsqueda
             setTimeout(() => {
                 const searchEvent = new CustomEvent('voiceSearchCompleted', {
-                    detail: { searchTerm: transcript }
+                    detail: { searchTerm: cleanedTranscript }
                 });
                 document.dispatchEvent(searchEvent);
             }, 500);
@@ -212,6 +219,7 @@ const UIController = (function() {
         recognition.onerror = function(event) {
             elements.voiceSearchBtn.classList.remove('listening');
             showMessage("Error en reconocimiento de voz", 3000);
+            console.error('Error de reconocimiento de voz:', event.error);
         };
         
         recognition.onend = function() {
@@ -220,6 +228,32 @@ const UIController = (function() {
         };
         
         recognition.start();
+    }
+    
+    // Función para limpiar el texto reconocido
+    function cleanTranscript(transcript) {
+        // Convertir a minúsculas
+        let cleaned = transcript.toLowerCase();
+        
+        // Eliminar palabras comunes que pueden interferir con la búsqueda
+        const wordsToRemove = [
+            'buscar', 'busca', 'búscame', 'buscar a', 'busca a',
+            'encuentra', 'encuentra a', 'quiero ver', 'quiero buscar',
+            'muéstrame', 'muéstrame a', 'dime', 'por favor'
+        ];
+        
+        wordsToRemove.forEach(word => {
+            const regex = new RegExp(`^${word}\\s+`, 'i');
+            cleaned = cleaned.replace(regex, '');
+        });
+        
+        // Eliminar artículos y preposiciones al inicio
+        cleaned = cleaned.replace(/^(el|la|los|las|un|una|unos|unas|de|del)\s+/i, '');
+        
+        // Eliminar signos de puntuación
+        cleaned = cleaned.replace(/[.,;:¿?¡!]/g, '');
+        
+        return cleaned.trim();
     }
     
     function downloadVCard(vCardData, fileName) {
@@ -246,6 +280,7 @@ const UIController = (function() {
         showAddContactModal,
         hideContactModal,
         startVoiceRecognition,
-        downloadVCard
+        downloadVCard,
+        cleanTranscript  // Añadido para posible uso externo
     };
 })();
