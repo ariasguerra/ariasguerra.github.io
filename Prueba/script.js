@@ -40,8 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
     Favorites.loadFavorites();
 
     // Configuración inicial de temas
-    initTheme();
-
     // ======== EVENTOS PRINCIPALES ========
 
     // Carga de archivo JSON
@@ -63,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         PersonalSummary.updateSummary();
                         
                         // Mostrar el primer contacto
+                        filteredContacts = contacts;
                         currentResults = [contacts[0]];
                         currentIndex = 0;
                         displayCurrentContact();
@@ -177,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
     themeToggleBtn.addEventListener('click', toggleTheme);
     viewToggleBtn.addEventListener('click', toggleView);
     favoritesToggleBtn.addEventListener('click', toggleFavorites);
-
+    initTheme();
     // ======== FUNCIONES DE BÚSQUEDA ========
 
     // Búsqueda de contactos
@@ -303,7 +302,6 @@ document.addEventListener('DOMContentLoaded', () => {
         actionButtons.style.display = 'none';
         resetNavigation();
     }
-
     // ======== FUNCIONES DE VISUALIZACIÓN ========
 
     // Mostrar el contacto actual
@@ -505,7 +503,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Volver a mostrar el contacto actual con la nueva vista
         displayCurrentContact();
     }
-
     // ======== FUNCIONES DE UTILIDAD ========
 
     // Cargar contactos del almacenamiento local
