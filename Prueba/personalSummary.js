@@ -68,6 +68,11 @@ const PersonalSummary = (function() {
             acc + Object.values(category).reduce((sum, count) => sum + count, 0), 0);
         document.getElementById('total-count').textContent = total;
 
+        // Actualizar el gráfico si existe el módulo PersonalChart
+        if (typeof PersonalChart !== 'undefined' && PersonalChart.updateChart) {
+            PersonalChart.updateChart(summary);
+        }
+
         console.log('Resumen de personal actualizado en el DOM');
     }
 
