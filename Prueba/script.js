@@ -150,7 +150,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function copyNameToClipboard(fullName) {
         navigator.clipboard.writeText(fullName).then(() => {
             console.log('Nombre copiado al portapapeles:', fullName);
-            alert('Nombre copiado al portapapeles');
         }).catch(err => {
             console.error('Error al copiar el nombre:', err);
             // Método alternativo en caso de error
