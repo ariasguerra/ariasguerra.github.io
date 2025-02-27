@@ -6,7 +6,6 @@
     <title>Contactos Policiales</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
@@ -74,24 +73,6 @@
                 </li>
             </ul>
             <div id="total-personal">Total del Personal: <span id="total-count">0</span></div>
-            
-            <!-- Gráfico de distribución del personal -->
-            <div id="chart-container" class="chart-container">
-                <h4>Distribución Gráfica del Personal</h4>
-                <div class="chart-wrapper">
-                    <canvas id="personnel-chart"></canvas>
-                </div>
-            </div>
-            
-            <!-- Botones de filtro rápido -->
-            <div id="filter-buttons" class="filter-buttons">
-                <button id="filter-all" class="filter-btn active">Todos</button>
-                <button id="filter-oficiales" class="filter-btn">Oficiales</button>
-                <button id="filter-suboficiales" class="filter-btn">Suboficiales</button>
-                <button id="filter-patrulleros" class="filter-btn">Patrulleros</button>
-                <button id="filter-auxiliares" class="filter-btn">Auxiliares</button>
-                <button id="filter-civiles" class="filter-btn">Civiles</button>
-            </div>
         </div>
     </div>
     <!-- Scripts modularizados -->
@@ -99,7 +80,6 @@
     <script src="model.js"></script>
     <script src="uiController.js"></script>
     <script src="personalSummary.js"></script>
-    <script src="personalChart.js"></script>
     <script src="controller.js"></script>
     <script src="main.js"></script>
 </body>
