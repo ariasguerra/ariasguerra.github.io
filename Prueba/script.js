@@ -9,35 +9,53 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextBtn = document.getElementById('next-btn');
     const currentPageSpan = document.getElementById('current-page');
     const actionButtons = document.getElementById('action-buttons');
+    const callBtn = document.getElementById('call-btn');
+    const whatsappBtn = document.getElementById('whatsapp-btn');
+    const emailBtn = document.getElementById('email-btn');
+    const shareBtn = document.getElementById('share-btn');
+    
+    // Variable para el mensaje de copia
+    let copyMessageTimeout;
 
     let contacts = [];
     let currentResults = [];
     let currentIndex = 0;
     let currentContact = null;
 
-    // Cargar contactos desde almacenamiento local
+    // Cargar contactos del almacenamiento local al iniciar
     loadContactsFromLocalStorage();
 
     fileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
+            console.log('Archivo seleccionado:', file.name);
             const reader = new FileReader();
             reader.onload = (e) => {
+                console.log('Archivo leído, iniciando procesamiento');
                 try {
                     const data = JSON.parse(e.target.result);
                     contacts = Array.isArray(data) ? data : [data];
-
-                    saveContactsToLocalStorage(contacts);
-
+                    console.log(`Contactos cargados: ${contacts.length}`);
                     if (contacts.length > 0) {
-                        currentResults = contacts;
+                        console.log('Primer contacto:', JSON.stringify(contacts[0]));
+                        saveContactsToLocalStorage(contacts);
+                        PersonalSummary.setContacts(contacts);
+                        PersonalSummary.updateSummary();
+                        
+                        // Mostrar el primer contacto
+                        currentResults = [contacts[0]];
                         currentIndex = 0;
                         displayCurrentContact();
                         updateNavigation();
+                    } else {
+                        console.warn('No se cargaron contactos');
                     }
                 } catch (error) {
-                    console.error('Error al procesar el archivo JSON:', error);
+                    console.error('Error al parsear el archivo JSON:', error);
                 }
+            };
+            reader.onerror = (error) => {
+                console.error('Error al leer el archivo:', error);
             };
             reader.readAsText(file);
         }
@@ -46,23 +64,25 @@ document.addEventListener('DOMContentLoaded', () => {
     searchForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const searchTerm = searchInput.value.toLowerCase().trim();
-
+        console.log('Término de búsqueda:', searchTerm);
         if (searchTerm) {
-            currentResults = searchContacts(searchTerm);
-
-            if (currentResults.length > 0) {
-                currentIndex = 0;
-                displayCurrentContact();
-                updateNavigation();
-            } else {
-                resultsDiv.innerHTML = "<p>No se encontraron resultados.</p>";
-                resetNavigation();
-                actionButtons.style.display = 'none';
+            if (contacts.length === 0) {
+                return;
             }
+            currentResults = searchContacts(searchTerm);
+            console.log(`Resultados encontrados: ${currentResults.length}`);
+            currentIndex = 0;
+            displayCurrentContact();
+            updateNavigation();
+        } else {
+            console.log('Búsqueda vacía');
+            resetNavigation();
+            actionButtons.style.display = 'none';
         }
     });
 
     prevBtn.addEventListener('click', () => {
+        console.log('Botón anterior clickeado');
         if (currentIndex > 0) {
             currentIndex--;
             displayCurrentContact();
@@ -71,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     nextBtn.addEventListener('click', () => {
+        console.log('Botón siguiente clickeado');
         if (currentIndex < currentResults.length - 1) {
             currentIndex++;
             displayCurrentContact();
@@ -78,10 +99,67 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    callBtn.addEventListener('click', () => {
+        console.log('Botón de llamada clickeado');
+        if (currentContact && currentContact.CELULAR) {
+            window.location.href = `tel:${currentContact.CELULAR}`;
+        }
+    });
+
+    whatsappBtn.addEventListener('click', () => {
+        console.log('Botón de WhatsApp clickeado');
+        if (currentContact && currentContact.CELULAR) {
+            const message = createWhatsAppMessage(currentContact);
+            const formattedNumber = formatPhoneNumber(currentContact.CELULAR);
+            window.open(`https://wa.me/${formattedNumber}?text=${encodeURIComponent(message)}`, '_blank');
+        }
+    });
+
+    emailBtn.addEventListener('click', () => {
+        console.log('Botón de correo electrónico clickeado');
+        if (currentContact && currentContact["CORREO ELECTRÓNICO"]) {
+            const subject = "Contacto Policial";
+            const body = createEmailMessage(currentContact);
+            window.location.href = `mailto:${currentContact["CORREO ELECTRÓNICO"]}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        }
+    });
+
+    shareBtn.addEventListener('click', () => {
+        console.log('Botón de compartir clickeado');
+        if (currentContact) {
+            const text = `${getFullGrado(currentContact.GR, determineGender(currentContact.NOMBRES))} ${currentContact.NOMBRES} ${currentContact.APELLIDOS}\nCelular: ${currentContact.CELULAR}\nCorreo: ${currentContact["CORREO ELECTRÓNICO"]}`;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Contacto Policial',
+                    text: text
+                }).catch(console.error);
+            } else {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    console.log("Información de contacto copiada al portapapeles");
+                } catch (err) {
+                    console.error('No se pudo copiar el texto: ', err);
+                }
+                document.body.removeChild(textArea);
+            }
+        }
+    });
+
     function searchContacts(term) {
         return contacts.filter(contact => {
-            return Object.values(contact).some(value =>
-                value && value.toString().toLowerCase().includes(term)
+            const fullGrado = getFullGrado(contact.GR, determineGender(contact.NOMBRES)).toLowerCase();
+            return (
+                fullGrado.includes(term) ||
+                (contact.NOMBRES && contact.NOMBRES.toLowerCase().includes(term)) ||
+                (contact.APELLIDOS && contact.APELLIDOS.toLowerCase().includes(term)) ||
+                (contact.CC && contact.CC.toString().includes(term)) ||
+                (contact.PLACA && contact.PLACA.toString().includes(term)) ||
+                (contact.CELULAR && contact.CELULAR.toString().includes(term)) ||
+                (contact.CARGO && contact.CARGO.toLowerCase().includes(term))
             );
         });
     }
@@ -92,46 +170,30 @@ document.addEventListener('DOMContentLoaded', () => {
             actionButtons.style.display = 'none';
             return;
         }
-
         currentContact = currentResults[currentIndex];
         const gradoCompleto = getFullGrado(currentContact.GR, determineGender(currentContact.NOMBRES));
         const contactDiv = document.createElement('div');
         contactDiv.classList.add('contact');
-
-        const fullName = `${currentContact.NOMBRES || ''} ${currentContact.APELLIDOS || ''}`.trim();
-
-        const nombreHTML = `
+        contactDiv.innerHTML = `
             <p class="grado">${gradoCompleto}</p>
-            <p class="nombre">
-                ${fullName}
-                <button class="copy-name-btn" title="Copiar nombre" onclick="copyNameAndNext('${fullName.replace(/'/g, "\\'")}')">
-                    <i class="fas fa-copy"></i>
-                </button>
-            </p>
+            <div class="nombre-container">
+                <p class="nombre">${currentContact.NOMBRES || ''} ${currentContact.APELLIDOS || ''}</p>
+                <button id="copy-name-btn" class="copy-btn" title="Copiar nombre y avanzar"><i class="fas fa-copy"></i></button>
+            </div>
             <p class="cargo">${currentContact.CARGO || 'N/A'}</p>
             <p class="cedula">Cédula de Ciudadanía: ${formatCC(currentContact.CC)}</p>
             <p class="placa">Placa: ${currentContact.PLACA || 'N/A'}</p>
             <p class="celular">Celular: ${currentContact.CELULAR || 'N/A'}</p>
             <p class="correo">Correo Electrónico: ${currentContact["CORREO ELECTRÓNICO"] || 'N/A'}</p>
         `;
-
-        contactDiv.innerHTML = nombreHTML;
         resultsDiv.appendChild(contactDiv);
         actionButtons.style.display = 'flex';
-    }
-
-    function copyNameAndNext(fullName) {
-        navigator.clipboard.writeText(fullName).then(() => {
-            if (currentIndex < currentResults.length - 1) {
-                currentIndex++;
-                displayCurrentContact();
-                updateNavigation();
-            } else {
-                alert('Has llegado al último contacto de la búsqueda.');
-            }
-        }).catch(err => {
-            console.error('Error al copiar el nombre:', err);
-        });
+        
+        // Agregar evento al botón de copiar
+        const copyNameBtn = document.getElementById('copy-name-btn');
+        if (copyNameBtn) {
+            copyNameBtn.addEventListener('click', copyNameAndAdvance);
+        }
     }
 
     function updateNavigation() {
@@ -172,6 +234,36 @@ document.addEventListener('DOMContentLoaded', () => {
         return grados[grado] || grado;
     }
 
+    function loadContactsFromLocalStorage() {
+        const storedContacts = localStorage.getItem('policialContacts');
+        if (storedContacts) {
+            try {
+                contacts = JSON.parse(storedContacts);
+                PersonalSummary.setContacts(contacts);
+                PersonalSummary.updateSummary();
+
+                // Mostrar el primer contacto al cargar desde almacenamiento local
+                if (contacts.length > 0) {
+                    currentResults = [contacts[0]];
+                    currentIndex = 0;
+                    displayCurrentContact();
+                    updateNavigation();
+                }
+            } catch (error) {
+                console.error('Error al parsear los contactos almacenados:', error);
+            }
+        }
+    }
+
+    function saveContactsToLocalStorage(contacts) {
+        try {
+            localStorage.setItem('policialContacts', JSON.stringify(contacts));
+            console.log(`${contacts.length} contactos guardados en almacenamiento local`);
+        } catch (error) {
+            console.error('Error al guardar contactos en almacenamiento local:', error);
+        }
+    }
+
     function determineGender(nombre) {
         if (!nombre) return 'M';
         const femaleNames = ['MARIA', 'STEPHANY', 'ANA', 'NEYLA', 'LAURA', 'SOFIA', 'ISABEL', 'CAROLINA', 'DANIELA', 'VALENTINA', 'GABRIELA', 'CAMILA'];
@@ -179,26 +271,139 @@ document.addEventListener('DOMContentLoaded', () => {
         return femaleNames.includes(firstName) ? 'F' : 'M';
     }
 
-    function loadContactsFromLocalStorage() {
-        const storedContacts = localStorage.getItem('policialContacts');
-        if (storedContacts) {
+    function formatPhoneNumber(phoneNumber) {
+        const cleanNumber = phoneNumber.toString().replace(/\D/g, '');
+        return cleanNumber.startsWith('57') ? cleanNumber : '57' + cleanNumber;
+    }
+
+    function createWhatsAppMessage(contact) {
+        const greeting = getGreeting();
+        const firstName = capitalizeFirstLetter(contact.NOMBRES.split(' ')[0]);
+        const lastName = capitalizeFirstLetter(contact.APELLIDOS.split(' ')[0]);
+        return `Dios y Patria, ${greeting} ${firstName} ${lastName}`;
+    }
+
+    function createEmailMessage(contact) {
+        console.log('Creando mensaje de correo electrónico');
+        const greeting = getGreeting();
+        const gender = determineGender(contact.NOMBRES);
+        const fullGrado = getFullGrado(contact.GR, gender);
+        const formattedGrado = fullGrado.split(' ').map(word => capitalizeFirstLetter(word)).join(' ');
+        const salutation = gender === 'F' ? 'Señora' : 'Señor';
+        const fullName = `${contact.NOMBRES} ${contact.APELLIDOS}`.toUpperCase();
+        const formattedCargo = formatCargo(contact.CARGO);
+
+        return `MINISTERIO DE DEFENSA NACIONAL 
+POLICÍA NACIONAL DE COLOMBIA
+ESTACIÓN DE POLICÍA BARRIOS UNIDOS
+
+
+${salutation} ${formattedGrado}
+${fullName}
+${formattedCargo}
+
+Dios y Patria, ${greeting}
+
+
+Atentamente,
+
+
+
+`;
+    }
+
+    function formatCargo(cargo) {
+        if (!cargo) return '';
+        const lowercaseWords = ['de', 'del', 'la', 'las', 'los', 'y', 'e', 'o', 'u', 'a'];
+        return cargo.split(' ').map((word, index) => 
+            lowercaseWords.includes(word.toLowerCase()) && index !== 0 ? word.toLowerCase() : capitalizeFirstLetter(word)
+        ).join(' ');
+    }
+
+    function getGreeting() {
+        const hour = new Date().getHours();
+        console.log('Hora actual:', hour);
+        if (hour < 12) return "buenos días";
+        if (hour < 18) return "buenas tardes";
+        return "buenas noches";
+    }
+
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+    }
+    
+    // Función para copiar el nombre y avanzar al siguiente contacto
+    function copyNameAndAdvance() {
+        if (currentContact) {
+            const fullName = `${currentContact.NOMBRES || ''} ${currentContact.APELLIDOS || ''}`.trim();
+            
+            // Copiar al portapapeles
+            const textArea = document.createElement("textarea");
+            textArea.value = fullName;
+            document.body.appendChild(textArea);
+            textArea.select();
+            
             try {
-                contacts = JSON.parse(storedContacts);
-                if (contacts.length > 0) {
-                    currentResults = contacts;
-                    currentIndex = 0;
-                    displayCurrentContact();
-                    updateNavigation();
-                }
-            } catch (error) {
-                console.error('Error al cargar los contactos:', error);
+                document.execCommand('copy');
+                showCopyMessage("Nombre copiado al portapapeles");
+                
+                // Avanzar al siguiente contacto después de un breve retraso
+                setTimeout(() => {
+                    if (currentIndex < currentResults.length - 1) {
+                        currentIndex++;
+                        displayCurrentContact();
+                        updateNavigation();
+                    } else {
+                        showCopyMessage("No hay más registros para copiar", 3000);
+                    }
+                }, 500);
+            } catch (err) {
+                console.error('No se pudo copiar el texto: ', err);
+                showCopyMessage("Error al copiar");
             }
+            
+            document.body.removeChild(textArea);
         }
     }
-
-    function saveContactsToLocalStorage(contacts) {
-        localStorage.setItem('policialContacts', JSON.stringify(contacts));
+    
+    // Función para mostrar mensaje de copia
+    function showCopyMessage(message, duration = 1500) {
+        // Limpiar cualquier mensaje anterior
+        if (copyMessageTimeout) {
+            clearTimeout(copyMessageTimeout);
+        }
+        
+        // Eliminar mensaje anterior si existe
+        let existingMessage = document.querySelector('.copy-message');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+        
+        // Crear y mostrar nuevo mensaje
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('copy-message');
+        messageElement.textContent = message;
+        messageElement.style.position = 'fixed';
+        messageElement.style.bottom = '20px';
+        messageElement.style.left = '50%';
+        messageElement.style.transform = 'translateX(-50%)';
+        messageElement.style.backgroundColor = '#003366';
+        messageElement.style.color = 'white';
+        messageElement.style.padding = '10px 20px';
+        messageElement.style.borderRadius = '5px';
+        messageElement.style.zIndex = '1000';
+        
+        document.body.appendChild(messageElement);
+        
+        // Eliminar mensaje después de la duración especificada
+        copyMessageTimeout = setTimeout(() => {
+            messageElement.remove();
+        }, duration);
     }
 
-    window.copyNameAndNext = copyNameAndNext;
+    // Función de depuración opcional
+    window.debugContacts = function() {
+        console.log('Contactos actuales:', contacts);
+        console.log('Contactos en localStorage:', localStorage.getItem('policialContacts'));
+    };
 });
