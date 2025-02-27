@@ -7,8 +7,8 @@ const PersonalSummary = (function() {
     }
 
     function updateSummary() {
-        console.log('Iniciando actualización del resumen de personal');
-        console.log('Número de contactos a procesar:', contacts.length);
+        console.log('Iniciando actualizaciÃ³n del resumen de personal');
+        console.log('NÃºmero de contactos a procesar:', contacts.length);
 
         const summary = {
             oficiales: {},
@@ -90,7 +90,7 @@ const PersonalSummary = (function() {
                 desgloseElement.appendChild(li);
             });
             
-            // Añadir evento de clic si no existe
+            // AÃ±adir evento de clic si no existe
             if (!countElement.onclick) {
                 countElement.onclick = function() {
                     desgloseElement.style.display = desgloseElement.style.display === 'none' ? 'block' : 'none';
