@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
+    <div id="theme-toggle" class="theme-toggle">
+        <i class="fas fa-moon"></i>
+    </div>
     <div class="container">
         <!-- Carga de archivos JSON (antes del formulario de búsqueda) -->
         <div id="file-upload">
@@ -20,11 +23,63 @@
             <div class="search-container">
                 <input type="text" id="search-input" placeholder="Buscar contacto...">
                 <button type="submit" id="search-btn" class="action-btn"><i class="fas fa-search"></i></button>
+                <button type="button" id="advanced-filter-toggle" class="filter-toggle"><i class="fas fa-filter"></i></button>
+            </div>
+            <div id="advanced-filters" class="advanced-filters" style="display: none;">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label for="filter-grado">Grado:</label>
+                        <select id="filter-grado">
+                            <option value="">Todos</option>
+                            <optgroup label="Oficiales">
+                                <option value="ST">Subteniente</option>
+                                <option value="TE">Teniente</option>
+                                <option value="CT">Capitán</option>
+                                <option value="MY">Mayor</option>
+                                <option value="TC">Teniente Coronel</option>
+                                <option value="CR">Coronel</option>
+                                <option value="BG">Brigadier General</option>
+                                <option value="MG">Mayor General</option>
+                                <option value="GR">General</option>
+                            </optgroup>
+                            <optgroup label="Suboficiales">
+                                <option value="SI">Subintendente</option>
+                                <option value="IT">Intendente</option>
+                                <option value="IJ">Intendente Jefe</option>
+                            </optgroup>
+                            <optgroup label="Patrulleros">
+                                <option value="PT">Patrullero</option>
+                                <option value="PP">Patrullero de Policía</option>
+                            </optgroup>
+                            <optgroup label="Otros">
+                                <option value="AP">Auxiliar de Policía</option>
+                                <option value="N/U">No Uniformado</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter-cargo">Cargo:</label>
+                        <select id="filter-cargo">
+                            <option value="">Todos</option>
+                            <!-- Se llenará dinámicamente -->
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button type="button" id="apply-filters" class="filter-btn">Aplicar filtros</button>
+                    <button type="button" id="clear-filters" class="filter-btn">Limpiar filtros</button>
+                </div>
             </div>
         </form>
 
+        <!-- Selector de vista -->
+        <div class="view-selector">
+            <button id="card-view-btn" class="view-btn active" title="Vista tarjeta"><i class="fas fa-th-large"></i></button>
+            <button id="list-view-btn" class="view-btn" title="Vista lista"><i class="fas fa-list"></i></button>
+        </div>
+        
         <!-- Div de resultados -->
-        <div id="results"></div>
+        <div id="results" class="card-view"></div>
         
         <!-- Botones de acción -->
         <div id="action-buttons" style="display: none;">
@@ -39,6 +94,12 @@
             <button id="prev-btn" disabled>Anterior</button>
             <span id="current-page">0 de 0</span>
             <button id="next-btn" disabled>Siguiente</button>
+        </div>
+        
+        <!-- Favoritos -->
+        <div id="favorites-section" style="display: none;">
+            <h3>Contactos Favoritos <button id="toggle-favorites" class="toggle-btn"><i class="fas fa-chevron-down"></i></button></h3>
+            <div id="favorites-list" class="favorites-list"></div>
         </div>
 
         <!-- Resumen del personal -->
