@@ -101,4 +101,30 @@ const PersonalSummary = (function() {
         }
     }
 
-    function getFullG
+    function getFullGrado(grado) {
+        const grados = {
+            'ST': 'Subteniente',
+            'TE': 'Teniente',
+            'CT': 'Capitán',
+            'MY': 'Mayor',
+            'TC': 'Teniente Coronel',
+            'CR': 'Coronel',
+            'BG': 'Brigadier General',
+            'MG': 'Mayor General',
+            'GR': 'General',
+            'SI': 'Subintendente',
+            'IT': 'Intendente',
+            'IJ': 'Intendente Jefe',
+            'PT': 'Patrullero',
+            'PP': 'Patrullero de Policía',
+            'AP': 'Auxiliar de Policía',
+            'N/U': 'No Uniformado'
+        };
+        return grados[grado] || grado;
+    }
+
+    return {
+        setContacts: setContacts,
+        updateSummary: updateSummary
+    };
+})();
