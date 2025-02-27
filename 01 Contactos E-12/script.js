@@ -13,6 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const whatsappBtn = document.getElementById('whatsapp-btn');
     const emailBtn = document.getElementById('email-btn');
     const shareBtn = document.getElementById('share-btn');
+    
+    // Variable para el mensaje de copia
+    let copyMessageTimeout;
 
     let contacts = [];
     let currentResults = [];
@@ -173,7 +176,10 @@ document.addEventListener('DOMContentLoaded', () => {
         contactDiv.classList.add('contact');
         contactDiv.innerHTML = `
             <p class="grado">${gradoCompleto}</p>
-            <p class="nombre">${currentContact.NOMBRES || ''} ${currentContact.APELLIDOS || ''}</p>
+            <div class="nombre-container">
+                <p class="nombre">${currentContact.NOMBRES || ''} ${currentContact.APELLIDOS || ''}</p>
+                <button id="copy-name-btn" class="copy-btn" title="Copiar nombre y avanzar"><i class="fas fa-copy"></i></button>
+            </div>
             <p class="cargo">${currentContact.CARGO || 'N/A'}</p>
             <p class="cedula">Cédula de Ciudadanía: ${formatCC(currentContact.CC)}</p>
             <p class="placa">Placa: ${currentContact.PLACA || 'N/A'}</p>
@@ -182,6 +188,12 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         resultsDiv.appendChild(contactDiv);
         actionButtons.style.display = 'flex';
+        
+        // Agregar evento al botón de copiar
+        const copyNameBtn = document.getElementById('copy-name-btn');
+        if (copyNameBtn) {
+            copyNameBtn.addEventListener('click', copyNameAndAdvance);
+        }
     }
 
     function updateNavigation() {
@@ -226,11 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const storedContacts = localStorage.getItem('policialContacts');
         if (storedContacts) {
             try {
-
-
-
-
-contacts = JSON.parse(storedContacts);
+                contacts = JSON.parse(storedContacts);
                 PersonalSummary.setContacts(contacts);
                 PersonalSummary.updateSummary();
 
@@ -323,6 +331,75 @@ Atentamente,
     function capitalizeFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
     }
+    
+    // Función para copiar el nombre y avanzar al siguiente contacto
+    function copyNameAndAdvance() {
+        if (currentContact) {
+            const fullName = `${currentContact.NOMBRES || ''} ${currentContact.APELLIDOS || ''}`.trim();
+            
+            // Copiar al portapapeles
+            const textArea = document.createElement("textarea");
+            textArea.value = fullName;
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showCopyMessage("Nombre copiado al portapapeles");
+                
+                // Avanzar al siguiente contacto después de un breve retraso
+                setTimeout(() => {
+                    if (currentIndex < currentResults.length - 1) {
+                        currentIndex++;
+                        displayCurrentContact();
+                        updateNavigation();
+                    } else {
+                        showCopyMessage("No hay más registros para copiar", 3000);
+                    }
+                }, 500);
+            } catch (err) {
+                console.error('No se pudo copiar el texto: ', err);
+                showCopyMessage("Error al copiar");
+            }
+            
+            document.body.removeChild(textArea);
+        }
+    }
+    
+    // Función para mostrar mensaje de copia
+    function showCopyMessage(message, duration = 1500) {
+        // Limpiar cualquier mensaje anterior
+        if (copyMessageTimeout) {
+            clearTimeout(copyMessageTimeout);
+        }
+        
+        // Eliminar mensaje anterior si existe
+        let existingMessage = document.querySelector('.copy-message');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+        
+        // Crear y mostrar nuevo mensaje
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('copy-message');
+        messageElement.textContent = message;
+        messageElement.style.position = 'fixed';
+        messageElement.style.bottom = '20px';
+        messageElement.style.left = '50%';
+        messageElement.style.transform = 'translateX(-50%)';
+        messageElement.style.backgroundColor = '#003366';
+        messageElement.style.color = 'white';
+        messageElement.style.padding = '10px 20px';
+        messageElement.style.borderRadius = '5px';
+        messageElement.style.zIndex = '1000';
+        
+        document.body.appendChild(messageElement);
+        
+        // Eliminar mensaje después de la duración especificada
+        copyMessageTimeout = setTimeout(() => {
+            messageElement.remove();
+        }, duration);
+    }
 
     // Función de depuración opcional
     window.debugContacts = function() {
@@ -330,5 +407,3 @@ Atentamente,
         console.log('Contactos en localStorage:', localStorage.getItem('policialContacts'));
     };
 });
-
-
