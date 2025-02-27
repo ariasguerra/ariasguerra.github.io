@@ -7,71 +7,33 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
-<body class="light-theme">
+<body>
     <div class="container">
-        <!-- Barra superior con botones de utilidad -->
-        <div class="top-bar">
-            <button id="theme-toggle" class="utility-btn" title="Cambiar tema">
-                <i class="fas fa-moon"></i>
-            </button>
-            <button id="view-toggle" class="utility-btn" title="Cambiar vista">
-                <i class="fas fa-th-large"></i>
-            </button>
-            <button id="favorites-toggle" class="utility-btn" title="Ver favoritos">
-                <i class="far fa-star"></i>
-            </button>
-        </div>
-
         <!-- Carga de archivos JSON (antes del formulario de búsqueda) -->
         <div id="file-upload">
             <input type="file" id="json-file" accept=".json" style="display: none;">
             <label for="json-file" class="file-label"><i class="fas fa-file-upload"></i> Cargar archivo JSON</label>
         </div>
 
-        <!-- Formulario de búsqueda -->
+        <!-- Formulario de búsqueda con botón de voz -->
         <form id="search-form">
             <div class="search-container">
                 <input type="text" id="search-input" placeholder="Buscar contacto...">
-                <div id="search-suggestions" class="dropdown-content"></div>
+                <button type="button" id="voice-search-btn" class="voice-btn" title="Buscar por voz"><i class="fas fa-microphone"></i></button>
                 <button type="submit" id="search-btn" class="action-btn"><i class="fas fa-search"></i></button>
-            </div>
-            
-            <!-- Filtros avanzados -->
-            <div class="filters-container">
-                <select id="grado-filter" class="filter-select">
-                    <option value="">Todos los grados</option>
-                    <option value="ST">Subteniente</option>
-                    <option value="TE">Teniente</option>
-                    <option value="CT">Capitán</option>
-                    <option value="MY">Mayor</option>
-                    <option value="TC">Teniente Coronel</option>
-                    <option value="CR">Coronel</option>
-                    <option value="BG">Brigadier General</option>
-                    <option value="MG">Mayor General</option>
-                    <option value="GR">General</option>
-                    <option value="SI">Subintendente</option>
-                    <option value="IT">Intendente</option>
-                    <option value="IJ">Intendente Jefe</option>
-                    <option value="PT">Patrullero</option>
-                    <option value="PP">Patrullero de Policía</option>
-                    <option value="AP">Auxiliar de Policía</option>
-                    <option value="N/U">No Uniformado</option>
-                </select>
-                <input type="text" id="cargo-filter" class="filter-input" placeholder="Filtrar por cargo">
-                <button type="button" id="clear-filters" class="filter-btn">Limpiar filtros</button>
             </div>
         </form>
 
         <!-- Div de resultados -->
-        <div id="results" class="results-cards"></div>
+        <div id="results"></div>
         
-        <!-- Botones de acción -->
+        <!-- Botones de acción con nuevo botón para añadir a contactos -->
         <div id="action-buttons" style="display: none;">
             <button id="call-btn" class="action-btn"><i class="fas fa-phone"></i></button>
             <button id="whatsapp-btn" class="action-btn"><i class="fab fa-whatsapp"></i></button>
             <button id="email-btn" class="action-btn"><i class="fas fa-envelope"></i></button>
             <button id="share-btn" class="action-btn"><i class="fas fa-share-alt"></i></button>
-            <button id="favorite-btn" class="action-btn"><i class="far fa-star"></i></button>
+            <button id="add-contact-btn" class="action-btn"><i class="fas fa-address-book"></i></button>
         </div>
 
         <!-- Navegación de resultados -->
@@ -112,15 +74,13 @@
             </ul>
             <div id="total-personal">Total del Personal: <span id="total-count">0</span></div>
         </div>
-        
-        <!-- Sección de favoritos -->
-        <div id="favorites-section" style="display: none;">
-            <h3>Contactos Favoritos</h3>
-            <div id="favorites-list"></div>
-        </div>
     </div>
+    <!-- Scripts modularizados -->
+    <script src="contactUtils.js"></script>
+    <script src="model.js"></script>
+    <script src="uiController.js"></script>
     <script src="personalSummary.js"></script>
-    <script src="favorites.js"></script>
-    <script src="script.js"></script>
+    <script src="controller.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
