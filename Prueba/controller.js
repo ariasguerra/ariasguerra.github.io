@@ -1,325 +1,145 @@
-// Controlador principal de la aplicación
-const AppController = (function(model, ui, utils) {
-    // Elementos del DOM
-    let elements;
+// Gestión de datos de contactos
+const ContactModel = (function() {
+    let contacts = [];
+    let currentResults = [];
+    let currentIndex = 0;
     
-    // Inicialización de la aplicación
-    function init() {
-        console.log('Inicializando aplicación...');
-        
-        // Inicializar elementos UI
-        elements = ui.initElements();
-        
-        // Cargar contactos y actualizar resumen
-        const contacts = model.loadFromLocalStorage();
-        if (contacts.length > 0) {
-            PersonalSummary.setContacts(contacts);
-            PersonalSummary.updateSummary();
-            
-            // Inicializar y actualizar el gráfico
-            PersonalChart.initialize();
-            PersonalChart.setupFilterButtons();
-            PersonalChart.setupCategoryCounters();
-            PersonalChart.updateChart(getSummaryData());
-            
-            // Mostrar el primer contacto
-            model.setCurrentIndex(0);
-            updateCurrentContactView();
-        }
-        
-        // Configurar manejadores de eventos
-        setupEventListeners();
-    }
-    
-    function setupEventListeners() {
-        // Manejo de carga de archivos
-        elements.fileInput.addEventListener('change', handleFileInput);
-        
-        // Manejo de búsqueda
-        elements.searchForm.addEventListener('submit', handleSearch);
-        elements.voiceSearchBtn.addEventListener('click', handleVoiceSearch);
-        document.addEventListener('voiceSearchCompleted', handleVoiceSearchResult);
-        
-        // Navegación
-        elements.prevBtn.addEventListener('click', navigatePrev);
-        elements.nextBtn.addEventListener('click', navigateNext);
-        
-        // Acciones de contacto
-        elements.callBtn.addEventListener('click', handleCall);
-        elements.whatsappBtn.addEventListener('click', handleWhatsApp);
-        elements.emailBtn.addEventListener('click', handleEmail);
-        elements.shareBtn.addEventListener('click', handleShare);
-        elements.addContactBtn.addEventListener('click', handleAddContact);
-        
-        // Modal de contacto
-        elements.closeModalBtn.addEventListener('click', ui.hideContactModal);
-        elements.cancelAddBtn.addEventListener('click', ui.hideContactModal);
-        elements.addToContactsBtn.addEventListener('click', handleAddToContacts);
-        
-        // Evento para copiar nombre
-        document.addEventListener('copyNameClicked', handleCopyNameAndAdvance);
-    }
-    
-    function handleFileInput(e) {
-        const file = e.target.files[0];
-        if (file) {
-            console.log('Archivo seleccionado:', file.name);
-            const reader = new FileReader();
-            
-            reader.onload = (e) => {
-                console.log('Archivo leído, iniciando procesamiento');
-                const contacts = model.loadFromFile(e.target.result);
-                
-                if (contacts && contacts.length > 0) {
-                    PersonalSummary.setContacts(contacts);
-                    PersonalSummary.updateSummary();
-                    
-                    // Actualizar el gráfico con los nuevos datos
-                    PersonalChart.updateChart(getSummaryData());
-                    
-                    model.setCurrentIndex(0);
-                    updateCurrentContactView();
-                    ui.showMessage(`${contacts.length} contactos cargados`, 2000);
-                } else {
-                    ui.showMessage("Error al cargar contactos", 3000);
-                }
-            };
-            
-            reader.onerror = (error) => {
-                console.error('Error al leer el archivo:', error);
-                ui.showMessage("Error al leer el archivo", 3000);
-            };
-            
-            reader.readAsText(file);
-        }
-    }
-    
-    function handleSearch(e) {
-        e.preventDefault();
-        const searchTerm = elements.searchInput.value.toLowerCase().trim();
-        console.log('Término de búsqueda:', searchTerm);
-        
-        if (searchTerm) {
-            const results = model.searchContacts(searchTerm);
-            console.log(`Resultados encontrados: ${results.length}`);
-            
-            updateCurrentContactView();
-            ui.showMessage(`${results.length} contactos encontrados`, 2000);
-        } else {
-            console.log('Búsqueda vacía');
-            ui.resetNavigation();
-            elements.actionButtons.style.display = 'none';
-            elements.resultsDiv.innerHTML = '';
-        }
-    }
-    
-    function handleVoiceSearch() {
-        ui.startVoiceRecognition();
-    }
-    
-    function handleVoiceSearchResult(e) {
-        const searchTerm = e.detail.searchTerm;
-        elements.searchInput.value = searchTerm;
-        
-        // Ejecutar búsqueda
-        const results = model.searchContacts(searchTerm);
-        console.log(`Resultados encontrados por voz: ${results.length}`);
-        
-        updateCurrentContactView();
-        ui.showMessage(`${results.length} contactos encontrados`, 2000);
-    }
-    
-    function navigatePrev() {
-        const contact = model.prevContact();
-        if (contact) {
-            updateCurrentContactView();
-        }
-    }
-    
-    function navigateNext() {
-        const contact = model.nextContact();
-        if (contact) {
-            updateCurrentContactView();
-        }
-    }
-    
-    function updateCurrentContactView() {
-        const contact = model.getCurrentContact();
-        const results = model.getCurrentResults();
-        const currentIndex = model.getCurrentIndex();
-        
-        ui.displayContact(contact);
-        ui.updateNavigation(currentIndex, results.length);
-    }
-    
-    function resetToFirstContact() {
-        if (model.getAllContacts().length > 0) {
-            // Reiniciar resultados a todos los contactos
-            model.searchContacts('');  // Una búsqueda vacía muestra todos
-            model.setCurrentIndex(0);
-            updateCurrentContactView();
-            ui.showMessage("Mostrando todos los contactos", 2000);
-        }
-    }
-    
-    function getSummaryData() {
-        // Esta función obtiene los datos del resumen del personal para el gráfico
-        const summary = {
-            oficiales: {},
-            suboficiales: {},
-            patrulleros: {},
-            patrullerosPolicia: {},
-            auxiliares: {},
-            personalCivil: {}
-        };
-        
-        const contacts = model.getAllContacts();
-        
-        contacts.forEach(contact => {
-            switch(contact.GR) {
-                case 'ST':
-                case 'TE':
-                case 'CT':
-                case 'MY':
-                case 'TC':
-                case 'CR':
-                case 'BG':
-                case 'MG':
-                case 'GR':
-                    summary.oficiales[contact.GR] = (summary.oficiales[contact.GR] || 0) + 1;
-                    break;
-                case 'SI':
-                case 'IT':
-                case 'IJ':
-                    summary.suboficiales[contact.GR] = (summary.suboficiales[contact.GR] || 0) + 1;
-                    break;
-                case 'PT':
-                    summary.patrulleros[contact.GR] = (summary.patrulleros[contact.GR] || 0) + 1;
-                    break;
-                case 'PP':
-                    summary.patrullerosPolicia[contact.GR] = (summary.patrullerosPolicia[contact.GR] || 0) + 1;
-                    break;
-                case 'AP':
-                    summary.auxiliares[contact.GR] = (summary.auxiliares[contact.GR] || 0) + 1;
-                    break;
-                case 'N/U':
-                    summary.personalCivil[contact.GR] = (summary.personalCivil[contact.GR] || 0) + 1;
-                    break;
+    function loadFromLocalStorage() {
+        const storedContacts = localStorage.getItem('policialContacts');
+        if (storedContacts) {
+            try {
+                contacts = JSON.parse(storedContacts);
+                return contacts;
+            } catch (error) {
+                console.error('Error al parsear los contactos almacenados:', error);
+                return [];
             }
+        }
+        return [];
+    }
+    
+    function saveToLocalStorage() {
+        try {
+            localStorage.setItem('policialContacts', JSON.stringify(contacts));
+            console.log(`${contacts.length} contactos guardados en almacenamiento local`);
+            return true;
+        } catch (error) {
+            console.error('Error al guardar contactos en almacenamiento local:', error);
+            return false;
+        }
+    }
+    
+    function loadFromFile(jsonData) {
+        try {
+            const data = JSON.parse(jsonData);
+            contacts = Array.isArray(data) ? data : [data];
+            saveToLocalStorage();
+            return contacts;
+        } catch (error) {
+            console.error('Error al parsear el archivo JSON:', error);
+            return null;
+        }
+    }
+    
+    function searchContacts(term) {
+        if (!term || contacts.length === 0) return [];
+        
+        // Normalizar término de búsqueda: convertir a minúsculas, eliminar tildes
+        // y dividir en palabras individuales
+        const normalizedTerm = removeDiacritics(term.toLowerCase().trim());
+        const searchTerms = normalizedTerm.split(/\s+/);
+        
+        // Filtrar contactos que coincidan con los términos de búsqueda
+        currentResults = contacts.filter(contact => {
+            // Obtener texto normalizado (sin tildes) de todos los campos relevantes del contacto
+            const contactTexts = [
+                ContactUtils.getFullGrado(contact.GR, ContactUtils.determineGender(contact.NOMBRES)).toLowerCase(),
+                (contact.NOMBRES || '').toLowerCase(),
+                (contact.APELLIDOS || '').toLowerCase(),
+                contact.CC ? contact.CC.toString() : '',
+                contact.PLACA ? contact.PLACA.toString() : '',
+                contact.CELULAR ? contact.CELULAR.toString() : '',
+                (contact.CARGO || '').toLowerCase()
+            ].map(text => removeDiacritics(text));
+            
+            // Texto completo del contacto para búsqueda combinada
+            const fullContactText = removeDiacritics([
+                ContactUtils.getFullGrado(contact.GR, ContactUtils.determineGender(contact.NOMBRES)),
+                contact.NOMBRES || '',
+                contact.APELLIDOS || '',
+                contact.CARGO || ''
+            ].join(' ').toLowerCase());
+            
+            // Verificar si todos los términos de búsqueda están presentes en alguno de los campos
+            // o si se encuentran en diferentes campos pero forman parte del contacto
+            return searchTerms.every(term => 
+                // Buscar en campos individuales
+                contactTexts.some(text => text.includes(term)) ||
+                // Buscar en el texto completo del contacto (para términos combinados)
+                fullContactText.includes(term)
+            );
         });
         
-        return summary;
+        currentIndex = currentResults.length > 0 ? 0 : -1;
+        return currentResults;
     }
     
-    function handleCall() {
-        const contact = model.getCurrentContact();
-        if (contact && contact.CELULAR) {
-            window.location.href = `tel:${contact.CELULAR}`;
-        } else {
-            ui.showMessage("No hay número de teléfono disponible", 2000);
+    // Función auxiliar para eliminar tildes y caracteres diacríticos
+    function removeDiacritics(text) {
+        return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+    
+    function getAllContacts() {
+        return contacts;
+    }
+    
+    function getCurrentResults() {
+        return currentResults;
+    }
+    
+    function getCurrentContact() {
+        return currentResults.length > 0 && currentIndex >= 0 ? currentResults[currentIndex] : null;
+    }
+    
+    function getCurrentIndex() {
+        return currentIndex;
+    }
+    
+    function setCurrentIndex(index) {
+        if (index >= 0 && index < currentResults.length) {
+            currentIndex = index;
+            return true;
         }
+        return false;
     }
     
-    function handleWhatsApp() {
-        const contact = model.getCurrentContact();
-        if (contact && contact.CELULAR) {
-            const message = utils.createWhatsAppMessage(contact);
-            const formattedNumber = utils.formatPhoneNumber(contact.CELULAR);
-            window.open(`https://wa.me/${formattedNumber}?text=${encodeURIComponent(message)}`, '_blank');
-        } else {
-            ui.showMessage("No hay número de teléfono disponible", 2000);
+    function nextContact() {
+        if (currentIndex < currentResults.length - 1) {
+            currentIndex++;
+            return getCurrentContact();
         }
+        return null;
     }
     
-    function handleEmail() {
-        const contact = model.getCurrentContact();
-        if (contact && contact["CORREO ELECTRÓNICO"]) {
-            const subject = "Contacto Policial";
-            const body = utils.createEmailMessage(contact);
-            window.location.href = `mailto:${contact["CORREO ELECTRÓNICO"]}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        } else {
-            ui.showMessage("No hay correo electrónico disponible", 2000);
+    function prevContact() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            return getCurrentContact();
         }
-    }
-    
-    function handleShare() {
-        const contact = model.getCurrentContact();
-        if (!contact) return;
-        
-        const gender = utils.determineGender(contact.NOMBRES);
-        const fullGrado = utils.getFullGrado(contact.GR, gender);
-        const text = `${fullGrado} ${contact.NOMBRES || ''} ${contact.APELLIDOS || ''}\nCelular: ${contact.CELULAR || 'N/A'}\nCorreo: ${contact["CORREO ELECTRÓNICO"] || 'N/A'}`;
-        
-        if (navigator.share) {
-            navigator.share({
-                title: 'Contacto Policial',
-                text: text
-            }).catch(err => {
-                console.error('Error al compartir:', err);
-                copyToClipboard(text);
-            });
-        } else {
-            copyToClipboard(text);
-        }
-    }
-    
-    function copyToClipboard(text) {
-        const textArea = document.createElement("textarea");
-        textArea.value = text;
-        document.body.appendChild(textArea);
-        textArea.select();
-        
-        try {
-            document.execCommand('copy');
-            ui.showMessage("Información copiada al portapapeles", 2000);
-        } catch (err) {
-            console.error('No se pudo copiar el texto:', err);
-            ui.showMessage("Error al copiar información", 2000);
-        }
-        
-        document.body.removeChild(textArea);
-    }
-    
-    function handleAddContact() {
-        const contact = model.getCurrentContact();
-        if (contact) {
-            ui.showAddContactModal(contact);
-        }
-    }
-    
-    function handleAddToContacts() {
-        const contact = model.getCurrentContact();
-        if (!contact) return;
-        
-        const vCardInfo = utils.createVCardForContact(contact);
-        if (vCardInfo) {
-            ui.downloadVCard(vCardInfo.vCardData, vCardInfo.fileName);
-            ui.hideContactModal();
-            ui.showMessage("Contacto listo para añadir a la agenda", 3000);
-        }
-    }
-    
-    function handleCopyNameAndAdvance() {
-        const contact = model.getCurrentContact();
-        if (!contact) return;
-        
-        const fullName = `${contact.NOMBRES || ''} ${contact.APELLIDOS || ''}`.trim();
-        copyToClipboard(fullName);
-        
-        // Avanzar al siguiente contacto después de un breve retraso
-        setTimeout(() => {
-            const nextContact = model.nextContact();
-            if (nextContact) {
-                updateCurrentContactView();
-            } else {
-                ui.showMessage("No hay más registros para copiar", 3000);
-            }
-        }, 500);
+        return null;
     }
     
     return {
-        init: init,
-        resetToFirstContact: resetToFirstContact,
-        updateCurrentContactView: updateCurrentContactView
+        loadFromLocalStorage,
+        saveToLocalStorage,
+        loadFromFile,
+        searchContacts,
+        getAllContacts,
+        getCurrentResults,
+        getCurrentContact,
+        getCurrentIndex,
+        setCurrentIndex,
+        nextContact,
+        prevContact
     };
-})(ContactModel, UIController, ContactUtils);
+})();
