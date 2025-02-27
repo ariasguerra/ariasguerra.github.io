@@ -1,0 +1,127 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Cambiado a min-height para asegurar ajuste */
+    margin: 0;
+    padding: 1rem;
+    overflow-x: hidden;
+}
+
+.container {
+    background: #fff;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.game-title {
+    color: #333;
+    font-size: 1.5rem;
+    margin: 0.5rem 0;
+}
+
+.sub-title {
+    color: #666;
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.sub-instruction {
+    color: #007bff;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+#ball-icon-container {
+    cursor: pointer;
+    margin-bottom: 1rem;
+}
+
+.ball-icon {
+    font-size: 3rem;
+    color: #007bff;
+    transition: transform 0.3s;
+}
+
+.ball-icon:hover {
+    transform: scale(1.1);
+}
+
+.hidden {
+    display: none;
+}
+
+.number-display {
+    font-size: 3rem;
+    color: #333;
+    margin: 0.5rem 0;
+}
+
+.card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    margin-top: 0.5rem;
+    text-align: center;
+}
+
+.card p {
+    font-size: 1rem;
+    color: #555;
+}
+
+.questions {
+    margin-top: 1rem;
+    display: grid;
+    gap: 0.8rem;
+}
+
+.question-card {
+    background-color: #e9f7ff;
+    border-radius: 8px;
+    padding: 0.8rem;
+    font-size: 0.9rem;
+    color: #333;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+/* Ajuste específico para dispositivos móviles en orientación horizontal */
+@media (max-width: 800px) and (orientation: landscape) {
+    .container {
+        padding: 0.5rem;
+        height: 100vh; /* Ocupa toda la altura disponible */
+        overflow-y: auto; /* Permite desplazamiento vertical si es necesario */
+    }
+
+    .game-title {
+        font-size: 1.4rem;
+        margin-top: 0.2rem;
+    }
+
+    .number-display {
+        font-size: 2.5rem;
+    }
+
+    .sub-instruction {
+        font-size: 0.85rem;
+    }
+
+    .card {
+        padding: 0.8rem;
+        margin-top: 0.3rem;
+    }
+
+    .question-card {
+        font-size: 0.85rem;
+        padding: 0.6rem;
+    }
+}
