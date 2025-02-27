@@ -471,5 +471,40 @@ body {
         width: 80%;
         margin-bottom: 5px;
     }
+    /* Mejorar estilo de los elementos clicables */
+.clickable {
+    cursor: pointer;
+    color: #003366;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+.clickable:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Estilo para elementos de desglose */
+.desglose li {
+    cursor: pointer;
+    transition: background-color 0.3s;
+    padding: 3px 5px;
+    border-radius: 3px;
+}
+
+.desglose li:hover {
+    background-color: rgba(0, 51, 102, 0.1);
+    color: #003366;
+}
+
+/* Animación para elementos filtrados */
+@keyframes highlight {
+    0% { background-color: transparent; }
+    30% { background-color: rgba(0, 51, 102, 0.2); }
+    100% { background-color: transparent; }
+}
+
+.highlight {
+    animation: highlight 1.5s ease;
 }
 }
