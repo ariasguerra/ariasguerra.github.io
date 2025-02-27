@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
     themeToggleBtn.addEventListener('click', toggleTheme);
     viewToggleBtn.addEventListener('click', toggleView);
     favoritesToggleBtn.addEventListener('click', toggleFavorites);
-    initTheme();
+   
     // ======== FUNCIONES DE BÚSQUEDA ========
 
     // Búsqueda de contactos
