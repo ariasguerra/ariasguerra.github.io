@@ -74,3 +74,46 @@ const ContactModel = (function() {
     function getCurrentContact() {
         return currentResults.length > 0 && currentIndex >= 0 ? currentResults[currentIndex] : null;
     }
+    
+    function getCurrentIndex() {
+        return currentIndex;
+    }
+    
+    function setCurrentIndex(index) {
+        if (index >= 0 && index < currentResults.length) {
+            currentIndex = index;
+            return true;
+        }
+        return false;
+    }
+    
+    function nextContact() {
+        if (currentIndex < currentResults.length - 1) {
+            currentIndex++;
+            return getCurrentContact();
+        }
+        return null;
+    }
+    
+    function prevContact() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            return getCurrentContact();
+        }
+        return null;
+    }
+    
+    return {
+        loadFromLocalStorage,
+        saveToLocalStorage,
+        loadFromFile,
+        searchContacts,
+        getAllContacts,
+        getCurrentResults,
+        getCurrentContact,
+        getCurrentIndex,
+        setCurrentIndex,
+        nextContact,
+        prevContact
+    };
+})();
