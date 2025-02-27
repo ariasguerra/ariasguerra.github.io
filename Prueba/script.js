@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentIndex = 0;
     let currentContact = null;
 
+    // Cargar contactos del almacenamiento local al iniciar
     loadContactsFromLocalStorage();
 
     fileInput.addEventListener('change', (e) => {
@@ -27,30 +28,22 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Archivo seleccionado:', file.name);
             const reader = new FileReader();
             reader.onload = (e) => {
-                console.log('Archivo leído, iniciando procesamiento');
                 try {
                     const data = JSON.parse(e.target.result);
                     contacts = Array.isArray(data) ? data : [data];
-                    console.log(`Contactos cargados: ${contacts.length}`);
+                    saveContactsToLocalStorage(contacts);
+                    PersonalSummary.setContacts(contacts);
+                    PersonalSummary.updateSummary();
+
                     if (contacts.length > 0) {
-                        console.log('Primer contacto:', JSON.stringify(contacts[0]));
-                        saveContactsToLocalStorage(contacts);
-                        PersonalSummary.setContacts(contacts);
-                        PersonalSummary.updateSummary();
-                        
                         currentResults = [contacts[0]];
                         currentIndex = 0;
                         displayCurrentContact();
                         updateNavigation();
-                    } else {
-                        console.warn('No se cargaron contactos');
                     }
                 } catch (error) {
                     console.error('Error al parsear el archivo JSON:', error);
                 }
-            };
-            reader.onerror = (error) => {
-                console.error('Error al leer el archivo:', error);
             };
             reader.readAsText(file);
         }
@@ -59,18 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
     searchForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const searchTerm = searchInput.value.toLowerCase().trim();
-        console.log('Término de búsqueda:', searchTerm);
         if (searchTerm) {
-            if (contacts.length === 0) {
-                return;
-            }
+            if (contacts.length === 0) return;
+
             currentResults = searchContacts(searchTerm);
-            console.log(`Resultados encontrados: ${currentResults.length}`);
             currentIndex = 0;
             displayCurrentContact();
             updateNavigation();
         } else {
-            console.log('Búsqueda vacía');
             resetNavigation();
             actionButtons.style.display = 'none';
         }
@@ -98,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
             actionButtons.style.display = 'none';
             return;
         }
+
         currentContact = currentResults[currentIndex];
         const gradoCompleto = getFullGrado(currentContact.GR, determineGender(currentContact.NOMBRES));
         const contactDiv = document.createElement('div');
@@ -125,18 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
         actionButtons.style.display = 'flex';
     }
 
-    function updateNavigation() {
-        prevBtn.disabled = currentIndex === 0;
-        nextBtn.disabled = currentIndex === currentResults.length - 1;
-        currentPageSpan.textContent = `${currentIndex + 1} de ${currentResults.length}`;
-    }
-
-    function resetNavigation() {
-        prevBtn.disabled = true;
-        nextBtn.disabled = true;
-        currentPageSpan.textContent = '0 de 0';
-    }
-
     function copyNameAndNext(fullName) {
         navigator.clipboard.writeText(fullName).then(() => {
             console.log('Nombre copiado al portapapeles:', fullName);
@@ -151,6 +129,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }).catch(err => {
             console.error('Error al copiar el nombre:', err);
         });
+    }
+
+    function updateNavigation() {
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex === currentResults.length - 1;
+        currentPageSpan.textContent = `${currentIndex + 1} de ${currentResults.length}`;
+    }
+
+    function resetNavigation() {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        currentPageSpan.textContent = '0 de 0';
     }
 
     function formatCC(cc) {
@@ -184,6 +174,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const femaleNames = ['MARIA', 'STEPHANY', 'ANA', 'NEYLA', 'LAURA', 'SOFIA', 'ISABEL', 'CAROLINA', 'DANIELA', 'VALENTINA', 'GABRIELA', 'CAMILA'];
         const firstName = nombre.split(' ')[0].toUpperCase();
         return femaleNames.includes(firstName) ? 'F' : 'M';
+    }
+
+    function loadContactsFromLocalStorage() {
+        const storedContacts = localStorage.getItem('policialContacts');
+        if (storedContacts) {
+            try {
+                contacts = JSON.parse(storedContacts);
+                PersonalSummary.setContacts(contacts);
+                PersonalSummary.updateSummary();
+
+                if (contacts.length > 0) {
+                    currentResults = [contacts[0]];
+                    currentIndex = 0;
+                    displayCurrentContact();
+                    updateNavigation();
+                }
+            } catch (error) {
+                console.error('Error al parsear los contactos almacenados:', error);
+            }
+        }
+    }
+
+    function saveContactsToLocalStorage(contacts) {
+        try {
+            localStorage.setItem('policialContacts', JSON.stringify(contacts));
+        } catch (error) {
+            console.error('Error al guardar contactos en almacenamiento local:', error);
+        }
     }
 
     window.copyNameAndNext = copyNameAndNext;
