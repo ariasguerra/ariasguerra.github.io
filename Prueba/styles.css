@@ -376,4 +376,100 @@ body {
         width: 90%;
         margin: 30% auto;
     }
+
+/* Estilos para el contenedor de gráficos */
+.chart-container {
+    margin-top: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    padding: 15px;
+    border: 1px solid #003366;
+}
+
+.chart-container h4 {
+    color: #003366;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.chart-wrapper {
+    height: 250px;
+    width: 100%;
+    position: relative;
+}
+
+/* Estilos para los botones de filtro */
+.filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.filter-btn {
+    background-color: #e0e0e0;
+    color: #333;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    background-color: #d0d0d0;
+}
+
+.filter-btn.active {
+    background-color: #003366;
+    color: white;
+}
+
+/* Hacer los contadores de categorías más interactivos */
+.clickable {
+    cursor: pointer;
+    color: #0056b3;
+    transition: color 0.3s;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.clickable:hover {
+    color: #003d82;
+}
+
+/* Animación para resaltar categorías */
+@keyframes highlight {
+    0% { background-color: transparent; }
+    30% { background-color: rgba(0, 51, 102, 0.2); }
+    100% { background-color: transparent; }
+}
+
+.highlight {
+    animation: highlight 1.5s ease;
+    border-radius: 3px;
+}
+
+/* Estilos responsivos para el gráfico y filtros */
+@media (max-width: 600px) {
+    .chart-wrapper {
+        height: 200px;
+    }
+    
+    .filter-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .filter-btn {
+        width: 80%;
+        margin-bottom: 5px;
+    }
+}
 }
