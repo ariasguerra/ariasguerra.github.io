@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Archivo seleccionado:', file.name);
             const reader = new FileReader();
             reader.onload = (e) => {
-                console.log('Archivo le韉o, iniciando procesamiento');
+                console.log('Archivo le铆do, iniciando procesamiento');
                 try {
                     const data = JSON.parse(e.target.result);
                     contacts = Array.isArray(data) ? data : [data];
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
     searchForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const searchTerm = searchInput.value.toLowerCase().trim();
-        console.log('T閞mino de b鷖queda:', searchTerm);
+        console.log('T茅rmino de b煤squeda:', searchTerm);
         if (searchTerm) {
             if (contacts.length === 0) {
                 return;
@@ -72,14 +72,14 @@ document.addEventListener('DOMContentLoaded', () => {
             displayCurrentContact();
             updateNavigation();
         } else {
-            console.log('B鷖queda vac韆');
+            console.log('B煤squeda vac铆a');
             resetNavigation();
             actionButtons.style.display = 'none';
         }
     });
 
     prevBtn.addEventListener('click', () => {
-        console.log('Bot髇 anterior clickeado');
+        console.log('Bot贸n anterior clickeado');
         if (currentIndex > 0) {
             currentIndex--;
             displayCurrentContact();
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     nextBtn.addEventListener('click', () => {
-        console.log('Bot髇 siguiente clickeado');
+        console.log('Bot贸n siguiente clickeado');
         if (currentIndex < currentResults.length - 1) {
             currentIndex++;
             displayCurrentContact();
@@ -97,14 +97,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     callBtn.addEventListener('click', () => {
-        console.log('Bot髇 de llamada clickeado');
+        console.log('Bot贸n de llamada clickeado');
         if (currentContact && currentContact.CELULAR) {
             window.location.href = `tel:${currentContact.CELULAR}`;
         }
     });
 
     whatsappBtn.addEventListener('click', () => {
-        console.log('Bot髇 de WhatsApp clickeado');
+        console.log('Bot贸n de WhatsApp clickeado');
         if (currentContact && currentContact.CELULAR) {
             const message = createWhatsAppMessage(currentContact);
             const formattedNumber = formatPhoneNumber(currentContact.CELULAR);
@@ -113,18 +113,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     emailBtn.addEventListener('click', () => {
-        console.log('Bot髇 de correo electr髇ico clickeado');
-        if (currentContact && currentContact["CORREO ELECTR覰ICO"]) {
+        console.log('Bot贸n de correo electr贸nico clickeado');
+        if (currentContact && currentContact["CORREO ELECTR脫NICO"]) {
             const subject = "Contacto Policial";
             const body = createEmailMessage(currentContact);
-            window.location.href = `mailto:${currentContact["CORREO ELECTR覰ICO"]}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.location.href = `mailto:${currentContact["CORREO ELECTR脫NICO"]}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
         }
     });
 
     shareBtn.addEventListener('click', () => {
-        console.log('Bot髇 de compartir clickeado');
+        console.log('Bot贸n de compartir clickeado');
         if (currentContact) {
-            const text = `${getFullGrado(currentContact.GR, determineGender(currentContact.NOMBRES))} ${currentContact.NOMBRES} ${currentContact.APELLIDOS}\nCelular: ${currentContact.CELULAR}\nCorreo: ${currentContact["CORREO ELECTR覰ICO"]}`;
+            const text = `${getFullGrado(currentContact.GR, determineGender(currentContact.NOMBRES))} ${currentContact.NOMBRES} ${currentContact.APELLIDOS}\nCelular: ${currentContact.CELULAR}\nCorreo: ${currentContact["CORREO ELECTR脫NICO"]}`;
             if (navigator.share) {
                 navigator.share({
                     title: 'Contacto Policial',
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 textArea.select();
                 try {
                     document.execCommand('copy');
-                    console.log("Informaci髇 de contacto copiada al portapapeles");
+                    console.log("Informaci贸n de contacto copiada al portapapeles");
                 } catch (err) {
                     console.error('No se pudo copiar el texto: ', err);
                 }
@@ -146,14 +146,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Funci髇 para copiar el nombre al portapapeles
+    // Funci贸n para copiar el nombre al portapapeles
     function copyNameToClipboard(fullName) {
         navigator.clipboard.writeText(fullName).then(() => {
             console.log('Nombre copiado al portapapeles:', fullName);
             alert('Nombre copiado al portapapeles');
         }).catch(err => {
             console.error('Error al copiar el nombre:', err);
-            // M閠odo alternativo en caso de error
+            // M茅todo alternativo en caso de error
             const textArea = document.createElement("textarea");
             textArea.value = fullName;
             document.body.appendChild(textArea);
@@ -195,10 +195,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const contactDiv = document.createElement('div');
         contactDiv.classList.add('contact');
         
-        // Preparar el nombre completo para el bot髇 de copia
+        // Preparar el nombre completo para el bot贸n de copia
         const fullName = `${currentContact.NOMBRES || ''} ${currentContact.APELLIDOS || ''}`.trim();
         
-        // Crear un contenedor para el nombre y el bot髇 de copiar
+        // Crear un contenedor para el nombre y el bot贸n de copiar
         const nombreHTML = `
             <p class="grado">${gradoCompleto}</p>
             <p class="nombre">
@@ -208,10 +208,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 </button>
             </p>
             <p class="cargo">${currentContact.CARGO || 'N/A'}</p>
-            <p class="cedula">C閐ula de Ciudadan韆: ${formatCC(currentContact.CC)}</p>
+            <p class="cedula">C茅dula de Ciudadan铆a: ${formatCC(currentContact.CC)}</p>
             <p class="placa">Placa: ${currentContact.PLACA || 'N/A'}</p>
             <p class="celular">Celular: ${currentContact.CELULAR || 'N/A'}</p>
-            <p class="correo">Correo Electr髇ico: ${currentContact["CORREO ELECTR覰ICO"] || 'N/A'}</p>
+            <p class="correo">Correo Electr贸nico: ${currentContact["CORREO ELECTR脫NICO"] || 'N/A'}</p>
         `;
         
         contactDiv.innerHTML = nombreHTML;
@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
         actionButtons.style.display = 'flex';
     }
 
-    // Funci髇 global para el bot髇 de copiar nombre
+    // Funci贸n global para el bot贸n de copiar nombre
     window.copyName = function(fullName) {
         copyNameToClipboard(fullName);
     };
@@ -242,8 +242,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getFullGrado(grado, gender) {
         const grados = {
-            'PP': 'Patrullero de Polic韆',
-            'AP': 'Auxiliar de Polic韆',
+            'PP': 'Patrullero de Polic铆a',
+            'AP': 'Auxiliar de Polic铆a',
             'N/U': gender === 'F' ? 'No Uniformada' : 'No Uniformado',
             'PT': gender === 'F' ? 'Patrullera' : 'Patrullero',
             'IT': 'Intendente',
@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'SI': 'Subintendente',
             'ST': 'Subteniente',
             'TE': 'Teniente',
-            'CT': gender === 'F' ? 'Capitana' : 'Capit醤',
+            'CT': gender === 'F' ? 'Capitana' : 'Capit谩n',
             'MY': 'Mayor',
             'TC': 'Teniente Coronel',
             'CR': 'Coronel',
@@ -312,18 +312,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function createEmailMessage(contact) {
-        console.log('Creando mensaje de correo electr髇ico');
+        console.log('Creando mensaje de correo electr贸nico');
         const greeting = getGreeting();
         const gender = determineGender(contact.NOMBRES);
         const fullGrado = getFullGrado(contact.GR, gender);
         const formattedGrado = fullGrado.split(' ').map(word => capitalizeFirstLetter(word)).join(' ');
-        const salutation = gender === 'F' ? 'Se駉ra' : 'Se駉r';
+        const salutation = gender === 'F' ? 'Se帽ora' : 'Se帽or';
         const fullName = `${contact.NOMBRES} ${contact.APELLIDOS}`.toUpperCase();
         const formattedCargo = formatCargo(contact.CARGO);
 
         return `MINISTERIO DE DEFENSA NACIONAL 
-POLIC虯 NACIONAL DE COLOMBIA
-ESTACI覰 DE POLIC虯 BARRIOS UNIDOS
+POLIC脥A NACIONAL DE COLOMBIA
+ESTACI脫N DE POLIC脥A BARRIOS UNIDOS
 
 
 ${salutation} ${formattedGrado}
@@ -351,7 +351,7 @@ Atentamente,
     function getGreeting() {
         const hour = new Date().getHours();
         console.log('Hora actual:', hour);
-        if (hour < 12) return "buenos d韆s";
+        if (hour < 12) return "buenos d铆as";
         if (hour < 18) return "buenas tardes";
         return "buenas noches";
     }
@@ -360,7 +360,7 @@ Atentamente,
         return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
     }
 
-    // Funci髇 de depuraci髇 opcional
+    // Funci贸n de depuraci贸n opcional
     window.debugContacts = function() {
         console.log('Contactos actuales:', contacts);
         console.log('Contactos en localStorage:', localStorage.getItem('policialContacts'));
