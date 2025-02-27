@@ -90,10 +90,40 @@ body {
     margin-bottom: 5px;
 }
 
+.nombre-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
 .contact .nombre {
     font-size: 18px;
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: 0;
+    margin-right: 10px;
+    flex-grow: 1;
+}
+
+.copy-btn {
+    background-color: #003366;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.copy-btn:hover {
+    background-color: #004080;
+}
+
+.copy-btn i {
+    font-size: 14px;
 }
 
 .contact .cargo {
@@ -223,7 +253,3 @@ body {
         margin: 5px;
     }
 }
-
-
-
-
