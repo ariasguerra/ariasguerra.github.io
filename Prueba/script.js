@@ -638,7 +638,7 @@ function searchActivityResults(query) {
             "Captura", "Comparendo", "Traslado por Protección", "Cierre de Establecimiento",
             "Incautación de Arma Blanca", "Incautación de Arma de Fuego"
         ];
-        return defaultResults.filter(result => result.toLowerCase().includes(query.toLowerCase()));
+        return defaultResults.filter(result => matchesFlexibly(result, query));
     }
     
     // Buscar en todas las categorías
@@ -647,7 +647,7 @@ function searchActivityResults(query) {
     activityResultsList.forEach(category => {
         if (category.resultados && Array.isArray(category.resultados)) {
             category.resultados.forEach(result => {
-                if (result.toLowerCase().includes(query.toLowerCase())) {
+                if (matchesFlexibly(result, query)) {
                     allResults.push(result);
                 }
             });
@@ -731,6 +731,7 @@ function completeTeamDeactivation(team) {
     saveToLocalStorage();
 }
 
+// Función mejorada para búsqueda flexible sin tildes
 function filterMotives(query, resultsElement, team) {
     if (!motivesList || !Array.isArray(motivesList)) {
         console.error('Error: motivesList no es un array válido');
@@ -738,8 +739,7 @@ function filterMotives(query, resultsElement, team) {
     }
 
     const filteredMotives = motivesList.filter(motive => 
-        motive.text.toLowerCase().includes(query.toLowerCase()) ||
-        motive.value.includes(query)
+        matchesFlexibly(motive.text, query) || motive.value.includes(query)
     );
 
     resultsElement.innerHTML = '';
@@ -799,9 +799,7 @@ function selectMotive(motiveCode, team) {
         }
     }
     saveToLocalStorage();
-}
-
-function activateTeam(teamName) {
+    function activateTeam(teamName) {
     const team = teams.find(t => t.name === teamName);
     if (!team) return;
     
@@ -1509,6 +1507,34 @@ function sendReportEmail() {
     }
 }
 
+// Función para normalizar texto sin tildes
+function normalizeText(text) {
+    if (!text || typeof text !== 'string') return '';
+    
+    return text.normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "") // Eliminar acentos/tildes
+        .toLowerCase()
+        .trim();
+}
+
+// Nueva función para búsqueda flexible
+function matchesFlexibly(fullText, query) {
+    if (!fullText || !query) return false;
+    
+    // Normalizar ambos textos (quitar tildes y convertir a minúsculas)
+    const normalizedText = normalizeText(fullText);
+    const normalizedQuery = normalizeText(query);
+    
+    // Si la búsqueda es con espacio, verificar que todas las palabras estén presentes
+    if (normalizedQuery.includes(' ')) {
+        const queryTerms = normalizedQuery.split(/\s+/).filter(term => term.length > 0);
+        return queryTerms.every(term => normalizedText.includes(term));
+    } else {
+        // Búsqueda simple sin espacios
+        return normalizedText.includes(normalizedQuery);
+    }
+}
+
 function loadOfficerDropdowns() {
     const officerSearchInputs = document.querySelectorAll('.officer-search');
     
@@ -1547,6 +1573,7 @@ function loadOfficerDropdowns() {
     });
 }
 
+// Función mejorada para filtrar oficiales con búsqueda flexible
 function filterOfficers(query, resultsElement, officerIndex) {
     if (!contactsList || !Array.isArray(contactsList) || contactsList.length === 0) {
         resultsElement.innerHTML = '<div class="officer-result-item">Por favor, cargue el archivo de contactos</div>';
@@ -1575,9 +1602,14 @@ function filterOfficers(query, resultsElement, officerIndex) {
         if (!officer || !officer.CC) return false;
         
         const isAssigned = assignedOfficers.has(officer.CC.toString());
-        const matchesQuery = `${officer.GR || ''} ${officer.APELLIDOS || ''} ${officer.NOMBRES || ''}`.toLowerCase().includes(query.toLowerCase());
+        if (isAssigned) return false;
+        if (!query.trim()) return true; // Mostrar todos si no hay consulta
         
-        return !isAssigned && matchesQuery;
+        // Construir un texto completo con el nombre del oficial
+        const fullName = `${officer.GR || ''} ${officer.APELLIDOS || ''} ${officer.NOMBRES || ''}`;
+        
+        // Usar la función de coincidencia flexible
+        return matchesFlexibly(fullName, query);
     });
 
     resultsElement.innerHTML = '';
@@ -1695,7 +1727,7 @@ function handleLoadError(error) {
         });
 }
 
-// Funciones para implementación de búsqueda por voz
+// FUNCIONES PARA IMPLEMENTACIÓN DE BÚSQUEDA POR VOZ MEJORADA
 
 // Función para agregar búsqueda por voz a todos los inputs de búsqueda
 function setupVoiceSearch() {
@@ -1782,7 +1814,7 @@ function addVoiceButtonTo(input) {
     });
 }
 
-// Función para iniciar el reconocimiento de voz (VERSIÓN CORREGIDA)
+// Función mejorada para iniciar el reconocimiento de voz
 function startSpeechRecognition(input, button) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
@@ -1791,8 +1823,8 @@ function startSpeechRecognition(input, button) {
     recognition.continuous = true; // Cambiar a continuo para capturar frases más largas
     recognition.interimResults = true; // Mostrar resultados intermedios para mejor retroalimentación
     
-    // Variable para almacenar texto previo (para búsquedas consecutivas)
-    const previousText = input.value.trim();
+    // MEJORA 1: Limpiar el input al activar la búsqueda por voz
+    input.value = '';
     
     // Cambiar el ícono mientras escucha
     button.innerHTML = '<i class="fas fa-microphone-slash"></i>';
@@ -1816,7 +1848,7 @@ function startSpeechRecognition(input, button) {
     
     input.parentNode.appendChild(listeningIndicator);
     
-    let finalTranscript = previousText;
+    let finalTranscript = '';
     
     recognition.onresult = (event) => {
         let interimTranscript = '';
