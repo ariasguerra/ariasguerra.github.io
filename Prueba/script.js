@@ -107,6 +107,8 @@ function initializeApp() {
     updateCreateTeamButton();
     toggleCreateTeamElements(quadrants.filter(q => !isQuadrantInTeam(q.id)).length > 0);
     addStylesToResultDialog();
+    addVoiceSearchStyles(); // Agregar estilos para búsqueda por voz
+    setupVoiceSearch();     // Configurar búsqueda por voz
 }
 
 // Configurar la carga de archivo
@@ -554,7 +556,9 @@ function showActivityResultDialog(team) {
     dialog.className = 'activity-result-dialog';
     dialog.innerHTML = `
         <h3>Resultado de la actividad</h3>
-        <input type="text" id="resultSearch" placeholder="Buscar resultado...">
+        <div style="position: relative;">
+            <input type="text" id="resultSearch" placeholder="Buscar resultado...">
+        </div>
         <div id="resultsList"></div>
         <button id="confirmResult" disabled>Confirmar</button>
     `;
@@ -563,6 +567,9 @@ function showActivityResultDialog(team) {
     const resultSearch = document.getElementById('resultSearch');
     const resultsList = document.getElementById('resultsList');
     const confirmButton = document.getElementById('confirmResult');
+    
+    // Agregar búsqueda por voz al cuadro de búsqueda del diálogo
+    addVoiceButtonTo(resultSearch);
     
     // Función para mostrar todos los resultados agrupados por categoría
     function showAllResults() {
@@ -1449,7 +1456,6 @@ function formatDateTime(date) {
         return date.toString();
     }
 }
-
 // Manejo de errores en generación de reportes
 function sendReportWhatsApp() {
     try {
@@ -1687,6 +1693,191 @@ function handleLoadError(error) {
         .catch(() => {
             alert('No se pudieron cargar los datos básicos. La aplicación podría no funcionar correctamente.');
         });
+}
+
+// Funciones para implementación de búsqueda por voz
+
+// Función para agregar búsqueda por voz a todos los inputs de búsqueda
+function setupVoiceSearch() {
+    // Verificar si el navegador soporta la API de reconocimiento de voz
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        console.log('El navegador no soporta reconocimiento de voz.');
+        return;
+    }
+
+    // Obtener todos los campos de búsqueda
+    const searchInputs = [
+        ...document.querySelectorAll('.officer-search'),
+        ...document.querySelectorAll('.search-input')
+    ];
+
+    // Agregar el botón de voz a cada campo de búsqueda
+    searchInputs.forEach(input => {
+        addVoiceButtonTo(input);
+    });
+
+    // Agregar un observador para detectar nuevos campos de búsqueda añadidos dinámicamente
+    const observer = new MutationObserver(mutations => {
+        for (const mutation of mutations) {
+            if (mutation.addedNodes.length) {
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        const newInputs = [
+                            ...node.querySelectorAll('.officer-search'),
+                            ...node.querySelectorAll('.search-input')
+                        ];
+                        newInputs.forEach(input => addVoiceButtonTo(input));
+                    }
+                });
+            }
+        }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+}
+
+// Función para agregar el botón de voz a un input específico
+function addVoiceButtonTo(input) {
+    // Verificar si ya tiene el botón de voz
+    if (input.parentNode.querySelector('.voice-button')) return;
+
+    // Crear el botón de voz
+    const voiceButton = document.createElement('button');
+    voiceButton.type = 'button';
+    voiceButton.className = 'voice-button';
+    voiceButton.innerHTML = '<i class="fas fa-microphone"></i>';
+    voiceButton.title = 'Búsqueda por voz';
+    
+    // Posicionar el botón correctamente en relación al input
+    const inputStyle = window.getComputedStyle(input);
+    const inputHeight = parseInt(inputStyle.height);
+    
+    // Ajustar el estilo del contenedor si es necesario
+    const parentElement = input.parentNode;
+    if (window.getComputedStyle(parentElement).position === 'static') {
+        parentElement.style.position = 'relative';
+    }
+    
+    // Estilo para el botón de voz
+    voiceButton.style.position = 'absolute';
+    voiceButton.style.right = '8px';
+    voiceButton.style.top = '50%';
+    voiceButton.style.transform = 'translateY(-50%)';
+    voiceButton.style.background = 'transparent';
+    voiceButton.style.border = 'none';
+    voiceButton.style.color = '#007bff';
+    voiceButton.style.cursor = 'pointer';
+    voiceButton.style.zIndex = '10';
+    voiceButton.style.fontSize = '16px';
+    
+    // Ajustar el padding del input para evitar que el texto se superponga con el botón
+    input.style.paddingRight = '30px';
+    
+    // Agregar el botón al DOM
+    parentElement.appendChild(voiceButton);
+    
+    // Agregar evento de clic al botón
+    voiceButton.addEventListener('click', () => {
+        startSpeechRecognition(input, voiceButton);
+    });
+}
+
+// Función para iniciar el reconocimiento de voz
+function startSpeechRecognition(input, button) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.lang = 'es-CO';  // Establecer el idioma a español de Colombia
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    
+    // Cambiar el ícono mientras escucha
+    button.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+    button.style.color = '#dc3545';
+    
+    // Mostrar indicador visual de que está escuchando
+    const listeningIndicator = document.createElement('div');
+    listeningIndicator.className = 'listening-indicator';
+    listeningIndicator.textContent = 'Escuchando...';
+    listeningIndicator.style.position = 'absolute';
+    listeningIndicator.style.top = '100%';
+    listeningIndicator.style.left = '0';
+    listeningIndicator.style.right = '0';
+    listeningIndicator.style.textAlign = 'center';
+    listeningIndicator.style.backgroundColor = '#007bff';
+    listeningIndicator.style.color = 'white';
+    listeningIndicator.style.padding = '4px';
+    listeningIndicator.style.borderRadius = '0 0 4px 4px';
+    listeningIndicator.style.fontSize = '12px';
+    listeningIndicator.style.zIndex = '100';
+    
+    input.parentNode.appendChild(listeningIndicator);
+    
+    recognition.onresult = (event) => {
+        const speechResult = event.results[0][0].transcript;
+        input.value = speechResult;
+        
+        // Disparar eventos para que la aplicación reaccione como si el usuario hubiera escrito
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.focus();
+    };
+    
+    recognition.onend = () => {
+        button.innerHTML = '<i class="fas fa-microphone"></i>';
+        button.style.color = '#007bff';
+        
+        if (listeningIndicator.parentNode) {
+            listeningIndicator.parentNode.removeChild(listeningIndicator);
+        }
+    };
+    
+    recognition.onerror = (event) => {
+        console.error('Error en reconocimiento de voz:', event.error);
+        button.innerHTML = '<i class="fas fa-microphone"></i>';
+        button.style.color = '#007bff';
+        
+        if (listeningIndicator.parentNode) {
+            listeningIndicator.parentNode.removeChild(listeningIndicator);
+        }
+        
+        alert('Error en el reconocimiento de voz. Intente de nuevo.');
+    };
+    
+    recognition.start();
+}
+
+// Agregar estilos CSS para los elementos de búsqueda por voz
+function addVoiceSearchStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .voice-button {
+            transition: color 0.3s ease;
+        }
+        
+        .voice-button:hover {
+            color: #0056b3 !important;
+        }
+        
+        .voice-button:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .listening-indicator {
+            animation: pulse 1.5s infinite;
+        }
+        
+        /* Ajuste para los cuadros de búsqueda en el diálogo de resultados */
+        .activity-result-dialog input {
+            padding-right: 30px !important;
+        }
+    `;
+    document.head.appendChild(style);
 }
 
 // Iniciar la aplicación
