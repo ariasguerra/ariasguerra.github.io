@@ -1591,7 +1591,7 @@ function filterOfficers(query, resultsElement, officerIndex) {
         filteredOfficers.forEach(officer => {
             const item = document.createElement('div');
             item.className = 'officer-result-item';
-            item.textContent = `${officer.GR || ''} ${officer.APELLIDOS || ''} ${officer.NOMBRES || ''}`;
+           item.textContent = `${officer.GR || ''} ${officer.APELLIDOS || ''} ${officer.NOMBRES || ''}`;
             
             item.onclick = () => {
                 selectOfficer(officer, officerIndex);
@@ -1782,14 +1782,7 @@ function addVoiceButtonTo(input) {
     });
 }
 
-
-        }
-    };
-    
-    recognition.onerror = (event) => {
-        console.error('Error en reconocimiento de voz:', event.error);
-        
-        // Función para iniciar el reconocimiento de voz (VERSIÓN CORREGIDA)
+// Función para iniciar el reconocimiento de voz (VERSIÓN CORREGIDA)
 function startSpeechRecognition(input, button) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
@@ -1835,8 +1828,13 @@ function startSpeechRecognition(input, button) {
             if (event.results[i].isFinal) {
                 // Limpiar el resultado final (eliminar puntos finales y espacios extra)
                 let cleanTranscript = transcript.trim();
-                if (cleanTranscript.endsWith('.')) {
-                    cleanTranscript = cleanTranscript.slice(0, -1);
+                // Eliminar varios signos de puntuación del final
+                const punctuationToRemove = ['.', ',', ';', ':', '!', '?'];
+                for (const punct of punctuationToRemove) {
+                    if (cleanTranscript.endsWith(punct)) {
+                        cleanTranscript = cleanTranscript.slice(0, -1);
+                        break; // Solo eliminar un signo de puntuación a la vez
+                    }
                 }
                 
                 // Agregar a texto previo si existe
