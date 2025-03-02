@@ -1787,7 +1787,9 @@ function addVoiceButtonTo(input) {
     };
     
     recognition.onerror = (event) => {
-        console.error('Error en reconocimiento de voz:', event.error);// Función para iniciar el reconocimiento de voz (VERSIÓN CORREGIDA)
+        console.error('Error en reconocimiento de voz:', event.error);
+        
+        // Función para iniciar el reconocimiento de voz (VERSIÓN CORREGIDA)
 function startSpeechRecognition(input, button) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
