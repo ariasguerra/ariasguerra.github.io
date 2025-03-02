@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión de Cuadrantes Policiales</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1></h1>
+        </header>
+        <main class="main-content">
+            <div class="left-panel">
+                <div class="file-upload-container">
+                    <button id="uploadButton" class="btn btn-primary">
+                        <i class="fas fa-upload"></i> Cargar lista de funcionarios
+                    </button>
+                    <input type="file" id="contactsFile" accept=".json" style="display: none;">
+                    <span id="fileStatus"></span>
+                </div>
+                <div class="officer-selection">
+                    <div class="officer-search-container">
+                        <label for="officer-search-1">Comandante de Patrulla</label>
+                        <input type="text" id="officer-search-1" class="officer-search" placeholder="Buscar funcionario...">
+                        <div id="officer-results-1" class="officer-results"></div>
+                    </div>
+                    <div class="officer-search-container">
+                        <label for="officer-search-2">Integrante de Patrulla</label>
+                        <input type="text" id="officer-search-2" class="officer-search" placeholder="Buscar funcionario...">
+                        <div id="officer-results-2" class="officer-results"></div>
+                    </div>
+                </div>
+                <div id="caiList"></div>
+                <button id="createTeamButton" class="btn btn-success" disabled>Crear Equipo</button>
+            </div>
+            <div class="right-panel">
+                <div id="teamsList"></div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
