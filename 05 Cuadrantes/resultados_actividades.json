@@ -1,0 +1,60 @@
+[
+  {
+    "categoria": "Capturas",
+    "resultados": [
+      "Captura por orden judicial",
+      "Captura en flagrancia",
+      "Captura por circular ilegal",
+      "Captura por comercialización de estupefacientes",
+      "Captura por porte ilegal de armas"
+    ]
+  },
+  {
+    "categoria": "Incautaciones",
+    "resultados": [
+      "Incautación de arma de fuego",
+      "Incautación de arma blanca",
+      "Incautación de estupefacientes",
+      "Incautación de contrabando",
+      "Incautación de bienes hurtados"
+    ]
+  },
+  {
+    "categoria": "Medidas correctivas",
+    "resultados": [
+      "Comparendo por infracción al Código de Policía",
+      "Cierre temporal de establecimiento",
+      "Multa general tipo 1",
+      "Multa general tipo 2",
+      "Multa general tipo 3",
+      "Multa general tipo 4"
+    ]
+  },
+  {
+    "categoria": "Protección",
+    "resultados": [
+      "Traslado por protección",
+      "Medida de protección a víctima",
+      "Atención a menor en situación de vulnerabilidad"
+    ]
+  },
+  {
+    "categoria": "Otros procedimientos",
+    "resultados": [
+      "Recuperación de vehículo hurtado",
+      "Recuperación de bien inmueble",
+      "Disuasión de riña",
+      "Acompañamiento a diligencia judicial",
+      "Verificación de antecedentes"
+    ]
+  },
+  {
+    "categoria": "Sin resultados",
+    "resultados": [
+      "Apoyo a otro cuadrante",
+      "Solicitud infundada",
+      "Solución mediante mediación policial",
+      "Situación resuelta antes de llegada"
+    ]
+  }
+]
