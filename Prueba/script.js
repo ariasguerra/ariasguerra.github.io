@@ -6,6 +6,7 @@ let contactsList = [];
 let selectedQuadrants = [];
 let selectedOfficers = [null, null];
 let activityResults = {};
+let activityResultsList = [];
 
 // Función principal para cargar datos
 async function loadData() {
@@ -13,17 +14,58 @@ async function loadData() {
         const localData = loadFromLocalStorage();
         if (localData) {
             ({ quadrants, teams, motivesList, selectedQuadrants, selectedOfficers, activityResults } = localData);
-            // Corregido: Cargar contactsList desde localStorage pero asegurar que sea un array
+            // Cargar contactsList desde localStorage pero asegurar que sea un array
             contactsList = JSON.parse(localStorage.getItem('contactsList') || '[]');
-        } else {
-            const [quadrantsResponse, motivesResponse] = await Promise.all([
-                fetch('cuadrantes.json'),
-                fetch('claves_policiales.json')
-            ]);
-            quadrants = await quadrantsResponse.json();
-            motivesList = await motivesResponse.json();
             
-            // Corregido: Normalizar el nombre del CAI para consistencia
+            // Cargar resultados de actividades
+            try {
+                const activityResultsResponse = await fetch('resultados_actividades.json');
+                activityResultsList = await activityResultsResponse.json();
+            } catch (error) {
+                console.error('Error al cargar resultados de actividades:', error);
+                // Usar una lista básica si falla la carga
+                activityResultsList = getDefaultActivityResults();
+            }
+        } else {
+            try {
+                const [quadrantsResponse, motivesResponse, activityResultsResponse] = await Promise.all([
+                    fetch('cuadrantes.json'),
+                    fetch('claves_policiales.json'),
+                    fetch('resultados_actividades.json')
+                ]);
+                quadrants = await quadrantsResponse.json();
+                motivesList = await motivesResponse.json();
+                activityResultsList = await activityResultsResponse.json();
+            } catch (error) {
+                console.error('Error al cargar archivos JSON:', error);
+                
+                // Intentar cargar archivos individualmente si falla la carga en paralelo
+                try {
+                    const quadrantsResponse = await fetch('cuadrantes.json');
+                    quadrants = await quadrantsResponse.json();
+                } catch (e) {
+                    console.error('Error al cargar cuadrantes:', e);
+                    quadrants = [];
+                }
+                
+                try {
+                    const motivesResponse = await fetch('claves_policiales.json');
+                    motivesList = await motivesResponse.json();
+                } catch (e) {
+                    console.error('Error al cargar claves policiales:', e);
+                    motivesList = [];
+                }
+                
+                try {
+                    const activityResultsResponse = await fetch('resultados_actividades.json');
+                    activityResultsList = await activityResultsResponse.json();
+                } catch (e) {
+                    console.error('Error al cargar resultados de actividades:', e);
+                    activityResultsList = getDefaultActivityResults();
+                }
+            }
+            
+            // Normalizar el nombre del CAI para consistencia
             quadrants.forEach(q => {
                 if (q.cai === "SETE DE AGOSTO") {
                     q.cai = "SIETE DE AGOSTO";
@@ -40,6 +82,20 @@ async function loadData() {
     }
 }
 
+// Función para obtener una lista predeterminada de resultados en caso de error
+function getDefaultActivityResults() {
+    return [
+        {
+            "categoria": "Capturas",
+            "resultados": ["Captura en flagrancia"]
+        },
+        {
+            "categoria": "Medidas correctivas",
+            "resultados": ["Comparendo por infracción al Código de Policía"]
+        }
+    ];
+}
+
 // Inicialización de la aplicación - Función unificada
 function initializeApp() {
     renderQuadrants();
@@ -50,6 +106,7 @@ function initializeApp() {
     loadOfficerDropdowns();
     updateCreateTeamButton();
     toggleCreateTeamElements(quadrants.filter(q => !isQuadrantInTeam(q.id)).length > 0);
+    addStylesToResultDialog();
 }
 
 // Configurar la carga de archivo
@@ -69,7 +126,7 @@ function setupFileUpload() {
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
-                    // Corregido: Validar estructura del JSON de contactos
+                    // Validar estructura del JSON de contactos
                     const data = JSON.parse(e.target.result);
                     if (!Array.isArray(data)) {
                         throw new Error("El archivo no contiene un arreglo válido");
@@ -134,7 +191,7 @@ function renderQuadrants() {
         sortedQuadrants.forEach(q => {
             const quadrantDiv = document.createElement('div');
             quadrantDiv.className = 'quadrant-item';
-            quadrantDiv.dataset.id = q.id.toString(); // Corregido: Convertir ID a string para consistencia
+            quadrantDiv.dataset.id = q.id.toString(); // Convertir ID a string para consistencia
             quadrantDiv.textContent = q.name;
             quadrantList.appendChild(quadrantDiv);
         });
@@ -149,7 +206,7 @@ function renderQuadrants() {
 
 // Verificar si un cuadrante está en un equipo
 function isQuadrantInTeam(quadrantId) {
-    // Corregido: Conversión de tipo para consistencia en la comparación
+    // Conversión de tipo para consistencia en la comparación
     const id = parseInt(quadrantId);
     return teams.some(team => team.quadrants.some(q => parseInt(q.id) === id));
 }
@@ -281,6 +338,47 @@ function createCaiSection(cai, caiTeams) {
     return caiSection;
 }
 
+// Añadir estilos para las categorías en la función que genera el diálogo
+function addStylesToResultDialog() {
+    // Verificar si los estilos ya existen
+    if (document.getElementById('result-dialog-styles')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'result-dialog-styles';
+    style.textContent = `
+        .result-category {
+            margin-bottom: 10px;
+        }
+        
+        .result-category h4 {
+            margin: 0;
+            padding: 5px;
+            background-color: #f0f0f0;
+            border-left: 3px solid #003366;
+            font-size: 12px;
+        }
+        
+        .result-category div {
+            padding: 8px;
+            cursor: pointer;
+            padding-left: 15px;
+            transition: background-color 0.3s, border-left 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .result-category div:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .result-category div.selected {
+            background-color: #e6f2ff;
+            border-left: 3px solid #003366;
+            font-weight: bold;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
 // Crear botón
 function createButton(id, innerHTML, onClickHandler) {
     const button = document.createElement('button');
@@ -306,7 +404,7 @@ function createSearchContainer(team) {
         filterMotives(searchInput.value, searchResults, team);
     });
 
-    // Corregido: Añadir eventos touch para mejor compatibilidad móvil
+    // Añadir eventos touch para mejor compatibilidad móvil
     searchInput.addEventListener('touchstart', () => {
         searchInput.focus();
     });
@@ -335,7 +433,7 @@ function setupEventListeners() {
         }
     });
 
-    // Corregido: Añadir soporte para eventos touch
+    // Añadir soporte para eventos touch
     document.getElementById('caiList').addEventListener('touchend', event => {
         if (event.target.classList.contains('quadrant-item')) {
             toggleQuadrantSelection(event.target.dataset.id);
@@ -348,7 +446,7 @@ function setupEventListeners() {
 
 // Alternar selección de cuadrante
 function toggleQuadrantSelection(quadrantId) {
-    // Corregido: Convertir y comparar IDs consistentemente
+    // Convertir y comparar IDs consistentemente
     const stringId = quadrantId.toString();
     const index = selectedQuadrants.findIndex(id => id.toString() === stringId);
     
@@ -365,7 +463,7 @@ function toggleQuadrantSelection(quadrantId) {
 // Actualizar estilos de cuadrantes
 function updateQuadrantStyles() {
     document.querySelectorAll('.quadrant-item').forEach(item => {
-        // Corregido: Comparar como strings
+        // Comparar como strings
         if (selectedQuadrants.includes(item.dataset.id.toString())) {
             item.classList.add('selected');
         } else {
@@ -394,7 +492,7 @@ function createTeam() {
 
         const teamName = 'C-' + teamQuadrants.map(q => q.name.slice(2)).join('-');
         
-        // Corregido: Inicialización completa de propiedades
+        // Inicialización completa de propiedades
         const newTeam = {
             name: teamName,
             quadrants: teamQuadrants,
@@ -465,10 +563,52 @@ function showActivityResultDialog(team) {
     const resultSearch = document.getElementById('resultSearch');
     const resultsList = document.getElementById('resultsList');
     const confirmButton = document.getElementById('confirmResult');
+    
+    // Función para mostrar todos los resultados agrupados por categoría
+    function showAllResults() {
+        resultsList.innerHTML = '';
+        
+        if (!activityResultsList || !Array.isArray(activityResultsList) || activityResultsList.length === 0) {
+            displayActivityResults(searchActivityResults(''), resultsList);
+            return;
+        }
+        
+        // Mostrar resultados agrupados por categoría
+        activityResultsList.forEach(category => {
+            if (!category.categoria || !category.resultados || !Array.isArray(category.resultados)) {
+                return;
+            }
+            
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'result-category';
+            categoryDiv.innerHTML = `<h4>${category.categoria}</h4>`;
+            
+            category.resultados.forEach(result => {
+                const div = document.createElement('div');
+                div.textContent = result;
+                div.addEventListener('click', () => {
+                    resultsList.querySelectorAll('div').forEach(el => {
+                        if (el.classList.contains('selected')) {
+                            el.classList.remove('selected');
+                        }
+                    });
+                    div.classList.add('selected');
+                    confirmButton.disabled = false;
+                });
+                categoryDiv.appendChild(div);
+            });
+            
+            resultsList.appendChild(categoryDiv);
+        });
+    }
 
     resultSearch.addEventListener('input', () => {
-        const results = searchActivityResults(resultSearch.value);
-        displayActivityResults(results, resultsList);
+        if (resultSearch.value.trim() === '') {
+            showAllResults();
+        } else {
+            const results = searchActivityResults(resultSearch.value);
+            displayActivityResults(results, resultsList);
+        }
     });
 
     confirmButton.addEventListener('click', () => {
@@ -481,21 +621,47 @@ function showActivityResultDialog(team) {
     });
 
     // Mostrar todos los resultados inicialmente
-    const initialResults = searchActivityResults('');
-    displayActivityResults(initialResults, resultsList);
+    showAllResults();
 }
 
 function searchActivityResults(query) {
-    // Esta es una lista de ejemplo, deberías reemplazarla con tu propia lista de resultados
-    const allResults = [
-        'Captura', 'Comparendo', 'Traslado por Protección', 'Cierre de Establecimiento',
-        'Incautación de Arma Blanca', 'Incautación de Arma de Fuego'
-    ];
-    return allResults.filter(result => result.toLowerCase().includes(query.toLowerCase()));
+    // Si no tenemos la lista, usar una predeterminada
+    if (!activityResultsList || !Array.isArray(activityResultsList) || activityResultsList.length === 0) {
+        const defaultResults = [
+            "Captura", "Comparendo", "Traslado por Protección", "Cierre de Establecimiento",
+            "Incautación de Arma Blanca", "Incautación de Arma de Fuego"
+        ];
+        return defaultResults.filter(result => result.toLowerCase().includes(query.toLowerCase()));
+    }
+    
+    // Buscar en todas las categorías
+    const allResults = [];
+    
+    activityResultsList.forEach(category => {
+        if (category.resultados && Array.isArray(category.resultados)) {
+            category.resultados.forEach(result => {
+                if (result.toLowerCase().includes(query.toLowerCase())) {
+                    allResults.push(result);
+                }
+            });
+        }
+    });
+    
+    return allResults;
 }
 
 function displayActivityResults(results, container) {
     container.innerHTML = '';
+    
+    if (results.length === 0) {
+        const noResults = document.createElement('div');
+        noResults.textContent = 'No se encontraron resultados';
+        noResults.style.padding = '10px';
+        noResults.style.fontStyle = 'italic';
+        container.appendChild(noResults);
+        return;
+    }
+    
     results.forEach(result => {
         const div = document.createElement('div');
         div.textContent = result;
@@ -516,7 +682,7 @@ function saveActivityResult(team, result) {
 
     const cai = team.quadrants[0].cai;
     
-    // Corregido: Verificar que activityHistory exista y tenga elementos
+    // Verificar que activityHistory exista y tenga elementos
     if (!team.activityHistory || team.activityHistory.length === 0) {
         console.error('Error: El historial de actividades está vacío');
         return;
@@ -531,7 +697,7 @@ function saveActivityResult(team, result) {
         activityResults[cai][team.name] = [];
     }
     
-    // Corregido: Asegurarse de tener un array con el tamaño adecuado
+    // Asegurarse de tener un array con el tamaño adecuado
     while (activityResults[cai][team.name].length <= activityIndex) {
         activityResults[cai][team.name].push(null);
     }
@@ -546,7 +712,7 @@ function completeTeamDeactivation(team) {
     team.active = false;
     const endTime = new Date();
     
-    // Corregido: Verificar que activityHistory exista y tenga elementos
+    // Verificar que activityHistory exista y tenga elementos
     if (team.activityHistory && team.activityHistory.length > 0) {
         team.activityHistory[team.activityHistory.length - 1].endTime = endTime;
     }
@@ -570,6 +736,16 @@ function filterMotives(query, resultsElement, team) {
     );
 
     resultsElement.innerHTML = '';
+    if (filteredMotives.length === 0) {
+        const noResults = document.createElement('div');
+        noResults.className = 'search-result-item';
+        noResults.textContent = 'No se encontraron coincidencias';
+        noResults.style.fontStyle = 'italic';
+        resultsElement.appendChild(noResults);
+        resultsElement.style.display = 'block';
+        return;
+    }
+
     filteredMotives.forEach(motive => {
         const item = document.createElement('div');
         item.className = 'search-result-item';
@@ -579,7 +755,7 @@ function filterMotives(query, resultsElement, team) {
             resultsElement.parentNode.querySelector('.search-input').value = motive.text;
             resultsElement.style.display = 'none';
         };
-        // Corregido: Añadir soporte touch
+        // Añadir soporte touch
         item.ontouchend = (e) => {
             selectMotive(motive.value, team);
             resultsElement.parentNode.querySelector('.search-input').value = motive.text;
@@ -598,7 +774,7 @@ function selectMotive(motiveCode, team) {
     const motiveDescription = motivesList.find(motive => motive.value === motiveCode)?.text || '';
     team.selectedMotive = motiveDescription;
     
-    // Corregido: No establecer la hora asignada todavía, solo al activar
+    // No establecer la hora asignada todavía, solo al activar
     
     const teamElement = document.querySelector(`.team-item[data-team-name="${team.name}"]`);
     if (teamElement) {
@@ -611,7 +787,7 @@ function selectMotive(motiveCode, team) {
         }
         
         if (activateButton) {
-            // Corregido: Solo habilitar si se ha seleccionado un motivo
+            // Solo habilitar si se ha seleccionado un motivo
             activateButton.disabled = !motiveDescription;
         }
     }
@@ -627,7 +803,7 @@ function activateTeam(teamName) {
         const startTime = new Date();
         team.assignedTime = startTime;
         
-        // Corregido: Asegurarse de que activityHistory existe
+        // Asegurarse de que activityHistory existe
         if (!team.activityHistory) {
             team.activityHistory = [];
         }
@@ -646,7 +822,7 @@ function activateTeam(teamName) {
 }
 
 function formatDate(date) {
-    // Corregido: Mejor verificación de fecha válida
+    // Mejor verificación de fecha válida
     if (!(date instanceof Date) || isNaN(date.getTime())) {
         return 'Fecha no disponible';
     }
@@ -735,7 +911,7 @@ function callOfficer(phoneNumber) {
     }
 }
 
-// Corregido: Mejorar manejo de fechas en localStorage
+// Mejorar manejo de fechas en localStorage
 function saveToLocalStorage() {
     try {
         // Crear una copia profunda para manipular
@@ -782,7 +958,7 @@ function loadFromLocalStorage() {
         
         const parsedData = JSON.parse(savedData);
         
-        // Corregido: Restaurar fechas desde ISO strings
+        // Restaurar fechas desde ISO strings
         if (parsedData.teams) {
             parsedData.teams.forEach(team => {
                 if (team.assignedTime) {
@@ -793,7 +969,7 @@ function loadFromLocalStorage() {
                         if (activity.startTime) {
                             activity.startTime = new Date(activity.startTime);
                         }
-                       if (activity.endTime) {
+                        if (activity.endTime) {
                             activity.endTime = new Date(activity.endTime);
                         }
                     });
@@ -812,7 +988,7 @@ function loadFromLocalStorage() {
 function resetLocalStorage() {
     if (confirm('¿Está seguro de que desea reiniciar todos los datos para un nuevo turno? Esta acción no se puede deshacer.')) {
         localStorage.removeItem('policeQuadrantsData');
-        // Corregido: Preguntar si también quiere borrar la lista de contactos
+        // Preguntar si también quiere borrar la lista de contactos
         if (confirm('¿Desea mantener la lista de funcionarios? Presione Cancelar para conservarla o Aceptar para borrarla también.')) {
             localStorage.removeItem('contactsList');
         }
@@ -820,7 +996,7 @@ function resetLocalStorage() {
     }
 }
 
-// Corregido: Dividir los reportes en secciones más pequeñas para evitar problemas con límites de URL
+// Dividir los reportes en secciones más pequeñas para evitar problemas con límites de URL
 function generateReport() {
     try {
         const reportContent = generateReportContent();
@@ -1112,7 +1288,7 @@ function generateReportData() {
     return { teamComposition, activities, summaryTable };
 }
 
-// Corregido: Mejorar el reporte simplificado para mensajería
+// Mejorar el reporte simplificado para mensajería
 function generateSimplifiedReport() {
     try {
         let report = "Reporte de Actividades por CAI y Cuadrante\n\n";
@@ -1240,7 +1416,7 @@ function generateSimplifiedReport() {
     }
 }
 
-// Corregido: Mejor manejo de tiempos
+// Mejor manejo de tiempos
 function calculateDuration(startTime, endTime = new Date()) {
     if (!startTime || !(startTime instanceof Date) || isNaN(startTime.getTime())) return 'N/A';
     if (!endTime || !(endTime instanceof Date) || isNaN(endTime.getTime())) return 'N/A';
@@ -1274,7 +1450,7 @@ function formatDateTime(date) {
     }
 }
 
-// Corregido: Manejo de errores en generación de reportes
+// Manejo de errores en generación de reportes
 function sendReportWhatsApp() {
     try {
         const report = generateSimplifiedReport();
@@ -1346,7 +1522,7 @@ function loadOfficerDropdowns() {
             filterOfficers(input.value, resultsContainer, index);
         });
 
-        // Corregido: Añadir soporte para dispositivos táctiles
+        // Añadir soporte para dispositivos táctiles
         input.addEventListener('touchstart', () => {
             input.focus();
         });
@@ -1416,7 +1592,7 @@ function filterOfficers(query, resultsElement, officerIndex) {
                 resultsElement.style.display = 'none';
             };
             
-            // Corregido: Añadir soporte táctil
+            // Añadir soporte táctil
             item.ontouchend = (e) => {
                 selectOfficer(officer, officerIndex);
                 resultsElement.style.display = 'none';
@@ -1492,7 +1668,7 @@ function handleLoadError(error) {
     console.error('Error al cargar los datos:', error);
     alert('Hubo un error al cargar los datos. Por favor, recargue la página o contacte al administrador.');
     
-    // Corregido: Inicializar con valores predeterminados para evitar errores fatales
+    // Inicializar con valores predeterminados para evitar errores fatales
     quadrants = [];
     teams = [];
     motivesList = [];
