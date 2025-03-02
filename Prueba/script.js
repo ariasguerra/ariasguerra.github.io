@@ -1782,14 +1782,22 @@ function addVoiceButtonTo(input) {
     });
 }
 
-// Función para iniciar el reconocimiento de voz
+
+        }
+    };
+    
+    recognition.onerror = (event) => {
+        console.error('Error en reconocimiento de voz:', event.error);// Función para iniciar el reconocimiento de voz (VERSIÓN CORREGIDA)
 function startSpeechRecognition(input, button) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     
     recognition.lang = 'es-CO';  // Establecer el idioma a español de Colombia
-    recognition.continuous = false;
-    recognition.interimResults = false;
+    recognition.continuous = true; // Cambiar a continuo para capturar frases más largas
+    recognition.interimResults = true; // Mostrar resultados intermedios para mejor retroalimentación
+    
+    // Variable para almacenar texto previo (para búsquedas consecutivas)
+    const previousText = input.value.trim();
     
     // Cambiar el ícono mientras escucha
     button.innerHTML = '<i class="fas fa-microphone-slash"></i>';
@@ -1813,22 +1821,82 @@ function startSpeechRecognition(input, button) {
     
     input.parentNode.appendChild(listeningIndicator);
     
+    let finalTranscript = previousText;
+    
     recognition.onresult = (event) => {
-        const speechResult = event.results[0][0].transcript;
-        input.value = speechResult;
+        let interimTranscript = '';
         
-        // Disparar eventos para que la aplicación reaccione como si el usuario hubiera escrito
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-        input.focus();
+        // Combinar todos los resultados para frases más complejas
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            
+            if (event.results[i].isFinal) {
+                // Limpiar el resultado final (eliminar puntos finales y espacios extra)
+                let cleanTranscript = transcript.trim();
+                if (cleanTranscript.endsWith('.')) {
+                    cleanTranscript = cleanTranscript.slice(0, -1);
+                }
+                
+                // Agregar a texto previo si existe
+                if (finalTranscript) {
+                    finalTranscript += ' ' + cleanTranscript;
+                } else {
+                    finalTranscript = cleanTranscript;
+                }
+            } else {
+                interimTranscript += transcript;
+            }
+        }
+        
+        // Mostrar resultados intermedios para retroalimentación
+        if (interimTranscript) {
+            // Mostrar combinación de texto final y provisional
+            let displayText = finalTranscript;
+            if (displayText && interimTranscript) {
+                displayText += ' ' + interimTranscript;
+            } else if (interimTranscript) {
+                displayText = interimTranscript;
+            }
+            
+            input.value = displayText;
+        } else {
+            input.value = finalTranscript;
+        }
+        
+        // Solo disparar el evento input cuando hay resultados finales
+        // para evitar búsquedas en cada palabra intermedia
+        if (finalTranscript) {
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+        }
     };
     
+    // Usar un temporizador para detener automáticamente después de un tiempo sin hablar
+    let silenceTimer;
+    const resetSilenceTimer = () => {
+        clearTimeout(silenceTimer);
+        silenceTimer = setTimeout(() => {
+            recognition.stop();
+        }, 3000); // Detener después de 3 segundos de silencio
+    };
+    
+    recognition.onaudiostart = resetSilenceTimer;
+    recognition.onsoundstart = resetSilenceTimer;
+    recognition.onspeechstart = resetSilenceTimer;
+    recognition.onspeechend = resetSilenceTimer;
+    
     recognition.onend = () => {
+        clearTimeout(silenceTimer);
         button.innerHTML = '<i class="fas fa-microphone"></i>';
         button.style.color = '#007bff';
         
         if (listeningIndicator.parentNode) {
             listeningIndicator.parentNode.removeChild(listeningIndicator);
         }
+        
+        // Enfoque en el input al terminar y posicionar cursor al final
+        input.focus();
+        const length = input.value.length;
+        input.setSelectionRange(length, length);
     };
     
     recognition.onerror = (event) => {
@@ -1840,7 +1908,10 @@ function startSpeechRecognition(input, button) {
             listeningIndicator.parentNode.removeChild(listeningIndicator);
         }
         
-        alert('Error en el reconocimiento de voz. Intente de nuevo.');
+        if (event.error !== 'no-speech') {
+            // No mostrar error si simplemente no habló el usuario
+            alert('Error en el reconocimiento de voz: ' + event.error);
+        }
     };
     
     recognition.start();
