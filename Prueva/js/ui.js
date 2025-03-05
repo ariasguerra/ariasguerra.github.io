@@ -1,4 +1,12 @@
 /**
+     * Actualizar las opciones de grados en el filtro
+     * Nota: Método vacío para mantener compatibilidad con el código existente
+     */
+    updateGradesFilter() {
+        // Esta función ya no hace nada después de eliminar los filtros
+        // Se mantiene para evitar errores en caso de que sea llamada
+        console.log("Aviso: updateGradesFilter() ya no es necesaria");
+    },/**
  * Gestión de interfaz de usuario
  */
 const UI = {
