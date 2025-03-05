@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Parqueo</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Selección del tipo de parqueadero -->
+        <div class="title-bar">
+            <label for="parkingType">Seleccione el tipo de parqueadero:</label>
+            <select id="parkingType" onchange="ParkingApp.setPdfTitle(this.value)">
+                <option value="Parqueadero Interno">Parqueadero Interno</option>
+                <option value="Parqueadero Externo">Parqueadero Externo</option>
+            </select>
+        </div>
+
+        <!-- Botón de carga de archivo -->
+        <label class="file-upload" id="fileLabel">
+            <input type="file" id="fileInput" />
+            <i class="fas fa-upload"></i> <span id="fileText">Cargar Archivo</span>
+        </label>
+
+        <!-- Selección de modos de búsqueda -->
+        <div class="search-bar">
+            <select id="searchMode" onchange="ParkingApp.setSearchMode(this.value)">
+                <option value="single">Buscar una placa</option>
+                <option value="multiple">Buscar múltiples placas</option>
+            </select>
+        </div>
+
+        <!-- Barra de búsqueda -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Ingrese placa sin espacios" />
+            <button onclick="ParkingApp.search()" class="icon-button">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+
+        <!-- Resultados de búsqueda -->
+        <div id="results"></div>
+
+        <!-- Placas no autorizadas -->
+        <div id="unauthorized"></div>
+
+        <!-- Toggle para filtros avanzados -->
+        <button class="toggle-filters" onclick="UI.toggleFilters()">
+            <i class="fas fa-filter"></i> Filtros Avanzados
+        </button>
+
+        <!-- Panel de filtros avanzados -->
+        <div id="advancedFilters" class="advanced-filters">
+            <h3>Filtrar Historial</h3>
+            <div class="filter-grid">
+                <div class="filter-item">
+                    <label for="filterStartDate">Desde:</label>
+                    <input type="date" id="filterStartDate">
+                </div>
+                <div class="filter-item">
+                    <label for="filterEndDate">Hasta:</label>
+                    <input type="date" id="filterEndDate">
+                </div>
+                <div class="filter-item">
+                    <label for="filterStatus">Estado:</label>
+                    <select id="filterStatus">
+                        <option value="todos">Todos</option>
+                        <option value="inside">En Parqueadero</option>
+                        <option value="outside">Fuera</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="filterGrado">Grado:</label>
+                    <select id="filterGrado">
+                        <option value="todos">Todos</option>
+                        <!-- Se llenará dinámicamente -->
+                    </select>
+                </div>
+            </div>
+            <button onclick="ParkingApp.filterHistory()" class="filter-button">
+                <i class="fas fa-filter"></i> Aplicar Filtros
+            </button>
+        </div>
+
+        <!-- Resultados de historial filtrado -->
+        <div id="historyResults"></div>
+
+        <!-- Botones para descargar historial y reiniciar registros -->
+        <div class="button-group">
+            <button class="download" onclick="ParkingApp.downloadPDF()">
+                <i class="fas fa-file-pdf"></i> Descargar Log en PDF
+            </button>
+            <button class="reset" onclick="ParkingApp.resetParkingLog()">
+                <i class="fas fa-trash"></i> Reiniciar Registro
+            </button>
+        </div>
+    </div>
+
+    <!-- Cargar archivos JavaScript modularizados -->
+    <script src="js/utils.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/parking-app.js"></script>
+    <script src="js/init.js"></script>
+</body>
+</html>
