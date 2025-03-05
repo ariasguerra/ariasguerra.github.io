@@ -1,15 +1,15 @@
 /**
- * Aplicación principal para la gestión de parqueo
+ * AplicaciÃ³n principal para la gestiÃ³n de parqueo
  */
 const ParkingApp = {
-    // Estado de la aplicación
+    // Estado de la aplicaciÃ³n
     database: [],
     parkingLog: [],
     searchMode: "single",
     pdfTitle: "Parqueadero Interno",
     
     /**
-     * Inicializar la aplicación
+     * Inicializar la aplicaciÃ³n
      */
     init() {
         this.loadStoredData();
@@ -91,8 +91,8 @@ const ParkingApp = {
     },
     
     /**
-     * Cambiar el modo de búsqueda
-     * @param {string} mode - Modo de búsqueda (single o multiple)
+     * Cambiar el modo de bÃºsqueda
+     * @param {string} mode - Modo de bÃºsqueda (single o multiple)
      */
     setSearchMode(mode) {
         this.searchMode = mode;
@@ -100,15 +100,15 @@ const ParkingApp = {
     },
     
     /**
-     * Actualizar el título del PDF
-     * @param {string} title - Nuevo título
+     * Actualizar el tÃ­tulo del PDF
+     * @param {string} title - Nuevo tÃ­tulo
      */
     setPdfTitle(title) {
         this.pdfTitle = title;
     },
     
     /**
-     * Buscar vehículos por placa
+     * Buscar vehÃ­culos por placa
      */
     search() {
         const searchValue = document.getElementById("searchInput").value.toUpperCase().replace(/\s+/g, "");
@@ -156,11 +156,11 @@ const ParkingApp = {
     },
     
     /**
-     * Registrar ingreso de un vehículo
-     * @param {string} plate - Placa del vehículo
+     * Registrar ingreso de un vehÃ­culo
+     * @param {string} plate - Placa del vehÃ­culo
      * @param {string} grade - Grado del propietario
      * @param {string} name - Nombre del propietario
-     * @param {boolean} isMultiple - Indica si es parte de una búsqueda múltiple
+     * @param {boolean} isMultiple - Indica si es parte de una bÃºsqueda mÃºltiple
      */
     entry(plate, grade, name, isMultiple) {
         const { date, time } = Utils.getCurrentDateTime();
@@ -171,9 +171,10 @@ const ParkingApp = {
             NOMBRE: name,
             status: "inside",
             date_in: date,
-            time_in: isMultiple ? "Se recibió con el Servicio" : time,
+            time_in: isMultiple ? "Se recibiÃ³ con el Servicio" : time,
             date_out: null,
             time_out: null,
+            parqueadero: this.pdfTitle, // Registrar en quÃ© parqueadero ingresÃ³
         });
         
         localStorage.setItem("parkingLog", JSON.stringify(this.parkingLog));
@@ -182,8 +183,8 @@ const ParkingApp = {
     },
     
     /**
-     * Registrar salida de un vehículo
-     * @param {string} plate - Placa del vehículo
+     * Registrar salida de un vehÃ­culo
+     * @param {string} plate - Placa del vehÃ­culo
      */
     exit(plate) {
         const logIndex = this.parkingLog.findIndex(
@@ -200,48 +201,11 @@ const ParkingApp = {
             UI.showMessage("Salida registrada");
             this.search(); // Actualizar resultados
         } else {
-            UI.showMessage("No se encontró registro de ingreso para esta placa", "error");
+            UI.showMessage("No se encontrÃ³ registro de ingreso para esta placa", "error");
         }
     },
     
-    /**
-     * Filtrar el historial según los criterios seleccionados
-     */
-    filterHistory() {
-        const startDate = document.getElementById("filterStartDate").value;
-        const endDate = document.getElementById("filterEndDate").value;
-        const filterStatus = document.getElementById("filterStatus").value;
-        const filterGrado = document.getElementById("filterGrado").value;
-        
-        // Crear copia del log completo
-        let filteredLog = [...this.parkingLog];
-        
-        // Aplicar filtros uno por uno si están definidos
-        if (startDate) {
-            filteredLog = filteredLog.filter(log => {
-                const dateIn = new Date(log.date_in.split('/').reverse().join('-'));
-                return dateIn >= new Date(startDate);
-            });
-        }
-        
-        if (endDate) {
-            filteredLog = filteredLog.filter(log => {
-                const dateIn = new Date(log.date_in.split('/').reverse().join('-'));
-                return dateIn <= new Date(endDate);
-            });
-        }
-        
-        if (filterStatus !== "todos") {
-            filteredLog = filteredLog.filter(log => log.status === filterStatus);
-        }
-        
-        if (filterGrado && filterGrado !== "todos") {
-            filteredLog = filteredLog.filter(log => log.GRADO === filterGrado);
-        }
-        
-        // Mostrar resultados en la UI
-        UI.displayFilteredLogs(filteredLog);
-    },
+
     
     /**
      * Generar y descargar PDF con el historial
@@ -250,13 +214,20 @@ const ParkingApp = {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
 
-        // Obtener motocicletas actualmente en el parqueadero
-        const insideVehicles = this.parkingLog
+        // Filtrar vehÃ­culos segÃºn el parqueadero seleccionado (interno o externo)
+        const filteredLogs = this.parkingLog.filter(log => {
+            const parqueaderoActual = this.pdfTitle;
+            return log.parqueadero === parqueaderoActual || 
+                  (!log.parqueadero && parqueaderoActual === "Parqueadero Interno"); // Por defecto, se asignan al interno
+        });
+
+        // Obtener motocicletas actualmente en el parqueadero especÃ­fico
+        const insideVehicles = filteredLogs
             .filter((log) => log.status === "inside")
             .map((log) => log.PLACA)
             .join(", ");
 
-        const tableData = this.parkingLog.map((log) => ({
+        const tableData = filteredLogs.map((log) => ({
             Placa: log.PLACA,
             "Grado y Nombre": `${log.GRADO || ""} ${log.NOMBRE || ""}`.trim(),
             "Fecha de Ingreso": log.date_in || "No registrada",
@@ -265,7 +236,7 @@ const ParkingApp = {
             "Hora de Salida": log.time_out || "No registrada",
         }));
 
-        // Agregar título dinámico
+        // Agregar tÃ­tulo dinÃ¡mico
         doc.text(this.pdfTitle, 10, 10);
 
         // Agregar tabla de registros
@@ -276,9 +247,9 @@ const ParkingApp = {
         });
 
         // Agregar mensaje con placas actuales al final
-        const finalY = doc.lastAutoTable.finalY + 10; // Posición final después de la tabla
-        doc.text("Motocicletas en el Parqueadero:", 10, finalY);
-        doc.text(insideVehicles || "No hay motocicletas en el parqueadero.", 10, finalY + 10);
+        const finalY = doc.lastAutoTable.finalY + 10; // PosiciÃ³n final despuÃ©s de la tabla
+        doc.text(`Motocicletas en ${this.pdfTitle}:`, 10, finalY);
+        doc.text(insideVehicles || `No hay motocicletas en ${this.pdfTitle}.`, 10, finalY + 10);
 
         // Guardar PDF
         doc.save(this.pdfTitle.replace(" ", "_") + "_Registro_Parqueo.pdf");
@@ -288,7 +259,7 @@ const ParkingApp = {
      * Reiniciar el registro del parqueadero
      */
     resetParkingLog() {
-        if (confirm("¿Estás seguro de que deseas reiniciar el registro del parqueadero? Esto eliminará todos los datos almacenados.")) {
+        if (confirm("Â¿EstÃ¡s seguro de que deseas reiniciar el registro del parqueadero? Esto eliminarÃ¡ todos los datos almacenados.")) {
             localStorage.removeItem("parkingLog");
             localStorage.removeItem("database");
             
@@ -310,5 +281,5 @@ const ParkingApp = {
     }
 };
 
-// Exportar el objeto para uso en otros módulos
+// Exportar el objeto para uso en otros mÃ³dulos
 window.ParkingApp = ParkingApp;
