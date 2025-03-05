@@ -49,46 +49,7 @@
         <!-- Placas no autorizadas -->
         <div id="unauthorized"></div>
 
-        <!-- Toggle para filtros avanzados -->
-        <button class="toggle-filters" onclick="UI.toggleFilters()">
-            <i class="fas fa-filter"></i> Filtros Avanzados
-        </button>
 
-        <!-- Panel de filtros avanzados -->
-        <div id="advancedFilters" class="advanced-filters">
-            <h3>Filtrar Historial</h3>
-            <div class="filter-grid">
-                <div class="filter-item">
-                    <label for="filterStartDate">Desde:</label>
-                    <input type="date" id="filterStartDate">
-                </div>
-                <div class="filter-item">
-                    <label for="filterEndDate">Hasta:</label>
-                    <input type="date" id="filterEndDate">
-                </div>
-                <div class="filter-item">
-                    <label for="filterStatus">Estado:</label>
-                    <select id="filterStatus">
-                        <option value="todos">Todos</option>
-                        <option value="inside">En Parqueadero</option>
-                        <option value="outside">Fuera</option>
-                    </select>
-                </div>
-                <div class="filter-item">
-                    <label for="filterGrado">Grado:</label>
-                    <select id="filterGrado">
-                        <option value="todos">Todos</option>
-                        <!-- Se llenará dinámicamente -->
-                    </select>
-                </div>
-            </div>
-            <button onclick="ParkingApp.filterHistory()" class="filter-button">
-                <i class="fas fa-filter"></i> Aplicar Filtros
-            </button>
-        </div>
-
-        <!-- Resultados de historial filtrado -->
-        <div id="historyResults"></div>
 
         <!-- Botones para descargar historial y reiniciar registros -->
         <div class="button-group">
