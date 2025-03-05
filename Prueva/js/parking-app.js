@@ -67,7 +67,9 @@ const ParkingApp = {
                     localStorage.setItem("database", JSON.stringify(this.database));
                     
                     UI.updateFileStatus(true, `Archivo Cargado (${this.database.length} registros)`);
-                    UI.updateGradesFilter();
+                    
+                    // No llamar a updateGradesFilter que podría causar error al intentar acceder a elementos eliminados
+                    
                     UI.showMessage("Archivo cargado exitosamente.");
                 } catch (error) {
                     console.error("Error al procesar archivo:", error);
@@ -274,7 +276,8 @@ const ParkingApp = {
             
             document.getElementById("results").innerHTML = "";
             document.getElementById("unauthorized").innerHTML = "";
-            document.getElementById("historyResults").innerHTML = "";
+            
+            // Ya no se necesita limpiar historyResults porque ese elemento ya no existe
             
             UI.showMessage("Registro reiniciado.");
         }
