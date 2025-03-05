@@ -1,10 +1,10 @@
 /**
- * Funciones utilitarias para la aplicación de gestión de parqueo
+ * Funciones utilitarias para la aplicaciÃ³n de gestiÃ³n de parqueo
  */
 const Utils = {
     /**
-     * Convierte una fecha en formato Excel a formato JavaScript estándar
-     * @param {number} serial - Número de serie de fecha de Excel
+     * Convierte una fecha en formato Excel a formato JavaScript estÃ¡ndar
+     * @param {number} serial - NÃºmero de serie de fecha de Excel
      * @returns {string} - Fecha en formato YYYY-MM-DD o mensaje de no registrada
      */
     excelDateToJSDate(serial) {
@@ -26,25 +26,30 @@ const Utils = {
     },
     
     /**
-     * Valida el formato de una placa de vehículo colombiana
+     * Valida el formato de una placa de vehÃ­culo colombiana
      * @param {string} placa - Placa a validar
-     * @returns {boolean} - True si es válida, false en caso contrario
+     * @returns {boolean} - True si es vÃ¡lida, false en caso contrario
      */
     validatePlaca(placa) {
-        // Eliminar espacios y convertir a mayúsculas
+        // Eliminar espacios y convertir a mayÃºsculas
         placa = placa.replace(/\s+/g, "").toUpperCase();
         
-        // Formatos comunes de placas colombianas (3 letras seguidas de 2-3 números)
-        const placaRegex = /^[A-Z]{3}\d{2,3}$/;
+        // Formatos comunes de placas colombianas
+        // 1. Formato estÃ¡ndar: 3 letras seguidas de 2-3 nÃºmeros (ABC123)
+        // 2. Formato alternativo: 3 letras seguidas de 2 nÃºmeros y una letra (ABC12D)
+        // 3. Otros formatos personalizados (JHJ57C)
+        
+        // OpciÃ³n mÃ¡s permisiva: cualquier combinaciÃ³n de 5-6 caracteres alfanumÃ©ricos
+        const placaRegex = /^[A-Z0-9]{5,7}$/;
         
         return placaRegex.test(placa);
     },
     
     /**
-     * Valida las placas ingresadas según el modo de búsqueda
-     * @param {string} searchValue - Valor ingresado en el campo de búsqueda
-     * @param {string} searchMode - Modo de búsqueda (single o multiple)
-     * @returns {Object} - Resultado de la validación con propiedades isValid y message
+     * Valida las placas ingresadas segÃºn el modo de bÃºsqueda
+     * @param {string} searchValue - Valor ingresado en el campo de bÃºsqueda
+     * @param {string} searchMode - Modo de bÃºsqueda (single o multiple)
+     * @returns {Object} - Resultado de la validaciÃ³n con propiedades isValid y message
      */
     validateSearchInput(searchValue, searchMode) {
         if (!searchValue) {
@@ -54,25 +59,25 @@ const Utils = {
             };
         }
         
-        // Limpiar el valor de búsqueda
+        // Limpiar el valor de bÃºsqueda
         searchValue = searchValue.toUpperCase().replace(/\s+/g, "");
         
         if (searchMode === "single") {
             if (!this.validatePlaca(searchValue)) {
                 return {
                     isValid: false,
-                    message: "El formato de la placa no es válido. Ejemplo: ABC123"
+                    message: "El formato de la placa no es vÃ¡lido. Ejemplo: ABC123"
                 };
             }
         } else {
-            // Para búsquedas múltiples
+            // Para bÃºsquedas mÃºltiples
             const placas = searchValue.split(",");
             
-            // Verificar si hay placas vacías
+            // Verificar si hay placas vacÃ­as
             if (placas.some(placa => !placa.trim())) {
                 return {
                     isValid: false,
-                    message: "Se encontraron placas vacías, revise la separación por comas"
+                    message: "Se encontraron placas vacÃ­as, revise la separaciÃ³n por comas"
                 };
             }
             
@@ -101,7 +106,7 @@ const Utils = {
         try {
             const dateObj = typeof date === 'string' ? new Date(date) : date;
             
-            if (isNaN(dateObj.getTime())) return "Fecha inválida";
+            if (isNaN(dateObj.getTime())) return "Fecha invÃ¡lida";
             
             if (format === 'display') {
                 return dateObj.toLocaleDateString("es-ES");
@@ -117,8 +122,8 @@ const Utils = {
     },
     
     /**
-     * Genera un ID único
-     * @returns {string} - ID único basado en timestamp y número aleatorio
+     * Genera un ID Ãºnico
+     * @returns {string} - ID Ãºnico basado en timestamp y nÃºmero aleatorio
      */
     generateId() {
         return Date.now().toString(36) + Math.random().toString(36).substring(2);
@@ -147,20 +152,20 @@ const Utils = {
     },
     
     /**
-     * Extrae los grados únicos de un conjunto de datos
-     * @param {Array} database - Base de datos de vehículos
-     * @returns {Array} - Array de grados únicos ordenados
+     * Extrae los grados Ãºnicos de un conjunto de datos
+     * @param {Array} database - Base de datos de vehÃ­culos
+     * @returns {Array} - Array de grados Ãºnicos ordenados
      */
     getUniqueGrades(database) {
         if (!database || !Array.isArray(database)) return [];
         
-        // Extraer todos los grados y eliminar duplicados y valores vacíos
+        // Extraer todos los grados y eliminar duplicados y valores vacÃ­os
         const grades = [...new Set(database.map(item => item.GRADO).filter(Boolean))];
         
-        // Ordenar alfabéticamente
+        // Ordenar alfabÃ©ticamente
         return grades.sort();
     }
 };
 
-// Exportar el objeto para uso en otros módulos
+// Exportar el objeto para uso en otros mÃ³dulos
 window.Utils = Utils;
