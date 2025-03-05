@@ -1,5 +1,5 @@
 /**
- * Gestión de interfaz de usuario
+ * GestiÃ³n de interfaz de usuario
  */
 const UI = {
     /**
@@ -8,7 +8,6 @@ const UI = {
     init() {
         this.bindEvents();
         this.updateSearchPlaceholder();
-        this.initFilterPanel();
     },
     
     /**
@@ -53,7 +52,7 @@ const UI = {
     },
     
     /**
-     * Actualizar el placeholder del campo de búsqueda según el modo
+     * Actualizar el placeholder del campo de bÃºsqueda segÃºn el modo
      */
     updateSearchPlaceholder() {
         const searchInput = document.getElementById("searchInput");
@@ -67,10 +66,10 @@ const UI = {
      * @param {string} type - Tipo de mensaje (success, error, info)
      */
     showMessage(message, type = "success") {
-        // Versión simple (alert)
+        // VersiÃ³n simple (alert)
         alert(message);
         
-        // Versión avanzada (descomentarla para activar notificaciones visuales)
+        // VersiÃ³n avanzada (descomentarla para activar notificaciones visuales)
         /*
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
@@ -78,7 +77,7 @@ const UI = {
         
         document.body.appendChild(notification);
         
-        // Eliminar después de la animación
+        // Eliminar despuÃ©s de la animaciÃ³n
         setTimeout(() => {
             document.body.removeChild(notification);
         }, 4000);
@@ -86,7 +85,7 @@ const UI = {
     },
     
     /**
-     * Mostrar los resultados de búsqueda
+     * Mostrar los resultados de bÃºsqueda
      * @param {Array} results - Resultados obtenidos
      * @param {Array} unauthorized - Placas no autorizadas
      */
@@ -112,10 +111,10 @@ const UI = {
     },
     
     /**
-     * Crear una tarjeta de resultado para un vehículo
-     * @param {Object} result - Datos del vehículo
+     * Crear una tarjeta de resultado para un vehÃ­culo
+     * @param {Object} result - Datos del vehÃ­culo
      * @param {HTMLElement} container - Contenedor donde agregar la tarjeta
-     * @param {boolean} isMultiple - Indica si es parte de una búsqueda múltiple
+     * @param {boolean} isMultiple - Indica si es parte de una bÃºsqueda mÃºltiple
      */
     createResultCard(result, container, isMultiple = false) {
         const isSOATExpired = Utils.isDateExpired(result["FECHA VENCIMIENTO SOAT"]);
@@ -141,7 +140,7 @@ const UI = {
             <p><strong>Placa:</strong> ${result.PLACA}</p>
             <p><strong>SOAT:</strong> ${result["FECHA VENCIMIENTO SOAT"] || "No registrado"} 
                 ${isSOATExpired ? '<span class="expired">(Vencido)</span>' : '<span class="valid">(Vigente)</span>'}</p>
-            <p><strong>Tecnomecánica:</strong> ${result["FECHA VENCIMIENTO TECNOMECANICA"] || "No registrada"} 
+            <p><strong>TecnomecÃ¡nica:</strong> ${result["FECHA VENCIMIENTO TECNOMECANICA"] || "No registrada"} 
                 ${isTecExpired ? '<span class="expired">(Vencido)</span>' : '<span class="valid">(Vigente)</span>'}</p>
             <div class="action-buttons">${button}</div>
         `;
@@ -169,110 +168,13 @@ const UI = {
         container.appendChild(unauthorizedElement);
     },
     
-    /**
-     * Mostrar el historial filtrado
-     * @param {Array} logs - Registros filtrados
-     */
-    displayFilteredLogs(logs) {
-        const container = document.getElementById("historyResults");
-        container.innerHTML = "";
-        
-        if (logs.length === 0) {
-            container.innerHTML = "<p>No se encontraron registros con los filtros aplicados.</p>";
-            return;
-        }
-        
-        // Crear tabla de resultados
-        const table = document.createElement("table");
-        table.className = "history-table";
-        
-        // Cabecera de tabla
-        const thead = document.createElement("thead");
-        thead.innerHTML = `
-            <tr>
-                <th>Placa</th>
-                <th>Grado</th>
-                <th>Nombre</th>
-                <th>Fecha Ingreso</th>
-                <th>Hora Ingreso</th>
-                <th>Fecha Salida</th>
-                <th>Hora Salida</th>
-                <th>Estado</th>
-            </tr>
-        `;
-        table.appendChild(thead);
-        
-        // Cuerpo de tabla
-        const tbody = document.createElement("tbody");
-        logs.forEach(log => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>${log.PLACA}</td>
-                <td>${log.GRADO || "-"}</td>
-                <td>${log.NOMBRE || "-"}</td>
-                <td>${log.date_in || "-"}</td>
-                <td>${log.time_in || "-"}</td>
-                <td>${log.date_out || "-"}</td>
-                <td>${log.time_out || "-"}</td>
-                <td>${log.status === "inside" ? '<span class="valid">En parqueadero</span>' : '<span>Fuera</span>'}</td>
-            `;
-            tbody.appendChild(row);
-        });
-        table.appendChild(tbody);
-        
-        container.appendChild(table);
-    },
-    
-    /**
-     * Mostrar u ocultar el panel de filtros avanzados
-     */
-    toggleFilters() {
-        const filterPanel = document.getElementById("advancedFilters");
-        
-        if (filterPanel.style.display === "none" || !filterPanel.style.display) {
-            filterPanel.style.display = "block";
-        } else {
-            filterPanel.style.display = "none";
-        }
-    },
-    
-    /**
-     * Inicializar el panel de filtros
-     */
-    initFilterPanel() {
-        // Establecer el día de hoy como fecha máxima en los filtros de fecha
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById("filterStartDate").max = today;
-        document.getElementById("filterEndDate").max = today;
-        
-        // Llenar dinámicamente el selector de grados
-        this.updateGradesFilter();
-    },
-    
-    /**
-     * Actualizar las opciones de grados en el filtro
-     */
-    updateGradesFilter() {
-        const filterGrado = document.getElementById("filterGrado");
-        const grades = Utils.getUniqueGrades(ParkingApp.database);
-        
-        // Mantener la opción "Todos"
-        filterGrado.innerHTML = '<option value="todos">Todos</option>';
-        
-        // Añadir cada grado como opción
-        grades.forEach(grade => {
-            const option = document.createElement("option");
-            option.value = grade;
-            option.textContent = grade;
-            filterGrado.appendChild(option);
-        });
-    },
+
     
     /**
      * Vincular eventos a elementos del DOM
      */
     bindEvents() {
-        // Escuchar la tecla Enter en el campo de búsqueda
+        // Escuchar la tecla Enter en el campo de bÃºsqueda
         document.getElementById("searchInput").addEventListener("keypress", (e) => {
             if (e.key === "Enter") {
                 ParkingApp.search();
@@ -286,5 +188,5 @@ const UI = {
     }
 };
 
-// Exportar el objeto para uso en otros módulos
+// Exportar el objeto para uso en otros mÃ³dulos
 window.UI = UI;
