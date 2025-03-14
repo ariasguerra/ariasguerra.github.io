@@ -1,4 +1,3 @@
-/* Mantener todos los estilos originales */
 body {
     font-family: Arial, sans-serif;
     line-height: 1.6;
@@ -206,52 +205,182 @@ button:hover {
     text-align: center;
 }
 
-/* Nuevos estilos para la sección de actualización desde Excel */
-.excel-upload-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.file-upload {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.status-container {
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 5px;
+/* Estilos para filtros y búsqueda */
+.filtros-container {
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
     padding: 15px;
-    min-height: 80px;
-    margin: 15px 0;
-}
-
-.status-container p {
-    margin: 5px 0;
-}
-
-.success {
-    color: #28a745;
-}
-
-.error {
-    color: #dc3545;
-}
-
-.boton-procesar {
-    background-color: #0062cc;
-    color: white;
-    font-weight: bold;
-    padding: 12px;
     border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.filtro-busqueda {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.filtro-busqueda input {
+    flex-grow: 1;
+    margin-bottom: 0;
+}
+
+.filtro-busqueda button {
+    width: auto;
+    margin-bottom: 0;
+}
+
+details summary {
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.filtros-avanzados {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
     margin-top: 10px;
 }
 
-.boton-procesar:hover {
-    background-color: #004999;
+.filtro-grupo {
+    display: flex;
+    flex-direction: column;
+}
+
+.filtro-botones {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.filtro-botones button {
+    flex: 1;
+}
+
+/* Estilos para estadísticas */
+.estadisticas-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+@media (min-width: 768px) {
+    .estadisticas-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .estadistica-card:first-child {
+        grid-column: 1 / -1;
+    }
+}
+
+.estadistica-card {
+    background-color: white;
+    border-radius: 5px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.estadistica-card h3 {
+    margin-top: 0;
+    color: #333;
+    font-size: 18px;
+    text-align: center;
+}
+
+.estadistica-valor {
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    color: #4CAF50;
+    margin: 10px 0;
+}
+
+.propiedad-ingreso {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.propiedad-nombre {
+    width: 60px;
+    font-weight: bold;
+}
+
+.propiedad-total {
+    width: 120px;
+    text-align: right;
+}
+
+.propiedad-barra {
+    flex-grow: 1;
+    background-color: #e9e9e9;
+    height: 15px;
+    margin: 0 10px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.barra-progreso {
+    height: 100%;
+    background-color: #4CAF50;
+}
+
+.propiedad-porcentaje {
+    width: 50px;
+    text-align: right;
+    font-size: 12px;
+    color: #666;
+}
+
+.grafico-container {
+    height: 300px;
+    padding: 10px 0;
+    overflow-x: auto;
+}
+
+.grafico-barras {
+    display: flex;
+    align-items: flex-end;
+    height: 100%;
+    min-width: 100%;
+    padding-bottom: 30px;
+}
+
+.barra-mes {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 80px;
+    height: 100%;
+}
+
+.barra-valor {
+    margin-bottom: 5px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.barra-grafico {
+    width: 30px;
+    background-color: #4CAF50;
+    border-radius: 3px 3px 0 0;
+    transition: height 0.5s ease;
+}
+
+.barra-etiqueta {
+    margin-top: 10px;
+    font-size: 12px;
+    writing-mode: vertical-lr;
+    transform: rotate(180deg);
+    text-align: center;
+    position: absolute;
+    bottom: 0;
 }
 
 @media print {
