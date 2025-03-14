@@ -1,1 +1,639 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Herramientas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --light-bg: #f8fafc;
+            --dark-text: #1e293b;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+            --icon-gradient-1: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            --icon-gradient-2: linear-gradient(135deg, #60a5fa, #3b82f6);
+            --icon-shadow: 0 4px 8px rgba(37, 99, 235, 0.25);
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: var(--shadow);
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .logo i {
+            font-size: 1.8rem;
+            background: white;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            color: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-container {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border-radius: 30px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .search-input:focus {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark-text);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .section-title i {
+            font-size: 1.2rem;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--icon-gradient-1);
+            color: white;
+            border-radius: 8px;
+            box-shadow: var(--icon-shadow);
+        }
+
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 4px solid var(--primary-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card:hover .card-icon {
+            transform: scale(1.1);
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(37, 99, 235, 0) 60%);
+            z-index: 1;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .card:hover::after {
+            opacity: 1;
+        }
+
+        .card-icon {
+            font-size: 1.6rem;
+            color: white;
+            transition: var(--transition);
+            z-index: 2;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--icon-gradient-1);
+            border-radius: 16px;
+            box-shadow: var(--icon-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-icon::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
+            top: 0;
+            left: 0;
+        }
+
+        .card-content {
+            flex: 1;
+            z-index: 2;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--dark-text);
+        }
+
+        .card-description {
+            font-size: 0.875rem;
+            color: #64748b;
+            line-height: 1.4;
+        }
+
+        .quick-access {
+            background-color: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .quick-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .quick-button {
+            background-color: #f1f5f9;
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--dark-text);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quick-button:hover {
+            background-color: #e2e8f0;
+            transform: translateY(-2px);
+        }
+        
+        .quick-button i {
+            font-size: 1.1rem;
+            background: var(--icon-gradient-1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+        }
+        
+        .quick-button:hover i {
+            transform: scale(1.1);
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-hover);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 100;
+            transform: translateY(150%);
+            opacity: 0;
+            transition: var(--transition);
+            max-width: 350px;
+        }
+
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .notification-icon {
+            font-size: 1.25rem;
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+
+        .notification-message {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            opacity: 0.7;
+            transition: var(--transition);
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+        }
+
+        .footer {
+            background-color: #f1f5f9;
+            border-top: 1px solid #e2e8f0;
+            padding: 1.5rem 2rem;
+            text-align: center;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .search-container {
+                max-width: 100%;
+            }
+
+            .card-container {
+                grid-template-columns: 1fr;
+            }
+
+            .notification {
+                bottom: 1rem;
+                right: 1rem;
+                left: 1rem;
+                max-width: unset;
+            }
+        }
+
+        /* Modo oscuro */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --light-bg: #0f172a;
+                --dark-text: #e2e8f0;
+                --card-bg: #1e293b;
+            }
+
+            .card {
+                border-left-color: #3b82f6;
+            }
+
+            .card-icon {
+                background: var(--icon-gradient-2);
+                color: white;
+                box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+            }
+
+            .card-description {
+                color: #94a3b8;
+            }
+
+            .quick-button {
+                background-color: #1e293b;
+                color: #e2e8f0;
+                border: 1px solid rgba(59, 130, 246, 0.2);
+            }
+
+            .quick-button:hover {
+                background-color: #334155;
+                border-color: rgba(59, 130, 246, 0.4);
+            }
+            
+            .quick-button i {
+                background: var(--icon-gradient-2);
+                -webkit-background-clip: text;
+                background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+            .footer {
+                background-color: #1e293b;
+                border-top-color: #334155;
+                color: #94a3b8;
+            }
+
+            .search-input {
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+
+            .search-input:focus {
+                background-color: rgba(255, 255, 255, 0.15);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-toolbox"></i>
+                <span>Portal de Herramientas</span>
+            </div>
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Buscar herramienta..." id="searchInput">
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <div class="quick-access">
+            <h2 class="section-title">
+                <i class="fas fa-bolt"></i>
+                Acceso Rápido
+            </h2>
+            <div class="quick-buttons">
+                <button class="quick-button" data-url="https://ariasguerra.github.io/06%20Actas/ACTA%20DE%20INSTRUCCI%C3%93N.html">
+                    <i class="fas fa-file-alt"></i>
+                    Acta de Instrucción
+                </button>
+                <button class="quick-button" data-url="https://ariasguerra.github.io/05%20Cuadrantes/index.html">
+                    <i class="fas fa-map-marked-alt"></i>
+                    Cuadrantes
+                </button>
+                <button class="quick-button" data-url="https://ariasguerra.github.io/01%20Contactos%20E-12/index.html">
+                    <i class="fas fa-address-book"></i>
+                    Contactos E-12
+                </button>
+            </div>
+        </div>
+
+        <section>
+            <h2 class="section-title">
+                <i class="fas fa-th-large"></i>
+                Todas las Herramientas
+            </h2>
+            <div class="card-container" id="cardContainer">
+                <!-- Las tarjetas se generarán dinámicamente -->
+            </div>
+        </section>
+    </main>
+
+    <div class="notification" id="notification">
+        <div class="notification-icon">
+            <i class="fas fa-info-circle"></i>
+        </div>
+        <div class="notification-content">
+            <div class="notification-title">Bienvenido al Portal</div>
+            <div class="notification-message">Accede rápidamente a todas las herramientas disponibles</div>
+        </div>
+        <button class="notification-close" id="notificationClose">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <footer class="footer">
+        &copy; 2025 Portal de Herramientas - Versión 2.0
+    </footer>
+
+    <script>
+        // Datos de las herramientas
+        const tools = [
+            { 
+                url: "https://ariasguerra.github.io/06%20Actas/ACTA%20DE%20INSTRUCCI%C3%93N.html", 
+                title: "Acta de Instrucción", 
+                icon: "fas fa-file-alt",
+                description: "Genera actas de instrucción estandarizadas" 
+            },
+            { 
+                url: "https://ariasguerra.github.io/05%20Cuadrantes/index.html", 
+                title: "Cuadrantes", 
+                icon: "fas fa-map-marked-alt",
+                description: "Visualización y gestión de cuadrantes operativos" 
+            },
+            { 
+                url: "https://ariasguerra.github.io/04%20Arriendo/index.html", 
+                title: "Arriendo", 
+                icon: "fas fa-home",
+                description: "Gestión de contratos de arriendo y propiedades" 
+            },
+            { 
+                url: "https://ariasguerra.github.io/03%20Excel%20a%20Json/index.html", 
+                title: "Excel a Json", 
+                icon: "fas fa-file-excel",
+                description: "Convierte archivos Excel a formato JSON" 
+            },
+            { 
+                url: "https://ariasguerra.github.io/02%20Radios%20APX800/index.html", 
+                title: "Radios APX800", 
+                icon: "fas fa-broadcast-tower",
+                description: "Información y gestión de radios APX800" 
+            },
+            { 
+                url: "https://ariasguerra.github.io/01%20Contactos%20E-12/index.html", 
+                title: "Contactos E-12", 
+                icon: "fas fa-address-book",
+                description: "Directorio de contactos E-12" 
+            },
+            { 
+                url: "https://ariasguerra.github.io/07%20Herramientas/index.html", 
+                title: "Herramientas", 
+                icon: "fas fa-tools",
+                description: "Conjunto de utilidades y herramientas adicionales" 
+            }
+        ];
+
+        // Función para crear tarjetas
+        function createCards() {
+            const cardContainer = document.getElementById('cardContainer');
+            cardContainer.innerHTML = ''; // Limpiar contenedor
+
+            tools.forEach(tool => {
+                const card = document.createElement('div');
+                card.className = "card";
+                card.onclick = () => window.open(tool.url, '_blank');
+                
+                const iconDiv = document.createElement('div');
+                iconDiv.className = "card-icon";
+                const icon = document.createElement('i');
+                icon.className = tool.icon;
+                iconDiv.appendChild(icon);
+                
+                const content = document.createElement('div');
+                content.className = "card-content";
+                
+                const title = document.createElement('div');
+                title.className = "card-title";
+                title.textContent = tool.title;
+                
+                const description = document.createElement('div');
+                description.className = "card-description";
+                description.textContent = tool.description;
+                
+                content.appendChild(title);
+                content.appendChild(description);
+                
+                card.appendChild(iconDiv);
+                card.appendChild(content);
+                
+                cardContainer.appendChild(card);
+            });
+        }
+
+        // Función de búsqueda
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const cards = document.querySelectorAll('.card');
+                
+                cards.forEach(card => {
+                    const title = card.querySelector('.card-title').textContent.toLowerCase();
+                    const description = card.querySelector('.card-description').textContent.toLowerCase();
+                    
+                    if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // Configuración de los botones de acceso rápido
+        function setupQuickButtons() {
+            const quickButtons = document.querySelectorAll('.quick-button');
+            
+            quickButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    window.open(this.dataset.url, '_blank');
+                });
+            });
+        }
+
+        // Mostrar notificación
+        function showNotification() {
+            const notification = document.getElementById('notification');
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 5000);
+            }, 1000);
+            
+            document.getElementById('notificationClose').addEventListener('click', function() {
+                notification.classList.remove('show');
+            });
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            createCards();
+            setupSearch();
+            setupQuickButtons();
+            showNotification();
+        });
+    </script>
+</body>
+</html>
