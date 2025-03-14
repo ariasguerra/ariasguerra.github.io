@@ -63,10 +63,7 @@
         </div>
         <div id="seccionHistorial" style="display: none;">
             <h2>Historial de Recibos</h2>
-            <div class="botones-historial">
-                <button id="botonExportar"><i class="fas fa-file-export"></i> Exportar Recibos</button>
-                <button id="botonActualizarExcel"><i class="fas fa-sync-alt"></i> Actualizar desde Excel</button>
-            </div>
+            <button id="botonExportar"><i class="fas fa-file-export"></i> Exportar Recibos</button>
             <div id="listaRecibos"></div>
         </div>
         <div id="seccionActualizar" style="display: none;">
@@ -89,6 +86,8 @@
             </div>
         </div>
     </div>
+    
+    <!-- Script de SheetJS para procesar Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="script.js"></script>
 </body>
