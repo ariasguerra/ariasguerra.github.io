@@ -566,7 +566,6 @@ document.getElementById('botonEditar').addEventListener('click', function() {
         cambiarSeccion('seccionFormulario');
     }
 });
-
 // Continuación de los eventos de botones
 document.getElementById('botonEliminar').addEventListener('click', function() {
     if (reciboActual && confirm('¿Está seguro de que desea eliminar este recibo? Esta acción no se puede deshacer.')) {
