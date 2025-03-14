@@ -75,7 +75,6 @@ function formatearFecha(fecha) {
         return "Error de fecha";
     }
 }
-
 // Función para cargar datos desde localStorage o desde archivos JSON
 function cargarDatos() {
     console.log('Iniciando carga de datos...');
@@ -177,7 +176,6 @@ function cargarArrendatarios() {
         select.appendChild(option);
     });
 }
-
 // Función mejorada para cargar recibos con filtrado y búsqueda
 function cargarRecibos(filtros = {}) {
     const listaRecibos = document.getElementById('listaRecibos');
@@ -306,7 +304,6 @@ function crearElementoRecibo(recibo) {
     });
     return elementoRecibo;
 }
-
 function cargarUltimoArrendatarioYMonto() {
     const codigoPropiedad = document.getElementById('seleccionPropiedad').value;
     
@@ -430,7 +427,6 @@ function mostrarReciboGenerado(recibo) {
     const reciboGenerado = document.getElementById('reciboGenerado');
     reciboGenerado.innerHTML = generarHTMLRecibo(recibo);
 }
-
 function generarHTMLRecibo(recibo) {
     return `
         <div class="recibo-contenedor">
@@ -543,7 +539,6 @@ document.getElementById('botonExportar').addEventListener('click', function() {
     document.body.removeChild(enlace);
     URL.revokeObjectURL(url);
 });
-
 // Función para inicializar los componentes de filtrado y búsqueda
 function inicializarFiltroBusqueda() {
     // Solo crear los filtros si estamos en la sección de historial
@@ -719,7 +714,6 @@ function limpiarFiltros() {
     
     cargarRecibos(); // Cargar todos los recibos sin filtros
 }
-
 // Función para obtener el nombre del mes
 function obtenerNombreMes(numeroMes) {
     const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
@@ -806,7 +800,7 @@ function actualizarEstadisticas() {
     
     const ingresosTotalesElement = document.getElementById('ingresosTotales');
     if (ingresosTotalesElement) {
-        ingresosTotalesElement.textContent = `${ingresoTotal.toLocaleString('es-CO')}`;
+        ingresosTotalesElement.textContent = `$${ingresoTotal.toLocaleString('es-CO')}`;
     }
     
     // Calcular ingresos por propiedad
@@ -849,7 +843,7 @@ function actualizarEstadisticas() {
         
         propiedadElement.innerHTML = `
             <div class="propiedad-nombre">${propiedad.codigo}</div>
-            <div class="propiedad-total">${propiedad.total.toLocaleString('es-CO')}</div>
+            <div class="propiedad-total">$${propiedad.total.toLocaleString('es-CO')}</div>
             <div class="propiedad-barra">
                 <div class="barra-progreso" style="width: ${porcentaje}%"></div>
             </div>
@@ -928,7 +922,7 @@ function generarGraficoIngresosMensuales() {
         barraMes.className = 'barra-mes';
         
         barraMes.innerHTML = `
-            <div class="barra-valor">${mes.total.toLocaleString('es-CO')}</div>
+            <div class="barra-valor">$${mes.total.toLocaleString('es-CO')}</div>
             <div class="barra-grafico" style="height: ${altura}px"></div>
             <div class="barra-etiqueta">${mes.mes}</div>
         `;
@@ -938,3 +932,63 @@ function generarGraficoIngresosMensuales() {
     
     contenedorGrafico.appendChild(graficoBarras);
 }
+// Función para cambiar entre secciones
+function cambiarSeccion(seccionId) {
+    // Ocultar todas las secciones
+    const secciones = ['seccionFormulario', 'seccionRecibo', 'seccionHistorial', 'seccionEstadisticas'];
+    
+    secciones.forEach(seccion => {
+        const elemento = document.getElementById(seccion);
+        if (elemento) {
+            elemento.style.display = 'none';
+        }
+    });
+    
+    // Mostrar la sección seleccionada
+    const seccionSeleccionada = document.getElementById(seccionId);
+    if (seccionSeleccionada) {
+        seccionSeleccionada.style.display = 'block';
+        
+        // Inicializar filtros si estamos en el historial
+        if (seccionId === 'seccionHistorial') {
+            inicializarFiltros();
+        }
+        
+        // Actualizar estadísticas si estamos en esa sección
+        if (seccionId === 'seccionEstadisticas') {
+            actualizarEstadisticas();
+        }
+    }
+}
+
+// Configurar eventos de navegación
+document.getElementById('navFormulario').addEventListener('click', function(e) {
+    e.preventDefault();
+    cambiarSeccion('seccionFormulario');
+});
+
+document.getElementById('navRecibo').addEventListener('click', function(e) {
+    e.preventDefault();
+    if (reciboActual) {
+        cambiarSeccion('seccionRecibo');
+    } else {
+        alert('No hay un recibo generado para mostrar.');
+    }
+});
+
+document.getElementById('navHistorial').addEventListener('click', function(e) {
+    e.preventDefault();
+    cargarRecibos();
+    cambiarSeccion('seccionHistorial');
+});
+
+// Inicializar la aplicación
+function inicializarApp() {
+    console.log('Inicializando aplicación...');
+    cargarDatos();
+    cambiarSeccion('seccionFormulario');
+    console.log('Aplicación inicializada.');
+}
+
+// Cargar datos al iniciar la aplicación
+window.addEventListener('load', inicializarApp);
