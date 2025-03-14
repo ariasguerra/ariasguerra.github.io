@@ -1,44 +1,79 @@
-// Mantener todo el código original y añadir las nuevas funcionalidades
 let propiedades = [];
 let arrendatarios = [];
 let recibos = [];
 let reciboActual = null;
 
-// Función para convertir números a palabras en español
+// Función mejorada para convertir números a palabras en español
 function numeroALetras(numero) {
-    const unidades = ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
-    const decenas = ['diez', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
-    const centenas = ['ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos', 'setecientos', 'ochocientos', 'novecientos'];
+    if (isNaN(numero) || numero < 0 || numero > 999999999) {
+        return "número fuera de rango";
+    }
     
     if (numero === 0) return 'cero';
+    
+    const unidades = ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
+    const especiales = ['', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve'];
+    const decenas = ['', 'diez', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
+    const centenas = ['', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos', 'setecientos', 'ochocientos', 'novecientos'];
+    
     if (numero < 10) return unidades[numero];
-    if (numero < 20) return 'dieci' + unidades[numero - 10];
-    if (numero < 30) return 'veinti' + unidades[numero - 20];
+    
+    if (numero < 20) return especiales[numero - 10];
+    
+    if (numero < 30) {
+        if (numero === 20) return 'veinte';
+        return 'veinti' + unidades[numero - 20];
+    }
+    
     if (numero < 100) {
         const unidad = numero % 10;
-        const decena = Math.floor(numero / 10) - 1;
-        return decenas[decena] + (unidad ? ' y ' + unidades[unidad] : '');
+        const decena = Math.floor(numero / 10);
+        return unidad === 0 ? decenas[decena] : decenas[decena] + ' y ' + unidades[unidad];
     }
+    
+    if (numero === 100) return 'cien';
+    
     if (numero < 1000) {
         const centena = Math.floor(numero / 100);
         const resto = numero % 100;
-        return (numero === 100 ? 'cien' : centenas[centena - 1]) + (resto ? ' ' + numeroALetras(resto) : '');
+        return centenas[centena] + (resto ? ' ' + numeroALetras(resto) : '');
     }
+    
     if (numero < 1000000) {
         const miles = Math.floor(numero / 1000);
         const resto = numero % 1000;
         return (miles === 1 ? 'mil' : numeroALetras(miles) + ' mil') + (resto ? ' ' + numeroALetras(resto) : '');
     }
-    // Puedes continuar para números más grandes si es necesario
+    
+    const millones = Math.floor(numero / 1000000);
+    const resto = numero % 1000000;
+    return (millones === 1 ? 'un millón' : numeroALetras(millones) + ' millones') + (resto ? ' ' + numeroALetras(resto) : '');
 }
 
-// Función para formatear fechas
+// Función mejorada para formatear fechas
 function formatearFecha(fecha) {
-    const fechaAjustada = new Date(fecha);
-    fechaAjustada.setMinutes(fechaAjustada.getMinutes() + fechaAjustada.getTimezoneOffset());
+    if (!fecha) return "";
     
-    const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
-    return fechaAjustada.toLocaleDateString('es-ES', opciones);
+    try {
+        // Crear una nueva instancia de Date
+        const fechaObj = new Date(fecha);
+        
+        // Verificar si la fecha es válida
+        if (isNaN(fechaObj.getTime())) {
+            console.error('Fecha inválida:', fecha);
+            return "Fecha inválida";
+        }
+        
+        // Usar Intl.DateTimeFormat para formatear la fecha
+        return new Intl.DateTimeFormat('es-ES', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        }).format(fechaObj);
+    } catch (error) {
+        console.error('Error al formatear fecha:', error);
+        return "Error de fecha";
+    }
 }
 
 // Función para cargar datos desde localStorage o desde archivos JSON
@@ -95,6 +130,7 @@ function cargarDatos() {
         cargarPropiedades();
         cargarArrendatarios();
         cargarRecibos();
+        inicializarEstadisticas(); // Inicializar estadísticas
     }).catch(error => console.error('Error durante la carga de datos:', error));
 }
 
@@ -138,17 +174,61 @@ function cargarArrendatarios() {
     });
 }
 
-function cargarRecibos() {
+// Función mejorada para cargar recibos con filtrado y búsqueda
+function cargarRecibos(filtros = {}) {
     const listaRecibos = document.getElementById('listaRecibos');
     listaRecibos.innerHTML = '';
 
-    if (recibos.length === 0) {
-        listaRecibos.innerHTML = '<p>No hay recibos para mostrar.</p>';
+    // Aplicar filtros si existen
+    let recibosFiltrados = [...recibos];
+    
+    if (filtros.propiedad) {
+        recibosFiltrados = recibosFiltrados.filter(r => 
+            r.direccionInmueble && r.direccionInmueble.includes(filtros.propiedad)
+        );
+    }
+    
+    if (filtros.arrendatario) {
+        recibosFiltrados = recibosFiltrados.filter(r => 
+            r.nombreArrendatario && r.nombreArrendatario.toLowerCase().includes(filtros.arrendatario.toLowerCase())
+        );
+    }
+    
+    if (filtros.fechaDesde) {
+        const fechaDesde = new Date(filtros.fechaDesde);
+        recibosFiltrados = recibosFiltrados.filter(r => new Date(r.fechaPago) >= fechaDesde);
+    }
+    
+    if (filtros.fechaHasta) {
+        const fechaHasta = new Date(filtros.fechaHasta);
+        fechaHasta.setHours(23, 59, 59); // Final del día
+        recibosFiltrados = recibosFiltrados.filter(r => new Date(r.fechaPago) <= fechaHasta);
+    }
+    
+    if (filtros.montoMinimo) {
+        recibosFiltrados = recibosFiltrados.filter(r => parseInt(r.montoPagado) >= parseInt(filtros.montoMinimo));
+    }
+    
+    if (filtros.montoMaximo) {
+        recibosFiltrados = recibosFiltrados.filter(r => parseInt(r.montoPagado) <= parseInt(filtros.montoMaximo));
+    }
+    
+    if (filtros.busqueda) {
+        const terminoBusqueda = filtros.busqueda.toLowerCase();
+        recibosFiltrados = recibosFiltrados.filter(r => 
+            (r.numeroRecibo && r.numeroRecibo.toLowerCase().includes(terminoBusqueda)) ||
+            (r.nombreArrendatario && r.nombreArrendatario.toLowerCase().includes(terminoBusqueda)) ||
+            (r.direccionInmueble && r.direccionInmueble.toLowerCase().includes(terminoBusqueda))
+        );
+    }
+
+    if (recibosFiltrados.length === 0) {
+        listaRecibos.innerHTML = '<p>No hay recibos que coincidan con los criterios de búsqueda.</p>';
         return;
     }
 
     // Agrupar recibos por dirección de inmueble
-    const recibosPorInmueble = recibos.reduce((acc, recibo) => {
+    const recibosPorInmueble = recibosFiltrados.reduce((acc, recibo) => {
         const direccion = recibo.direccionInmueble;
         if (!acc[direccion]) {
             acc[direccion] = [];
@@ -315,22 +395,31 @@ document.getElementById('formularioRecibo').addEventListener('submit', function(
         cedulaQuienRecibe: "1.057.736.060"
     };
 
-    if (reciboActual) {
-        // Estamos editando un recibo existente
-        const index = recibos.findIndex(r => r.numeroRecibo === reciboActual.numeroRecibo);
-        if (index > -1) {
-            recibos[index] = recibo;
+    // Solicitar confirmación antes de guardar
+    const esNuevo = !reciboActual;
+    const mensaje = esNuevo 
+        ? `¿Está seguro de crear un nuevo recibo por ${montoEnLetras}?` 
+        : `¿Está seguro de modificar este recibo? Los datos anteriores se perderán.`;
+    
+    if (confirm(mensaje)) {
+        if (reciboActual) {
+            // Estamos editando un recibo existente
+            const index = recibos.findIndex(r => r.numeroRecibo === reciboActual.numeroRecibo);
+            if (index > -1) {
+                recibos[index] = recibo;
+            }
+        } else {
+            // Estamos creando un nuevo recibo
+            recibos.push(recibo);
         }
-    } else {
-        // Estamos creando un nuevo recibo
-        recibos.push(recibo);
-    }
 
-    reciboActual = recibo;
-    mostrarReciboGenerado(recibo);
-    guardarRecibos();
-    cargarRecibos();
-    cambiarSeccion('seccionRecibo');
+        reciboActual = recibo;
+        mostrarReciboGenerado(recibo);
+        guardarRecibos();
+        cargarRecibos();
+        actualizarEstadisticas(); // Actualizar estadísticas
+        cambiarSeccion('seccionRecibo');
+    }
 });
 
 function mostrarReciboGenerado(recibo) {
@@ -353,7 +442,7 @@ function generarHTMLRecibo(recibo) {
             <div class="recibo-body">
                 <div>
                     <p><strong>Recibí de:</strong> ${recibo.nombreArrendatario}</p>
-                    <p><strong>La suma de:</strong> ${parseInt(recibo.montoPagado).toLocaleString('es-CO')}<br>
+                    <p><strong>La suma de:</strong> $${parseInt(recibo.montoPagado).toLocaleString('es-CO')}<br>
                     <strong>En letras:</strong> ${recibo.montoEnLetras}</p>
                     <p><strong>Forma de pago:</strong> ${recibo.formaPago}<br>
                     <strong>Fecha y hora del pago:</strong> ${formatearFecha(recibo.fechaPago)}, ${recibo.horaPago}</p>
@@ -383,7 +472,7 @@ function generarHTMLRecibo(recibo) {
 
 function cargarDatosParaEdicion(recibo) {
     document.getElementById('seleccionPropiedad').value = recibo.numeroRecibo.substring(0, 4);
-    document.getElementById('seleccionArrendatario').value = arrendatarios.find(a => a.nombre === recibo.nombreArrendatario).id;
+    document.getElementById('seleccionArrendatario').value = arrendatarios.find(a => a.nombre === recibo.nombreArrendatario)?.id || '';
     document.getElementById('monto').value = recibo.montoPagado;
     document.getElementById('formaPago').value = recibo.formaPago;
     document.getElementById('fechaPago').value = recibo.fechaPago;
@@ -414,6 +503,7 @@ document.getElementById('botonEliminar').addEventListener('click', function() {
             recibos.splice(index, 1);
             guardarRecibos();
             cargarRecibos();
+            actualizarEstadisticas(); // Actualizar estadísticas
             reciboActual = null;
             cambiarSeccion('seccionHistorial');
         }
@@ -441,238 +531,278 @@ document.getElementById('botonExportar').addEventListener('click', function() {
     URL.revokeObjectURL(url);
 });
 
-function cambiarSeccion(seccionId) {
-    document.getElementById('seccionFormulario').style.display = 'none';
-    document.getElementById('seccionRecibo').style.display = 'none';
-    document.getElementById('seccionHistorial').style.display = 'none';
-    document.getElementById('seccionActualizar').style.display = 'none';
-    document.getElementById(seccionId).style.display = 'block';
+// Nuevas funciones para filtrado y búsqueda
+function crearControlesDeFiltrado() {
+    const contenedorFiltros = document.createElement('div');
+    contenedorFiltros.className = 'filtros-container';
+    contenedorFiltros.innerHTML = `
+        <div class="filtro-busqueda">
+            <input type="text" id="busquedaRecibos" placeholder="Buscar por número, arrendatario o dirección...">
+            <button id="botonBuscar">Buscar</button>
+            <button id="botonLimpiarBusqueda">Limpiar</button>
+        </div>
+        <details>
+            <summary>Filtros avanzados</summary>
+            <div class="filtros-avanzados">
+                <div class="filtro-grupo">
+                    <label for="filtroPropiedades">Propiedad:</label>
+                    <select id="filtroPropiedades">
+                        <option value="">Todas las propiedades</option>
+                    </select>
+                </div>
+                <div class="filtro-grupo">
+                    <label for="filtroArrendatarios">Arrendatario:</label>
+                    <select id="filtroArrendatarios">
+                        <option value="">Todos los arrendatarios</option>
+                    </select>
+                </div>
+                <div class="filtro-grupo">
+                    <label for="filtroFechaDesde">Desde:</label>
+                    <input type="date" id="filtroFechaDesde">
+                </div>
+                <div class="filtro-grupo">
+                    <label for="filtroFechaHasta">Hasta:</label>
+                    <input type="date" id="filtroFechaHasta">
+                </div>
+                <div class="filtro-grupo">
+                    <label for="filtroMontoMinimo">Monto mínimo:</label>
+                    <input type="number" id="filtroMontoMinimo" placeholder="Ej: 450000">
+                </div>
+                <div class="filtro-grupo">
+                    <label for="filtroMontoMaximo">Monto máximo:</label>
+                    <input type="number" id="filtroMontoMaximo" placeholder="Ej: 800000">
+                </div>
+                <div class="filtro-botones">
+                    <button id="botonAplicarFiltros">Aplicar filtros</button>
+                    <button id="botonLimpiarFiltros">Limpiar filtros</button>
+                </div>
+            </div>
+        </details>
+    `;
+    
+    return contenedorFiltros;
 }
 
-document.getElementById('navFormulario').addEventListener('click', function(e) {
-    e.preventDefault();
-    cambiarSeccion('seccionFormulario');
-});
-
-document.getElementById('navRecibo').addEventListener('click', function(e) {
-    e.preventDefault();
-    if (reciboActual) {
-        cambiarSeccion('seccionRecibo');
-    } else {
-        alert('No hay un recibo generado para mostrar.');
-    }
-});
-
-document.getElementById('navHistorial').addEventListener('click', function(e) {
-    e.preventDefault();
-    cargarRecibos();
-    cambiarSeccion('seccionHistorial');
-});
-
-document.getElementById('navActualizar').addEventListener('click', function(e) {
-    e.preventDefault();
-    cambiarSeccion('seccionActualizar');
-});
-
-// NUEVA FUNCIONALIDAD: Procesamiento de archivos Excel
-document.getElementById('procesarExcel').addEventListener('click', function() {
-    const statusContainer = document.getElementById('cargaStatus');
-    statusContainer.innerHTML = '<p>Procesando archivos...</p>';
-    
-    const arrendatariosFile = document.getElementById('arrendatariosExcel').files[0];
-    const propiedadesFile = document.getElementById('propiedadesExcel').files[0];
-    const recibosFile = document.getElementById('recibosExcel').files[0];
-    
-    if (!arrendatariosFile && !propiedadesFile && !recibosFile) {
-        statusContainer.innerHTML = '<p class="error">Por favor seleccione al menos un archivo Excel.</p>';
-        return;
-    }
-    
-    // Contador para rastrear cuántas operaciones se han completado
-    let completadas = 0;
-    let errores = 0;
-    
-    // Procesar el archivo de arrendatarios si existe
-    if (arrendatariosFile) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                
-                // Obtener la primera hoja
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                
-                // Convertir a JSON
-                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-                
-                // Procesar los datos
-                const nuevosArrendatarios = jsonData.map((row, index) => {
-                    return {
-                        id: row.id || row.ID || index + 1,
-                        nombre: row.nombre || row.Nombre || row.NOMBRE || `${row.nombres || ''} ${row.apellidos || ''}`,
-                        documento: row.documento || row.Documento || row.DOCUMENTO || row.cedula || '',
-                        telefono: row.telefono || row.Telefono || row.TELEFONO || row.celular || '',
-                        email: row.email || row.Email || row.EMAIL || row.correo || ''
-                    };
-                });
-                
-                // Guardar en localStorage
-                localStorage.setItem('arrendatarios', JSON.stringify(nuevosArrendatarios));
-                statusContainer.innerHTML += '<p class="success">✓ Arrendatarios actualizados correctamente.</p>';
-                
-                completadas++;
-                verificarCompletado();
-            } catch (error) {
-                console.error('Error al procesar arrendatarios:', error);
-                statusContainer.innerHTML += '<p class="error">✗ Error al procesar arrendatarios: ' + error.message + '</p>';
-                errores++;
-                verificarCompletado();
-            }
-        };
-        reader.readAsArrayBuffer(arrendatariosFile);
-    }
-    
-    // Procesar el archivo de propiedades si existe
-    if (propiedadesFile) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                
-                // Obtener la primera hoja
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                
-                // Convertir a JSON
-                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-                
-                // Procesar los datos
-                const nuevasPropiedades = jsonData.map(row => {
-                    return {
-                        codigo: row.codigo || row.Codigo || row.CODIGO || row.id || '',
-                        direccion: row.direccion || row.Direccion || row.DIRECCION || row.ubicacion || '',
-                        parteArrendada: row.parteArrendada || row.ParteArrendada || row.descripcion || 'Inmueble completo'
-                    };
-                });
-                
-                // Guardar en localStorage
-                localStorage.setItem('propiedades', JSON.stringify(nuevasPropiedades));
-                statusContainer.innerHTML += '<p class="success">✓ Propiedades actualizadas correctamente.</p>';
-                
-                completadas++;
-                verificarCompletado();
-            } catch (error) {
-                console.error('Error al procesar propiedades:', error);
-                statusContainer.innerHTML += '<p class="error">✗ Error al procesar propiedades: ' + error.message + '</p>';
-                errores++;
-                verificarCompletado();
-            }
-        };
-        reader.readAsArrayBuffer(propiedadesFile);
-    }
-    
-    // Procesar el archivo de recibos si existe
-    if (recibosFile) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                
-                // Obtener la primera hoja
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                
-                // Convertir a JSON
-                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-                
-                // Procesar los datos
-                const nuevosRecibos = jsonData.map(row => {
-                    // Convertir fechas de Excel
-                    let fechaPago = row.fechaPago || row.FechaPago || '';
-                    let periodoInicio = row.periodoInicio || row.PeriodoInicio || '';
-                    let periodoFin = row.periodoFin || row.PeriodoFin || '';
-                    
-                    // Si las fechas son números (fechas Excel), convertirlas
-                    if (typeof fechaPago === 'number') {
-                        const date = XLSX.SSF.parse_date_code(fechaPago);
-                        fechaPago = `${date.y}-${String(date.m).padStart(2, '0')}-${String(date.d).padStart(2, '0')}`;
-                    }
-                    
-                    if (typeof periodoInicio === 'number') {
-                        const date = XLSX.SSF.parse_date_code(periodoInicio);
-                        periodoInicio = `${date.y}-${String(date.m).padStart(2, '0')}-${String(date.d).padStart(2, '0')}`;
-                    }
-                    
-                    if (typeof periodoFin === 'number') {
-                        const date = XLSX.SSF.parse_date_code(periodoFin);
-                        periodoFin = `${date.y}-${String(date.m).padStart(2, '0')}-${String(date.d).padStart(2, '0')}`;
-                    }
-                    
-                    const monto = row.montoPagado || row.MontoPagado || row.monto || row.Monto || '0';
-                    
-                    return {
-                        numeroRecibo: row.numeroRecibo || row.NumeroRecibo || '',
-                        lugarExpedicion: row.lugarExpedicion || row.LugarExpedicion || 'Bogotá D.C.',
-                        fechaExpedicion: row.fechaExpedicion || row.FechaExpedicion || formatearFecha(new Date()),
-                        nombreArrendatario: row.nombreArrendatario || row.NombreArrendatario || '',
-                        documentoArrendatario: row.documentoArrendatario || row.DocumentoArrendatario || '',
-                        telefonoArrendatario: row.telefonoArrendatario || row.TelefonoArrendatario || '',
-                        emailArrendatario: row.emailArrendatario || row.EmailArrendatario || '',
-                        montoPagado: monto,
-                        montoEnLetras: row.montoEnLetras || row.MontoEnLetras || `${numeroALetras(parseInt(monto))} pesos M/CTE`,
-                        formaPago: row.formaPago || row.FormaPago || 'Consignación bancaria',
-                        fechaPago: fechaPago || new Date().toISOString().split('T')[0],
-                        horaPago: row.horaPago || row.HoraPago || '12:00',
-                        concepto: row.concepto || row.Concepto || 'Canon de arrendamiento',
-                        direccionInmueble: row.direccionInmueble || row.DireccionInmueble || '',
-                        parteArrendada: row.parteArrendada || row.ParteArrendada || 'Inmueble completo',
-                        periodoInicio: periodoInicio || new Date().toISOString().split('T')[0],
-                        periodoFin: periodoFin || new Date().toISOString().split('T')[0],
-                        nombreQuienRecibe: row.nombreQuienRecibe || row.NombreQuienRecibe || 'Manuel Antonio Arias Guerra',
-                        cedulaQuienRecibe: row.cedulaQuienRecibe || row.CedulaQuienRecibe || '1.057.736.060'
-                    };
-                });
-                
-                // Guardar en localStorage
-                localStorage.setItem('recibos', JSON.stringify(nuevosRecibos));
-                statusContainer.innerHTML += '<p class="success">✓ Recibos actualizados correctamente.</p>';
-                
-                completadas++;
-                verificarCompletado();
-            } catch (error) {
-                console.error('Error al procesar recibos:', error);
-                statusContainer.innerHTML += '<p class="error">✗ Error al procesar recibos: ' + error.message + '</p>';
-                errores++;
-                verificarCompletado();
-            }
-        };
-        reader.readAsArrayBuffer(recibosFile);
-    }
-    
-    function verificarCompletado() {
-        const total = (arrendatariosFile ? 1 : 0) + (propiedadesFile ? 1 : 0) + (recibosFile ? 1 : 0);
+function inicializarFiltros() {
+    if (!document.getElementById('filtrosHistorial')) {
+        // Insertar los controles de filtrado antes de listaRecibos
+        const seccionHistorial = document.getElementById('seccionHistorial');
+        const listaRecibos = document.getElementById('listaRecibos');
+        const contenedorFiltros = crearControlesDeFiltrado();
+        contenedorFiltros.id = 'filtrosHistorial';
+        seccionHistorial.insertBefore(contenedorFiltros, listaRecibos);
         
-        if (completadas + errores === total) {
-            if (completadas > 0) {
-                statusContainer.innerHTML += '<p class="success">✓ Proceso completado. La página se recargará en 3 segundos...</p>';
-                setTimeout(() => {
-                    location.reload();
-                }, 3000);
-            } else {
-                statusContainer.innerHTML += '<p class="error">No se pudo actualizar ningún dato. Verifique el formato de los archivos.</p>';
+        // Cargar opciones de filtros
+        const selectPropiedades = document.getElementById('filtroPropiedades');
+        const selectArrendatarios = document.getElementById('filtroArrendatarios');
+        
+        propiedades.forEach(propiedad => {
+            const option = document.createElement('option');
+            option.value = propiedad.direccion;
+            option.textContent = propiedad.direccion;
+            selectPropiedades.appendChild(option);
+        });
+        
+        arrendatarios.forEach(arrendatario => {
+            const option = document.createElement('option');
+            option.value = arrendatario.nombre;
+            option.textContent = arrendatario.nombre;
+            selectArrendatarios.appendChild(option);
+        });
+        
+        // Configurar eventos de filtrado
+        document.getElementById('botonBuscar').addEventListener('click', aplicarFiltros);
+        document.getElementById('botonLimpiarBusqueda').addEventListener('click', limpiarBusqueda);
+        document.getElementById('botonAplicarFiltros').addEventListener('click', aplicarFiltros);
+        document.getElementById('botonLimpiarFiltros').addEventListener('click', limpiarFiltros);
+        
+        // Búsqueda en tiempo real
+        document.getElementById('busquedaRecibos').addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                aplicarFiltros();
             }
-        }
+        });
     }
-});
-
-// Inicializar la aplicación
-function inicializarApp() {
-    console.log('Inicializando aplicación...');
-    cargarDatos();
-    cambiarSeccion('seccionFormulario');
-    console.log('Aplicación inicializada.');
 }
 
-// Cargar datos al iniciar la aplicación
-window.addEventListener('load', inicializarApp);
+function aplicarFiltros() {
+    const busqueda = document.getElementById('busquedaRecibos').value;
+    const propiedad = document.getElementById('filtroPropiedades').value;
+    const arrendatario = document.getElementById('filtroArrendatarios').value;
+    const fechaDesde = document.getElementById('filtroFechaDesde').value;
+    const fechaHasta = document.getElementById('filtroFechaHasta').value;
+    const montoMinimo = document.getElementById('filtroMontoMinimo').value;
+    const montoMaximo = document.getElementById('filtroMontoMaximo').value;
+    
+    const filtros = {
+        busqueda,
+        propiedad,
+        arrendatario,
+        fechaDesde,
+        fechaHasta,
+        montoMinimo,
+        montoMaximo
+    };
+    
+    cargarRecibos(filtros);
+}
+
+function limpiarBusqueda() {
+    document.getElementById('busquedaRecibos').value = '';
+    aplicarFiltros();
+}
+
+function limpiarFiltros() {
+    document.getElementById('filtroPropiedades').value = '';
+    document.getElementById('filtroArrendatarios').value = '';
+    document.getElementById('filtroFechaDesde').value = '';
+    document.getElementById('filtroFechaHasta').value = '';
+    document.getElementById('filtroMontoMinimo').value = '';
+    document.getElementById('filtroMontoMaximo').value = '';
+    document.getElementById('busquedaRecibos').value = '';
+    
+    cargarRecibos(); // Cargar todos los recibos sin filtros
+}
+
+// Funciones para gráficos y estadísticas
+function inicializarEstadisticas() {
+    // Crear contenedor de estadísticas si no existe
+    if (!document.getElementById('seccionEstadisticas')) {
+        const contenedor = document.createElement('div');
+        contenedor.id = 'seccionEstadisticas';
+        contenedor.style.display = 'none';
+        contenedor.innerHTML = `
+            <h2>Estadísticas de Pagos</h2>
+            <div class="estadisticas-container">
+                <div class="estadistica-card">
+                    <h3>Ingresos Totales</h3>
+                    <div id="ingresosTotales" class="estadistica-valor"></div>
+                </div>
+                <div class="estadistica-card">
+                    <h3>Ingresos por Propiedad</h3>
+                    <div id="ingresosPorPropiedad"></div>
+                </div>
+                <div class="estadistica-card">
+                    <h3>Ingresos Mensuales</h3>
+                    <div id="graficoIngresosMensuales" class="grafico-container"></div>
+                </div>
+            </div>
+        `;
+        
+        document.querySelector('.container').appendChild(contenedor);
+        
+        // Añadir opción al menú
+        const navItem = document.createElement('li');
+        navItem.innerHTML = '<a href="#" id="navEstadisticas">Estadísticas</a>';
+        document.querySelector('nav ul').appendChild(navItem);
+        
+        document.getElementById('navEstadisticas').addEventListener('click', function(e) {
+            e.preventDefault();
+            actualizarEstadisticas();
+            cambiarSeccion('seccionEstadisticas');
+        });
+    }
+    
+    actualizarEstadisticas();
+}
+
+function actualizarEstadisticas() {
+    if (!document.getElementById('seccionEstadisticas')) return;
+    
+    // Calcular ingresos totales
+    const ingresoTotal = recibos.reduce((total, recibo) => total + parseInt(recibo.montoPagado), 0);
+    document.getElementById('ingresosTotales').textContent = `${ingresoTotal.toLocaleString('es-CO')}`;
+    
+    // Calcular ingresos por propiedad
+    const ingresosPorPropiedad = recibos.reduce((acc, recibo) => {
+        const direccion = recibo.direccionInmueble;
+        const codigo = recibo.numeroRecibo.substring(0, 4);
+        const nombreCorto = propiedades.find(p => p.codigo === codigo)?.codigo || codigo;
+        
+        if (!acc[nombreCorto]) {
+            acc[nombreCorto] = {
+                codigo: nombreCorto,
+                direccion: direccion,
+                total: 0
+            };
+        }
+        acc[nombreCorto].total += parseInt(recibo.montoPagado);
+        return acc;
+    }, {});
+    
+    // Mostrar ingresos por propiedad
+    const contenedorPropiedades = document.getElementById('ingresosPorPropiedad');
+    contenedorPropiedades.innerHTML = '';
+    
+    Object.values(ingresosPorPropiedad).forEach(propiedad => {
+        const propiedadElement = document.createElement('div');
+        propiedadElement.className = 'propiedad-ingreso';
+        propiedadElement.innerHTML = `
+            <div class="propiedad-nombre">${propiedad.codigo}</div>
+            <div class="propiedad-total">${propiedad.total.toLocaleString('es-CO')}</div>
+            <div class="propiedad-barra">
+                <div class="barra-progreso" style="width: ${(propiedad.total / ingresoTotal * 100).toFixed(1)}%"></div>
+            </div>
+            <div class="propiedad-porcentaje">${(propiedad.total / ingresoTotal * 100).toFixed(1)}%</div>
+        `;
+        propiedadElement.title = propiedad.direccion;
+        contenedorPropiedades.appendChild(propiedadElement);
+    });
+    
+    // Generar datos para el gráfico de ingresos mensuales
+    generarGraficoIngresosMensuales();
+}
+
+function generarGraficoIngresosMensuales() {
+    const contenedorGrafico = document.getElementById('graficoIngresosMensuales');
+    if (!contenedorGrafico) return;
+    
+    // Agrupar recibos por mes
+    const ingresosPorMes = recibos.reduce((acc, recibo) => {
+        const fecha = new Date(recibo.fechaPago);
+        const mesKey = `${fecha.getFullYear()}-${(fecha.getMonth() + 1).toString().padStart(2, '0')}`;
+        
+        if (!acc[mesKey]) {
+            acc[mesKey] = {
+                mes: `${obtenerNombreMes(fecha.getMonth())} ${fecha.getFullYear()}`,
+                total: 0,
+                count: 0
+            };
+        }
+        
+        acc[mesKey].total += parseInt(recibo.montoPagado);
+        acc[mesKey].count += 1;
+        return acc;
+    }, {});
+    
+    // Convertir a array y ordenar por fecha
+    const meses = Object.keys(ingresosPorMes).sort();
+    const datosMeses = meses.map(key => ingresosPorMes[key]);
+    
+    // Generar HTML para el gráfico
+    contenedorGrafico.innerHTML = '';
+    const alturaMaxima = 200; // altura máxima en píxeles
+    const maxTotal = Math.max(...datosMeses.map(m => m.total));
+    
+    const graficoHTML = `
+        <div class="grafico-barras">
+            ${datosMeses.map(mes => {
+                const altura = (mes.total / maxTotal * alturaMaxima).toFixed(0);
+                return `
+                    <div class="barra-mes">
+                        <div class="barra-valor">${mes.total.toLocaleString('es-CO')}</div>
+                        <div class="barra-grafico" style="height: ${altura}px"></div>
+                        <div class="barra-etiqueta">${mes.mes}</div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+    
+    contenedorGrafico.innerHTML = graficoHTML;
+}
+
+function obtenerNombreMes(numeroMes) {
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    return meses[numeroMes];
+}
