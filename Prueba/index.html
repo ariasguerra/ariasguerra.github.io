@@ -13,7 +13,6 @@
             <li><a href="#" id="navFormulario">Formulario</a></li>
             <li><a href="#" id="navRecibo">Recibo</a></li>
             <li><a href="#" id="navHistorial">Historial</a></li>
-            <li><a href="#" id="navActualizar">Actualizar Datos</a></li>
         </ul>
     </nav>
     <div class="container">
@@ -66,29 +65,7 @@
             <button id="botonExportar"><i class="fas fa-file-export"></i> Exportar Recibos</button>
             <div id="listaRecibos"></div>
         </div>
-        <div id="seccionActualizar" style="display: none;">
-            <h2>Actualizar Datos desde Excel</h2>
-            <div class="excel-upload-container">
-                <div class="file-upload">
-                    <label for="arrendatariosExcel">Archivo Excel de Arrendatarios:</label>
-                    <input type="file" id="arrendatariosExcel" accept=".xlsx, .xls">
-                </div>
-                <div class="file-upload">
-                    <label for="propiedadesExcel">Archivo Excel de Propiedades:</label>
-                    <input type="file" id="propiedadesExcel" accept=".xlsx, .xls">
-                </div>
-                <div class="file-upload">
-                    <label for="recibosExcel">Archivo Excel de Recibos:</label>
-                    <input type="file" id="recibosExcel" accept=".xlsx, .xls">
-                </div>
-                <div id="cargaStatus" class="status-container"></div>
-                <button id="procesarExcel" class="boton-procesar">Procesar Archivos</button>
-            </div>
-        </div>
     </div>
-    
-    <!-- Script de SheetJS para procesar Excel -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
