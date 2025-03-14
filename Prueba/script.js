@@ -130,7 +130,11 @@ function cargarDatos() {
         cargarPropiedades();
         cargarArrendatarios();
         cargarRecibos();
-        inicializarEstadisticas(); // Inicializar estadísticas
+        // Inicializar los componentes de estadísticas y filtros solo después de cargar datos
+        setTimeout(() => {
+            inicializarEstadisticas();
+            inicializarFiltroBusqueda();
+        }, 100);
     }).catch(error => console.error('Error durante la carga de datos:', error));
 }
 
@@ -417,7 +421,7 @@ document.getElementById('formularioRecibo').addEventListener('submit', function(
         mostrarReciboGenerado(recibo);
         guardarRecibos();
         cargarRecibos();
-        actualizarEstadisticas(); // Actualizar estadísticas
+        actualizarEstadisticas(); // Actualizar estadísticas si están disponibles
         cambiarSeccion('seccionRecibo');
     }
 });
@@ -472,7 +476,16 @@ function generarHTMLRecibo(recibo) {
 
 function cargarDatosParaEdicion(recibo) {
     document.getElementById('seleccionPropiedad').value = recibo.numeroRecibo.substring(0, 4);
-    document.getElementById('seleccionArrendatario').value = arrendatarios.find(a => a.nombre === recibo.nombreArrendatario)?.id || '';
+    
+    // Verificar si se encuentra el arrendatario antes de asignar el valor
+    const arrendatario = arrendatarios.find(a => a.nombre === recibo.nombreArrendatario);
+    if (arrendatario) {
+        document.getElementById('seleccionArrendatario').value = arrendatario.id;
+    } else {
+        document.getElementById('seleccionArrendatario').value = '';
+        console.error('No se encontró el arrendatario:', recibo.nombreArrendatario);
+    }
+    
     document.getElementById('monto').value = recibo.montoPagado;
     document.getElementById('formaPago').value = recibo.formaPago;
     document.getElementById('fechaPago').value = recibo.fechaPago;
@@ -503,7 +516,7 @@ document.getElementById('botonEliminar').addEventListener('click', function() {
             recibos.splice(index, 1);
             guardarRecibos();
             cargarRecibos();
-            actualizarEstadisticas(); // Actualizar estadísticas
+            actualizarEstadisticas(); // Actualizar estadísticas si están disponibles
             reciboActual = null;
             cambiarSeccion('seccionHistorial');
         }
@@ -531,7 +544,15 @@ document.getElementById('botonExportar').addEventListener('click', function() {
     URL.revokeObjectURL(url);
 });
 
-// Nuevas funciones para filtrado y búsqueda
+// Función para inicializar los componentes de filtrado y búsqueda
+function inicializarFiltroBusqueda() {
+    // Solo crear los filtros si estamos en la sección de historial
+    if (document.getElementById('seccionHistorial').style.display === 'block') {
+        inicializarFiltros();
+    }
+}
+
+// Función para crear los controles de filtrado
 function crearControlesDeFiltrado() {
     const contenedorFiltros = document.createElement('div');
     contenedorFiltros.className = 'filtros-container';
@@ -583,6 +604,7 @@ function crearControlesDeFiltrado() {
     return contenedorFiltros;
 }
 
+// Función para inicializar los filtros
 function inicializarFiltros() {
     if (!document.getElementById('filtrosHistorial')) {
         // Insertar los controles de filtrado antes de listaRecibos
@@ -596,43 +618,63 @@ function inicializarFiltros() {
         const selectPropiedades = document.getElementById('filtroPropiedades');
         const selectArrendatarios = document.getElementById('filtroArrendatarios');
         
-        propiedades.forEach(propiedad => {
-            const option = document.createElement('option');
-            option.value = propiedad.direccion;
-            option.textContent = propiedad.direccion;
-            selectPropiedades.appendChild(option);
-        });
+        // Verificar que los elementos existan antes de interactuar con ellos
+        if (selectPropiedades && propiedades) {
+            // Limpiar opciones existentes
+            selectPropiedades.innerHTML = '<option value="">Todas las propiedades</option>';
+            
+            propiedades.forEach(propiedad => {
+                const option = document.createElement('option');
+                option.value = propiedad.direccion;
+                option.textContent = propiedad.direccion;
+                selectPropiedades.appendChild(option);
+            });
+        }
         
-        arrendatarios.forEach(arrendatario => {
-            const option = document.createElement('option');
-            option.value = arrendatario.nombre;
-            option.textContent = arrendatario.nombre;
-            selectArrendatarios.appendChild(option);
-        });
+        if (selectArrendatarios && arrendatarios) {
+            // Limpiar opciones existentes
+            selectArrendatarios.innerHTML = '<option value="">Todos los arrendatarios</option>';
+            
+            arrendatarios.forEach(arrendatario => {
+                const option = document.createElement('option');
+                option.value = arrendatario.nombre;
+                option.textContent = arrendatario.nombre;
+                selectArrendatarios.appendChild(option);
+            });
+        }
         
-        // Configurar eventos de filtrado
-        document.getElementById('botonBuscar').addEventListener('click', aplicarFiltros);
-        document.getElementById('botonLimpiarBusqueda').addEventListener('click', limpiarBusqueda);
-        document.getElementById('botonAplicarFiltros').addEventListener('click', aplicarFiltros);
-        document.getElementById('botonLimpiarFiltros').addEventListener('click', limpiarFiltros);
+        // Configurar eventos de filtrado - verificar que los elementos existan
+        const botonBuscar = document.getElementById('botonBuscar');
+        const botonLimpiarBusqueda = document.getElementById('botonLimpiarBusqueda');
+        const botonAplicarFiltros = document.getElementById('botonAplicarFiltros');
+        const botonLimpiarFiltros = document.getElementById('botonLimpiarFiltros');
+        const inputBusqueda = document.getElementById('busquedaRecibos');
         
-        // Búsqueda en tiempo real
-        document.getElementById('busquedaRecibos').addEventListener('keyup', function(e) {
-            if (e.key === 'Enter') {
-                aplicarFiltros();
-            }
-        });
+        if (botonBuscar) botonBuscar.addEventListener('click', aplicarFiltros);
+        if (botonLimpiarBusqueda) botonLimpiarBusqueda.addEventListener('click', limpiarBusqueda);
+        if (botonAplicarFiltros) botonAplicarFiltros.addEventListener('click', aplicarFiltros);
+        if (botonLimpiarFiltros) botonLimpiarFiltros.addEventListener('click', limpiarFiltros);
+        
+        // Búsqueda con la tecla Enter
+        if (inputBusqueda) {
+            inputBusqueda.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    aplicarFiltros();
+                }
+            });
+        }
     }
 }
 
+// Función para aplicar filtros
 function aplicarFiltros() {
-    const busqueda = document.getElementById('busquedaRecibos').value;
-    const propiedad = document.getElementById('filtroPropiedades').value;
-    const arrendatario = document.getElementById('filtroArrendatarios').value;
-    const fechaDesde = document.getElementById('filtroFechaDesde').value;
-    const fechaHasta = document.getElementById('filtroFechaHasta').value;
-    const montoMinimo = document.getElementById('filtroMontoMinimo').value;
-    const montoMaximo = document.getElementById('filtroMontoMaximo').value;
+    const busqueda = document.getElementById('busquedaRecibos')?.value || '';
+    const propiedad = document.getElementById('filtroPropiedades')?.value || '';
+    const arrendatario = document.getElementById('filtroArrendatarios')?.value || '';
+    const fechaDesde = document.getElementById('filtroFechaDesde')?.value || '';
+    const fechaHasta = document.getElementById('filtroFechaHasta')?.value || '';
+    const montoMinimo = document.getElementById('filtroMontoMinimo')?.value || '';
+    const montoMaximo = document.getElementById('filtroMontoMaximo')?.value || '';
     
     const filtros = {
         busqueda,
@@ -647,27 +689,50 @@ function aplicarFiltros() {
     cargarRecibos(filtros);
 }
 
+// Función para limpiar la búsqueda
 function limpiarBusqueda() {
-    document.getElementById('busquedaRecibos').value = '';
-    aplicarFiltros();
+    const busquedaInput = document.getElementById('busquedaRecibos');
+    if (busquedaInput) {
+        busquedaInput.value = '';
+        aplicarFiltros();
+    }
 }
 
+// Función para limpiar todos los filtros
 function limpiarFiltros() {
-    document.getElementById('filtroPropiedades').value = '';
-    document.getElementById('filtroArrendatarios').value = '';
-    document.getElementById('filtroFechaDesde').value = '';
-    document.getElementById('filtroFechaHasta').value = '';
-    document.getElementById('filtroMontoMinimo').value = '';
-    document.getElementById('filtroMontoMaximo').value = '';
-    document.getElementById('busquedaRecibos').value = '';
+    const elementosALimpiar = [
+        'filtroPropiedades',
+        'filtroArrendatarios',
+        'filtroFechaDesde',
+        'filtroFechaHasta',
+        'filtroMontoMinimo',
+        'filtroMontoMaximo',
+        'busquedaRecibos'
+    ];
+    
+    elementosALimpiar.forEach(id => {
+        const elemento = document.getElementById(id);
+        if (elemento) {
+            elemento.value = '';
+        }
+    });
     
     cargarRecibos(); // Cargar todos los recibos sin filtros
 }
 
-// Funciones para gráficos y estadísticas
+// Función para obtener el nombre del mes
+function obtenerNombreMes(numeroMes) {
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    return meses[numeroMes];
+}
+
+// Función para inicializar la sección de estadísticas
 function inicializarEstadisticas() {
     // Crear contenedor de estadísticas si no existe
     if (!document.getElementById('seccionEstadisticas')) {
+        const container = document.querySelector('.container');
+        if (!container) return; // Verificar que exista el contenedor principal
+        
         const contenedor = document.createElement('div');
         contenedor.id = 'seccionEstadisticas';
         contenedor.style.display = 'none';
@@ -676,45 +741,78 @@ function inicializarEstadisticas() {
             <div class="estadisticas-container">
                 <div class="estadistica-card">
                     <h3>Ingresos Totales</h3>
-                    <div id="ingresosTotales" class="estadistica-valor"></div>
+                    <div id="ingresosTotales" class="estadistica-valor">$0</div>
                 </div>
                 <div class="estadistica-card">
                     <h3>Ingresos por Propiedad</h3>
-                    <div id="ingresosPorPropiedad"></div>
+                    <div id="ingresosPorPropiedad">
+                        <p class="texto-centrado">No hay datos disponibles</p>
+                    </div>
                 </div>
                 <div class="estadistica-card">
                     <h3>Ingresos Mensuales</h3>
-                    <div id="graficoIngresosMensuales" class="grafico-container"></div>
+                    <div id="graficoIngresosMensuales" class="grafico-container">
+                        <p class="texto-centrado">No hay datos disponibles</p>
+                    </div>
                 </div>
             </div>
         `;
         
-        document.querySelector('.container').appendChild(contenedor);
+        container.appendChild(contenedor);
         
-        // Añadir opción al menú
-        const navItem = document.createElement('li');
-        navItem.innerHTML = '<a href="#" id="navEstadisticas">Estadísticas</a>';
-        document.querySelector('nav ul').appendChild(navItem);
-        
-        document.getElementById('navEstadisticas').addEventListener('click', function(e) {
-            e.preventDefault();
-            actualizarEstadisticas();
-            cambiarSeccion('seccionEstadisticas');
-        });
+        // Añadir opción al menú solo si no existe ya
+        const navEstadisticas = document.getElementById('navEstadisticas');
+        if (!navEstadisticas) {
+            const navItem = document.createElement('li');
+            navItem.innerHTML = '<a href="#" id="navEstadisticas">Estadísticas</a>';
+            
+            const navUl = document.querySelector('nav ul');
+            if (navUl) {
+                navUl.appendChild(navItem);
+                
+                // Agregar evento clic al nuevo elemento del menú
+                document.getElementById('navEstadisticas').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    actualizarEstadisticas();
+                    cambiarSeccion('seccionEstadisticas');
+                });
+            }
+        }
     }
     
+    // Actualizar estadísticas iniciales
     actualizarEstadisticas();
 }
 
+// Función para actualizar las estadísticas
 function actualizarEstadisticas() {
-    if (!document.getElementById('seccionEstadisticas')) return;
+    // Verificar que existe la sección de estadísticas
+    const seccionEstadisticas = document.getElementById('seccionEstadisticas');
+    if (!seccionEstadisticas) return;
+    
+    // Verificar que existan recibos
+    if (!recibos || recibos.length === 0) {
+        document.getElementById('ingresosTotales').textContent = '$0';
+        document.getElementById('ingresosPorPropiedad').innerHTML = '<p class="texto-centrado">No hay datos disponibles</p>';
+        document.getElementById('graficoIngresosMensuales').innerHTML = '<p class="texto-centrado">No hay datos disponibles</p>';
+        return;
+    }
     
     // Calcular ingresos totales
-    const ingresoTotal = recibos.reduce((total, recibo) => total + parseInt(recibo.montoPagado), 0);
-    document.getElementById('ingresosTotales').textContent = `${ingresoTotal.toLocaleString('es-CO')}`;
+    const ingresoTotal = recibos.reduce((total, recibo) => {
+        const monto = parseInt(recibo.montoPagado) || 0;
+        return total + monto;
+    }, 0);
+    
+    const ingresosTotalesElement = document.getElementById('ingresosTotales');
+    if (ingresosTotalesElement) {
+        ingresosTotalesElement.textContent = `${ingresoTotal.toLocaleString('es-CO')}`;
+    }
     
     // Calcular ingresos por propiedad
     const ingresosPorPropiedad = recibos.reduce((acc, recibo) => {
+        if (!recibo.direccionInmueble || !recibo.numeroRecibo) return acc;
+        
         const direccion = recibo.direccionInmueble;
         const codigo = recibo.numeroRecibo.substring(0, 4);
         const nombreCorto = propiedades.find(p => p.codigo === codigo)?.codigo || codigo;
@@ -726,24 +824,36 @@ function actualizarEstadisticas() {
                 total: 0
             };
         }
-        acc[nombreCorto].total += parseInt(recibo.montoPagado);
+        
+        const monto = parseInt(recibo.montoPagado) || 0;
+        acc[nombreCorto].total += monto;
         return acc;
     }, {});
     
     // Mostrar ingresos por propiedad
     const contenedorPropiedades = document.getElementById('ingresosPorPropiedad');
+    if (!contenedorPropiedades) return;
+    
+    if (Object.keys(ingresosPorPropiedad).length === 0) {
+        contenedorPropiedades.innerHTML = '<p class="texto-centrado">No hay datos disponibles</p>';
+        return;
+    }
+    
     contenedorPropiedades.innerHTML = '';
     
     Object.values(ingresosPorPropiedad).forEach(propiedad => {
         const propiedadElement = document.createElement('div');
         propiedadElement.className = 'propiedad-ingreso';
+        
+        const porcentaje = ingresoTotal > 0 ? (propiedad.total / ingresoTotal * 100).toFixed(1) : 0;
+        
         propiedadElement.innerHTML = `
             <div class="propiedad-nombre">${propiedad.codigo}</div>
             <div class="propiedad-total">${propiedad.total.toLocaleString('es-CO')}</div>
             <div class="propiedad-barra">
-                <div class="barra-progreso" style="width: ${(propiedad.total / ingresoTotal * 100).toFixed(1)}%"></div>
+                <div class="barra-progreso" style="width: ${porcentaje}%"></div>
             </div>
-            <div class="propiedad-porcentaje">${(propiedad.total / ingresoTotal * 100).toFixed(1)}%</div>
+            <div class="propiedad-porcentaje">${porcentaje}%</div>
         `;
         propiedadElement.title = propiedad.direccion;
         contenedorPropiedades.appendChild(propiedadElement);
@@ -753,27 +863,49 @@ function actualizarEstadisticas() {
     generarGraficoIngresosMensuales();
 }
 
+// Función para generar el gráfico de ingresos mensuales
 function generarGraficoIngresosMensuales() {
     const contenedorGrafico = document.getElementById('graficoIngresosMensuales');
-    if (!contenedorGrafico) return;
+    if (!contenedorGrafico || !recibos || recibos.length === 0) {
+        if (contenedorGrafico) {
+            contenedorGrafico.innerHTML = '<p class="texto-centrado">No hay datos disponibles</p>';
+        }
+        return;
+    }
     
     // Agrupar recibos por mes
     const ingresosPorMes = recibos.reduce((acc, recibo) => {
-        const fecha = new Date(recibo.fechaPago);
-        const mesKey = `${fecha.getFullYear()}-${(fecha.getMonth() + 1).toString().padStart(2, '0')}`;
+        if (!recibo.fechaPago || !recibo.montoPagado) return acc;
         
-        if (!acc[mesKey]) {
-            acc[mesKey] = {
-                mes: `${obtenerNombreMes(fecha.getMonth())} ${fecha.getFullYear()}`,
-                total: 0,
-                count: 0
-            };
+        try {
+            const fecha = new Date(recibo.fechaPago);
+            if (isNaN(fecha.getTime())) return acc; // Ignorar fechas inválidas
+            
+            const mesKey = `${fecha.getFullYear()}-${(fecha.getMonth() + 1).toString().padStart(2, '0')}`;
+            
+            if (!acc[mesKey]) {
+                acc[mesKey] = {
+                    mes: `${obtenerNombreMes(fecha.getMonth())} ${fecha.getFullYear()}`,
+                    total: 0,
+                    count: 0
+                };
+            }
+            
+            const monto = parseInt(recibo.montoPagado) || 0;
+            acc[mesKey].total += monto;
+            acc[mesKey].count += 1;
+        } catch (error) {
+            console.error('Error procesando fecha:', error);
         }
         
-        acc[mesKey].total += parseInt(recibo.montoPagado);
-        acc[mesKey].count += 1;
         return acc;
     }, {});
+    
+    // Verificar si hay datos para mostrar
+    if (Object.keys(ingresosPorMes).length === 0) {
+        contenedorGrafico.innerHTML = '<p class="texto-centrado">No hay datos disponibles para graficar</p>';
+        return;
+    }
     
     // Convertir a array y ordenar por fecha
     const meses = Object.keys(ingresosPorMes).sort();
@@ -784,25 +916,25 @@ function generarGraficoIngresosMensuales() {
     const alturaMaxima = 200; // altura máxima en píxeles
     const maxTotal = Math.max(...datosMeses.map(m => m.total));
     
-    const graficoHTML = `
-        <div class="grafico-barras">
-            ${datosMeses.map(mes => {
-                const altura = (mes.total / maxTotal * alturaMaxima).toFixed(0);
-                return `
-                    <div class="barra-mes">
-                        <div class="barra-valor">${mes.total.toLocaleString('es-CO')}</div>
-                        <div class="barra-grafico" style="height: ${altura}px"></div>
-                        <div class="barra-etiqueta">${mes.mes}</div>
-                    </div>
-                `;
-            }).join('')}
-        </div>
-    `;
+    // Crear el contenedor para el gráfico
+    const graficoBarras = document.createElement('div');
+    graficoBarras.className = 'grafico-barras';
     
-    contenedorGrafico.innerHTML = graficoHTML;
-}
-
-function obtenerNombreMes(numeroMes) {
-    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    return meses[numeroMes];
+    // Crear las barras del gráfico
+    datosMeses.forEach(mes => {
+        const altura = maxTotal > 0 ? (mes.total / maxTotal * alturaMaxima).toFixed(0) : 0;
+        
+        const barraMes = document.createElement('div');
+        barraMes.className = 'barra-mes';
+        
+        barraMes.innerHTML = `
+            <div class="barra-valor">${mes.total.toLocaleString('es-CO')}</div>
+            <div class="barra-grafico" style="height: ${altura}px"></div>
+            <div class="barra-etiqueta">${mes.mes}</div>
+        `;
+        
+        graficoBarras.appendChild(barraMes);
+    });
+    
+    contenedorGrafico.appendChild(graficoBarras);
 }
