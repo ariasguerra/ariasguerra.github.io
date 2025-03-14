@@ -611,4 +611,144 @@ details[open] summary::before {
     padding: 15mm;
     box-shadow: none;
   }
+
+
+
+
+
+
+
+
+
+
+
+  /* Estilos para las notificaciones */
+.notificacion {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    max-width: 350px;
+    padding: 15px 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    z-index: 1050;
+    transform: translateY(-30px);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.notificacion.visible {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.notificacion.info {
+    background-color: var(--info-color);
+    color: white;
+}
+
+.notificacion.success {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.notificacion.warning {
+    background-color: var(--warning-color);
+    color: white;
+}
+
+.notificacion.error {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.notificacion-contenido {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.notificacion-contenido i {
+    font-size: 1.5rem;
+}
+
+/* Estilos adicionales para mejorar la apariencia de los recibos en la lista */
+.recibo {
+    transition: all 0.3s ease;
+}
+
+.recibo-info {
+    padding: 10px;
+}
+
+.recibo-header-small {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.recibo-numero-small {
+    font-weight: 700;
+}
+
+.recibo-fecha {
+    color: var(--gray-600);
+}
+
+.recibo-datos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.recibo-datos p {
+    margin: 6px 0;
+    font-size: 0.95rem;
+}
+
+.recibo-datos i {
+    width: 20px;
+    margin-right: 5px;
+    color: var(--primary-color);
+}
+
+/* Estilos para mensajes cuando no hay datos */
+.mensaje-vacio {
+    text-align: center;
+    padding: 30px;
+    color: var(--gray-600);
+    background-color: var(--gray-100);
+    border-radius: var(--border-radius);
+    margin-top: 20px;
+    border: 1px dashed var(--gray-300);
+}
+
+.texto-centrado {
+    text-align: center;
+    padding: 30px;
+    color: var(--gray-600);
+}
+
+/* Mejoras para estados activos en la navegación */
+nav ul li a.active {
+    color: var(--primary-color);
+    border-bottom: 3px solid var(--primary-color);
+    font-weight: 600;
+}
+
+/* Mejoras para dispositivos móviles */
+@media (max-width: 768px) {
+    .recibo-datos {
+        grid-template-columns: 1fr;
+    }
+    
+    .notificacion {
+        left: 20px;
+        right: 20px;
+        max-width: none;
+    }
+}
 }
