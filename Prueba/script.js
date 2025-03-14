@@ -1,3 +1,4 @@
+// Mantener todo el código original y añadir las nuevas funcionalidades
 let propiedades = [];
 let arrendatarios = [];
 let recibos = [];
@@ -222,10 +223,6 @@ function crearElementoRecibo(recibo) {
     return elementoRecibo;
 }
 
-
-
-
-
 function cargarUltimoArrendatarioYMonto() {
     const codigoPropiedad = document.getElementById('seleccionPropiedad').value;
     
@@ -266,13 +263,6 @@ function cargarUltimoArrendatarioYMonto() {
         document.getElementById('fechaFin').value = '';
     }
 }
-
-
-
-
-
-
-
 
 function obtenerSiguienteNumeroRecibo(direccionInmueble) {
     const recibosPropiedad = recibos.filter(r => r.direccionInmueble === direccionInmueble);
@@ -341,3 +331,348 @@ document.getElementById('formularioRecibo').addEventListener('submit', function(
     guardarRecibos();
     cargarRecibos();
     cambiarSeccion('seccionRecibo');
+});
+
+function mostrarReciboGenerado(recibo) {
+    const reciboGenerado = document.getElementById('reciboGenerado');
+    reciboGenerado.innerHTML = generarHTMLRecibo(recibo);
+}
+
+function generarHTMLRecibo(recibo) {
+    return `
+        <div class="recibo-contenedor">
+            <div class="recibo-header">
+                <div>
+                    <h2>Recibo de Arrendamiento</h2>
+                    <p class="recibo-numero">No. ${recibo.numeroRecibo}</p>
+                </div>
+                <div>
+                    <p><strong>Lugar y Fecha:</strong><br>${recibo.lugarExpedicion},<br>${recibo.fechaExpedicion}</p>
+                </div>
+            </div>
+            <div class="recibo-body">
+                <div>
+                    <p><strong>Recibí de:</strong> ${recibo.nombreArrendatario}</p>
+                    <p><strong>La suma de:</strong> ${parseInt(recibo.montoPagado).toLocaleString('es-CO')}<br>
+                    <strong>En letras:</strong> ${recibo.montoEnLetras}</p>
+                    <p><strong>Forma de pago:</strong> ${recibo.formaPago}<br>
+                    <strong>Fecha y hora del pago:</strong> ${formatearFecha(recibo.fechaPago)}, ${recibo.horaPago}</p>
+                    <p style="text-align: justify;"><strong>Por concepto de:</strong> Canon de arrendamiento del inmueble ubicado en ${recibo.direccionInmueble}, correspondiente al periodo del ${formatearFecha(recibo.periodoInicio)} al ${formatearFecha(recibo.periodoFin)}.</p>
+                    <p><strong>Descripción del inmueble arrendado:</strong> ${recibo.parteArrendada}</p>
+                </div>
+                <div>
+                    <p><strong>Observaciones:</strong></p>
+                    <ul>
+                        <li>Este recibo no implica novación de la deuda.</li>
+                        <li>El arrendatario declara estar al día en el pago de servicios públicos y cuotas de administración (si aplica).</li>
+                        <li>Este recibo no sustituye el contrato de arrendamiento vigente entre las partes.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="recibo-footer">
+                <div class="firma" style="text-align: left;">
+                    <p><strong>Nombre y firma de quien recibe:</strong></p>
+                    <br><br>
+                    <p>Original firmado<br>${recibo.nombreQuienRecibe}<br>
+                    Número de cédula de ciudadanía: ${recibo.cedulaQuienRecibe}</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function cargarDatosParaEdicion(recibo) {
+    document.getElementById('seleccionPropiedad').value = recibo.numeroRecibo.substring(0, 4);
+    document.getElementById('seleccionArrendatario').value = arrendatarios.find(a => a.nombre === recibo.nombreArrendatario).id;
+    document.getElementById('monto').value = recibo.montoPagado;
+    document.getElementById('formaPago').value = recibo.formaPago;
+    document.getElementById('fechaPago').value = recibo.fechaPago;
+    document.getElementById('horaPago').value = recibo.horaPago;
+    document.getElementById('fechaInicio').value = recibo.periodoInicio;
+    document.getElementById('fechaFin').value = recibo.periodoFin;
+}
+
+function guardarRecibos() {
+    localStorage.setItem('recibos', JSON.stringify(recibos));
+}
+
+document.getElementById('botonImprimir').addEventListener('click', function() {
+    window.print();
+});
+
+document.getElementById('botonEditar').addEventListener('click', function() {
+    if (reciboActual) {
+        cargarDatosParaEdicion(reciboActual);
+        cambiarSeccion('seccionFormulario');
+    }
+});
+
+document.getElementById('botonEliminar').addEventListener('click', function() {
+    if (reciboActual && confirm('¿Está seguro de que desea eliminar este recibo? Esta acción no se puede deshacer.')) {
+        const index = recibos.findIndex(r => r.numeroRecibo === reciboActual.numeroRecibo);
+        if (index > -1) {
+            recibos.splice(index, 1);
+            guardarRecibos();
+            cargarRecibos();
+            reciboActual = null;
+            cambiarSeccion('seccionHistorial');
+        }
+    }
+});
+
+document.getElementById('botonNuevoRecibo').addEventListener('click', function() {
+    reciboActual = null;
+    document.getElementById('formularioRecibo').reset();
+    cambiarSeccion('seccionFormulario');
+});
+
+document.getElementById('botonExportar').addEventListener('click', function() {
+    const datosJSON = JSON.stringify(recibos, null, 2);
+    const blob = new Blob([datosJSON], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const enlace = document.createElement('a');
+    enlace.href = url;
+    enlace.download = 'recibos_alquiler.json';
+    document.body.appendChild(enlace);
+    enlace.click();
+    
+    document.body.removeChild(enlace);
+    URL.revokeObjectURL(url);
+});
+
+function cambiarSeccion(seccionId) {
+    document.getElementById('seccionFormulario').style.display = 'none';
+    document.getElementById('seccionRecibo').style.display = 'none';
+    document.getElementById('seccionHistorial').style.display = 'none';
+    document.getElementById('seccionActualizar').style.display = 'none';
+    document.getElementById(seccionId).style.display = 'block';
+}
+
+document.getElementById('navFormulario').addEventListener('click', function(e) {
+    e.preventDefault();
+    cambiarSeccion('seccionFormulario');
+});
+
+document.getElementById('navRecibo').addEventListener('click', function(e) {
+    e.preventDefault();
+    if (reciboActual) {
+        cambiarSeccion('seccionRecibo');
+    } else {
+        alert('No hay un recibo generado para mostrar.');
+    }
+});
+
+document.getElementById('navHistorial').addEventListener('click', function(e) {
+    e.preventDefault();
+    cargarRecibos();
+    cambiarSeccion('seccionHistorial');
+});
+
+document.getElementById('navActualizar').addEventListener('click', function(e) {
+    e.preventDefault();
+    cambiarSeccion('seccionActualizar');
+});
+
+// NUEVA FUNCIONALIDAD: Procesamiento de archivos Excel
+document.getElementById('procesarExcel').addEventListener('click', function() {
+    const statusContainer = document.getElementById('cargaStatus');
+    statusContainer.innerHTML = '<p>Procesando archivos...</p>';
+    
+    const arrendatariosFile = document.getElementById('arrendatariosExcel').files[0];
+    const propiedadesFile = document.getElementById('propiedadesExcel').files[0];
+    const recibosFile = document.getElementById('recibosExcel').files[0];
+    
+    if (!arrendatariosFile && !propiedadesFile && !recibosFile) {
+        statusContainer.innerHTML = '<p class="error">Por favor seleccione al menos un archivo Excel.</p>';
+        return;
+    }
+    
+    // Contador para rastrear cuántas operaciones se han completado
+    let completadas = 0;
+    let errores = 0;
+    
+    // Procesar el archivo de arrendatarios si existe
+    if (arrendatariosFile) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                
+                // Obtener la primera hoja
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                
+                // Convertir a JSON
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                
+                // Procesar los datos
+                const nuevosArrendatarios = jsonData.map((row, index) => {
+                    return {
+                        id: row.id || row.ID || index + 1,
+                        nombre: row.nombre || row.Nombre || row.NOMBRE || `${row.nombres || ''} ${row.apellidos || ''}`,
+                        documento: row.documento || row.Documento || row.DOCUMENTO || row.cedula || '',
+                        telefono: row.telefono || row.Telefono || row.TELEFONO || row.celular || '',
+                        email: row.email || row.Email || row.EMAIL || row.correo || ''
+                    };
+                });
+                
+                // Guardar en localStorage
+                localStorage.setItem('arrendatarios', JSON.stringify(nuevosArrendatarios));
+                statusContainer.innerHTML += '<p class="success">✓ Arrendatarios actualizados correctamente.</p>';
+                
+                completadas++;
+                verificarCompletado();
+            } catch (error) {
+                console.error('Error al procesar arrendatarios:', error);
+                statusContainer.innerHTML += '<p class="error">✗ Error al procesar arrendatarios: ' + error.message + '</p>';
+                errores++;
+                verificarCompletado();
+            }
+        };
+        reader.readAsArrayBuffer(arrendatariosFile);
+    }
+    
+    // Procesar el archivo de propiedades si existe
+    if (propiedadesFile) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                
+                // Obtener la primera hoja
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                
+                // Convertir a JSON
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                
+                // Procesar los datos
+                const nuevasPropiedades = jsonData.map(row => {
+                    return {
+                        codigo: row.codigo || row.Codigo || row.CODIGO || row.id || '',
+                        direccion: row.direccion || row.Direccion || row.DIRECCION || row.ubicacion || '',
+                        parteArrendada: row.parteArrendada || row.ParteArrendada || row.descripcion || 'Inmueble completo'
+                    };
+                });
+                
+                // Guardar en localStorage
+                localStorage.setItem('propiedades', JSON.stringify(nuevasPropiedades));
+                statusContainer.innerHTML += '<p class="success">✓ Propiedades actualizadas correctamente.</p>';
+                
+                completadas++;
+                verificarCompletado();
+            } catch (error) {
+                console.error('Error al procesar propiedades:', error);
+                statusContainer.innerHTML += '<p class="error">✗ Error al procesar propiedades: ' + error.message + '</p>';
+                errores++;
+                verificarCompletado();
+            }
+        };
+        reader.readAsArrayBuffer(propiedadesFile);
+    }
+    
+    // Procesar el archivo de recibos si existe
+    if (recibosFile) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                
+                // Obtener la primera hoja
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                
+                // Convertir a JSON
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                
+                // Procesar los datos
+                const nuevosRecibos = jsonData.map(row => {
+                    // Convertir fechas de Excel
+                    let fechaPago = row.fechaPago || row.FechaPago || '';
+                    let periodoInicio = row.periodoInicio || row.PeriodoInicio || '';
+                    let periodoFin = row.periodoFin || row.PeriodoFin || '';
+                    
+                    // Si las fechas son números (fechas Excel), convertirlas
+                    if (typeof fechaPago === 'number') {
+                        const date = XLSX.SSF.parse_date_code(fechaPago);
+                        fechaPago = `${date.y}-${String(date.m).padStart(2, '0')}-${String(date.d).padStart(2, '0')}`;
+                    }
+                    
+                    if (typeof periodoInicio === 'number') {
+                        const date = XLSX.SSF.parse_date_code(periodoInicio);
+                        periodoInicio = `${date.y}-${String(date.m).padStart(2, '0')}-${String(date.d).padStart(2, '0')}`;
+                    }
+                    
+                    if (typeof periodoFin === 'number') {
+                        const date = XLSX.SSF.parse_date_code(periodoFin);
+                        periodoFin = `${date.y}-${String(date.m).padStart(2, '0')}-${String(date.d).padStart(2, '0')}`;
+                    }
+                    
+                    const monto = row.montoPagado || row.MontoPagado || row.monto || row.Monto || '0';
+                    
+                    return {
+                        numeroRecibo: row.numeroRecibo || row.NumeroRecibo || '',
+                        lugarExpedicion: row.lugarExpedicion || row.LugarExpedicion || 'Bogotá D.C.',
+                        fechaExpedicion: row.fechaExpedicion || row.FechaExpedicion || formatearFecha(new Date()),
+                        nombreArrendatario: row.nombreArrendatario || row.NombreArrendatario || '',
+                        documentoArrendatario: row.documentoArrendatario || row.DocumentoArrendatario || '',
+                        telefonoArrendatario: row.telefonoArrendatario || row.TelefonoArrendatario || '',
+                        emailArrendatario: row.emailArrendatario || row.EmailArrendatario || '',
+                        montoPagado: monto,
+                        montoEnLetras: row.montoEnLetras || row.MontoEnLetras || `${numeroALetras(parseInt(monto))} pesos M/CTE`,
+                        formaPago: row.formaPago || row.FormaPago || 'Consignación bancaria',
+                        fechaPago: fechaPago || new Date().toISOString().split('T')[0],
+                        horaPago: row.horaPago || row.HoraPago || '12:00',
+                        concepto: row.concepto || row.Concepto || 'Canon de arrendamiento',
+                        direccionInmueble: row.direccionInmueble || row.DireccionInmueble || '',
+                        parteArrendada: row.parteArrendada || row.ParteArrendada || 'Inmueble completo',
+                        periodoInicio: periodoInicio || new Date().toISOString().split('T')[0],
+                        periodoFin: periodoFin || new Date().toISOString().split('T')[0],
+                        nombreQuienRecibe: row.nombreQuienRecibe || row.NombreQuienRecibe || 'Manuel Antonio Arias Guerra',
+                        cedulaQuienRecibe: row.cedulaQuienRecibe || row.CedulaQuienRecibe || '1.057.736.060'
+                    };
+                });
+                
+                // Guardar en localStorage
+                localStorage.setItem('recibos', JSON.stringify(nuevosRecibos));
+                statusContainer.innerHTML += '<p class="success">✓ Recibos actualizados correctamente.</p>';
+                
+                completadas++;
+                verificarCompletado();
+            } catch (error) {
+                console.error('Error al procesar recibos:', error);
+                statusContainer.innerHTML += '<p class="error">✗ Error al procesar recibos: ' + error.message + '</p>';
+                errores++;
+                verificarCompletado();
+            }
+        };
+        reader.readAsArrayBuffer(recibosFile);
+    }
+    
+    function verificarCompletado() {
+        const total = (arrendatariosFile ? 1 : 0) + (propiedadesFile ? 1 : 0) + (recibosFile ? 1 : 0);
+        
+        if (completadas + errores === total) {
+            if (completadas > 0) {
+                statusContainer.innerHTML += '<p class="success">✓ Proceso completado. La página se recargará en 3 segundos...</p>';
+                setTimeout(() => {
+                    location.reload();
+                }, 3000);
+            } else {
+                statusContainer.innerHTML += '<p class="error">No se pudo actualizar ningún dato. Verifique el formato de los archivos.</p>';
+            }
+        }
+    }
+});
+
+// Inicializar la aplicación
+function inicializarApp() {
+    console.log('Inicializando aplicación...');
+    cargarDatos();
+    cambiarSeccion('seccionFormulario');
+    console.log('Aplicación inicializada.');
+}
+
+// Cargar datos al iniciar la aplicación
+window.addEventListener('load', inicializarApp);
