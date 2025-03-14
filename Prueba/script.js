@@ -1,4 +1,3 @@
-// Variables globales
 let propiedades = [];
 let arrendatarios = [];
 let recibos = [];
@@ -226,7 +225,7 @@ function cargarRecibos(filtros = {}) {
     }
 
     if (recibosFiltrados.length === 0) {
-        listaRecibos.innerHTML = '<p class="mensaje-vacio">No hay recibos que coincidan con los criterios de búsqueda.</p>';
+        listaRecibos.innerHTML = '<p>No hay recibos que coincidan con los criterios de búsqueda.</p>';
         return;
     }
 
@@ -291,18 +290,12 @@ function crearElementoRecibo(recibo) {
     const elementoRecibo = document.createElement('div');
     elementoRecibo.classList.add('recibo');
     elementoRecibo.innerHTML = `
-        <div class="recibo-info">
-            <div class="recibo-header-small">
-                <span class="recibo-numero-small"><i class="fas fa-receipt"></i> ${recibo.numeroRecibo}</span>
-                <span class="recibo-fecha"><i class="far fa-calendar-alt"></i> ${formatearFecha(recibo.fechaPago)}</span>
-            </div>
-            <div class="recibo-datos">
-                <p><i class="fas fa-user"></i> <strong>Arrendatario:</strong> ${recibo.nombreArrendatario}</p>
-                <p><i class="fas fa-dollar-sign"></i> <strong>Monto:</strong> $${parseInt(recibo.montoPagado).toLocaleString('es-CO')}</p>
-                <p><i class="fas fa-calendar-week"></i> <strong>Período:</strong> ${formatearFecha(recibo.periodoInicio)} - ${formatearFecha(recibo.periodoFin)}</p>
-                <p><i class="fas fa-money-check-alt"></i> <strong>Forma de pago:</strong> ${recibo.formaPago}</p>
-            </div>
-        </div>
+        <strong>Número de Recibo:</strong> ${recibo.numeroRecibo}<br>
+        <strong>Arrendatario:</strong> ${recibo.nombreArrendatario}<br>
+        <strong>Monto:</strong> $${parseInt(recibo.montoPagado).toLocaleString('es-CO')} (${recibo.montoEnLetras})<br>
+        <strong>Fecha de Pago:</strong> ${formatearFecha(recibo.fechaPago)} ${recibo.horaPago}<br>
+        <strong>Período:</strong> ${formatearFecha(recibo.periodoInicio)} a ${formatearFecha(recibo.periodoFin)}<br>
+        <strong>Dirección:</strong> ${recibo.direccionInmueble}<br>
     `;
     elementoRecibo.addEventListener('click', function() {
         reciboActual = recibo;
@@ -311,7 +304,6 @@ function crearElementoRecibo(recibo) {
     });
     return elementoRecibo;
 }
-
 function cargarUltimoArrendatarioYMonto() {
     const codigoPropiedad = document.getElementById('seleccionPropiedad').value;
     
@@ -320,7 +312,7 @@ function cargarUltimoArrendatarioYMonto() {
     
     if (recibosPropiedad.length > 0) {
         // Obtener el último recibo de la propiedad
-        const ultimoRecibo = recibosPropiedad.sort((a, b) => new Date(b.fechaPago) - new Date(a.fechaPago))[0];
+        const ultimoRecibo = recibosPropiedad[recibosPropiedad.length - 1];
         
         // Cargar datos del último arrendatario
         const arrendatario = arrendatarios.find(a => a.nombre === ultimoRecibo.nombreArrendatario);
@@ -353,29 +345,88 @@ function cargarUltimoArrendatarioYMonto() {
     }
 }
 
-function obtenerSiguienteNumeroRecibo(codigoPropiedad) {
-    const recibosPropiedad = recibos.filter(r => r.numeroRecibo.startsWith(codigoPropiedad));
+function obtenerSiguienteNumeroRecibo(direccionInmueble) {
+    const recibosPropiedad = recibos.filter(r => r.direccionInmueble === direccionInmueble);
     if (recibosPropiedad.length > 0) {
-        // Ordenar recibos por número y obtener el último
-        recibosPropiedad.sort((a, b) => {
-            const numA = parseInt(a.numeroRecibo.slice(-3));
-            const numB = parseInt(b.numeroRecibo.slice(-3));
-            return numB - numA;
-        });
-        
-        const ultimoRecibo = recibosPropiedad[0];
+        const ultimoRecibo = recibosPropiedad[recibosPropiedad.length - 1];
+        const codigoPropiedad = ultimoRecibo.numeroRecibo.substring(0, 4);
         const ultimoNumero = parseInt(ultimoRecibo.numeroRecibo.slice(-3));
         return `${codigoPropiedad}2025${String(ultimoNumero + 1).padStart(3, '0')}`;
     } else {
-        return `${codigoPropiedad}2025001`;
+        const propiedad = propiedades.find(p => p.direccion === direccionInmueble);
+        return propiedad ? `${propiedad.codigo}2025001` : 'XXXX2025001';
     }
 }
+
+document.getElementById('formularioRecibo').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const propiedad = propiedades.find(p => p.codigo === document.getElementById('seleccionPropiedad').value);
+    const arrendatario = arrendatarios.find(a => a.id === parseInt(document.getElementById('seleccionArrendatario').value));
+    const monto = document.getElementById('monto').value;
+    const montoEnLetras = numeroALetras(parseInt(monto)) + ' pesos M/CTE';
+    const formaPago = document.getElementById('formaPago').value;
+    const fechaPago = document.getElementById('fechaPago').value;
+    const horaPago = document.getElementById('horaPago').value;
+    const fechaInicio = document.getElementById('fechaInicio').value;
+    const fechaFin = document.getElementById('fechaFin').value;
+
+    const fechaExpedicion = formatearFecha(new Date());
+    const numeroRecibo = reciboActual ? reciboActual.numeroRecibo : obtenerSiguienteNumeroRecibo(propiedad.direccion);
+
+    const recibo = {
+        numeroRecibo: numeroRecibo,
+        lugarExpedicion: "Bogotá D.C.",
+        fechaExpedicion: fechaExpedicion,
+        nombreArrendatario: arrendatario.nombre,
+        documentoArrendatario: arrendatario.documento,
+        telefonoArrendatario: arrendatario.telefono,
+        emailArrendatario: arrendatario.email,
+        montoPagado: monto,
+        montoEnLetras: montoEnLetras,
+        formaPago: formaPago,
+        fechaPago: fechaPago,
+        horaPago: horaPago,
+        concepto: "Canon de arrendamiento",
+        direccionInmueble: propiedad.direccion,
+        parteArrendada: propiedad.parteArrendada,
+        periodoInicio: fechaInicio,
+        periodoFin: fechaFin,
+        nombreQuienRecibe: "Manuel Antonio Arias Guerra",
+        cedulaQuienRecibe: "1.057.736.060"
+    };
+
+    // Solicitar confirmación antes de guardar
+    const esNuevo = !reciboActual;
+    const mensaje = esNuevo 
+        ? `¿Está seguro de crear un nuevo recibo por ${montoEnLetras}?` 
+        : `¿Está seguro de modificar este recibo? Los datos anteriores se perderán.`;
+    
+    if (confirm(mensaje)) {
+        if (reciboActual) {
+            // Estamos editando un recibo existente
+            const index = recibos.findIndex(r => r.numeroRecibo === reciboActual.numeroRecibo);
+            if (index > -1) {
+                recibos[index] = recibo;
+            }
+        } else {
+            // Estamos creando un nuevo recibo
+            recibos.push(recibo);
+        }
+
+        reciboActual = recibo;
+        mostrarReciboGenerado(recibo);
+        guardarRecibos();
+        cargarRecibos();
+        actualizarEstadisticas(); // Actualizar estadísticas si están disponibles
+        cambiarSeccion('seccionRecibo');
+    }
+});
 
 function mostrarReciboGenerado(recibo) {
     const reciboGenerado = document.getElementById('reciboGenerado');
     reciboGenerado.innerHTML = generarHTMLRecibo(recibo);
 }
-
 function generarHTMLRecibo(recibo) {
     return `
         <div class="recibo-contenedor">
@@ -391,7 +442,6 @@ function generarHTMLRecibo(recibo) {
             <div class="recibo-body">
                 <div>
                     <p><strong>Recibí de:</strong> ${recibo.nombreArrendatario}</p>
-                    <p><strong>Identificación:</strong> ${recibo.documentoArrendatario}</p>
                     <p><strong>La suma de:</strong> $${parseInt(recibo.montoPagado).toLocaleString('es-CO')}<br>
                     <strong>En letras:</strong> ${recibo.montoEnLetras}</p>
                     <p><strong>Forma de pago:</strong> ${recibo.formaPago}<br>
@@ -443,119 +493,7 @@ function cargarDatosParaEdicion(recibo) {
 function guardarRecibos() {
     localStorage.setItem('recibos', JSON.stringify(recibos));
 }
-// Eventos del formulario de recibo
-document.getElementById('formularioRecibo').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const codigoPropiedad = document.getElementById('seleccionPropiedad').value;
-    const propiedad = propiedades.find(p => p.codigo === codigoPropiedad);
-    
-    if (!propiedad) {
-        alert('Por favor, seleccione una propiedad válida.');
-        return;
-    }
-    
-    const arrendatarioId = document.getElementById('seleccionArrendatario').value;
-    const arrendatario = arrendatarios.find(a => a.id === parseInt(arrendatarioId));
-    
-    if (!arrendatario) {
-        alert('Por favor, seleccione un arrendatario válido.');
-        return;
-    }
-    
-    const monto = document.getElementById('monto').value;
-    const montoEnLetras = numeroALetras(parseInt(monto)) + ' pesos M/CTE';
-    const formaPago = document.getElementById('formaPago').value;
-    const fechaPago = document.getElementById('fechaPago').value;
-    const horaPago = document.getElementById('horaPago').value;
-    const fechaInicio = document.getElementById('fechaInicio').value;
-    const fechaFin = document.getElementById('fechaFin').value;
 
-    const fechaActual = new Date();
-    const fechaExpedicion = formatearFecha(fechaActual);
-    const numeroRecibo = reciboActual ? reciboActual.numeroRecibo : obtenerSiguienteNumeroRecibo(codigoPropiedad);
-
-    const recibo = {
-        numeroRecibo: numeroRecibo,
-        lugarExpedicion: "Bogotá D.C.",
-        fechaExpedicion: fechaExpedicion,
-        nombreArrendatario: arrendatario.nombre,
-        documentoArrendatario: arrendatario.documento,
-        telefonoArrendatario: arrendatario.telefono,
-        emailArrendatario: arrendatario.email || "Por Establecer",
-        montoPagado: monto,
-        montoEnLetras: montoEnLetras,
-        formaPago: formaPago,
-        fechaPago: fechaPago,
-        horaPago: horaPago,
-        concepto: "Canon de arrendamiento",
-        direccionInmueble: propiedad.direccion,
-        parteArrendada: propiedad.parteArrendada,
-        periodoInicio: fechaInicio,
-        periodoFin: fechaFin,
-        nombreQuienRecibe: "Manuel Antonio Arias Guerra",
-        cedulaQuienRecibe: "1.057.736.060"
-    };
-
-    // Solicitar confirmación antes de guardar
-    const esNuevo = !reciboActual;
-    const mensaje = esNuevo 
-        ? `¿Está seguro de crear un nuevo recibo por ${montoEnLetras}?` 
-        : `¿Está seguro de modificar este recibo? Los datos anteriores se perderán.`;
-    
-    if (confirm(mensaje)) {
-        if (reciboActual) {
-            // Estamos editando un recibo existente
-            const index = recibos.findIndex(r => r.numeroRecibo === reciboActual.numeroRecibo);
-            if (index > -1) {
-                recibos[index] = recibo;
-            }
-        } else {
-            // Estamos creando un nuevo recibo
-            recibos.push(recibo);
-        }
-
-        reciboActual = recibo;
-        mostrarReciboGenerado(recibo);
-        guardarRecibos();
-        cargarRecibos();
-        actualizarEstadisticas(); // Actualizar estadísticas si están disponibles
-        cambiarSeccion('seccionRecibo');
-        
-        // Mostrar mensaje de éxito
-        const mensaje = esNuevo ? 'Recibo creado con éxito' : 'Recibo actualizado con éxito';
-        mostrarNotificacion(mensaje, 'success');
-    }
-});
-
-// Función para mostrar notificaciones
-function mostrarNotificacion(mensaje, tipo = 'info') {
-    const notificacion = document.createElement('div');
-    notificacion.className = `notificacion ${tipo}`;
-    notificacion.innerHTML = `
-        <div class="notificacion-contenido">
-            <i class="fas ${tipo === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
-            <span>${mensaje}</span>
-        </div>
-    `;
-    
-    document.body.appendChild(notificacion);
-    
-    // Mostrar la notificación con animación
-    setTimeout(() => {
-        notificacion.classList.add('visible');
-    }, 10);
-    
-    // Ocultar y eliminar después de 3 segundos
-    setTimeout(() => {
-        notificacion.classList.remove('visible');
-        setTimeout(() => {
-            document.body.removeChild(notificacion);
-        }, 300);
-    }, 3000);
-}
-
-// Eventos de botones
 document.getElementById('botonImprimir').addEventListener('click', function() {
     window.print();
 });
@@ -566,7 +504,7 @@ document.getElementById('botonEditar').addEventListener('click', function() {
         cambiarSeccion('seccionFormulario');
     }
 });
-// Continuación de los eventos de botones
+
 document.getElementById('botonEliminar').addEventListener('click', function() {
     if (reciboActual && confirm('¿Está seguro de que desea eliminar este recibo? Esta acción no se puede deshacer.')) {
         const index = recibos.findIndex(r => r.numeroRecibo === reciboActual.numeroRecibo);
@@ -574,10 +512,9 @@ document.getElementById('botonEliminar').addEventListener('click', function() {
             recibos.splice(index, 1);
             guardarRecibos();
             cargarRecibos();
-            actualizarEstadisticas(); // Actualizar estadísticas
+            actualizarEstadisticas(); // Actualizar estadísticas si están disponibles
             reciboActual = null;
             cambiarSeccion('seccionHistorial');
-            mostrarNotificacion('Recibo eliminado con éxito', 'success');
         }
     }
 });
@@ -601,8 +538,6 @@ document.getElementById('botonExportar').addEventListener('click', function() {
     
     document.body.removeChild(enlace);
     URL.revokeObjectURL(url);
-    
-    mostrarNotificacion('Recibos exportados correctamente', 'success');
 });
 // Función para inicializar los componentes de filtrado y búsqueda
 function inicializarFiltroBusqueda() {
@@ -619,8 +554,8 @@ function crearControlesDeFiltrado() {
     contenedorFiltros.innerHTML = `
         <div class="filtro-busqueda">
             <input type="text" id="busquedaRecibos" placeholder="Buscar por número, arrendatario o dirección...">
-            <button id="botonBuscar"><i class="fas fa-search"></i> Buscar</button>
-            <button id="botonLimpiarBusqueda"><i class="fas fa-times"></i> Limpiar</button>
+            <button id="botonBuscar">Buscar</button>
+            <button id="botonLimpiarBusqueda">Limpiar</button>
         </div>
         <details>
             <summary>Filtros avanzados</summary>
@@ -654,8 +589,8 @@ function crearControlesDeFiltrado() {
                     <input type="number" id="filtroMontoMaximo" placeholder="Ej: 800000">
                 </div>
                 <div class="filtro-botones">
-                    <button id="botonAplicarFiltros"><i class="fas fa-filter"></i> Aplicar filtros</button>
-                    <button id="botonLimpiarFiltros"><i class="fas fa-broom"></i> Limpiar filtros</button>
+                    <button id="botonAplicarFiltros">Aplicar filtros</button>
+                    <button id="botonLimpiarFiltros">Limpiar filtros</button>
                 </div>
             </div>
         </details>
@@ -686,7 +621,7 @@ function inicializarFiltros() {
             propiedades.forEach(propiedad => {
                 const option = document.createElement('option');
                 option.value = propiedad.direccion;
-                option.textContent = `${propiedad.codigo} - ${propiedad.direccion.substring(0, 30)}${propiedad.direccion.length > 30 ? '...' : ''}`;
+                option.textContent = propiedad.direccion;
                 selectPropiedades.appendChild(option);
             });
         }
@@ -778,12 +713,69 @@ function limpiarFiltros() {
     });
     
     cargarRecibos(); // Cargar todos los recibos sin filtros
-    mostrarNotificacion('Filtros restablecidos', 'info');
 }
 // Función para obtener el nombre del mes
 function obtenerNombreMes(numeroMes) {
     const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
     return meses[numeroMes];
+}
+
+// Función para inicializar la sección de estadísticas
+function inicializarEstadisticas() {
+    // Crear contenedor de estadísticas si no existe
+    if (!document.getElementById('seccionEstadisticas')) {
+        const container = document.querySelector('.container');
+        if (!container) return; // Verificar que exista el contenedor principal
+        
+        const contenedor = document.createElement('div');
+        contenedor.id = 'seccionEstadisticas';
+        contenedor.style.display = 'none';
+        contenedor.innerHTML = `
+            <h2>Estadísticas de Pagos</h2>
+            <div class="estadisticas-container">
+                <div class="estadistica-card">
+                    <h3>Ingresos Totales</h3>
+                    <div id="ingresosTotales" class="estadistica-valor">$0</div>
+                </div>
+                <div class="estadistica-card">
+                    <h3>Ingresos por Propiedad</h3>
+                    <div id="ingresosPorPropiedad">
+                        <p class="texto-centrado">No hay datos disponibles</p>
+                    </div>
+                </div>
+                <div class="estadistica-card">
+                    <h3>Ingresos Mensuales</h3>
+                    <div id="graficoIngresosMensuales" class="grafico-container">
+                        <p class="texto-centrado">No hay datos disponibles</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(contenedor);
+        
+        // Añadir opción al menú solo si no existe ya
+        const navEstadisticas = document.getElementById('navEstadisticas');
+        if (!navEstadisticas) {
+            const navItem = document.createElement('li');
+            navItem.innerHTML = '<a href="#" id="navEstadisticas">Estadísticas</a>';
+            
+            const navUl = document.querySelector('nav ul');
+            if (navUl) {
+                navUl.appendChild(navItem);
+                
+                // Agregar evento clic al nuevo elemento del menú
+                document.getElementById('navEstadisticas').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    actualizarEstadisticas();
+                    cambiarSeccion('seccionEstadisticas');
+                });
+            }
+        }
+    }
+    
+    // Actualizar estadísticas iniciales
+    actualizarEstadisticas();
 }
 
 // Función para actualizar las estadísticas
@@ -843,9 +835,7 @@ function actualizarEstadisticas() {
     
     contenedorPropiedades.innerHTML = '';
     
-    const propiedadesOrdenadas = Object.values(ingresosPorPropiedad).sort((a, b) => b.total - a.total);
-    
-    propiedadesOrdenadas.forEach(propiedad => {
+    Object.values(ingresosPorPropiedad).forEach(propiedad => {
         const propiedadElement = document.createElement('div');
         propiedadElement.className = 'propiedad-ingreso';
         
@@ -942,12 +932,6 @@ function generarGraficoIngresosMensuales() {
     
     contenedorGrafico.appendChild(graficoBarras);
 }
-
-// Función para añadir estadísticas a la interfaz
-function inicializarEstadisticas() {
-    // La sección de estadísticas ya está incluida en el HTML principal
-    actualizarEstadisticas();
-}
 // Función para cambiar entre secciones
 function cambiarSeccion(seccionId) {
     // Ocultar todas las secciones
@@ -965,23 +949,9 @@ function cambiarSeccion(seccionId) {
     if (seccionSeleccionada) {
         seccionSeleccionada.style.display = 'block';
         
-        // Actualizar la navegación para mostrar el elemento activo
-        secciones.forEach(seccion => {
-            const navId = seccion.replace('seccion', 'nav');
-            const navElement = document.getElementById(navId);
-            if (navElement) {
-                if (seccion === seccionId) {
-                    navElement.classList.add('active');
-                } else {
-                    navElement.classList.remove('active');
-                }
-            }
-        });
-        
         // Inicializar filtros si estamos en el historial
         if (seccionId === 'seccionHistorial') {
             inicializarFiltros();
-            cargarRecibos(); // Cargar los recibos al entrar en la sección
         }
         
         // Actualizar estadísticas si estamos en esa sección
@@ -1002,134 +972,22 @@ document.getElementById('navRecibo').addEventListener('click', function(e) {
     if (reciboActual) {
         cambiarSeccion('seccionRecibo');
     } else {
-        mostrarNotificacion('No hay un recibo generado para mostrar', 'info');
+        alert('No hay un recibo generado para mostrar.');
     }
 });
 
 document.getElementById('navHistorial').addEventListener('click', function(e) {
     e.preventDefault();
+    cargarRecibos();
     cambiarSeccion('seccionHistorial');
 });
-
-// El evento para "navEstadisticas" ya está incluido en la función inicializarEstadisticas
-
-// Función para añadir estilos CSS dinámicos
-function agregarEstilosNotificaciones() {
-    if (!document.getElementById('notificacionesCSS')) {
-        const estiloNotificaciones = document.createElement('style');
-        estiloNotificaciones.id = 'notificacionesCSS';
-        estiloNotificaciones.textContent = `
-            .notificacion {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                max-width: 350px;
-                padding: 15px;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                z-index: 1050;
-                transform: translateY(-30px);
-                opacity: 0;
-                transition: all 0.3s ease;
-            }
-            
-            .notificacion.visible {
-                transform: translateY(0);
-                opacity: 1;
-            }
-            
-            .notificacion.info {
-                background-color: #48cae4;
-                color: white;
-            }
-            
-            .notificacion.success {
-                background-color: #38b000;
-                color: white;
-            }
-            
-            .notificacion.warning {
-                background-color: #f48c06;
-                color: white;
-            }
-            
-            .notificacion.error {
-                background-color: #e5383b;
-                color: white;
-            }
-            
-            .notificacion-contenido {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-            
-            .notificacion-contenido i {
-                font-size: 1.5rem;
-            }
-            
-            .recibo-header-small {
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: 10px;
-                color: #4361ee;
-                font-weight: 600;
-            }
-            
-            .recibo-datos {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-            
-            .recibo-datos p {
-                margin: 5px 0;
-            }
-            
-            .recibo-datos i {
-                width: 20px;
-                margin-right: 5px;
-                color: #4361ee;
-            }
-            
-            @media (max-width: 768px) {
-                .recibo-datos {
-                    grid-template-columns: 1fr;
-                }
-            }
-            
-            nav ul li a.active {
-                color: #4361ee;
-                border-bottom: 3px solid #4361ee;
-                font-weight: 600;
-            }
-            
-            .mensaje-vacio {
-                text-align: center;
-                padding: 30px;
-                color: #6c757d;
-                background-color: #f8f9fa;
-                border-radius: 8px;
-                margin-top: 20px;
-            }
-            
-            .texto-centrado {
-                text-align: center;
-                padding: 20px;
-                color: #6c757d;
-            }
-        `;
-        document.head.appendChild(estiloNotificaciones);
-    }
-}
 
 // Inicializar la aplicación
 function inicializarApp() {
     console.log('Inicializando aplicación...');
-    agregarEstilosNotificaciones();
     cargarDatos();
     cambiarSeccion('seccionFormulario');
-    console.log('Aplicación inicializada correctamente.');
+    console.log('Aplicación inicializada.');
 }
 
 // Cargar datos al iniciar la aplicación
