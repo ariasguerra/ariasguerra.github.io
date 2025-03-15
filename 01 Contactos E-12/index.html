@@ -308,49 +308,131 @@
             text-align: center;
         }
 
-        /* Botones de acción */
-        .action-buttons-container {
-            background-color: var(--card-bg);
-            padding: 1rem;
-            border-radius: var(--border-radius);
-            margin-bottom: 1rem;
-            box-shadow: var(--shadow);
-            border-top: 4px solid var(--primary-color);
+        /* Botón flotante y menú en abanico */
+        .fab-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 999;
         }
-
-        #action-buttons {
-            display: flex;
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            gap: 0.5rem;
-            padding-bottom: 0.5rem;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: thin;
-        }
-
-        #action-buttons::-webkit-scrollbar {
-            height: 4px;
-        }
-
-        #action-buttons::-webkit-scrollbar-thumb {
-            background-color: var(--primary-light);
-            border-radius: 4px;
-        }
-
-        #action-buttons button {
-            flex: 0 0 auto;
-            min-width: 50px;
-            height: 50px;
+        
+        .fab-main {
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            border-radius: var(--border-radius);
-            transition: var(--transition);
-            color: var(--text-light);
+            font-size: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        .fab-main:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+        }
+        
+        .fab-menu {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            display: none;
+            flex-direction: column-reverse;
+            align-items: flex-end;
+            gap: 0.8rem;
+        }
+        
+        .fab-menu.active {
+            display: flex;
+        }
+        
+        .fab-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            animation: fadeInUp 0.3s forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        
+        .fab-item-label {
+            background-color: var(--card-bg);
+            color: var(--text-dark);
+            padding: 0.5rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
+        }
+        
+        .fab-item-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
             border: none;
-            cursor: pointer;
+            color: var(--text-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
             font-size: 1.2rem;
-            box-shadow: var(--shadow);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .fab-item-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .fab-item:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .fab-item:nth-child(2) {
+            animation-delay: 0.05s;
+        }
+        
+        .fab-item:nth-child(3) {
+            animation-delay: 0.1s;
+        }
+        
+        .fab-item:nth-child(4) {
+            animation-delay: 0.15s;
+        }
+        
+        .fab-item:nth-child(5) {
+            animation-delay: 0.2s;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fab-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: transparent;
+            z-index: 998;
+            display: none;
+        }
+        
+        .fab-backdrop.active {
+            display: block;
         }
 
         #action-buttons button:hover {
@@ -664,555 +746,4 @@
             box-shadow: none;
         }
 
-        /* Notificación */
-        .notification {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background-color: var(--primary-color);
-            color: var(--text-light);
-            padding: 1rem 1.5rem;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-hover);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            transform: translateY(200%);
-            opacity: 0;
-            transition: var(--transition);
-            max-width: 350px;
-        }
-
-        .notification.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .notification-icon {
-            font-size: 1.5rem;
-            background-color: rgba(255, 255, 255, 0.2);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .notification-content {
-            flex: 1;
-        }
-
-        .notification-title {
-            font-weight: 600;
-            margin-bottom: 0.3rem;
-        }
-
-        .notification-message {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        .notification-close {
-            background: none;
-            border: none;
-            color: var(--text-light);
-            font-size: 1.2rem;
-            cursor: pointer;
-            opacity: 0.7;
-            transition: var(--transition);
-        }
-
-        .notification-close:hover {
-            opacity: 1;
-        }
-
-        /* FOOTER */
-        .footer {
-            background-color: var(--primary-dark);
-            color: var(--text-light);
-            padding: 1.5rem;
-            text-align: center;
-            margin-top: auto;
-        }
-
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .footer-text {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-
-        .footer-links {
-            display: flex;
-            gap: 1.5rem;
-        }
-
-        .footer-link {
-            color: var(--text-light);
-            text-decoration: none;
-            opacity: 0.8;
-            transition: var(--transition);
-        }
-
-        .footer-link:hover {
-            opacity: 1;
-        }
-
-        /* Responsividad */
-        @media (max-width: 768px) {
-            .main-content {
-                padding: 0.75rem;
-                max-width: 100%;
-            }
-
-            #action-buttons {
-                gap: 0.4rem;
-            }
-
-            #action-buttons button {
-                min-width: 45px;
-                height: 45px;
-                font-size: 1.1rem;
-            }
-
-            .section-title {
-                font-size: 1.2rem;
-                margin-bottom: 0.8rem;
-            }
-
-            .contact {
-                padding: 1rem;
-            }
-            
-            .contact .grado,
-            .contact .nombre {
-                font-size: 1rem;
-            }
-            
-            .notification {
-                left: 0.5rem;
-                right: 0.5rem;
-                bottom: 0.5rem;
-                max-width: unset;
-                padding: 0.8rem 1rem;
-            }
-            
-            .search-container,
-            .results-container,
-            .navigation-container,
-            .action-buttons-container,
-            .personal-summary-container,
-            .file-upload-container {
-                margin-bottom: 0.75rem;
-                padding: 1rem;
-                border-radius: 8px;
-            }
-            
-            #search-form {
-                flex-direction: row;
-                align-items: center;
-            }
-            
-            #search-input {
-                font-size: 0.9rem;
-                height: 42px;
-            }
-            
-            .action-btn {
-                width: 42px;
-                height: 42px;
-            }
-            
-            .footer {
-                padding: 1rem;
-            }
-        }
-
-        /* Ajustes adicionales para pantallas muy pequeñas */
-        @media (max-width: 480px) {
-            .main-content {
-                padding: 0.5rem;
-            }
-            
-            #search-input {
-                width: 100%;
-                font-size: 0.9rem;
-                padding: 0.6rem 0.6rem 0.6rem 2.2rem;
-            }
-            
-            .search-icon {
-                left: 0.8rem;
-                font-size: 1rem;
-            }
-            
-            .action-btn {
-                width: 38px;
-                height: 38px;
-                font-size: 0.9rem;
-            }
-            
-            #navigation {
-                flex-direction: row;
-                align-items: center;
-            }
-            
-            #navigation button {
-                padding: 0.6rem 0.4rem;
-                font-size: 0.8rem;
-            }
-            
-            #current-page {
-                font-size: 0.9rem;
-                min-width: 70px;
-            }
-            
-            .section-title {
-                font-size: 1rem;
-                margin-bottom: 0.7rem;
-            }
-            
-            .section-title::after {
-                width: 40px;
-                height: 2px;
-            }
-            
-            #personal-summary li {
-                padding: 0.6rem;
-                font-size: 0.9rem;
-            }
-            
-            .desglose {
-                margin-left: 1rem;
-                padding: 0.6rem;
-                font-size: 0.8rem;
-            }
-            
-            #total-personal {
-                margin-top: 1rem;
-                font-size: 1rem;
-            }
-            
-            .btn {
-                padding: 0.6rem 0.8rem;
-                font-size: 0.85rem;
-            }
-            
-            .modal-content {
-                padding: 1rem;
-                width: 92%;
-                max-width: 92%;
-            }
-            
-            .modal-title {
-                font-size: 1.1rem;
-                margin-bottom: 1rem;
-            }
-            
-            .modal-btn {
-                padding: 0.6rem 0.8rem;
-                font-size: 0.85rem;
-            }
-            
-            .notification {
-                padding: 0.7rem;
-            }
-            
-            .notification-icon {
-                width: 32px;
-                height: 32px;
-                font-size: 1.1rem;
-            }
-            
-            .notification-title {
-                font-size: 0.9rem;
-            }
-            
-            .notification-message {
-                font-size: 0.8rem;
-            }
-            
-            .notification-close {
-                font-size: 1rem;
-            }
-            
-            .footer {
-                padding: 0.8rem;
-            }
-            
-            .footer-text,
-            .footer-link {
-                font-size: 0.8rem;
-            }
-            
-            .contact {
-                padding: 0.8rem;
-                margin-bottom: 0.7rem;
-            }
-            
-            .contact p {
-                margin-bottom: 0.5rem;
-                font-size: 0.85rem;
-            }
-            
-            .copy-btn {
-                width: 32px;
-                height: 32px;
-            }
-        }
-        
-        /* Ajustes para pantallas extremadamente pequeñas */
-        @media (max-width: 360px) {
-            .main-content {
-                padding: 0.4rem;
-            }
-            
-            #search-form {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-            
-            .search-buttons {
-                width: 100%;
-                justify-content: flex-end;
-            }
-            
-            .section-title {
-                font-size: 0.95rem;
-            }
-            
-            #personal-summary li {
-                font-size: 0.85rem;
-            }
-        }
-    </style>
-</head>
-<body>
-
-    <main class="main-content">
-        <!-- 1. Búsqueda de contactos -->
-        <div class="search-container">
-            <form id="search-form">
-                <div id="search-input-container">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="search-input" placeholder="Buscar contacto...">
-                </div>
-                <div class="search-buttons">
-                    <button type="button" id="voice-search-btn" class="action-btn" title="Buscar por voz">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                    <button type="submit" id="search-btn" class="action-btn" title="Buscar">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- 2. Resultados -->
-        <div class="results-container">
-            <h2 class="section-title">
-                <i class="fas fa-user"></i>
-                Resultados
-            </h2>
-            <div id="results"></div>
-        </div>
-        
-        <!-- 3. Navegación de resultados -->
-        <div class="navigation-container" id="navigation-container" style="display: none;">
-            <h2 class="section-title">
-                <i class="fas fa-exchange-alt"></i>
-                Navegación
-            </h2>
-            <div id="navigation">
-                <button id="prev-btn" disabled>
-                    <i class="fas fa-chevron-left"></i> Anterior
-                </button>
-                <span id="current-page">0 de 0</span>
-                <button id="next-btn" disabled>
-                    Siguiente <i class="fas fa-chevron-right"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- 4. Botones de acción -->
-        <div class="action-buttons-container" id="action-buttons-container" style="display: none;">
-            <div id="action-buttons">
-                <button id="call-btn" class="action-btn" title="Llamar" style="background-color: #28a745;"><i class="fas fa-phone"></i></button>
-                <button id="whatsapp-btn" class="action-btn" title="WhatsApp" style="background-color: #25d366;"><i class="fab fa-whatsapp"></i></button>
-                <button id="email-btn" class="action-btn" title="Email" style="background-color: #17a2b8;"><i class="fas fa-envelope"></i></button>
-                <button id="share-btn" class="action-btn" title="Compartir" style="background-color: #6c757d;"><i class="fas fa-share-alt"></i></button>
-                <button id="add-contact-btn" class="action-btn" title="Añadir a contactos" style="background-color: var(--accent-color);"><i class="fas fa-address-book"></i></button>
-            </div>
-        </div>
-
-        <!-- 5. Resumen del personal -->
-        <div class="personal-summary-container">
-            <h2 class="section-title">
-                <i class="fas fa-users"></i>
-                Parte del Personal
-            </h2>
-            <div id="personal-summary">
-                <ul id="personal-list">
-                    <li id="oficiales-item">
-                        <i class="fas fa-medal"></i>
-                        Oficiales: <span id="oficiales-count" class="clickable">0</span>
-                        <ul id="oficiales-desglose" class="desglose" style="display: none;"></ul>
-                    </li>
-                    <li id="suboficiales-item">
-                        <i class="fas fa-star"></i>
-                        Suboficiales: <span id="suboficiales-count" class="clickable">0</span>
-                        <ul id="suboficiales-desglose" class="desglose" style="display: none;"></ul>
-                    </li>
-                    <li id="patrulleros-item">
-                        <i class="fas fa-shield-alt"></i>
-                        Patrulleros: <span id="patrulleros-count" class="clickable">0</span>
-                        <ul id="patrulleros-desglose" class="desglose" style="display: none;"></ul>
-                    </li>
-                    <li id="patrulleros-policia-item">
-                        <i class="fas fa-user-shield"></i>
-                        Patrulleros de Policía: <span id="patrulleros-policia-count" class="clickable">0</span>
-                        <ul id="patrulleros-policia-desglose" class="desglose" style="display: none;"></ul>
-                    </li>
-                    <li id="auxiliares-item">
-                        <i class="fas fa-user-friends"></i>
-                        Auxiliares de Policía: <span id="auxiliares-count" class="clickable">0</span>
-                        <ul id="auxiliares-desglose" class="desglose" style="display: none;"></ul>
-                    </li>
-                    <li id="personal-civil-item">
-                        <i class="fas fa-user-tie"></i>
-                        Personal Civil: <span id="personal-civil-count" class="clickable">0</span>
-                        <ul id="personal-civil-desglose" class="desglose" style="display: none;"></ul>
-                    </li>
-                </ul>
-                <div id="total-personal">
-                    <i class="fas fa-calculator"></i>
-                    Total del Personal: <span id="total-count">0</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- 6. Carga de archivos JSON -->
-        <div class="file-upload-container">
-            <h2 class="section-title">
-                <i class="fas fa-file-upload"></i>
-                Cargar lista de contactos
-            </h2>
-            <div id="file-upload">
-                <input type="file" id="json-file" accept=".json" style="display: none;">
-                <label for="json-file" class="btn">
-                    <i class="fas fa-file-upload"></i> Cargar archivo JSON
-                </label>
-                <div id="fileStatus">Ningún archivo cargado</div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Notificación -->
-    <div class="notification" id="notification">
-        <div class="notification-icon">
-            <i class="fas fa-info-circle"></i>
-        </div>
-        <div class="notification-content">
-            <div class="notification-title">Contactos</div>
-            <div class="notification-message">Directorio de contactos del personal</div>
-        </div>
-        <button class="notification-close" id="notificationClose">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-
-    <!-- Modal para agregar contactos -->
-    <div id="contact-modal" class="modal" style="display: none !important;">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h3 class="modal-title">Añadir a Contactos</h3>
-            <p>¿Deseas añadir este contacto a tu agenda telefónica?</p>
-            <div id="contact-details"></div>
-            <div class="modal-buttons">
-                <button id="cancel-add-btn" class="modal-btn secondary-btn">Cancelar</button>
-                <button id="add-to-contacts-btn" class="modal-btn primary-btn">Añadir</button>
-            </div>
-        </div>
-    </div>
-
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-text">
-                &copy; 2025
-            </div>
-            <div class="footer-links">
-                <a href="#" class="footer-link">Ayuda</a>
-                <a href="#" class="footer-link">Información</a>
-                <a href="#" class="footer-link">Contacto</a>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Scripts -->
-    <script src="contactUtils.js"></script>
-    <script src="model.js"></script>
-    <script src="uiController.js"></script>
-    <script src="personalSummary.js"></script>
-    <script src="controller.js"></script>
-    <script>
-        // Punto de entrada principal
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM completamente cargado y analizado');
-            
-            // Mostrar notificación
-            function showNotification() {
-                const notification = document.getElementById('notification');
-                
-                setTimeout(() => {
-                    notification.classList.add('show');
-                    
-                    // Ocultar después de 5 segundos
-                    setTimeout(() => {
-                        notification.classList.remove('show');
-                    }, 5000);
-                }, 1000);
-                
-                // Configurar botón de cierre
-                document.getElementById('notificationClose').addEventListener('click', function() {
-                    notification.classList.remove('show');
-                });
-            }
-            
-            // Mostrar/ocultar contenedores de navegación y acciones
-            function updateContainersVisibility() {
-                const resultsDiv = document.getElementById('results');
-                const actionButtonsContainer = document.getElementById('action-buttons-container');
-                const navigationContainer = document.getElementById('navigation-container');
-                
-                // Si hay resultados, mostrar los contenedores
-                if (resultsDiv.innerHTML.trim() !== '') {
-                    actionButtonsContainer.style.display = 'block';
-                    navigationContainer.style.display = 'block';
-                } else {
-                    actionButtonsContainer.style.display = 'none';
-                    navigationContainer.style.display = 'none';
-                }
-            }
-            
-            // Iniciar la aplicación
-            AppController.init();
-            
-            // Mostrar notificación
-            showNotification();
-            
-            // Configurar observador para actualizar visibilidad de contenedores
-            const observer = new MutationObserver(updateContainersVisibility);
-            observer.observe(document.getElementById('results'), { childList: true, subtree: true });
-        });
-    </script>
-</body>
-</html>
+ 
