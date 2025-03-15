@@ -1125,8 +1125,16 @@
             </div>
         </div>
 
-        <!-- 4. Botones de acción (Ahora son flotantes) -->
-        <!-- Se ha eliminado el contenedor de botones de acción estáticos -->
+        <!-- 4. Botones de acción (contenedor oculto para compatibilidad) -->
+        <div class="action-buttons-container" id="action-buttons-container" style="display: none;">
+            <div id="action-buttons">
+                <button id="call-btn-legacy" class="action-btn" title="Llamar" style="background-color: #28a745;"><i class="fas fa-phone"></i></button>
+                <button id="whatsapp-btn-legacy" class="action-btn" title="WhatsApp" style="background-color: #25d366;"><i class="fab fa-whatsapp"></i></button>
+                <button id="email-btn-legacy" class="action-btn" title="Email" style="background-color: #17a2b8;"><i class="fas fa-envelope"></i></button>
+                <button id="share-btn-legacy" class="action-btn" title="Compartir" style="background-color: #6c757d;"><i class="fas fa-share-alt"></i></button>
+                <button id="add-contact-btn-legacy" class="action-btn" title="Añadir a contactos" style="background-color: var(--accent-color);"><i class="fas fa-address-book"></i></button>
+            </div>
+        </div>
 
         <!-- 5. Resumen del personal -->
         <div class="personal-summary-container">
@@ -1199,31 +1207,31 @@
         <div class="fab-menu" id="fab-menu">
             <div class="fab-item">
                 <div class="fab-item-label">Añadir a contactos</div>
-                <button class="fab-item-btn" id="add-contact-btn" style="background-color: var(--accent-color);">
+                <button class="fab-item-btn action-btn" id="add-contact-btn" style="background-color: var(--accent-color);">
                     <i class="fas fa-address-book"></i>
                 </button>
             </div>
             <div class="fab-item">
                 <div class="fab-item-label">Compartir</div>
-                <button class="fab-item-btn" id="share-btn" style="background-color: #6c757d;">
+                <button class="fab-item-btn action-btn" id="share-btn" style="background-color: #6c757d;">
                     <i class="fas fa-share-alt"></i>
                 </button>
             </div>
             <div class="fab-item">
                 <div class="fab-item-label">Email</div>
-                <button class="fab-item-btn" id="email-btn" style="background-color: #17a2b8;">
+                <button class="fab-item-btn action-btn" id="email-btn" style="background-color: #17a2b8;">
                     <i class="fas fa-envelope"></i>
                 </button>
             </div>
             <div class="fab-item">
                 <div class="fab-item-label">WhatsApp</div>
-                <button class="fab-item-btn" id="whatsapp-btn" style="background-color: #25d366;">
+                <button class="fab-item-btn action-btn" id="whatsapp-btn" style="background-color: #25d366;">
                     <i class="fab fa-whatsapp"></i>
                 </button>
             </div>
             <div class="fab-item">
                 <div class="fab-item-label">Llamar</div>
-                <button class="fab-item-btn" id="call-btn" style="background-color: #28a745;">
+                <button class="fab-item-btn action-btn" id="call-btn" style="background-color: #28a745;">
                     <i class="fas fa-phone"></i>
                 </button>
             </div>
