@@ -478,7 +478,7 @@
 
         /* Modal */
         .modal {
-            display: none;
+            display: none !important;
             position: fixed;
             top: 0;
             left: 0;
@@ -486,10 +486,13 @@
             bottom: 0;
             background-color: rgba(0, 0, 0, 0.5);
             z-index: 1000;
-            display: flex;
             justify-content: center;
             align-items: center;
             padding: 1rem;
+        }
+        
+        .modal.show {
+            display: flex !important;
         }
 
         .modal-content {
@@ -930,7 +933,7 @@
     </div>
 
     <!-- Modal para agregar contactos -->
-    <div id="contact-modal" class="modal" style="display: none;">
+    <div id="contact-modal" class="modal" style="display: none !important;">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
             <h3 class="modal-title">Añadir a Contactos</h3>
