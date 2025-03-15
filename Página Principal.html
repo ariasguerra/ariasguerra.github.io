@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal de Herramientas</title>
+    <title>Herramientas</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root {
@@ -159,31 +159,59 @@
         .quick-buttons {
             display: flex;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 1.5rem;
+            justify-content: center;
         }
 
         .quick-button {
             display: flex;
+            justify-content: center;
             align-items: center;
-            padding: 0.8rem 1.5rem;
+            width: 60px;
+            height: 60px;
             background-color: #f0f4f8;
             border: none;
-            border-radius: var(--border-radius);
+            border-radius: 50%;
             cursor: pointer;
             transition: var(--transition);
-            font-size: 1rem;
             color: var(--primary-color);
-            gap: 0.8rem;
-            font-weight: 500;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
 
         .quick-button:hover {
-            background-color: #e1e8f0;
-            transform: translateY(-3px);
+            background-color: var(--primary-color);
+            color: #ffffff;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
         }
 
         .quick-button i {
-            font-size: 1.2rem;
+            font-size: 1.5rem;
+        }
+
+        /* Tooltip para mostrar nombre al pasar el cursor */
+        .quick-button::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .quick-button:hover::after {
+            opacity: 1;
+            visibility: visible;
         }
 
         /* TOOLS GRID */
@@ -259,8 +287,6 @@
             align-items: center;
             gap: 0.3rem;
         }
-
-        /* Eliminamos el botón de enlace separado */
 
         /* FOOTER */
         .footer {
@@ -387,10 +413,6 @@
                 font-size: 1.3rem;
             }
 
-            .quick-buttons {
-                flex-direction: column;
-            }
-
             .tools-grid {
                 grid-template-columns: 1fr;
             }
@@ -415,7 +437,7 @@
             <div class="logo-icon">
                 <i class="fas fa-shield-alt"></i>
             </div>
-            <div class="logo-text">Herramientas E-12</div>
+            <div class="logo-text">Herramientas</div>
         </div>
         <div class="search-container">
             <i class="fas fa-search search-icon"></i>
@@ -430,21 +452,17 @@
                 Acceso Rápido
             </h2>
             <div class="quick-buttons">
-                <button class="quick-button" data-url="https://ariasguerra.github.io/01%20Contactos%20E-12/index.html">
+                <button class="quick-button" data-url="https://ariasguerra.github.io/01%20Contactos%20E-12/index.html" data-tooltip="Contactos E-12">
                     <i class="fas fa-address-book"></i>
-                    Contactos E-12
                 </button>
-                <button class="quick-button" data-url="https://ariasguerra.github.io/05%20Cuadrantes/index.html">
+                <button class="quick-button" data-url="https://ariasguerra.github.io/05%20Cuadrantes/index.html" data-tooltip="Cuadrantes">
                     <i class="fas fa-map-marked-alt"></i>
-                    Cuadrantes
                 </button>
-                <button class="quick-button" data-url="https://ariasguerra.github.io/06%20Actas/ACTA%20DE%20INSTRUCCI%C3%93N.html">
+                <button class="quick-button" data-url="https://ariasguerra.github.io/06%20Actas/ACTA%20DE%20INSTRUCCI%C3%93N.html" data-tooltip="Acta de Instrucción">
                     <i class="fas fa-file-alt"></i>
-                    Acta de Instrucción
                 </button>
-                <button class="quick-button" data-url="https://ariasguerra.github.io/07%20Herramientas/index.html">
+                <button class="quick-button" data-url="https://ariasguerra.github.io/07%20Herramientas/index.html" data-tooltip="Herramientas Generales">
                     <i class="fas fa-tools"></i>
-                    Herramientas Generales
                 </button>
             </div>
         </section>
@@ -465,8 +483,8 @@
             <i class="fas fa-info-circle"></i>
         </div>
         <div class="notification-content">
-            <div class="notification-title">Bienvenido a Herramientas E-12</div>
-            <div class="notification-message">Portal unificado de herramientas para la Estación de Policía Barrios Unidos</div>
+            <div class="notification-title">Bienvenido a Herramientas</div>
+            <div class="notification-message">Portal unificado de herramientas</div>
         </div>
         <button class="notification-close" id="notificationClose">
             <i class="fas fa-times"></i>
@@ -476,7 +494,7 @@
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-text">
-                &copy; 2025 Estación de Policía Barrios Unidos E-12
+                &copy; 2025
             </div>
             <div class="footer-links">
                 <a href="#" class="footer-link">Ayuda</a>
@@ -492,7 +510,7 @@
             {
                 url: "https://ariasguerra.github.io/01%20Contactos%20E-12/index.html",
                 title: "Contactos E-12",
-                description: "Directorio de contactos del personal de la Estación de Policía Barrios Unidos",
+                description: "Directorio de contactos del personal",
                 icon: "fas fa-address-book",
                 status: "Actualizado"
             },
