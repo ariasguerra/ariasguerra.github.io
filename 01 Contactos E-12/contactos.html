@@ -910,21 +910,6 @@
     </header>
 
     <main class="main-content">
-        <!-- Carga de archivos JSON -->
-        <div class="file-upload-container">
-            <h2 class="section-title">
-                <i class="fas fa-file-upload"></i>
-                Cargar lista de contactos
-            </h2>
-            <div id="file-upload">
-                <input type="file" id="json-file" accept=".json" style="display: none;">
-                <label for="json-file" class="btn">
-                    <i class="fas fa-file-upload"></i> Cargar archivo JSON
-                </label>
-                <div id="fileStatus">Ningún archivo cargado</div>
-            </div>
-        </div>
-
         <!-- Formulario de búsqueda con botón de voz -->
         <div class="search-container">
             <h2 class="section-title">
@@ -1031,6 +1016,21 @@
                     <i class="fas fa-calculator"></i>
                     Total del Personal: <span id="total-count">0</span>
                 </div>
+            </div>
+        </div>
+        
+        <!-- Carga de archivos JSON -->
+        <div class="file-upload-container">
+            <h2 class="section-title">
+                <i class="fas fa-file-upload"></i>
+                Cargar lista de contactos
+            </h2>
+            <div id="file-upload">
+                <input type="file" id="json-file" accept=".json" style="display: none;">
+                <label for="json-file" class="btn">
+                    <i class="fas fa-file-upload"></i> Cargar archivo JSON
+                </label>
+                <div id="fileStatus">Ningún archivo cargado</div>
             </div>
         </div>
     </main>
