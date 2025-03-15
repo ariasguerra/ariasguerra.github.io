@@ -150,29 +150,34 @@
         /* Búsqueda de contactos */
         .search-container {
             background-color: var(--card-bg);
-            padding: 1.5rem;
+            padding: 1rem;
             border-radius: var(--border-radius);
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
             box-shadow: var(--shadow);
             border-top: 4px solid var(--primary-color);
         }
 
         #search-form {
-            display: grid;
-            grid-template-columns: 1fr auto auto;
-            gap: 0.5rem;
+            display: flex;
             align-items: center;
             width: 100%;
+            gap: 0.5rem;
+        }
+
+        #search-input-container {
+            position: relative;
+            flex: 1;
+            display: flex;
         }
 
         #search-input {
             flex: 1;
-            padding: 0.8rem 1rem 0.8rem 3rem;
+            padding: 0.8rem 1rem 0.8rem 2.5rem;
             border: 1px solid #ddd;
             border-radius: 30px;
             font-size: 1rem;
             transition: var(--transition);
-            position: relative;
+            width: 100%;
         }
 
         #search-input:focus {
@@ -183,7 +188,7 @@
 
         .search-icon {
             position: absolute;
-            left: 1.5rem;
+            left: 1rem;
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-muted);
@@ -191,9 +196,14 @@
             z-index: 1;
         }
 
+        .search-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
         .action-btn {
-            width: 50px;
-            height: 50px;
+            width: 42px;
+            height: 42px;
             background-color: var(--primary-color);
             color: var(--text-light);
             border: none;
@@ -203,8 +213,9 @@
             justify-content: center;
             align-items: center;
             transition: var(--transition);
-            font-size: 1.2rem;
+            font-size: 1rem;
             box-shadow: var(--shadow);
+            flex-shrink: 0;
         }
 
         .action-btn:hover {
@@ -300,22 +311,36 @@
         /* Botones de acción */
         .action-buttons-container {
             background-color: var(--card-bg);
-            padding: 1.5rem;
+            padding: 1rem;
             border-radius: var(--border-radius);
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
             box-shadow: var(--shadow);
             border-top: 4px solid var(--primary-color);
         }
 
         #action-buttons {
             display: flex;
-            justify-content: space-between;
-            gap: 1rem;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            gap: 0.5rem;
+            padding-bottom: 0.5rem;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+
+        #action-buttons::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        #action-buttons::-webkit-scrollbar-thumb {
+            background-color: var(--primary-light);
+            border-radius: 4px;
         }
 
         #action-buttons button {
-            flex: 1;
-            height: 60px;
+            flex: 0 0 auto;
+            min-width: 50px;
+            height: 50px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -324,7 +349,7 @@
             color: var(--text-light);
             border: none;
             cursor: pointer;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             box-shadow: var(--shadow);
         }
 
@@ -751,15 +776,13 @@
             }
 
             #action-buttons {
-                flex-wrap: wrap;
-                gap: 0.5rem;
+                gap: 0.4rem;
             }
 
             #action-buttons button {
-                flex: 1 1 40%;
+                min-width: 45px;
                 height: 45px;
-                margin-bottom: 0.5rem;
-                font-size: 1.3rem;
+                font-size: 1.1rem;
             }
 
             .section-title {
@@ -821,17 +844,10 @@
                 padding: 0.5rem;
             }
             
-            #search-form {
-                display: grid;
-                grid-template-columns: 1fr auto auto;
-                gap: 0.5rem;
-                align-items: center;
-            }
-            
             #search-input {
                 width: 100%;
                 font-size: 0.9rem;
-                padding: 0.6rem 0.6rem 0.6rem 2.5rem;
+                padding: 0.6rem 0.6rem 0.6rem 2.2rem;
             }
             
             .search-icon {
@@ -840,20 +856,9 @@
             }
             
             .action-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 1rem;
-            }
-            
-            #action-buttons {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 0.4rem;
-            }
-            
-            #action-buttons button {
-                flex: none;
-                width: 100%;
+                width: 38px;
+                height: 38px;
+                font-size: 0.9rem;
             }
             
             #navigation {
@@ -972,16 +977,13 @@
             }
             
             #search-form {
-                grid-template-columns: 1fr auto;
-                grid-template-rows: auto auto;
+                flex-direction: column;
+                gap: 0.5rem;
             }
             
-            #search-form div:first-child {
-                grid-column: 1 / -1;
-            }
-            
-            #action-buttons {
-                grid-template-columns: repeat(2, 1fr);
+            .search-buttons {
+                width: 100%;
+                justify-content: flex-end;
             }
             
             .section-title {
@@ -1000,16 +1002,18 @@
         <!-- 1. Búsqueda de contactos -->
         <div class="search-container">
             <form id="search-form">
-                <div style="position: relative; flex: 1; display: flex;">
+                <div id="search-input-container">
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" id="search-input" placeholder="Buscar contacto...">
                 </div>
-                <button type="button" id="voice-search-btn" class="action-btn" title="Buscar por voz">
-                    <i class="fas fa-microphone"></i>
-                </button>
-                <button type="submit" id="search-btn" class="action-btn" title="Buscar">
-                    <i class="fas fa-search"></i>
-                </button>
+                <div class="search-buttons">
+                    <button type="button" id="voice-search-btn" class="action-btn" title="Buscar por voz">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="submit" id="search-btn" class="action-btn" title="Buscar">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
             </form>
         </div>
 
@@ -1041,16 +1045,12 @@
 
         <!-- 4. Botones de acción -->
         <div class="action-buttons-container" id="action-buttons-container" style="display: none;">
-            <h2 class="section-title">
-                <i class="fas fa-tools"></i>
-                Acciones
-            </h2>
             <div id="action-buttons">
-                <button id="call-btn" class="action-btn" title="Llamar"><i class="fas fa-phone"></i></button>
-                <button id="whatsapp-btn" class="action-btn" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>
-                <button id="email-btn" class="action-btn" title="Email"><i class="fas fa-envelope"></i></button>
-                <button id="share-btn" class="action-btn" title="Compartir"><i class="fas fa-share-alt"></i></button>
-                <button id="add-contact-btn" class="action-btn" title="Añadir a contactos"><i class="fas fa-address-book"></i></button>
+                <button id="call-btn" class="action-btn" title="Llamar" style="background-color: #28a745;"><i class="fas fa-phone"></i></button>
+                <button id="whatsapp-btn" class="action-btn" title="WhatsApp" style="background-color: #25d366;"><i class="fab fa-whatsapp"></i></button>
+                <button id="email-btn" class="action-btn" title="Email" style="background-color: #17a2b8;"><i class="fas fa-envelope"></i></button>
+                <button id="share-btn" class="action-btn" title="Compartir" style="background-color: #6c757d;"><i class="fas fa-share-alt"></i></button>
+                <button id="add-contact-btn" class="action-btn" title="Añadir a contactos" style="background-color: var(--accent-color);"><i class="fas fa-address-book"></i></button>
             </div>
         </div>
 
