@@ -365,10 +365,13 @@
             border-top: 4px solid var(--primary-color);
         }
 
-        #navigation-wrapper {
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
-            padding-top: 1.5rem;
-            margin-top: 1.5rem;
+        .navigation-container {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            border-top: 4px solid var(--primary-color);
         }
 
         #navigation {
@@ -1106,16 +1109,16 @@
             // Mostrar/ocultar contenedores de navegación y acciones
             function updateContainersVisibility() {
                 const resultsDiv = document.getElementById('results');
-                const navigationWrapper = document.getElementById('navigation-wrapper');
+                const navigationContainer = document.getElementById('navigation-container');
                 const actionButtonsContainer = document.getElementById('action-buttons-container');
                 
                 // Si hay resultados, mostrar los contenedores
                 if (resultsDiv.innerHTML.trim() !== '') {
                     actionButtonsContainer.style.display = 'block';
-                    navigationWrapper.style.display = 'block';
+                    navigationContainer.style.display = 'block';
                 } else {
                     actionButtonsContainer.style.display = 'none';
-                    navigationWrapper.style.display = 'none';
+                    navigationContainer.style.display = 'none';
                 }
             }
             
