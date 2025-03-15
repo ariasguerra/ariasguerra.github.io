@@ -365,14 +365,17 @@
             border-top: 4px solid var(--primary-color);
         }
 
+        #navigation-wrapper {
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
         #navigation {
-            display: none;
+            display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 1rem;
-            margin-top: 1.5rem;
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
-            padding-top: 1.5rem;
         }
 
         #navigation button {
@@ -1103,16 +1106,16 @@
             // Mostrar/ocultar contenedores de navegación y acciones
             function updateContainersVisibility() {
                 const resultsDiv = document.getElementById('results');
-                const navigationDiv = document.getElementById('navigation');
+                const navigationWrapper = document.getElementById('navigation-wrapper');
                 const actionButtonsContainer = document.getElementById('action-buttons-container');
                 
                 // Si hay resultados, mostrar los contenedores
                 if (resultsDiv.innerHTML.trim() !== '') {
                     actionButtonsContainer.style.display = 'block';
-                    // La navegación se mostrará directamente en updateNavigation
+                    navigationWrapper.style.display = 'block';
                 } else {
                     actionButtonsContainer.style.display = 'none';
-                    navigationDiv.style.display = 'none';
+                    navigationWrapper.style.display = 'none';
                 }
             }
             
