@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Herramientas E-12</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #003366;
+            --primary-light: #0056b3;
+            --primary-dark: #002447;
+            --accent-color: #1E90FF;
+            --light-bg: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-dark: #333333;
+            --text-light: #ffffff;
+            --text-muted: #6c757d;
+            --border-radius: 10px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 10px 15px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        .header {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 10;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            width: 50px;
+            height: 50px;
+            background-color: var(--text-light);
+            color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .search-container {
+            flex-grow: 1;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 3rem;
+            border: none;
+            border-radius: 30px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: var(--text-light);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .search-box::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .search-box:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.2rem;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .section-title {
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background-color: var(--accent-color);
+        }
+
+        .section-title i {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        /* QUICK ACCESS SECTION */
+        .quick-access {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .quick-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .quick-button {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            background-color: #f0f4f8;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1rem;
+            color: var(--primary-color);
+            gap: 0.8rem;
+            font-weight: 500;
+        }
+
+        .quick-button:hover {
+            background-color: #e1e8f0;
+            transform: translateY(-3px);
+        }
+
+        .quick-button i {
+            font-size: 1.2rem;
+        }
+
+        /* TOOLS GRID */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .tool-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+            border-top: 4px solid var(--primary-color);
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .tool-card-content {
+            padding: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .tool-icon {
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            flex-shrink: 0;
+        }
+
+        .tool-details {
+            flex: 1;
+        }
+
+        .tool-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .tool-description {
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .tool-status {
+            color: #28a745;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        /* Eliminamos el botón de enlace separado */
+
+        /* FOOTER */
+        .footer {
+            background-color: var(--primary-dark);
+            color: var(--text-light);
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-text {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .footer-link {
+            color: var(--text-light);
+            text-decoration: none;
+            opacity: 0.8;
+            transition: var(--transition);
+        }
+
+        .footer-link:hover {
+            opacity: 1;
+        }
+
+        /* NOTIFICATION */
+        .notification {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-hover);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transform: translateY(200%);
+            opacity: 0;
+            transition: var(--transition);
+            max-width: 350px;
+        }
+
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .notification-icon {
+            font-size: 1.5rem;
+            background-color: rgba(255, 255, 255, 0.2);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .notification-message {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: var(--transition);
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+        }
+
+        /* RESPONSIVENESS */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+                padding: 1rem;
+            }
+
+            .logo {
+                justify-content: center;
+            }
+
+            .search-container {
+                max-width: 100%;
+            }
+
+            .section-title {
+                font-size: 1.3rem;
+            }
+
+            .quick-buttons {
+                flex-direction: column;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .notification {
+                left: 1rem;
+                right: 1rem;
+                bottom: 1rem;
+                max-width: unset;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <div class="logo-text">Herramientas E-12</div>
+        </div>
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-box" id="searchBox" placeholder="Buscar herramientas...">
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="quick-access">
+            <h2 class="section-title">
+                <i class="fas fa-bolt"></i>
+                Acceso Rápido
+            </h2>
+            <div class="quick-buttons">
+                <button class="quick-button" data-url="https://ariasguerra.github.io/01%20Contactos%20E-12/index.html">
+                    <i class="fas fa-address-book"></i>
+                    Contactos E-12
+                </button>
+                <button class="quick-button" data-url="https://ariasguerra.github.io/05%20Cuadrantes/index.html">
+                    <i class="fas fa-map-marked-alt"></i>
+                    Cuadrantes
+                </button>
+                <button class="quick-button" data-url="https://ariasguerra.github.io/06%20Actas/ACTA%20DE%20INSTRUCCI%C3%93N.html">
+                    <i class="fas fa-file-alt"></i>
+                    Acta de Instrucción
+                </button>
+                <button class="quick-button" data-url="https://ariasguerra.github.io/07%20Herramientas/index.html">
+                    <i class="fas fa-tools"></i>
+                    Herramientas Generales
+                </button>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="section-title">
+                <i class="fas fa-th-large"></i>
+                Todas las Herramientas
+            </h2>
+            <div class="tools-grid" id="toolsGrid">
+                <!-- Las tarjetas se generarán dinámicamente con JavaScript -->
+            </div>
+        </section>
+    </main>
+
+    <div class="notification" id="notification">
+        <div class="notification-icon">
+            <i class="fas fa-info-circle"></i>
+        </div>
+        <div class="notification-content">
+            <div class="notification-title">Bienvenido a Herramientas E-12</div>
+            <div class="notification-message">Portal unificado de herramientas para la Estación de Policía Barrios Unidos</div>
+        </div>
+        <button class="notification-close" id="notificationClose">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-text">
+                &copy; 2025 Estación de Policía Barrios Unidos E-12
+            </div>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Ayuda</a>
+                <a href="#" class="footer-link">Información</a>
+                <a href="#" class="footer-link">Contacto</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Definir las herramientas disponibles
+        const tools = [
+            {
+                url: "https://ariasguerra.github.io/01%20Contactos%20E-12/index.html",
+                title: "Contactos E-12",
+                description: "Directorio de contactos del personal de la Estación de Policía Barrios Unidos",
+                icon: "fas fa-address-book",
+                status: "Actualizado"
+            },
+            {
+                url: "https://ariasguerra.github.io/02%20Radios%20APX800/index.html",
+                title: "Radios APX800",
+                description: "Gestión y consulta de radios APX800 de la unidad",
+                icon: "fas fa-broadcast-tower",
+                status: "Operacional"
+            },
+            {
+                url: "https://ariasguerra.github.io/03%20Excel%20a%20Json/index.html",
+                title: "Convertidor Excel a JSON",
+                description: "Herramienta para convertir archivos Excel a formato JSON",
+                icon: "fas fa-file-excel",
+                status: "Funcionando"
+            },
+            {
+                url: "https://ariasguerra.github.io/04%20Arriendo/index.html",
+                title: "Gestión de Arriendos",
+                description: "Sistema para la administración de contratos de arrendamiento",
+                icon: "fas fa-home",
+                status: "Actualizado"
+            },
+            {
+                url: "https://ariasguerra.github.io/05%20Cuadrantes/index.html",
+                title: "Cuadrantes",
+                description: "Gestión de cuadrantes y distribución del personal en turnos",
+                icon: "fas fa-map-marked-alt",
+                status: "Actualizado"
+            },
+            {
+                url: "https://ariasguerra.github.io/06%20Actas/ACTA%20DE%20INSTRUCCI%C3%93N.html",
+                title: "Generador de Actas",
+                description: "Crear y gestionar actas de instrucción para el personal",
+                icon: "fas fa-file-alt",
+                status: "Operacional"
+            },
+            {
+                url: "https://ariasguerra.github.io/07%20Herramientas/index.html",
+                title: "Herramientas Generales",
+                description: "Conjunto de herramientas y formatos policiales para consulta",
+                icon: "fas fa-tools",
+                status: "Actualizado"
+            },
+            {
+                url: "https://ariasguerra.github.io/08%20Juego%20Seguridad%20de%20Instalaciones/index.html",
+                title: "Juego de Seguridad",
+                description: "Simulación para capacitación en seguridad de instalaciones",
+                icon: "fas fa-shield-alt",
+                status: "Operacional"
+            },
+            {
+                url: "https://ariasguerra.github.io/9%20Control%20Veh%C3%ADculos/index.html",
+                title: "Control de Vehículos",
+                description: "Sistema de registro y control de ingreso y salida de vehículos",
+                icon: "fas fa-car",
+                status: "Actualizado"
+            }
+        ];
+
+        // Función para generar las tarjetas de herramientas
+        function generateToolCards() {
+            const toolsGrid = document.getElementById('toolsGrid');
+            toolsGrid.innerHTML = ''; // Limpiar el contenedor
+
+            tools.forEach(tool => {
+                const card = document.createElement('div');
+                card.className = 'tool-card';
+                card.setAttribute('data-title', tool.title.toLowerCase());
+                card.setAttribute('data-description', tool.description.toLowerCase());
+                
+                // Hacer que toda la tarjeta sea un enlace directo
+                card.onclick = function() {
+                    window.open(tool.url, '_blank');
+                };
+                
+                // Crear el contenido de la tarjeta
+                card.innerHTML = `
+                    <div class="tool-card-content">
+                        <div class="tool-icon">
+                            <i class="${tool.icon}"></i>
+                        </div>
+                        <div class="tool-details">
+                            <div class="tool-title">${tool.title}</div>
+                            <div class="tool-description">${tool.description}</div>
+                            <div class="tool-status">
+                                <i class="fas fa-circle"></i>
+                                ${tool.status}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                toolsGrid.appendChild(card);
+            });
+        }
+
+        // Función para filtrar herramientas según la búsqueda
+        function filterTools() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            const cards = document.querySelectorAll('.tool-card');
+            
+            cards.forEach(card => {
+                const title = card.getAttribute('data-title');
+                const description = card.getAttribute('data-description');
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Configurar los botones de acceso rápido
+        function setupQuickButtons() {
+            const quickButtons = document.querySelectorAll('.quick-button');
+            
+            quickButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    window.open(this.getAttribute('data-url'), '_blank');
+                });
+            });
+        }
+
+        // Mostrar notificación
+        function showNotification() {
+            const notification = document.getElementById('notification');
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+                
+                // Ocultar después de 5 segundos
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 5000);
+            }, 1000);
+            
+            // Configurar botón de cierre
+            document.getElementById('notificationClose').addEventListener('click', function() {
+                notification.classList.remove('show');
+            });
+        }
+
+        // Inicializar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            generateToolCards();
+            setupQuickButtons();
+            showNotification();
+            
+            // Configurar la búsqueda
+            document.getElementById('searchBox').addEventListener('input', filterTools);
+        });
+    </script>
+</body>
+</html>
