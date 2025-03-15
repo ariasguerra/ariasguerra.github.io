@@ -361,10 +361,13 @@
         }
 
         #navigation {
-            display: flex;
+            display: none;
             justify-content: space-between;
             align-items: center;
             gap: 1rem;
+            margin-top: 1.5rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            padding-top: 1.5rem;
         }
 
         #navigation button {
@@ -1095,16 +1098,16 @@
             // Mostrar/ocultar contenedores de navegación y acciones
             function updateContainersVisibility() {
                 const resultsDiv = document.getElementById('results');
+                const navigationDiv = document.getElementById('navigation');
                 const actionButtonsContainer = document.getElementById('action-buttons-container');
-                const navigationContainer = document.getElementById('navigation-container');
                 
                 // Si hay resultados, mostrar los contenedores
                 if (resultsDiv.innerHTML.trim() !== '') {
                     actionButtonsContainer.style.display = 'block';
-                    navigationContainer.style.display = 'block';
+                    navigationDiv.style.display = 'flex';
                 } else {
                     actionButtonsContainer.style.display = 'none';
-                    navigationContainer.style.display = 'none';
+                    navigationDiv.style.display = 'none';
                 }
             }
             
