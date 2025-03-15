@@ -6,6 +6,7 @@
     <title>Contactos Policiales</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
+        /* Se mantienen todos los estilos originales */
         :root {
             --primary-color: #003366;
             --primary-light: #0056b3;
@@ -896,22 +897,7 @@
     </header>
 
     <main class="main-content">
-        <!-- Carga de archivos JSON -->
-        <div class="file-upload-container">
-            <h2 class="section-title">
-                <i class="fas fa-file-upload"></i>
-                Cargar lista de contactos
-            </h2>
-            <div id="file-upload">
-                <input type="file" id="json-file" accept=".json" style="display: none;">
-                <label for="json-file" class="btn">
-                    <i class="fas fa-file-upload"></i> Cargar archivo JSON
-                </label>
-                <div id="fileStatus">Ningún archivo cargado</div>
-            </div>
-        </div>
-
-        <!-- Formulario de búsqueda con botón de voz -->
+        <!-- 1. Búsqueda de contactos -->
         <div class="search-container">
             <h2 class="section-title">
                 <i class="fas fa-search"></i>
@@ -933,7 +919,7 @@
             </form>
         </div>
 
-        <!-- Div de resultados -->
+        <!-- 2. Resultados -->
         <div class="results-container">
             <h2 class="section-title">
                 <i class="fas fa-user"></i>
@@ -942,22 +928,7 @@
             <div id="results"></div>
         </div>
         
-        <!-- Botones de acción -->
-        <div class="action-buttons-container" id="action-buttons-container" style="display: none;">
-            <h2 class="section-title">
-                <i class="fas fa-tools"></i>
-                Acciones
-            </h2>
-            <div id="action-buttons">
-                <button id="call-btn" class="action-btn" title="Llamar"><i class="fas fa-phone"></i></button>
-                <button id="whatsapp-btn" class="action-btn" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>
-                <button id="email-btn" class="action-btn" title="Email"><i class="fas fa-envelope"></i></button>
-                <button id="share-btn" class="action-btn" title="Compartir"><i class="fas fa-share-alt"></i></button>
-                <button id="add-contact-btn" class="action-btn" title="Añadir a contactos"><i class="fas fa-address-book"></i></button>
-            </div>
-        </div>
-
-        <!-- Navegación de resultados -->
+        <!-- 3. Navegación de resultados -->
         <div class="navigation-container" id="navigation-container" style="display: none;">
             <h2 class="section-title">
                 <i class="fas fa-exchange-alt"></i>
@@ -974,7 +945,22 @@
             </div>
         </div>
 
-        <!-- Resumen del personal -->
+        <!-- 4. Botones de acción -->
+        <div class="action-buttons-container" id="action-buttons-container" style="display: none;">
+            <h2 class="section-title">
+                <i class="fas fa-tools"></i>
+                Acciones
+            </h2>
+            <div id="action-buttons">
+                <button id="call-btn" class="action-btn" title="Llamar"><i class="fas fa-phone"></i></button>
+                <button id="whatsapp-btn" class="action-btn" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>
+                <button id="email-btn" class="action-btn" title="Email"><i class="fas fa-envelope"></i></button>
+                <button id="share-btn" class="action-btn" title="Compartir"><i class="fas fa-share-alt"></i></button>
+                <button id="add-contact-btn" class="action-btn" title="Añadir a contactos"><i class="fas fa-address-book"></i></button>
+            </div>
+        </div>
+
+        <!-- 5. Resumen del personal -->
         <div class="personal-summary-container">
             <h2 class="section-title">
                 <i class="fas fa-users"></i>
@@ -1017,6 +1003,21 @@
                     <i class="fas fa-calculator"></i>
                     Total del Personal: <span id="total-count">0</span>
                 </div>
+            </div>
+        </div>
+
+        <!-- 6. Carga de archivos JSON -->
+        <div class="file-upload-container">
+            <h2 class="section-title">
+                <i class="fas fa-file-upload"></i>
+                Cargar lista de contactos
+            </h2>
+            <div id="file-upload">
+                <input type="file" id="json-file" accept=".json" style="display: none;">
+                <label for="json-file" class="btn">
+                    <i class="fas fa-file-upload"></i> Cargar archivo JSON
+                </label>
+                <div id="fileStatus">Ningún archivo cargado</div>
             </div>
         </div>
     </main>
@@ -1119,3 +1120,5 @@
             observer.observe(document.getElementById('results'), { childList: true, subtree: true });
         });
     </script>
+</body>
+</html>
