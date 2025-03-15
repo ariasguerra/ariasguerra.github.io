@@ -220,6 +220,11 @@
             border-top: 4px solid var(--primary-color);
             min-height: 200px;
         }
+        
+        /* Asegurarse que los resultados tengan mínimo espacio aunque estén vacíos */
+        #results {
+            min-height: 50px;
+        }
 
         .contact {
             background-color: var(--light-bg);
@@ -1104,7 +1109,7 @@
                 // Si hay resultados, mostrar los contenedores
                 if (resultsDiv.innerHTML.trim() !== '') {
                     actionButtonsContainer.style.display = 'block';
-                    navigationDiv.style.display = 'flex';
+                    // La navegación se mostrará directamente en updateNavigation
                 } else {
                     actionButtonsContainer.style.display = 'none';
                     navigationDiv.style.display = 'none';
