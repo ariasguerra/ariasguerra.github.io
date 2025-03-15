@@ -308,131 +308,49 @@
             text-align: center;
         }
 
-        /* Botón flotante y menú en abanico */
-        .fab-container {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            z-index: 999;
-        }
-        
-        .fab-main {
-            width: 60px;
-            height: 60px;
-            background-color: var(--primary-color);
-            color: var(--text-light);
-            border: none;
-            border-radius: 50%;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.5rem;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-        
-        .fab-main:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
-        }
-        
-        .fab-menu {
-            position: absolute;
-            bottom: 70px;
-            right: 0;
-            display: none;
-            flex-direction: column-reverse;
-            align-items: flex-end;
-            gap: 0.8rem;
-        }
-        
-        .fab-menu.active {
-            display: flex;
-        }
-        
-        .fab-item {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            animation: fadeInUp 0.3s forwards;
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        
-        .fab-item-label {
+        /* Botones de acción */
+        .action-buttons-container {
             background-color: var(--card-bg);
-            color: var(--text-dark);
-            padding: 0.5rem 0.8rem;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            white-space: nowrap;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow);
+            border-top: 4px solid var(--primary-color);
         }
-        
-        .fab-item-btn {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            border: none;
-            color: var(--text-light);
+
+        #action-buttons {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            gap: 0.5rem;
+            padding-bottom: 0.5rem;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+
+        #action-buttons::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        #action-buttons::-webkit-scrollbar-thumb {
+            background-color: var(--primary-light);
+            border-radius: 4px;
+        }
+
+        #action-buttons button {
+            flex: 0 0 auto;
+            min-width: 50px;
+            height: 50px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.2rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            color: var(--text-light);
+            border: none;
             cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .fab-item-btn:hover {
-            transform: scale(1.1);
-        }
-        
-        .fab-item:nth-child(1) {
-            animation-delay: 0s;
-        }
-        
-        .fab-item:nth-child(2) {
-            animation-delay: 0.05s;
-        }
-        
-        .fab-item:nth-child(3) {
-            animation-delay: 0.1s;
-        }
-        
-        .fab-item:nth-child(4) {
-            animation-delay: 0.15s;
-        }
-        
-        .fab-item:nth-child(5) {
-            animation-delay: 0.2s;
-        }
-        
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .fab-backdrop {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: transparent;
-            z-index: 998;
-            display: none;
-        }
-        
-        .fab-backdrop.active {
-            display: block;
+            font-size: 1.2rem;
+            box-shadow: var(--shadow);
         }
 
         #action-buttons button:hover {
@@ -1198,46 +1116,6 @@
         </div>
     </main>
 
-    <!-- Botón flotante de acciones -->
-    <div class="fab-backdrop" id="fab-backdrop"></div>
-    <div class="fab-container">
-        <button class="fab-main" id="fab-main">
-            <i class="fas fa-tools"></i>
-        </button>
-        <div class="fab-menu" id="fab-menu">
-            <div class="fab-item">
-                <div class="fab-item-label">Añadir a contactos</div>
-                <button class="fab-item-btn" id="add-contact-btn" style="background-color: var(--accent-color);">
-                    <i class="fas fa-address-book"></i>
-                </button>
-            </div>
-            <div class="fab-item">
-                <div class="fab-item-label">Compartir</div>
-                <button class="fab-item-btn" id="share-btn" style="background-color: #6c757d;">
-                    <i class="fas fa-share-alt"></i>
-                </button>
-            </div>
-            <div class="fab-item">
-                <div class="fab-item-label">Email</div>
-                <button class="fab-item-btn" id="email-btn" style="background-color: #17a2b8;">
-                    <i class="fas fa-envelope"></i>
-                </button>
-            </div>
-            <div class="fab-item">
-                <div class="fab-item-label">WhatsApp</div>
-                <button class="fab-item-btn" id="whatsapp-btn" style="background-color: #25d366;">
-                    <i class="fab fa-whatsapp"></i>
-                </button>
-            </div>
-            <div class="fab-item">
-                <div class="fab-item-label">Llamar</div>
-                <button class="fab-item-btn" id="call-btn" style="background-color: #28a745;">
-                    <i class="fas fa-phone"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- Notificación -->
     <div class="notification" id="notification">
         <div class="notification-icon">
@@ -1278,5 +1156,63 @@
             </div>
         </div>
     </footer>
+
+    <!-- Scripts -->
+    <script src="contactUtils.js"></script>
+    <script src="model.js"></script>
+    <script src="uiController.js"></script>
+    <script src="personalSummary.js"></script>
+    <script src="controller.js"></script>
+    <script>
+        // Punto de entrada principal
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM completamente cargado y analizado');
+            
+            // Mostrar notificación
+            function showNotification() {
+                const notification = document.getElementById('notification');
+                
+                setTimeout(() => {
+                    notification.classList.add('show');
+                    
+                    // Ocultar después de 5 segundos
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                    }, 5000);
+                }, 1000);
+                
+                // Configurar botón de cierre
+                document.getElementById('notificationClose').addEventListener('click', function() {
+                    notification.classList.remove('show');
+                });
+            }
+            
+            // Mostrar/ocultar contenedores de navegación y acciones
+            function updateContainersVisibility() {
+                const resultsDiv = document.getElementById('results');
+                const actionButtonsContainer = document.getElementById('action-buttons-container');
+                const navigationContainer = document.getElementById('navigation-container');
+                
+                // Si hay resultados, mostrar los contenedores
+                if (resultsDiv.innerHTML.trim() !== '') {
+                    actionButtonsContainer.style.display = 'block';
+                    navigationContainer.style.display = 'block';
+                } else {
+                    actionButtonsContainer.style.display = 'none';
+                    navigationContainer.style.display = 'none';
+                }
+            }
+            
+            // Iniciar la aplicación
+            AppController.init();
+            
+            // Mostrar notificación
+            showNotification();
+            
+            // Configurar observador para actualizar visibilidad de contenedores
+            const observer = new MutationObserver(updateContainersVisibility);
+            observer.observe(document.getElementById('results'), { childList: true, subtree: true });
+        });
+    </script>
 </body>
 </html>
