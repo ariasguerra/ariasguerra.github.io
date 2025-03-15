@@ -752,11 +752,13 @@
 
             #action-buttons {
                 flex-wrap: wrap;
+                gap: 0.8rem;
             }
 
             #action-buttons button {
                 flex: 1 1 40%;
                 margin-bottom: 0.5rem;
+                height: 50px;
             }
 
             .logo-icon {
@@ -776,6 +778,105 @@
             .footer-content {
                 flex-direction: column;
                 gap: 1rem;
+            }
+            
+            .contact {
+                padding: 1.2rem;
+            }
+            
+            .contact .grado {
+                font-size: 1.1rem;
+            }
+            
+            .contact .nombre {
+                font-size: 1.1rem;
+            }
+            
+            .notification {
+                left: 1rem;
+                right: 1rem;
+                bottom: 1rem;
+                max-width: unset;
+            }
+        }
+
+        /* Ajustes adicionales para pantallas muy pequeñas */
+        @media (max-width: 480px) {
+            .header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                padding: 0.8rem;
+            }
+            
+            .back-button {
+                margin-top: 0.5rem;
+                width: 100%;
+                justify-content: center;
+            }
+            
+            #search-form {
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+            
+            #search-form div {
+                width: 100%;
+            }
+            
+            #search-input {
+                width: 100%;
+            }
+            
+            .action-btn {
+                width: 45px;
+                height: 45px;
+            }
+            
+            #action-buttons {
+                gap: 0.5rem;
+            }
+            
+            #action-buttons button {
+                flex: 1 1 45%;
+                margin-bottom: 0.5rem;
+                font-size: 1.3rem;
+                height: 45px;
+            }
+            
+            #navigation button {
+                padding: 0.8rem 0.5rem;
+                font-size: 0.9rem;
+            }
+            
+            .action-buttons-container,
+            .search-container,
+            .file-upload-container,
+            .results-container,
+            .navigation-container,
+            .personal-summary-container {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .section-title {
+                font-size: 1.1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .btn {
+                padding: 0.7rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .modal-content {
+                padding: 1.2rem;
+                width: 95%;
+            }
+            
+            .modal-btn {
+                padding: 0.7rem 1rem;
+                font-size: 0.9rem;
             }
         }
     </style>
@@ -817,16 +918,18 @@
                 Búsqueda de contactos
             </h2>
             <form id="search-form">
-                <div style="position: relative; flex: 1;">
+                <div style="position: relative; flex: 1; display: flex;">
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" id="search-input" placeholder="Buscar contacto...">
                 </div>
-                <button type="button" id="voice-search-btn" class="action-btn" title="Buscar por voz">
-                    <i class="fas fa-microphone"></i>
-                </button>
-                <button type="submit" id="search-btn" class="action-btn" title="Buscar">
-                    <i class="fas fa-search"></i>
-                </button>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button type="button" id="voice-search-btn" class="action-btn" title="Buscar por voz">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="submit" id="search-btn" class="action-btn" title="Buscar">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
             </form>
         </div>
 
