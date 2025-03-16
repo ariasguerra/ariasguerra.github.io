@@ -994,6 +994,60 @@
                 font-size: 0.85rem;
             }
         }
+        /* Estilos personalizados para la barra de búsqueda en móvil */
+#search-form {
+    display: flex;
+    flex-direction: row !important;
+    align-items: center;
+    width: 100%;
+    gap: 0.5rem;
+    justify-content: space-between;
+}
+
+#search-input-container {
+    position: relative;
+    flex: 1;
+    display: flex;
+    max-width: 70%;
+}
+
+.search-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    width: auto !important;
+}
+
+/* Asegurar que estos estilos se apliquen en pantallas pequeñas */
+@media (max-width: 480px) {
+    #search-form {
+        flex-direction: row !important;
+    }
+    
+    #search-input-container {
+        max-width: 65%;
+    }
+}
+
+@media (max-width: 360px) {
+    #search-form {
+        flex-direction: row !important;
+        gap: 0.3rem;
+    }
+    
+    #search-input-container {
+        max-width: 60%;
+    }
+    
+    .search-buttons {
+        gap: 0.2rem;
+    }
+    
+    .action-btn {
+        width: 36px;
+        height: 36px;
+    }
+}
     </style>
 </head>
 <body>
