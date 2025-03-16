@@ -223,12 +223,24 @@ const AppController = (function(model, ui, utils) {
         const contact = model.getCurrentContact();
         if (!contact) return;
         
+        // Primero intentamos usar la API Web Share si está disponible (solo dispositivos modernos)
+        const fullName = `${contact.NOMBRES || ''} ${contact.APELLIDOS || ''}`.trim();
         const vCardInfo = utils.createVCardForContact(contact);
-        if (vCardInfo) {
-            ui.downloadVCard(vCardInfo.vCardData, vCardInfo.fileName);
-            ui.hideContactModal();
-            ui.showMessage("Contacto listo para añadir a la agenda", 3000);
+        
+        if (!vCardInfo) {
+            ui.showMessage("Error al generar el contacto", 3000);
+            return;
         }
+        
+        // Intentar usar API Web Share (disponible en algunos navegadores modernos)
+        const shareSuccessful = ui.tryShareVCard(vCardInfo.vCardData, vCardInfo.fileName, fullName);
+        
+        if (!shareSuccessful) {
+            // Si no se pudo usar Web Share, usamos el método tradicional
+            ui.downloadVCard(vCardInfo.vCardData, vCardInfo.fileName);
+        }
+        
+        ui.hideContactModal();
     }
     
     function handleCopyNameAndAdvance() {
@@ -252,4 +264,3 @@ const AppController = (function(model, ui, utils) {
     return {
         init: init
     };
-})(ContactModel, UIController, ContactUtils);
