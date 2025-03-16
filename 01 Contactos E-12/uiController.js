@@ -176,6 +176,124 @@ const UIController = (function() {
         elements.contactModal.style.display = 'none';
     }
     
+    function downloadVCard(vCardData, fileName) {
+        // Crear blob con el tipo MIME específico para vCard
+        const blob = new Blob([vCardData], { type: "text/vcard" });
+        const url = URL.createObjectURL(blob);
+        
+        // Verificar si es dispositivo móvil para mejor manejo
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            // En dispositivos móviles, intentamos abrir directamente
+            window.location.href = url;
+            
+            // Mostrar instrucciones después de un breve retraso
+            setTimeout(() => {
+                showMobileInstructions();
+            }, 1000);
+        } else {
+            // En escritorio, usamos el método de descarga tradicional
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showMessage("Contacto descargado. Impórtalo a tu aplicación de contactos.", 3000);
+        }
+        
+        // Liberar URL
+        setTimeout(() => {
+            URL.revokeObjectURL(url);
+        }, 100);
+    }
+    
+    function showMobileInstructions() {
+        // Crear un modal con instrucciones específicas para el dispositivo
+        const instructionsModal = document.createElement('div');
+        instructionsModal.className = 'modal instructions-modal';
+        instructionsModal.style.display = 'flex';
+        instructionsModal.style.position = 'fixed';
+        instructionsModal.style.top = '0';
+        instructionsModal.style.left = '0';
+        instructionsModal.style.width = '100%';
+        instructionsModal.style.height = '100%';
+        instructionsModal.style.backgroundColor = 'rgba(0,0,0,0.7)';
+        instructionsModal.style.zIndex = '2000';
+        instructionsModal.style.justifyContent = 'center';
+        instructionsModal.style.alignItems = 'center';
+        
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        
+        let deviceSpecificInstructions = '';
+        
+        if (isIOS) {
+            deviceSpecificInstructions = `
+                <ol>
+                    <li>Si aparece un mensaje, selecciona "Abrir en..." o "Abrir con..."</li>
+                    <li>Elige "Contactos" o "Añadir a contactos"</li>
+                    <li>Confirma la información del contacto</li>
+                    <li>Toca "Guardar" en la parte superior derecha</li>
+                </ol>
+                <p>Si no aparece el mensaje:</p>
+                <ol>
+                    <li>Ve a Archivos > Descargas</li>
+                    <li>Busca el archivo .vcf descargado y tócalo</li>
+                    <li>Selecciona "Añadir a contactos"</li>
+                </ol>
+            `;
+        } else if (isAndroid) {
+            deviceSpecificInstructions = `
+                <ol>
+                    <li>En el mensaje de descarga, toca en el archivo .vcf</li>
+                    <li>Selecciona "Contactos" cuando te pregunte qué aplicación usar</li>
+                    <li>Confirma la información y toca "Guardar"</li>
+                </ol>
+                <p>Si no aparece el mensaje:</p>
+                <ol>
+                    <li>Abre tu aplicación de archivos o gestor de descargas</li>
+                    <li>Busca y toca el archivo .vcf descargado</li>
+                    <li>Selecciona importar a contactos</li>
+                </ol>
+            `;
+        } else {
+            deviceSpecificInstructions = `
+                <ol>
+                    <li>Busca el archivo descargado en tus descargas</li>
+                    <li>Ábrelo con tu aplicación de contactos</li>
+                    <li>Confirma la importación</li>
+                </ol>
+            `;
+        }
+        
+        instructionsModal.innerHTML = `
+            <div class="modal-content" style="background-color: #fff; border-radius: 5px; padding: 20px; max-width: 90%; width: 350px; position: relative;">
+                <span id="close-instructions" style="position: absolute; top: 10px; right: 10px; font-size: 24px; cursor: pointer;">&times;</span>
+                <h3 style="color: #003366; margin-top: 0; margin-bottom: 15px;">Importar Contacto</h3>
+                <p>Se ha generado el archivo de contacto. Sigue estos pasos para importarlo a tu agenda:</p>
+                ${deviceSpecificInstructions}
+                <div style="display: flex; justify-content: center; margin-top: 20px;">
+                    <button id="understand-btn" style="background-color: #003366; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Entendido</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(instructionsModal);
+        
+        // Añadir eventos para cerrar el modal
+        document.getElementById('close-instructions').addEventListener('click', () => {
+            document.body.removeChild(instructionsModal);
+        });
+        
+        document.getElementById('understand-btn').addEventListener('click', () => {
+            document.body.removeChild(instructionsModal);
+        });
+    }
+    
     function startVoiceRecognition() {
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
             showMessage("Tu navegador no soporta búsqueda por voz", 3000);
@@ -256,19 +374,37 @@ const UIController = (function() {
         return cleaned.trim();
     }
     
-    function downloadVCard(vCardData, fileName) {
-        const blob = new Blob([vCardData], { type: "text/vcard" });
-        const url = URL.createObjectURL(blob);
-        
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = fileName;
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        URL.revokeObjectURL(url);
+    // Función para intentar usar Web Share API
+    function tryShareVCard(vCardData, fileName, contactName) {
+        if (navigator.share && navigator.canShare) {
+            try {
+                const blob = new Blob([vCardData], { type: "text/vcard" });
+                const file = new File([blob], fileName, { type: "text/vcard" });
+                
+                const shareData = {
+                    title: "Contacto Policial",
+                    text: `Contacto: ${contactName}`,
+                    files: [file]
+                };
+                
+                if (navigator.canShare(shareData)) {
+                    navigator.share(shareData)
+                        .then(() => {
+                            showMessage("Contacto compartido correctamente", 2000);
+                            return true;
+                        })
+                        .catch((error) => {
+                            console.error("Error al compartir:", error);
+                            return false;
+                        });
+                    return true;
+                }
+            } catch (error) {
+                console.error("Error preparando compartir:", error);
+                return false;
+            }
+        }
+        return false;
     }
     
     return {
@@ -281,6 +417,8 @@ const UIController = (function() {
         hideContactModal,
         startVoiceRecognition,
         downloadVCard,
-        cleanTranscript  // Añadido para posible uso externo
+        showMobileInstructions,
+        tryShareVCard,
+        cleanTranscript
     };
 })();
