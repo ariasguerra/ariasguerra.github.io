@@ -97,52 +97,29 @@ Atentamente,
     function createVCardForContact(contact) {
         if (!contact) return null;
         
-        const gender = determineGender(contact.NOMBRES);
-        const gradoCompleto = getFullGrado(contact.GR, gender);
+        const gradoCompleto = getFullGrado(contact.GR, determineGender(contact.NOMBRES));
         const fullName = `${contact.NOMBRES || ''} ${contact.APELLIDOS || ''}`.trim();
         
-        // Crear vCard con formato estándar CRLF
-        // Importante: Usamos \r\n para mejor compatibilidad entre dispositivos
-        let vCard = "BEGIN:VCARD\r\nVERSION:3.0\r\n";
-        vCard += `N:${contact.APELLIDOS || ''};${contact.NOMBRES || ''};;;\r\n`;
-        vCard += `FN:${fullName}\r\n`;
-        vCard += `ORG:Policía Nacional de Colombia\r\n`;
-        vCard += `TITLE:${gradoCompleto} - ${contact.CARGO || ''}\r\n`;
+        // Crear vCard
+        let vCard = "BEGIN:VCARD\nVERSION:3.0\n";
+        vCard += `N:${contact.APELLIDOS || ''};${contact.NOMBRES || ''};;;\n`;
+        vCard += `FN:${fullName}\n`;
+        vCard += `ORG:Policía Nacional de Colombia\n`;
+        vCard += `TITLE:${gradoCompleto} - ${contact.CARGO || ''}\n`;
         
-        // Mejorar formato de teléfono (asegurar formato internacional)
         if (contact.CELULAR) {
-            const phoneNumber = formatPhoneNumber(contact.CELULAR);
-            vCard += `TEL;TYPE=CELL:${phoneNumber}\r\n`;
+            vCard += `TEL;TYPE=CELL:${contact.CELULAR}\n`;
         }
         
         if (contact["CORREO ELECTRÓNICO"]) {
-            vCard += `EMAIL:${contact["CORREO ELECTRÓNICO"]}\r\n`;
-        }
-        
-        // Añadir información opcional que puede ser útil
-        if (contact.CC) {
-            vCard += `NOTE:CC: ${contact.CC}\r\n`;
-        }
-        
-        if (contact.PLACA) {
-            // Añadir PLACA a la nota existente o crear una nueva
-            if (vCard.includes("NOTE:")) {
-                // Insertar antes del fin de la nota
-                const noteEndPos = vCard.indexOf("\r\n", vCard.indexOf("NOTE:"));
-                const beforeNote = vCard.substring(0, noteEndPos);
-                const afterNote = vCard.substring(noteEndPos);
-                vCard = beforeNote + ", Placa: " + contact.PLACA + afterNote;
-            } else {
-                vCard += `NOTE:Placa: ${contact.PLACA}\r\n`;
-            }
+            vCard += `EMAIL:${contact["CORREO ELECTRÓNICO"]}\n`;
         }
         
         vCard += "END:VCARD";
         
         return {
             vCardData: vCard,
-            fileName: `${fullName.replace(/\s+/g, '_')}.vcf`,
-            mimeType: "text/vcard"
+            fileName: `${fullName.replace(/\s+/g, '_')}.vcf`
         };
     }
     
