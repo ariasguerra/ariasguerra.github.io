@@ -164,8 +164,12 @@ function entry(plate, grade, name, isMultiple) {
         time_out: null,
     });
     localStorage.setItem("parkingLog", JSON.stringify(parkingLog));
-    alert("Ingreso registrado en " + pdfTitle);
-    searchPlaca();
+    
+    // Solo mostrar alerta en modo individual
+    if (!isMultiple) {
+        alert("Ingreso registrado en " + pdfTitle);
+        searchPlaca();
+    }
 }
 
 // Registrar salida de motocicletas
