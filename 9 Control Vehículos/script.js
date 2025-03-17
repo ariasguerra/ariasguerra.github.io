@@ -253,5 +253,319 @@ function resetParkingLog() {
         document.getElementById("unauthorized").innerHTML = "";
         alert("Registro reiniciado.");
     }
+
+
+
+
+
+    // Mejoras para script.js para optimización móvil
+// Asegúrate de añadir estas funciones a tu script.js existente
+
+// Función para detectar si es un dispositivo móvil
+function isMobileDevice() {
+    return (window.innerWidth <= 768) || 
+           /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+// Optimizaciones para dispositivos móviles
+function applyMobileOptimizations() {
+    if (isMobileDevice()) {
+        // Ajustar el comportamiento del input de búsqueda
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            // Hacer que el teclado aparezca cuando el usuario toca el campo
+            searchInput.addEventListener('click', function() {
+                this.focus();
+            });
+            
+            // En móvil, convertir automáticamente a mayúsculas para placas
+            searchInput.addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+        }
+        
+        // Mejorar la interacción con botones táctiles
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(button => {
+            // Prevenir el efecto de "fantasma" al tocar
+            button.addEventListener('touchstart', function() {
+                this.classList.add('active-touch');
+            }, {passive: true});
+            
+            button.addEventListener('touchend', function() {
+                this.classList.remove('active-touch');
+            }, {passive: true});
+        });
+        
+        // Optimizar el rendimiento de scroll
+        document.addEventListener('scroll', optimizeScroll, {passive: true});
+        
+        // Ajustar la altura para viewport de móviles (soluciona problemas con barras de navegación móvil)
+        function setVhProperty() {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        
+        // Establecer la altura inicial y ajustar en cambios de orientación
+        setVhProperty();
+        window.addEventListener('resize', setVhProperty);
+        
+        // Optimizar tamaño de notificaciones para móvil
+        customizeNotificationsForMobile();
+    }
+}
+
+// Mejora del comportamiento de desplazamiento en móviles
+function optimizeScroll() {
+    // Usar requestAnimationFrame para optimizar el rendimiento
+    if (!window.requestAnimationFrame) return;
+    
+    window.requestAnimationFrame(function() {
+        // Prevenir que los encabezados y la barra de búsqueda desaparezcan rápidamente
+        const elements = document.querySelectorAll('.title-bar, .search-bar');
+        
+        elements.forEach(el => {
+            // Ajustar la visibilidad basada en la dirección del desplazamiento
+            // Esta es una versión simplificada, puedes ampliarla según sea necesario
+            if (window.scrollY < 50) {
+                el.style.opacity = '1';
+            }
+        });
+    });
+}
+
+// Personalizar notificaciones para móvil
+function customizeNotificationsForMobile() {
+    // Sobrescribir la función de notificación para dispositivos móviles
+    if (typeof showNotification === 'function') {
+        const originalShowNotification = showNotification;
+        
+        // Redefinir la función para dispositivos móviles
+        showNotification = function(title, message) {
+            // Verificar si es un dispositivo móvil
+            if (isMobileDevice()) {
+                // Acortar mensajes muy largos en móvil
+                if (message.length > 50) {
+                    message = message.substring(0, 47) + '...';
+                }
+                
+                // Tiempo más corto para la notificación en móvil (2 segundos)
+                const notification = document.getElementById('notification');
+                const notificationTitle = document.querySelector('.notification-title');
+                const notificationMessage = document.querySelector('.notification-message');
+                
+                notificationTitle.textContent = title;
+                notificationMessage.textContent = message;
+                
+                notification.classList.add('show');
+                
+                // Ocultar después de 2 segundos en móvil en lugar de 3
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 2000);
+            } else {
+                // En escritorio, usar la funcionalidad original
+                originalShowNotification(title, message);
+            }
+        };
+    }
+}
+
+// Optimizar visualización de resultados para móvil
+function optimizeResultDisplayForMobile() {
+    // Sobrescribir la función displayResult para mostrar resultados más compactos en móvil
+    if (typeof displayResult === 'function') {
+        const originalDisplayResult = displayResult;
+        
+        // Redefinir la función para dispositivos móviles
+        displayResult = function(result, isMultiple = false) {
+            if (isMobileDevice()) {
+                // Implementación optimizada para móvil
+                const isSOATExpired = result["FECHA VENCIMIENTO SOAT"] && new Date(result["FECHA VENCIMIENTO SOAT"]) < new Date();
+                const isTecExpired = result["FECHA VENCIMIENTO TECNOMECANICA"] && new Date(result["FECHA VENCIMIENTO TECNOMECANICA"]) < new Date();
+                const isInside = parkingLog.find((log) => log.PLACA === result.PLACA && log.status === "inside");
+
+                // Botones más compactos con solo iconos en móvil
+                const button = isInside
+                    ? `<button class="exit" onclick="exit('${result.PLACA}')"><i class="fas fa-sign-out-alt"></i> Salida</button>`
+                    : `<button class="entry" onclick="entry('${result.PLACA}', '${result.GRADO}', '${result["APELLIDOS Y NOMBRES"]}', ${isMultiple})"><i class="fas fa-sign-in-alt"></i> Ingreso</button>`;
+                
+                // Estructura más compacta para móvil
+                document.getElementById("results").innerHTML += `
+                    <div class="card mobile-card">
+                        <div class="card-header">
+                            <p class="plate-info"><i class="fas fa-car"></i> <strong>${result.PLACA}</strong></p>
+                            <p class="name-info">${result.GRADO || ""} ${result["APELLIDOS Y NOMBRES"] || "No especificado"}</p>
+                        </div>
+                        <div class="card-details">
+                            <div class="document-status">
+                                <span class="status-item">
+                                    <i class="fas fa-file-contract"></i> SOAT: 
+                                    ${isSOATExpired 
+                                        ? '<span class="expired"><i class="fas fa-times-circle"></i></span>' 
+                                        : '<span class="valid"><i class="fas fa-check-circle"></i></span>'}
+                                </span>
+                                <span class="status-item">
+                                    <i class="fas fa-cogs"></i> TEC: 
+                                    ${isTecExpired 
+                                        ? '<span class="expired"><i class="fas fa-times-circle"></i></span>' 
+                                        : '<span class="valid"><i class="fas fa-check-circle"></i></span>'}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="action-buttons">${button}</div>
+                    </div>
+                `;
+            } else {
+                // En escritorio, usar la visualización original
+                originalDisplayResult(result, isMultiple);
+            }
+        };
+    }
+}
+
+// Optimizar el PDF para la visualización en móvil
+function optimizePdfForMobile() {
+    if (typeof downloadPDF === 'function') {
+        const originalDownloadPDF = downloadPDF;
+        
+        downloadPDF = function() {
+            // Si estamos en móvil, ajustar el PDF a un formato más simple
+            if (isMobileDevice()) {
+                showNotification("Generando PDF", "Preparando el archivo para descargar...");
+            }
+            
+            // Ejecutar la función original
+            originalDownloadPDF();
+        };
+    }
+}
+
+// Inicializar optimizaciones para móvil cuando se carga la página
+document.addEventListener('DOMContentLoaded', function() {
+    applyMobileOptimizations();
+    optimizeResultDisplayForMobile();
+    optimizePdfForMobile();
+    
+    // Si se detecta un dispositivo de pantalla pequeña, aplicar estilos adicionales
+    if (window.innerWidth <= 380) {
+        document.body.classList.add('very-small-screen');
+    }
+    
+    // Agregar clase para identificar dispositivos móviles
+    if (isMobileDevice()) {
+        document.body.classList.add('mobile-device');
+        // Añadir estilos específicos para móviles
+        addMobileStyles();
+    }
+    
+    // Ajustar comportamiento del teclado virtual en móviles
+    optimizeKeyboardBehavior();
+});
+
+// Optimizar el comportamiento del teclado virtual en dispositivos móviles
+function optimizeKeyboardBehavior() {
+    if (!isMobileDevice()) return;
+    
+    const searchInput = document.getElementById('searchInput');
+    if (!searchInput) return;
+    
+    // Cerrar el teclado cuando se presiona enter
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            this.blur(); // Quita el foco para ocultar el teclado
+            searchPlaca(); // Ejecuta la búsqueda
+            e.preventDefault(); // Evita el comportamiento predeterminado
+        }
+    });
+    
+    // Optimizar experiencia para búsqueda múltiple
+    document.getElementById('searchMode').addEventListener('change', function() {
+        const mode = this.value;
+        const input = document.getElementById('searchInput');
+        
+        if (mode === 'multiple') {
+            // Configurar para entrada de múltiples placas
+            input.autocapitalize = 'characters';
+            input.placeholder = 'ABC123, XYZ789, ...';
+        } else {
+            // Configurar para entrada de una sola placa
+            input.autocapitalize = 'characters';
+            input.placeholder = 'Ingrese placa';
+        }
+        
+        // Enfocar el campo después de cambiar el modo
+        setTimeout(() => input.focus(), 100);
+    });
+}
+
+// Estilos adicionales CSS para agregar dinámicamente si es necesario
+function addMobileStyles() {
+    if (!isMobileDevice()) return;
+    
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+        /* Estilos adicionales para móviles cargados dinámicamente */
+        .mobile-card {
+            display: grid;
+            grid-template-rows: auto auto auto;
+            gap: 8px;
+        }
+        
+        .card-header {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .plate-info {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 2px !important;
+        }
+        
+        .name-info {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 2px !important;
+        }
+        
+        .document-status {
+            display: flex;
+            gap: 12px;
+            font-size: 0.85rem;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .active-touch {
+            transform: scale(0.95);
+        }
+        
+        /* Ajustes para el contenedor principal */
+        .container {
+            padding-bottom: 60px; /* Espacio para evitar que el contenido quede debajo del footer en móviles */
+        }
+        
+        /* Ajustes específicos para móvil */
+        @media (max-width: 768px) {
+            /* Usar toda la altura disponible */
+            .container {
+                min-height: calc(100 * var(--vh, 1vh) - 70px);
+            }
+            
+            /* Botones más grandes para facilitar el toque */
+            .action-btn, .btn {
+                min-height: 44px;
+                min-width: 44px;
+            }
+        }
+    `;
+    
+    document.head.appendChild(styleElement);
+}
 }
 
