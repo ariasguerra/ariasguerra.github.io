@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gestor de Parqueo</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -59,7 +59,7 @@
             <form id="search-form" onsubmit="event.preventDefault(); searchPlaca();">
                 <div class="search-input-container">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="searchInput" placeholder="Ingrese placa sin espacios" />
+                    <input type="text" id="searchInput" placeholder="Ingrese placa sin espacios" autocapitalize="characters" autocomplete="off" />
                 </div>
                 <div class="search-buttons">
                     <button type="submit" class="action-btn" title="Buscar">
@@ -86,11 +86,16 @@
         <!-- Botones principales -->
         <div class="main-buttons">
             <button class="btn download" onclick="downloadPDF()">
-                <i class="fas fa-file-pdf"></i> Descargar Log en PDF
+                <i class="fas fa-file-pdf"></i> Descargar PDF
             </button>
             <button class="btn reset" onclick="resetParkingLog()">
-                <i class="fas fa-trash-alt"></i> Reiniciar Registro
+                <i class="fas fa-trash-alt"></i> Reiniciar
             </button>
+        </div>
+        
+        <!-- Resumen de estacionamiento -->
+        <div class="parking-summary" id="parking-summary">
+            <!-- Se llenará dinámicamente -->
         </div>
     </div>
 
@@ -156,7 +161,82 @@
             });
             
             observer.observe(document.getElementById('unauthorized'), { childList: true, subtree: true });
+            
+            // Mejorar experiencia en móvil con foco en campo de búsqueda
+            document.getElementById('searchInput').addEventListener('click', function() {
+                this.focus();
+            });
+            
+            // Ajustar altura de elementos según el viewport
+            function adjustHeights() {
+                const vh = window.innerHeight * 0.01;
+                document.documentElement.style.setProperty('--vh', `${vh}px`);
+            }
+            
+            // Ajustar alturas al cargar y al cambiar el tamaño de la ventana
+            window.addEventListener('resize', adjustHeights);
+            adjustHeights();
+            
+            // Actualizar el resumen del estacionamiento
+            updateParkingSummary();
         });
+        
+        // Función para actualizar el resumen del estacionamiento
+        function updateParkingSummary() {
+            const summaryContainer = document.getElementById('parking-summary');
+            
+            // Solo mostrar si hay vehículos en el parqueadero
+            const insideVehicles = parkingLog.filter(log => log.status === 'inside');
+            
+            if (insideVehicles.length > 0) {
+                summaryContainer.style.display = 'block';
+                
+                let html = `
+                    <h2 class="section-title">
+                        <i class="fas fa-chart-pie"></i>
+                        Resumen
+                    </h2>
+                    <div class="summary-content">
+                        <p><i class="fas fa-car-side"></i> Vehículos en parqueadero: <strong>${insideVehicles.length}</strong></p>
+                `;
+                
+                // Mostrar solo 5 placas como máximo (o menos si hay menos)
+                if (insideVehicles.length > 0) {
+                    html += '<p><i class="fas fa-list"></i> Últimas placas:</p><ul class="plates-list">';
+                    const recentVehicles = insideVehicles.slice(-5).reverse();
+                    
+                    recentVehicles.forEach(vehicle => {
+                        html += `<li>${vehicle.PLACA}</li>`;
+                    });
+                    
+                    html += '</ul>';
+                }
+                
+                html += '</div>';
+                summaryContainer.innerHTML = html;
+            } else {
+                summaryContainer.style.display = 'none';
+            }
+        }
+        
+        // Sobrescribir funciones para actualizar el resumen
+        const originalEntry = entry;
+        entry = function(plate, grade, name, isMultiple) {
+            originalEntry(plate, grade, name, isMultiple);
+            updateParkingSummary();
+        };
+        
+        const originalExit = exit;
+        exit = function(plate) {
+            originalExit(plate);
+            updateParkingSummary();
+        };
+        
+        const originalReset = resetParkingLog;
+        resetParkingLog = function() {
+            originalReset();
+            updateParkingSummary();
+        };
     </script>
 </body>
 </html>
