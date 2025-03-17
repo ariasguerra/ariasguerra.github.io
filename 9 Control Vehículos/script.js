@@ -65,7 +65,7 @@ window.onload = function () {
 
 
 
-// Buscar placas - Modificada para ingreso automático en búsqueda múltiple
+// Buscar placas - Modificada para ingreso automático en búsqueda múltiple sin mostrar en pantalla
 function searchPlaca() {
     const searchValue = document.getElementById("searchInput").value.toUpperCase().replace(/\s+/g, "");
     const container = document.getElementById("results");
@@ -76,6 +76,7 @@ function searchPlaca() {
     const unauthorized = [];
 
     if (searchMode === "single") {
+        // Modo de búsqueda individual - mantiene el comportamiento original
         const result = database.find((item) => item.PLACA === searchValue);
         if (result) {
             displayResult(result);
@@ -83,10 +84,11 @@ function searchPlaca() {
             unauthorized.push(searchValue);
         }
     } else {
-        // Modo de búsqueda múltiple
+        // Modo de búsqueda múltiple - solo registra ingresos sin mostrar en pantalla
         const placas = searchValue.split(",").map(placa => placa.trim());
         const results = database.filter((item) => placas.includes(item.PLACA));
         const foundPlates = results.map((item) => item.PLACA);
+        let ingresados = 0;
 
         // Registrar ingreso automáticamente para cada vehículo encontrado
         results.forEach((result) => {
@@ -95,15 +97,24 @@ function searchPlaca() {
             if (!isInside) {
                 // Registrar ingreso automático
                 entry(result.PLACA, result.GRADO, result["APELLIDOS Y NOMBRES"], true);
+                ingresados++;
             }
-            
-            // Mostrar la información del vehículo
-            displayResult(result, true);
         });
+
+        // Mostrar mensaje de confirmación de ingresos
+        if (ingresados > 0) {
+            container.innerHTML = `<div class="card">
+                <p><strong>Operación exitosa:</strong> Se han registrado ${ingresados} motocicletas en el ${pdfTitle}.</p>
+            </div>`;
+        } else if (results.length > 0) {
+            container.innerHTML = `<div class="card">
+                <p><strong>Aviso:</strong> Todas las motocicletas encontradas ya estaban registradas en el parqueadero.</p>
+            </div>`;
+        }
 
         // Identificar placas no autorizadas
         placas.forEach((plate) => {
-            if (!foundPlates.includes(plate)) {
+            if (plate && !foundPlates.includes(plate)) {
                 unauthorized.push(plate);
             }
         });
@@ -113,7 +124,6 @@ function searchPlaca() {
         displayUnauthorized(unauthorized);
     }
 }
-
 
 
 
