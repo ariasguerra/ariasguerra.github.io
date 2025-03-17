@@ -62,7 +62,10 @@ window.onload = function () {
     }
 };
 
-// Buscar placas
+
+
+
+// Buscar placas - Modificada para ingreso automático en búsqueda múltiple
 function searchPlaca() {
     const searchValue = document.getElementById("searchInput").value.toUpperCase().replace(/\s+/g, "");
     const container = document.getElementById("results");
@@ -80,12 +83,25 @@ function searchPlaca() {
             unauthorized.push(searchValue);
         }
     } else {
-        const placas = searchValue.split(",");
+        // Modo de búsqueda múltiple
+        const placas = searchValue.split(",").map(placa => placa.trim());
         const results = database.filter((item) => placas.includes(item.PLACA));
         const foundPlates = results.map((item) => item.PLACA);
 
-        results.forEach((result) => displayResult(result, true));
+        // Registrar ingreso automáticamente para cada vehículo encontrado
+        results.forEach((result) => {
+            // Verificar si ya está dentro para no duplicar el ingreso
+            const isInside = parkingLog.find((log) => log.PLACA === result.PLACA && log.status === "inside");
+            if (!isInside) {
+                // Registrar ingreso automático
+                entry(result.PLACA, result.GRADO, result["APELLIDOS Y NOMBRES"], true);
+            }
+            
+            // Mostrar la información del vehículo
+            displayResult(result, true);
+        });
 
+        // Identificar placas no autorizadas
         placas.forEach((plate) => {
             if (!foundPlates.includes(plate)) {
                 unauthorized.push(plate);
@@ -97,6 +113,9 @@ function searchPlaca() {
         displayUnauthorized(unauthorized);
     }
 }
+
+
+
 
 // Mostrar resultados
 function displayResult(result, isMultiple = false) {
