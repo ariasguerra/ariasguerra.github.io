@@ -679,4 +679,581 @@ body {
     .footer {
         padding: 1rem;
     }
+
+
+
+    /* Añadimos estas optimizaciones para móvil a tu archivo de estilos existente */
+
+/* Ajustes generales para móvil */
+@media (max-width: 768px) {
+    .container {
+        padding: 12px;
+        max-width: 100%;
+        margin: 0;
+    }
+    
+    /* Título y logo para móvil */
+    .title-bar {
+        padding: 12px;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .logo-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem;
+    }
+    
+    .logo-text {
+        font-size: 1.2rem;
+    }
+    
+    .parking-selector {
+        width: 100%;
+    }
+    
+    .title-bar select {
+        width: 100%;
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+    
+    /* Contenedores en móvil */
+    .file-upload-container,
+    .search-mode,
+    .search-bar,
+    .results-container,
+    .unauthorized {
+        padding: 12px;
+        margin-bottom: 12px;
+        border-radius: 8px;
+    }
+    
+    /* Secciones de título en móvil */
+    .section-title {
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+    }
+    
+    .section-title::after {
+        width: 40px;
+        height: 2px;
+    }
+    
+    /* Botón de carga de archivo en móvil */
+    .file-upload {
+        padding: 15px;
+        font-size: 0.9rem;
+    }
+    
+    .file-upload i {
+        font-size: 1.2rem;
+    }
+    
+    #fileStatus {
+        font-size: 0.8rem;
+        margin-top: 5px;
+    }
+    
+    /* Selector de modo de búsqueda en móvil */
+    .search-mode select {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+    
+    /* Barra de búsqueda optimizada para móvil */
+    .search-bar form {
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .search-input-container {
+        position: relative;
+        flex: 1;
+    }
+    
+    .search-icon {
+        left: 8px;
+        font-size: 1rem;
+    }
+    
+    .search-bar input {
+        padding: 10px 10px 10px 30px;
+        font-size: 0.9rem;
+        border-radius: 20px;
+    }
+    
+    .action-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+    }
+    
+    /* Tarjetas de resultados en móvil */
+    .card {
+        padding: 12px;
+        margin-bottom: 10px;
+    }
+    
+    .card p {
+        font-size: 0.9rem;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .card p i {
+        width: 16px;
+        margin-top: 3px;
+    }
+    
+    .card p strong {
+        min-width: 0;
+        white-space: nowrap;
+    }
+    
+    /* Responsive para información dentro de las tarjetas */
+    .card .vehicle-info {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .expired, .valid {
+        font-size: 0.8rem;
+    }
+    
+    /* Botones de acción en tarjetas */
+    .action-buttons {
+        margin-top: 10px;
+    }
+    
+    .action-buttons button {
+        width: 100%;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+        justify-content: center;
+    }
+    
+    /* Placas no autorizadas */
+    .unauthorized {
+        padding: 12px;
+    }
+    
+    .unauthorized h3 {
+        font-size: 1rem;
+        margin-bottom: 8px;
+    }
+    
+    .unauthorized li {
+        font-size: 0.9rem;
+        padding: 6px 0;
+    }
+    
+    /* Botones principales en móvil */
+    .main-buttons {
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    
+    .btn {
+        width: 100%;
+        padding: 12px;
+        font-size: 0.9rem;
+        min-width: 0;
+    }
+    
+    /* Notificación en móvil */
+    .notification {
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        max-width: none;
+        width: auto;
+        padding: 12px;
+    }
+    
+    .notification-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 1.1rem;
+    }
+    
+    .notification-title {
+        font-size: 0.9rem;
+    }
+    
+    .notification-message {
+        font-size: 0.8rem;
+    }
+    
+    /* Footer en móvil */
+    .footer {
+        padding: 15px 12px;
+    }
+    
+    .footer-content {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .footer-links {
+        justify-content: center;
+    }
+}
+
+/* Ajustes específicos para pantallas muy pequeñas */
+@media (max-width: 380px) {
+    .container {
+        padding: 8px;
+    }
+    
+    .title-bar {
+        padding: 10px;
+    }
+    
+    .logo-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 1.2rem;
+    }
+    
+    .logo-text {
+        font-size: 1rem;
+    }
+    
+    /* Tarjetas de resultado con layout mejorado para pantallas pequeñas */
+    .card p {
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        font-size: 0.85rem;
+        margin-bottom: 5px;
+    }
+    
+    .card p strong {
+        grid-column: 1 / -1;
+        margin-bottom: 2px;
+    }
+    
+    .card p span {
+        grid-column: 2;
+    }
+    
+    .action-buttons button {
+        font-size: 0.8rem;
+        padding: 8px;
+    }
+    
+    /* Optimización para entrada de búsqueda */
+    .search-input-container {
+        max-width: 80%;
+    }
+    
+    .search-bar input {
+        font-size: 0.85rem;
+        padding: 8px 8px 8px 28px;
+    }
+    
+    .action-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
+    
+    /* Otras optimizaciones para pantallas muy pequeñas */
+    .section-title {
+        font-size: 1rem;
+    }
+    
+    .btn {
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+}
+
+/* Mejoras adicionales de layout para móvil */
+
+/* Diseño compacto de formularios */
+.compact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Tarjetas con layout flexible */
+.flex-card {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Iconos ajustados para móvil */
+@media (max-width: 768px) {
+    .card p i {
+        font-size: 0.9rem;
+    }
+    
+    .section-title i {
+        font-size: 1rem;
+    }
+}
+
+/* Solución a posibles problemas de interacción táctil */
+@media (max-width: 768px) {
+    .action-btn,
+    .btn,
+    .action-buttons button {
+        min-height: 44px; /* Tamaño mínimo para interacción táctil cómoda */
+    }
+    
+    /* Espaciado vertical adicional para formularios */
+    input,
+    select,
+    button {
+        margin-bottom: 2px;
+    }
+}
+
+/* Mejoras de accesibilidad para pantallas táctiles */
+@media (max-width: 768px) {
+    /* Aumentar el área de toque para elementos interactivos */
+    .action-btn, 
+    .btn,
+    .action-buttons button,
+    .search-bar input,
+    select {
+        touch-action: manipulation;
+    }
+}
+
+/* Ajuste para que el texto no se desborde en pantallas pequeñas */
+@media (max-width: 768px) {
+    .card p,
+    .notification-message,
+    .section-title,
+    .btn,
+    .unauthorized li {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        -webkit-hyphens: auto;
+        -ms-hyphens: auto;
+        hyphens: auto;
+    }
+
+
+
+
+
+    /* Estilos adicionales para la versión móvil */
+
+/* Variables específicas para móvil */
+:root {
+    --mobile-padding: 12px;
+    --mobile-border-radius: 8px;
+    --mobile-font-size-small: 0.85rem;
+    --mobile-font-size-normal: 0.95rem;
+    --mobile-font-size-large: 1.1rem;
+    --mobile-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --vh: 1vh; /* Variable para altura de viewport en móviles */
+}
+
+/* Mejora para tarjetas en móvil */
+@media (max-width: 768px) {
+    /* Estructura de tarjeta mejorada para móvil */
+    .mobile-card {
+        padding: var(--mobile-padding);
+        border-radius: var(--mobile-border-radius);
+        box-shadow: var(--mobile-shadow);
+        margin-bottom: 10px;
+    }
+    
+    /* Header de tarjeta */
+    .card-header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        padding-bottom: 8px;
+        margin-bottom: 8px;
+    }
+    
+    /* Información de placa destacada */
+    .plate-info {
+        font-size: var(--mobile-font-size-large);
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+    
+    /* Estado de documentos */
+    .document-status {
+        background-color: var(--light-bg);
+        padding: 6px 10px;
+        border-radius: var(--mobile-border-radius);
+        margin-bottom: 10px;
+    }
+    
+    /* Indicadores de estado */
+    .status-item i {
+        font-size: 14px;
+    }
+    
+    /* Resumen de estacionamiento */
+    .parking-summary {
+        background-color: var(--card-bg);
+        padding: var(--mobile-padding);
+        border-radius: var(--mobile-border-radius);
+        margin-top: 15px;
+        box-shadow: var(--mobile-shadow);
+        border-top: 4px solid var(--primary-color);
+    }
+    
+    .summary-content {
+        font-size: var(--mobile-font-size-normal);
+        line-height: 1.4;
+    }
+    
+    .plates-list {
+        list-style-type: none;
+        padding-left: 10px;
+        margin-top: 5px;
+    }
+    
+    .plates-list li {
+        padding: 3px 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .plates-list li:before {
+        content: '•';
+        color: var(--primary-color);
+        margin-right: 8px;
+    }
+    
+    /* Optimizaciones para elementos interactivos */
+    input[type="text"],
+    select,
+    button {
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* Mejora en la barra de búsqueda */
+    .search-input-container {
+        position: relative;
+    }
+    
+    .search-icon {
+        color: var(--primary-color);
+    }
+    
+    /* Mejorar legibilidad de texto en notificaciones */
+    .notification {
+        line-height: 1.3;
+        border-radius: var(--mobile-border-radius);
+    }
+    
+    .notification-title {
+        margin-bottom: 3px;
+    }
+    
+    /* Efectos táctiles mejorados */
+    .action-btn:active,
+    .btn:active,
+    .action-buttons button:active {
+        transform: scale(0.95);
+        transition: transform 0.1s;
+    }
+    
+    /* Ajustes para pantallas extra pequeñas */
+    @media (max-width: 360px) {
+        :root {
+            --mobile-padding: 10px;
+            --mobile-font-size-small: 0.8rem;
+            --mobile-font-size-normal: 0.9rem;
+            --mobile-font-size-large: 1rem;
+        }
+        
+        .container {
+            padding: 8px;
+        }
+        
+        .plate-info {
+            font-size: var(--mobile-font-size-large);
+        }
+        
+        .name-info {
+            font-size: var(--mobile-font-size-small);
+        }
+        
+        .document-status {
+            padding: 5px 8px;
+        }
+        
+        .status-item {
+            gap: 3px;
+        }
+        
+        .action-buttons button {
+            font-size: var(--mobile-font-size-small);
+            padding: 8px 12px;
+        }
+    }
+}
+
+/* Arreglo para pantallas de alta densidad de píxeles */
+@media screen and (max-width: 768px) and (-webkit-min-device-pixel-ratio: 2), 
+       screen and (max-width: 768px) and (min-resolution: 192dpi) {
+    /* Aumentar ligeramente el tamaño de texto para mejor legibilidad en pantallas de alta densidad */
+    body {
+        -webkit-text-size-adjust: 100%;
+    }
+    
+    .search-bar input {
+        font-size: 16px; /* Evita el zoom automático en campos de entrada en iOS */
+    }
+}
+
+/* Mejoras para la orientación horizontal en móviles */
+@media screen and (max-width: 915px) and (orientation: landscape) {
+    .container {
+        max-width: 100%;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 10px;
+    }
+    
+    .title-bar {
+        grid-column: 1 / -1;
+    }
+    
+    .file-upload-container,
+    .search-mode {
+        grid-column: span 1;
+    }
+    
+    .search-bar {
+        grid-column: span 1;
+    }
+    
+    .results-container {
+        grid-column: 1 / -1;
+    }
+    
+    .main-buttons {
+        grid-column: 1 / -1;
+        flex-direction: row;
+    }
+    
+    .footer {
+        padding: 10px;
+    }
+}
+}
 }
