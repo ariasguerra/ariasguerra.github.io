@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Parqueo</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Selección del tipo de parqueadero -->
+        <div class="title-bar">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-car-side"></i>
+                </div>
+                <div class="logo-text">Gestor de Parqueo</div>
+            </div>
+            <div class="parking-selector">
+                <label for="parkingType">Tipo de parqueadero:</label>
+                <select id="parkingType" onchange="updatePDFTitle()">
+                    <option value="Parqueadero Interno">Parqueadero Interno</option>
+                    <option value="Parqueadero Externo">Parqueadero Externo</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Botón de carga de archivo -->
+        <div class="file-upload-container">
+            <h2 class="section-title">
+                <i class="fas fa-file-upload"></i>
+                Cargar base de datos
+            </h2>
+            <label class="file-upload" id="fileLabel">
+                <input type="file" id="fileInput" />
+                <i class="fas fa-upload"></i> <span id="fileText">Cargar Archivo</span>
+            </label>
+            <div id="fileStatus">Ningún archivo cargado</div>
+        </div>
+
+        <!-- Selección de modos de búsqueda -->
+        <div class="search-mode">
+            <h2 class="section-title">
+                <i class="fas fa-search"></i>
+                Modo de búsqueda
+            </h2>
+            <select id="searchMode" onchange="toggleSearchMode()">
+                <option value="single">Buscar una placa</option>
+                <option value="multiple">Buscar múltiples placas</option>
+            </select>
+        </div>
+
+        <!-- Barra de búsqueda -->
+        <div class="search-bar">
+            <form id="search-form" onsubmit="event.preventDefault(); searchPlaca();">
+                <div class="search-input-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Ingrese placa sin espacios" />
+                </div>
+                <div class="search-buttons">
+                    <button type="submit" class="action-btn" title="Buscar">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Resultados de búsqueda -->
+        <div class="results-container">
+            <h2 class="section-title">
+                <i class="fas fa-car"></i>
+                Resultados
+            </h2>
+            <div id="results"></div>
+        </div>
+
+        <!-- Placas no autorizadas -->
+        <div id="unauthorized-container" style="display: none;">
+            <div id="unauthorized"></div>
+        </div>
+
+        <!-- Botones principales -->
+        <div class="main-buttons">
+            <button class="btn download" onclick="downloadPDF()">
+                <i class="fas fa-file-pdf"></i> Descargar Log en PDF
+            </button>
+            <button class="btn reset" onclick="resetParkingLog()">
+                <i class="fas fa-trash-alt"></i> Reiniciar Registro
+            </button>
+        </div>
+    </div>
+
+    <!-- Notificación -->
+    <div class="notification" id="notification">
+        <div class="notification-icon">
+            <i class="fas fa-info-circle"></i>
+        </div>
+        <div class="notification-content">
+            <div class="notification-title">Gestor de Parqueo</div>
+            <div class="notification-message">Control de entrada y salida de vehículos</div>
+        </div>
+        <button class="notification-close" id="notificationClose">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-text">
+                &copy; 2025 - Gestor de Parqueo
+            </div>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Ayuda</a>
+                <a href="#" class="footer-link">Información</a>
+                <a href="#" class="footer-link">Contacto</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Script para mostrar/ocultar notificación
+        document.addEventListener('DOMContentLoaded', () => {
+            const notification = document.getElementById('notification');
+            const closeBtn = document.getElementById('notificationClose');
+            
+            // Mostrar notificación al cargar la página
+            setTimeout(() => {
+                notification.classList.add('show');
+                
+                // Ocultar después de 5 segundos
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 5000);
+            }, 1000);
+            
+            // Cerrar notificación al hacer clic en el botón
+            closeBtn.addEventListener('click', () => {
+                notification.classList.remove('show');
+            });
+            
+            // Mostrar contenedor de placas no autorizadas solo cuando hay contenido
+            const observer = new MutationObserver(() => {
+                const unauthorizedDiv = document.getElementById('unauthorized');
+                const container = document.getElementById('unauthorized-container');
+                
+                if (unauthorizedDiv.innerHTML.trim() !== '') {
+                    container.style.display = 'block';
+                } else {
+                    container.style.display = 'none';
+                }
+            });
+            
+            observer.observe(document.getElementById('unauthorized'), { childList: true, subtree: true });
+        });
+    </script>
+</body>
+</html>
