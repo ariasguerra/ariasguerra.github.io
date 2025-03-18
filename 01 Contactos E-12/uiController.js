@@ -265,7 +265,7 @@ const UIController = (function() {
     // Detectar si es un dispositivo móvil
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
-    if (navigator.share && isMobile && 'files' in navigator.share) {
+    if (navigator.share && isMobile && navigator.share.toString().indexOf('files') !== -1) {
         // Usar Web Share API si está disponible en móviles y soporta archivos
         try {
             const file = new File([blob], fileName, { type: 'text/vcard' });
