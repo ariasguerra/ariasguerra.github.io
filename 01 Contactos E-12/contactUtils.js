@@ -94,13 +94,13 @@ Atentamente,
 `;
     }
     
-   function createVCardForContact(contact) {
+  function createVCardForContact(contact) {
     if (!contact) return null;
     
     const gradoCompleto = getFullGrado(contact.GR, determineGender(contact.NOMBRES));
     const fullName = `${contact.NOMBRES || ''} ${contact.APELLIDOS || ''}`.trim();
     
-    // Función para escapar caracteres especiales en valores vCard
+    // Escapar caracteres especiales en valores vCard
     const escapeVCardValue = (value) => {
         if (!value) return '';
         return value.replace(/[,;\\]/g, '\\$&');
