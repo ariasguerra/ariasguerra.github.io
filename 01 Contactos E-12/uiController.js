@@ -257,19 +257,51 @@ const UIController = (function() {
     }
     
     function downloadVCard(vCardData, fileName) {
-        const blob = new Blob([vCardData], { type: "text/vcard" });
-        const url = URL.createObjectURL(blob);
-        
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = fileName;
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        URL.revokeObjectURL(url);
+    // Usar tipo mime correcto para vCard
+    const blob = new Blob([vCardData], { type: "text/vcard;charset=utf-8" });
+    
+    // Detectar si es un dispositivo móvil
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (navigator.share && isMobile && 'files' in navigator.share) {
+        // Usar Web Share API si está disponible en móviles y soporta archivos
+        try {
+            const file = new File([blob], fileName, { type: 'text/vcard' });
+            navigator.share({
+                files: [file],
+                title: 'Contacto',
+                text: 'Agregar a contactos'
+            }).catch(err => {
+                console.error('Error compartiendo:', err);
+                // Fallback al método tradicional
+                downloadVCardTraditional(blob, fileName);
+            });
+        } catch (e) {
+            console.error('Error al usar Web Share API:', e);
+            downloadVCardTraditional(blob, fileName);
+        }
+    } else {
+        // Método tradicional
+        downloadVCardTraditional(blob, fileName);
     }
+}
+
+function downloadVCardTraditional(blob, fileName) {
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Esperar antes de revocar la URL para asegurar la descarga
+    setTimeout(() => {
+        URL.revokeObjectURL(url);
+    }, 100);
+}
     
     return {
         initElements,
