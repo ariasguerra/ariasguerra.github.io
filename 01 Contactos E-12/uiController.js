@@ -157,20 +157,21 @@ const UIController = (function() {
     }
     
     function showAddContactModal(contact) {
-        if (!contact) return;
-        
-        const contactDetailsDiv = document.getElementById('contact-details');
-        const gradoCompleto = ContactUtils.getFullGrado(contact.GR, ContactUtils.determineGender(contact.NOMBRES));
-        
-        contactDetailsDiv.innerHTML = `
-            <p><strong>Nombre:</strong> ${contact.NOMBRES || ''} ${contact.APELLIDOS || ''}</p>
-            <p><strong>Cargo:</strong> ${gradoCompleto} - ${contact.CARGO || 'N/A'}</p>
-            <p><strong>Teléfono:</strong> ${contact.CELULAR || 'N/A'}</p>
-            <p><strong>Email:</strong> ${contact["CORREO ELECTRÓNICO"] || 'N/A'}</p>
-        `;
-        
-        elements.contactModal.style.display = 'block';
-    }
+    if (!contact) return;
+    
+    const contactDetailsDiv = document.getElementById('contact-details');
+    const gradoCompleto = ContactUtils.getFullGrado(contact.GR, ContactUtils.determineGender(contact.NOMBRES));
+    
+    contactDetailsDiv.innerHTML = `
+        <p><strong>Nombre:</strong> ${contact.NOMBRES || ''} ${contact.APELLIDOS || ''}</p>
+        <p><strong>Cargo:</strong> ${gradoCompleto} - ${contact.CARGO || 'N/A'}</p>
+        <p><strong>Teléfono:</strong> ${contact.CELULAR || 'N/A'}</p>
+        <p><strong>Email:</strong> ${contact["CORREO ELECTRÓNICO"] || 'N/A'}</p>
+    `;
+    
+    // Usar la clase 'show' en lugar de cambiar el estilo directamente
+    elements.contactModal.classList.add('show');
+}
     
     function hideContactModal() {
         elements.contactModal.style.display = 'none';
