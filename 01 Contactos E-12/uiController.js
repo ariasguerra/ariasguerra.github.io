@@ -174,8 +174,9 @@ const UIController = (function() {
 }
     
     function hideContactModal() {
-        elements.contactModal.style.display = 'none';
-    }
+    // Quitar la clase 'show' en lugar de cambiar el estilo directamente
+    elements.contactModal.classList.remove('show');
+}
     
     function startVoiceRecognition() {
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
