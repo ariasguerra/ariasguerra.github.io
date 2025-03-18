@@ -304,15 +304,16 @@ function downloadVCardTraditional(blob, fileName) {
 }
     
     return {
-        initElements,
-        displayContact,
-        updateNavigation,
-        resetNavigation,
-        showMessage,
-        showAddContactModal,
-        hideContactModal,
-        startVoiceRecognition,
-        downloadVCard,
-        cleanTranscript  // Añadido para posible uso externo
+    initElements,
+    displayContact,
+    updateNavigation,
+    resetNavigation,
+    showMessage,
+    showAddContactModal,
+    hideContactModal,
+    startVoiceRecognition,
+    downloadVCard,
+    downloadVCardTraditional,  // Añadir esta nueva función
+    cleanTranscript  // Añadido para posible uso externo
     };
 })();
