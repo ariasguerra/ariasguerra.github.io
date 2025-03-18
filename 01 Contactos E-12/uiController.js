@@ -317,5 +317,5 @@ function downloadVCardTraditional(blob, fileName) {
     downloadVCard,
     downloadVCardTraditional,  // Añadir esta nueva función
     cleanTranscript  // Añadido para posible uso externo
-    };
+};
 })();
