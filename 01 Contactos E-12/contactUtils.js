@@ -94,44 +94,6 @@ Atentamente,
 `;
     }
     
-  function createVCardForContact(contact) {
-    if (!contact) return null;
-    
-    const gradoCompleto = getFullGrado(contact.GR, determineGender(contact.NOMBRES));
-    const fullName = `${contact.NOMBRES || ''} ${contact.APELLIDOS || ''}`.trim();
-    
-    // Escapar caracteres especiales en valores vCard
-    const escapeVCardValue = (value) => {
-        if (!value) return '';
-        return value.replace(/[,;\\]/g, '\\$&');
-    };
-    
-    // Crear vCard con formato mejorado
-    let vCard = "BEGIN:VCARD\r\n";
-    vCard += "VERSION:3.0\r\n";
-    vCard += `N:${escapeVCardValue(contact.APELLIDOS || '')};${escapeVCardValue(contact.NOMBRES || '')};;;\r\n`;
-    vCard += `FN:${escapeVCardValue(fullName)}\r\n`;
-    vCard += `ORG:Policía Nacional de Colombia\r\n`;
-    vCard += `TITLE:${escapeVCardValue(gradoCompleto)} - ${escapeVCardValue(contact.CARGO || '')}\r\n`;
-    
-    if (contact.CELULAR) {
-        // Asegurar formato internacional para el número
-        const phoneNumber = formatPhoneNumber(contact.CELULAR);
-        vCard += `TEL;TYPE=CELL:+${phoneNumber}\r\n`;
-    }
-    
-    if (contact["CORREO ELECTRÓNICO"]) {
-        vCard += `EMAIL:${escapeVCardValue(contact["CORREO ELECTRÓNICO"])}\r\n`;
-    }
-    
-    vCard += "END:VCARD";
-    
-    return {
-        vCardData: vCard,
-        fileName: `${fullName.replace(/\s+/g, '_')}.vcf`
-    };
-}
-    
     return {
         formatCC,
         getFullGrado,
@@ -141,7 +103,6 @@ Atentamente,
         getGreeting,
         formatCargo,
         createWhatsAppMessage,
-        createEmailMessage,
-        createVCardForContact
+        createEmailMessage
     };
 })();
