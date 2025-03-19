@@ -887,15 +887,21 @@ body {
     }
 
     #action-buttons {
+        justify-content: flex-start !important;
+        padding-left: 5px;
         gap: 0.4rem;
-        flex-wrap: wrap;
+    }
+}-start !important; /* Forzar alineación a la izquierda */
+        gap: 0.6rem; /* Espacio entre botones para pantallas pequeñas */
+        flex-wrap: nowrap !important; /* Evitar que los botones envuelvan */
+        padding-left: 10px; /* Mantener el relleno a la izquierda */
     }
 
     #action-buttons button {
         min-width: 45px;
         height: 45px;
         font-size: 1.1rem;
-        margin: 5px;
+        margin: 0 !important; /* Eliminar márgenes que puedan afectar */
     }
 
     .section-title {
@@ -972,6 +978,12 @@ body {
         width: 38px;
         height: 38px;
         font-size: 0.9rem;
+    }
+    
+    #action-buttons {
+        justify-content: flex-start !important;
+        padding-left: 8px;
+        gap: 0.5rem;
     }
     
     #navigation {
@@ -1094,4 +1106,6 @@ body {
         gap: 0.2rem;
         width: auto !important;
     }
-}
+
+    #action-buttons {
+        justify-content: flex
