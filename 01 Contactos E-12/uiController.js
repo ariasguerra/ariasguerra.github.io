@@ -203,6 +203,14 @@ const UIController = (function() {
         return cleaned.trim();
     }
     
+    // Función para mostrar u ocultar la sección de resultados
+    function toggleResultsVisibility(show) {
+        const resultsContainer = document.querySelector('.results-container');
+        if (resultsContainer) {
+            resultsContainer.style.display = show ? 'block' : 'none';
+        }
+    }
+    
     return {
         initElements,
         displayContact,
@@ -210,6 +218,7 @@ const UIController = (function() {
         resetNavigation,
         showMessage,
         startVoiceRecognition,
-        cleanTranscript  // Añadido para posible uso externo
+        cleanTranscript,
+        toggleResultsVisibility
     };
 })();
