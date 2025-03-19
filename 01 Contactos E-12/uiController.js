@@ -14,12 +14,7 @@ const UIController = (function() {
         callBtn: null,
         whatsappBtn: null,
         emailBtn: null,
-        shareBtn: null,
-        addContactBtn: null,
-        contactModal: null,
-        closeModalBtn: null,
-        addToContactsBtn: null,
-        cancelAddBtn: null
+        shareBtn: null
     };
     
     // Variables para mensajes temporales
@@ -39,38 +34,10 @@ const UIController = (function() {
             callBtn: document.getElementById('call-btn'),
             whatsappBtn: document.getElementById('whatsapp-btn'),
             emailBtn: document.getElementById('email-btn'),
-            shareBtn: document.getElementById('share-btn'),
-            addContactBtn: document.getElementById('add-contact-btn')
+            shareBtn: document.getElementById('share-btn')
         };
         
-        elements.contactModal = createContactModal();
-        elements.closeModalBtn = document.querySelector('.close-modal');
-        elements.addToContactsBtn = document.getElementById('add-to-contacts-btn');
-        elements.cancelAddBtn = document.getElementById('cancel-add-btn');
-        
         return elements;
-    }
-    
-    function createContactModal() {
-        const modal = document.createElement('div');
-        modal.id = 'contact-modal';
-        modal.className = 'modal';
-        
-        modal.innerHTML = `
-            <div class="modal-content">
-                <span class="close-modal">&times;</span>
-                <h3 class="modal-title">Añadir a Contactos</h3>
-                <p>¿Deseas añadir este contacto a tu agenda telefónica?</p>
-                <div id="contact-details"></div>
-                <div class="modal-buttons">
-                    <button id="cancel-add-btn" class="modal-btn secondary-btn">Cancelar</button>
-                    <button id="add-to-contacts-btn" class="modal-btn primary-btn">Añadir</button>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-        return modal;
     }
     
     function displayContact(contact) {
@@ -156,28 +123,6 @@ const UIController = (function() {
         }, duration);
     }
     
-    function showAddContactModal(contact) {
-    if (!contact) return;
-    
-    const contactDetailsDiv = document.getElementById('contact-details');
-    const gradoCompleto = ContactUtils.getFullGrado(contact.GR, ContactUtils.determineGender(contact.NOMBRES));
-    
-    contactDetailsDiv.innerHTML = `
-        <p><strong>Nombre:</strong> ${contact.NOMBRES || ''} ${contact.APELLIDOS || ''}</p>
-        <p><strong>Cargo:</strong> ${gradoCompleto} - ${contact.CARGO || 'N/A'}</p>
-        <p><strong>Teléfono:</strong> ${contact.CELULAR || 'N/A'}</p>
-        <p><strong>Email:</strong> ${contact["CORREO ELECTRÓNICO"] || 'N/A'}</p>
-    `;
-    
-    // Usar la clase 'show' en lugar de cambiar el estilo directamente
-    elements.contactModal.classList.add('show');
-}
-    
-    function hideContactModal() {
-    // Quitar la clase 'show' en lugar de cambiar el estilo directamente
-    elements.contactModal.classList.remove('show');
-}
-    
     function startVoiceRecognition() {
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
             showMessage("Tu navegador no soporta búsqueda por voz", 3000);
@@ -258,64 +203,13 @@ const UIController = (function() {
         return cleaned.trim();
     }
     
-    function downloadVCard(vCardData, fileName) {
-    // Usar tipo mime correcto para vCard
-    const blob = new Blob([vCardData], { type: "text/vcard;charset=utf-8" });
-    
-    // Detectar si es un dispositivo móvil
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
-    if (navigator.share && isMobile && navigator.share.toString().indexOf('files') !== -1) {
-        // Usar Web Share API si está disponible en móviles y soporta archivos
-        try {
-            const file = new File([blob], fileName, { type: 'text/vcard' });
-            navigator.share({
-                files: [file],
-                title: 'Contacto',
-                text: 'Agregar a contactos'
-            }).catch(err => {
-                console.error('Error compartiendo:', err);
-                // Fallback al método tradicional
-                downloadVCardTraditional(blob, fileName);
-            });
-        } catch (e) {
-            console.error('Error al usar Web Share API:', e);
-            downloadVCardTraditional(blob, fileName);
-        }
-    } else {
-        // Método tradicional
-        downloadVCardTraditional(blob, fileName);
-    }
-}
-
-function downloadVCardTraditional(blob, fileName) {
-    const url = URL.createObjectURL(blob);
-    
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
-    
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    // Esperar antes de revocar la URL para asegurar la descarga
-    setTimeout(() => {
-        URL.revokeObjectURL(url);
-    }, 100);
-}
-    
     return {
-    initElements,
-    displayContact,
-    updateNavigation,
-    resetNavigation,
-    showMessage,
-    showAddContactModal,
-    hideContactModal,
-    startVoiceRecognition,
-    downloadVCard,
-    downloadVCardTraditional,  // Añadir esta nueva función
-    cleanTranscript  // Añadido para posible uso externo
-};
+        initElements,
+        displayContact,
+        updateNavigation,
+        resetNavigation,
+        showMessage,
+        startVoiceRecognition,
+        cleanTranscript  // Añadido para posible uso externo
+    };
 })();
