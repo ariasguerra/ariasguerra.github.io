@@ -63,6 +63,8 @@ const AppController = (function(model, ui, utils) {
                     PersonalSummary.updateSummary();
                     
                     model.setCurrentIndex(0);
+                    // Mostrar la sección de resultados
+                    ui.toggleResultsVisibility(true);
                     updateCurrentContactView();
                     ui.showMessage(`${contacts.length} contactos cargados`, 2000);
                 } else {
@@ -88,10 +90,14 @@ const AppController = (function(model, ui, utils) {
             const results = model.searchContacts(searchTerm);
             console.log(`Resultados encontrados: ${results.length}`);
             
+            // Mostrar sección de resultados
+            ui.toggleResultsVisibility(true);
             updateCurrentContactView();
             ui.showMessage(`${results.length} contactos encontrados`, 2000);
         } else {
             console.log('Búsqueda vacía');
+            // Ocultar sección de resultados
+            ui.toggleResultsVisibility(false);
             ui.resetNavigation();
             elements.actionButtons.style.display = 'none';
             elements.resultsDiv.innerHTML = '';
@@ -110,6 +116,8 @@ const AppController = (function(model, ui, utils) {
         const results = model.searchContacts(searchTerm);
         console.log(`Resultados encontrados por voz: ${results.length}`);
         
+        // Mostrar sección de resultados
+        ui.toggleResultsVisibility(true);
         updateCurrentContactView();
         ui.showMessage(`${results.length} contactos encontrados`, 2000);
     }
