@@ -386,6 +386,7 @@ body {
     font-size: 1rem;
     box-shadow: var(--shadow);
     margin: 0 10px;
+    white-space: nowrap; /* Asegura que el texto no se rompa en múltiples líneas */
 }
 
 #navigation button:hover {
@@ -722,6 +723,13 @@ body {
     .footer {
         padding: 1rem;
     }
+
+    /* Navegación */
+    #navigation button {
+        white-space: nowrap; /* Evita que el texto se rompa en múltiples líneas */
+        font-size: 0.9rem; /* Reducir ligeramente el tamaño del texto */
+        padding: 0.8rem 0.5rem; /* Ajustar el padding */
+    }
 }
 
 @media (max-width: 480px) {
@@ -756,13 +764,15 @@ body {
     
     /* Navegación */
     #navigation button {
-        padding: 0.6rem 0.4rem;
-        font-size: 0.8rem;
+        white-space: nowrap; /* Mantener texto en una línea */
+        font-size: 0.8rem; /* Reducir más el tamaño de fuente */
+        padding: 0.6rem 0.4rem; /* Ajustar padding */
+        min-width: 95px; /* Asignar un ancho mínimo */
     }
     
     #current-page {
         font-size: 0.9rem;
-        min-width: 70px;
+        min-width: 60px; /* Reducir el ancho mínimo */
     }
     
     /* Títulos */
@@ -881,5 +891,18 @@ body {
         justify-content: flex-start !important;
         padding-left: 5px;
         gap: 0.4rem;
+    }
+
+    /* Navegación para pantallas muy pequeñas */
+    #navigation button {
+        white-space: nowrap;
+        font-size: 0.75rem; /* Reducir aún más para pantallas muy pequeñas */
+        padding: 0.6rem 0.3rem;
+        min-width: 80px; /* Reducir ancho mínimo */
+    }
+
+    #current-page {
+        font-size: 0.8rem;
+        min-width: 50px;
     }
 }
