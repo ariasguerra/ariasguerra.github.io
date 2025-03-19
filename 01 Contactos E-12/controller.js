@@ -43,12 +43,6 @@ const AppController = (function(model, ui, utils) {
         elements.whatsappBtn.addEventListener('click', handleWhatsApp);
         elements.emailBtn.addEventListener('click', handleEmail);
         elements.shareBtn.addEventListener('click', handleShare);
-        elements.addContactBtn.addEventListener('click', handleAddContact);
-        
-        // Modal de contacto
-        elements.closeModalBtn.addEventListener('click', ui.hideContactModal);
-        elements.cancelAddBtn.addEventListener('click', ui.hideContactModal);
-        elements.addToContactsBtn.addEventListener('click', handleAddToContacts);
         
         // Evento para copiar nombre
         document.addEventListener('copyNameClicked', handleCopyNameAndAdvance);
@@ -210,25 +204,6 @@ const AppController = (function(model, ui, utils) {
         }
         
         document.body.removeChild(textArea);
-    }
-    
-    function handleAddContact() {
-        const contact = model.getCurrentContact();
-        if (contact) {
-            ui.showAddContactModal(contact);
-        }
-    }
-    
-    function handleAddToContacts() {
-        const contact = model.getCurrentContact();
-        if (!contact) return;
-        
-        const vCardInfo = utils.createVCardForContact(contact);
-        if (vCardInfo) {
-            ui.downloadVCard(vCardInfo.vCardData, vCardInfo.fileName);
-            ui.hideContactModal();
-            ui.showMessage("Contacto listo para añadir a la agenda", 3000);
-        }
     }
     
     function handleCopyNameAndAdvance() {
