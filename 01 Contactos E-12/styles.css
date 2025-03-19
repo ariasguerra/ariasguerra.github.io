@@ -410,12 +410,13 @@ body {
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
-    gap: 0.5rem;
+    gap: 0.8rem; /* Aumentado espacio entre botones */
     padding-bottom: 0.5rem;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
-    justify-content: space-around;
+    justify-content: flex-start; /* Cambiado de space-around a flex-start */
     margin-top: 20px;
+    padding-left: 10px; /* Añadido para dar un poco de margen a la izquierda */
 }
 
 #action-buttons::-webkit-scrollbar {
@@ -462,10 +463,6 @@ body {
 
 #share-btn {
     background-color: #6c757d;
-}
-
-#add-contact-btn {
-    background-color: var(--accent-color);
 }
 
 /* Navegación */
@@ -952,11 +949,6 @@ body {
     .footer {
         padding: 1rem;
     }
-    
-    .modal-content {
-        width: 90%;
-        margin: 30% auto;
-    }
 }
 
 /* Ajustes adicionales para pantallas muy pequeñas */
@@ -1024,22 +1016,6 @@ body {
     }
     
     .btn {
-        padding: 0.6rem 0.8rem;
-        font-size: 0.85rem;
-    }
-    
-    .modal-content {
-        padding: 1rem;
-        width: 92%;
-        max-width: 92%;
-    }
-    
-    .modal-title {
-        font-size: 1.1rem;
-        margin-bottom: 1rem;
-    }
-    
-    .modal-btn {
         padding: 0.6rem 0.8rem;
         font-size: 0.85rem;
     }
@@ -1118,3 +1094,4 @@ body {
         gap: 0.2rem;
         width: auto !important;
     }
+}
