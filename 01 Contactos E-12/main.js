@@ -2,6 +2,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM completamente cargado y analizado');
     
+    // Ocultar sección de resultados al inicio
+    const resultsContainer = document.querySelector('.results-container');
+    if (resultsContainer) {
+        resultsContainer.style.display = 'none';
+    }
+    
     // Mostrar notificación
     function showNotification() {
         const notification = document.getElementById('notification');
