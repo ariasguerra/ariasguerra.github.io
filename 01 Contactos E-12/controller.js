@@ -16,9 +16,10 @@ const AppController = (function(model, ui, utils) {
             PersonalSummary.setContacts(contacts);
             PersonalSummary.updateSummary();
             
-            // Mostrar el primer contacto
+            // No mostrar el primer contacto automáticamente
             model.setCurrentIndex(0);
-            updateCurrentContactView();
+            // Asegurarse de que la sección de resultados permanece oculta
+            ui.toggleResultsVisibility(false);
         }
         
         // Configurar manejadores de eventos
@@ -62,10 +63,16 @@ const AppController = (function(model, ui, utils) {
                     PersonalSummary.setContacts(contacts);
                     PersonalSummary.updateSummary();
                     
-                    model.setCurrentIndex(0);
-                    // Mostrar la sección de resultados
-                    ui.toggleResultsVisibility(true);
-                    updateCurrentContactView();
+                    // No mostrar la sección de resultados al cargar el archivo
+                    
+                    // No mostrar contactos hasta que se realice una búsqueda
+                    elements.resultsDiv.innerHTML = '';
+                    ui.resetNavigation();
+                    elements.actionButtons.style.display = 'none';
+                    
+                    // Asegurarse de que la sección de resultados esté oculta
+                    ui.toggleResultsVisibility(false);
+                    
                     ui.showMessage(`${contacts.length} contactos cargados`, 2000);
                 } else {
                     ui.showMessage("Error al cargar contactos", 3000);
