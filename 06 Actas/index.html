@@ -603,23 +603,22 @@
     }
 
     function generateActa(data) {
-        document.getElementById('actaGrado').textContent = data.grado + ' ' + data.nombre;
-        document.getElementById('actaCargo').textContent = data.cargo;
-        document.getElementById('actaTema').textContent = data.tema;
-        document.getElementById('actaGrado2').textContent = data.grado + ' ' + data.nombre;
-        document.getElementById('actaCargo2').textContent = data.cargo;
-        document.getElementById('actaTema2').textContent = data.tema;
-        document.getElementById('temasTratar').textContent = data.temas;
+    document.getElementById('actaGrado').textContent = data.grado + ' ' + data.nombre;
+    document.getElementById('actaCargo').textContent = data.cargo;
+    document.getElementById('actaTema').textContent = data.tema;
+    document.getElementById('actaGrado2').textContent = data.grado + ' ' + data.nombre;
+    document.getElementById('actaCargo2').textContent = data.cargo;
+    document.getElementById('actaTema2').textContent = data.tema;
+    document.getElementById('temasTratar').textContent = data.temas;
 
-        const primeraLetra = data.tema.trim().charAt(0).toLowerCase();
-        const vocales = ['a', 'e', 'i', 'o', 'u'];
-        let articulo = vocales.includes(primeraLetra) ? 'EL' : 'LA';
+    // Usar la nueva función para determinar el artículo correcto
+    const { articulo, articuloMin } = determinarArticulo(data.tema);
 
-        document.getElementById('articuloTema').textContent = articulo;
-        document.getElementById('articuloTema2').textContent = articulo.toLowerCase();
+    document.getElementById('articuloTema').textContent = articulo;
+    document.getElementById('articuloTema2').textContent = articuloMin;
 
-        document.getElementById('actaGenerada').style.display = 'block';
-    }
+    document.getElementById('actaGenerada').style.display = 'block';
+}
 
     document.addEventListener('DOMContentLoaded', function() {
         const savedData = loadFromLocalStorage();
