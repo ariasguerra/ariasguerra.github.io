@@ -604,7 +604,7 @@
 
 
 
-    // Función para determinar el artículo correcto basado en el tema de instrucción
+   // Función para determinar el artículo correcto basado en el tema de instrucción
 function determinarArticulo(tema) {
     // Convertir a minúsculas y eliminar espacios iniciales y finales
     const temaLimpio = tema.trim().toLowerCase();
@@ -627,9 +627,10 @@ function determinarArticulo(tema) {
         "normativa", "norma", "directiva", "instrucción", "circular", 
         "resolución", "orden", "directriz", "ley", "regulación", "disposición",
         "medida", "acción", "guía", "metodología", "técnica", "estrategia", 
-        "táctica", "operación", "Comunicación", "actividad", "capacitación", "formación", 
+        "táctica", "operación", "actividad", "capacitación", "formación", 
         "conferencia", "charla", "presentación", "exposición", "jornada", 
-        "sesión", "reunión", "clase", "política", "aplicación", "implementación"
+        "sesión", "reunión", "clase", "política", "aplicación", "implementación",
+        "comunicación"
     ];
     
     // Array de palabras comunes en plural masculinas
@@ -647,13 +648,25 @@ function determinarArticulo(tema) {
         "normativas", "normas", "directivas", "instrucciones", "circulares",
         "resoluciones", "órdenes", "directrices", "leyes", "regulaciones", "disposiciones",
         "medidas", "acciones", "guías", "metodologías", "técnicas", "estrategias",
-        "tácticas", "operaciones", "Comunicaciones", "actividades", "capacitaciones", "formaciones",
+        "tácticas", "operaciones", "actividades", "capacitaciones", "formaciones",
         "conferencias", "charlas", "presentaciones", "exposiciones", "jornadas",
-        "sesiones", "reuniones", "clases", "políticas"
+        "sesiones", "reuniones", "clases", "políticas", "comunicaciones"
     ];
     
-    // Extraer la primera palabra del tema (que generalmente es el sustantivo principal)
-    const primeraPalabra = temaLimpio.split(' ')[0];
+    // Dividir el tema en palabras
+    const palabras = temaLimpio.split(' ');
+    
+    // Buscar la primera palabra sustantiva en el tema
+    // Ignoramos artículos y preposiciones comunes al inicio
+    let indicePalabra = 0;
+    const preposicionesArticulos = ["de", "del", "la", "el", "los", "las", "sobre", "para", "en", "con", "y", "o"];
+    
+    while (indicePalabra < palabras.length && preposicionesArticulos.includes(palabras[indicePalabra])) {
+        indicePalabra++;
+    }
+    
+    // Si llegamos al final sin encontrar un sustantivo, usamos la primera palabra
+    const primeraPalabra = (indicePalabra < palabras.length) ? palabras[indicePalabra] : palabras[0];
     
     // Verificar si la primera palabra termina en 's' o 'es' para detectar plurales
     const esPlural = primeraPalabra.endsWith('s') || primeraPalabra.endsWith('es');
@@ -704,12 +717,13 @@ function determinarArticulo(tema) {
     }
 }
 
-// Ejemplos de uso:
+    // Ejemplos de uso:
 // determinarArticulo("Protocolo de Seguridad") -> { articulo: "EL", articuloMin: "el" }
 // determinarArticulo("Normativa de Conducta") -> { articulo: "LA", articuloMin: "la" }
 // determinarArticulo("Protocolos de Seguridad") -> { articulo: "LOS", articuloMin: "los" }
 // determinarArticulo("Normativas de Conducta") -> { articulo: "LAS", articuloMin: "las" }
-
+// determinarArticulo("Comunicaciones") -> { articulo: "LAS", articuloMin: "las" }
+// determinarArticulo("Sobre las Comunicaciones") -> { articulo: "LAS", articuloMin: "las" }
 
 
     
