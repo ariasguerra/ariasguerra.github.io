@@ -1,0 +1,209 @@
+body {
+    font-family: Arial, sans-serif;
+    font-size: 10pt;
+    color: #333;
+    margin: 0;
+}
+
+header, nav, main, section {
+    padding: 10px 20px;
+}
+
+header {
+    background: #4CAF50;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+}
+
+nav {
+    background: #f4f4f4;
+    display: flex;
+    gap: 20px;
+}
+
+nav a {
+    text-decoration: none;
+    color: #333;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+nav a:hover, nav a.active {
+    background-color: #4CAF50;
+    color: #fff;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    border: 1px solid #ccc;
+    background: #fff;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+h1 {
+    text-align: center;
+    font-size: 14pt;
+}
+
+h3 {
+    font-size: 10pt;
+}
+
+form input, form button, form textarea {
+    margin: 5px 0;
+    padding: 5px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+form label {
+    font-weight: bold;
+    display: block;
+    margin: 10px 0 5px;
+}
+
+button {
+    background-color: #4CAF50;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    font-size: 10pt;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+#actaGenerada {
+    border-top: 1px solid #ccc;
+    margin-top: 20px;
+    padding-top: 20px;
+    text-align: justify;
+}
+
+#primerParrafo {
+    text-transform: uppercase;
+}
+
+/* Estilos para el extractor PDF */
+.drop-zone {
+    border: 2px dashed #ddd;
+    padding: 50px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #f4f4f4;
+    margin-top: 20px;
+}
+
+.drop-zone.dragover {
+    border-color: #45a049;
+    background-color: #e6ffe6;
+}
+
+#output, #suggestion, #stats {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f4f4f4;
+    border-radius: 4px;
+}
+
+.image-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.image-navigation {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.image-navigation button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+
+.image-wrapper {
+    display: inline-block;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    max-width: 100%;
+}
+
+.image-wrapper img {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    cursor: pointer; /* Indica que se puede hacer clic */
+}
+
+/* Grupo de recuadros (reemplazo de íconos) */
+.icon-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-top: 10px;
+    flex-wrap: wrap; /* para ajustarse en pantallas pequeñas */
+    justify-content: center; /* centrado horizontal */
+}
+.icon-group label {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-weight: normal;
+}
+.icon-group input[type="radio"] {
+    display: none;
+}
+
+/* Recuadro único (modo 1 página) */
+.single-box {
+    width: 50px;
+    height: 50px;
+    background-color: #ccc; /* gris */
+    margin-bottom: 5px;
+    border: 2px solid transparent;
+    border-radius: 4px;
+}
+
+/* Grupo de 4 recuadros (modo 4 hojas) en disposición 2x2 */
+.four-boxes {
+    display: grid;
+    grid-template-columns: repeat(2, 20px);
+    grid-template-rows: repeat(2, 20px);
+    gap: 5px;
+    margin-bottom: 5px;
+}
+.four-boxes .box {
+    width: 20px;
+    height: 20px;
+    background-color: #ccc; /* gris */
+    border: 2px solid transparent;
+    border-radius: 2px;
+}
+
+/* Efecto visual al seleccionar */
+.icon-group input[type="radio"]:checked + .single-box,
+.icon-group input[type="radio"]:checked + .four-boxes .box {
+    border-color: #4CAF50; /* resalta en verde */
+}
+
+/* Responsivo */
+@media (max-width: 600px) {
+    .container {
+        padding: 10px;
+    }
+    button {
+        padding: 10px 15px;
+    }
+}
