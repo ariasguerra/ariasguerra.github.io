@@ -2,8 +2,10 @@
 // Funciones Extractor PDF
 // ------------------------------
 document.addEventListener('DOMContentLoaded', function() {
+    // Configuración de PDF.js
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
 
+    // Elementos DOM
     const fileInput = document.getElementById('fileInput');
     const dropZone = document.getElementById('dropZone');
     const processButton = document.getElementById('processButton');
@@ -13,21 +15,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const imageContainer = document.getElementById('imageContainer');
     const currentImage = document.getElementById('currentImage');
     const downloadAllButton = document.getElementById('downloadAll');
-
+    const prevButton = document.getElementById('prevButton');
+    const nextButton = document.getElementById('nextButton');
     const marginRange = document.getElementById('marginRange');
     const rangeValueSpan = document.getElementById('rangeValue');
+
+    // Variables globales
+    let singlePageImages = []; // Páginas procesadas individualmente
+    let processedImages = [];  // Imágenes finales (collages o individuales)
+    let currentIndex = 0;
+    let pdfDocument = null;
+
+    // Actualizar valor del rango
     marginRange.addEventListener('input', () => {
         rangeValueSpan.textContent = marginRange.value;
     });
 
-    const prevButton = document.getElementById('prevButton');
-    const nextButton = document.getElementById('nextButton');
-
-    let singlePageImages = []; // Páginas procesadas individualmente
-    let processedImages = [];  // Imágenes finales (collages o individuales)
-    let currentIndex = 0;
-
+    // Eventos para arrastrar y soltar
     dropZone.addEventListener('click', () => fileInput.click());
+    
     dropZone.addEventListener('dragover', (e) => {
         e.preventDefault();
         dropZone.classList.add('dragover');
@@ -47,26 +53,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Escuchar cambios en el input de archivo
     fileInput.addEventListener('change', handleFileSelection);
 
+    // Procesamiento inicial del archivo
     async function handleFileSelection() {
         const file = fileInput.files[0];
         if (!file || file.type !== 'application/pdf') {
             suggestion.textContent = 'Por favor, sube un archivo PDF válido.';
             return;
         }
+        
         suggestion.textContent = 'Analizando el archivo...';
+        
         try {
             const arrayBuffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-            suggestion.textContent = 'Archivo PDF cargado correctamente.';
-            processButton.onclick = () => processPDF(pdf);
+            pdfDocument = await pdfjsLib.getDocument(arrayBuffer).promise;
+            suggestion.textContent = `Archivo PDF cargado correctamente. Contiene ${pdfDocument.numPages} páginas.`;
+            processButton.disabled = false;
         } catch (error) {
             suggestion.textContent = 'Error al cargar el archivo PDF.';
             console.error("Error al cargar el archivo PDF: ", error);
         }
     }
 
+    // Procesar el PDF al hacer clic en el botón
+    processButton.addEventListener('click', () => {
+        if (pdfDocument) {
+            processPDF(pdfDocument);
+        } else {
+            suggestion.textContent = 'Primero debes cargar un archivo PDF.';
+        }
+    });
+
+    // Función principal para procesar el PDF
     async function processPDF(pdf) {
         output.textContent = 'Procesando PDF...';
         imageContainer.style.display = 'none';
@@ -331,3 +351,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     downloadAllButton.addEventListener('click', downloadAllImages);
+    
+    // Inicializar el estado del botón de procesamiento
+    processButton.disabled = true;
+});
