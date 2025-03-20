@@ -602,6 +602,117 @@
         }
     }
 
+
+
+    // Función para determinar el artículo correcto basado en el tema de instrucción
+function determinarArticulo(tema) {
+    // Convertir a minúsculas y eliminar espacios iniciales y finales
+    const temaLimpio = tema.trim().toLowerCase();
+    
+    // Si el tema está vacío, devolver un artículo por defecto
+    if (!temaLimpio) return { articulo: "EL", articuloMin: "el" };
+    
+    // Array de palabras comunes masculinas (sustantivos que suelen ser tema de instrucción)
+    const masculinos = [
+        "protocolo", "procedimiento", "manual", "instructivo", "reglamento", 
+        "decreto", "código", "estatuto", "memorando", "oficio", "formulario",
+        "programa", "plan", "sistema", "método", "formato", "proceso", "uso",
+        "manejo", "curso", "taller", "seminario", "simposio", "congreso", 
+        "informe", "reporte", "documento", "expediente", "registro", "archivo",
+        "control", "seguimiento", "operativo", "operacional", "servicio", "deber"
+    ];
+    
+    // Array de palabras comunes femeninas (sustantivos que suelen ser tema de instrucción)
+    const femeninas = [
+        "normativa", "norma", "directiva", "instrucción", "circular", 
+        "resolución", "orden", "directriz", "ley", "regulación", "disposición",
+        "medida", "acción", "guía", "metodología", "técnica", "estrategia", 
+        "táctica", "operación", "actividad", "capacitación", "formación", 
+        "conferencia", "charla", "presentación", "exposición", "jornada", 
+        "sesión", "reunión", "clase", "política", "aplicación", "implementación"
+    ];
+    
+    // Array de palabras comunes en plural masculinas
+    const masculinosPlural = [
+        "protocolos", "procedimientos", "manuales", "instructivos", "reglamentos",
+        "decretos", "códigos", "estatutos", "memorandos", "oficios", "formularios",
+        "programas", "planes", "sistemas", "métodos", "formatos", "procesos", "usos",
+        "manejos", "cursos", "talleres", "seminarios", "simposios", "congresos",
+        "informes", "reportes", "documentos", "expedientes", "registros", "archivos",
+        "controles", "seguimientos", "operativos"
+    ];
+    
+    // Array de palabras comunes en plural femeninas
+    const femeninaPlural = [
+        "normativas", "normas", "directivas", "instrucciones", "circulares",
+        "resoluciones", "órdenes", "directrices", "leyes", "regulaciones", "disposiciones",
+        "medidas", "acciones", "guías", "metodologías", "técnicas", "estrategias",
+        "tácticas", "operaciones", "actividades", "capacitaciones", "formaciones",
+        "conferencias", "charlas", "presentaciones", "exposiciones", "jornadas",
+        "sesiones", "reuniones", "clases", "políticas"
+    ];
+    
+    // Extraer la primera palabra del tema (que generalmente es el sustantivo principal)
+    const primeraPalabra = temaLimpio.split(' ')[0];
+    
+    // Verificar si la primera palabra termina en 's' o 'es' para detectar plurales
+    const esPlural = primeraPalabra.endsWith('s') || primeraPalabra.endsWith('es');
+    
+    // Verificar listas de palabras conocidas
+    if (masculinosPlural.includes(primeraPalabra)) {
+        return { articulo: "LOS", articuloMin: "los" };
+    } else if (femeninaPlural.includes(primeraPalabra)) {
+        return { articulo: "LAS", articuloMin: "las" };
+    } else if (masculinos.includes(primeraPalabra)) {
+        return { articulo: "EL", articuloMin: "el" };
+    } else if (femeninas.includes(primeraPalabra)) {
+        return { articulo: "LA", articuloMin: "la" };
+    }
+    
+    // Si no se encuentra en las listas, aplicar reglas generales de género en español
+    if (esPlural) {
+        // Para palabras en plural, verificar la terminación sin la 's'
+        const singular = primeraPalabra.endsWith('es') 
+            ? primeraPalabra.slice(0, -2) 
+            : primeraPalabra.slice(0, -1);
+            
+        // Verificar terminaciones comunes femeninas en singular
+        if (singular.endsWith('a') || 
+            singular.endsWith('dad') || 
+            singular.endsWith('ción') || 
+            singular.endsWith('sión') || 
+            singular.endsWith('tud') || 
+            singular.endsWith('umbre')) {
+            return { articulo: "LAS", articuloMin: "las" };
+        } else {
+            // Por defecto, usar masculino plural
+            return { articulo: "LOS", articuloMin: "los" };
+        }
+    } else {
+        // Para palabras en singular
+        if (primeraPalabra.endsWith('a') || 
+            primeraPalabra.endsWith('dad') || 
+            primeraPalabra.endsWith('ción') || 
+            primeraPalabra.endsWith('sión') || 
+            primeraPalabra.endsWith('tud') || 
+            primeraPalabra.endsWith('umbre')) {
+            return { articulo: "LA", articuloMin: "la" };
+        } else {
+            // Por defecto, usar masculino singular
+            return { articulo: "EL", articuloMin: "el" };
+        }
+    }
+}
+
+// Ejemplos de uso:
+// determinarArticulo("Protocolo de Seguridad") -> { articulo: "EL", articuloMin: "el" }
+// determinarArticulo("Normativa de Conducta") -> { articulo: "LA", articuloMin: "la" }
+// determinarArticulo("Protocolos de Seguridad") -> { articulo: "LOS", articuloMin: "los" }
+// determinarArticulo("Normativas de Conducta") -> { articulo: "LAS", articuloMin: "las" }
+
+
+
+    
     function generateActa(data) {
     document.getElementById('actaGrado').textContent = data.grado + ' ' + data.nombre;
     document.getElementById('actaCargo').textContent = data.cargo;
