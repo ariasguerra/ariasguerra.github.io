@@ -163,7 +163,10 @@
 <!-- Librerías externas: pdf.js y JSZip -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js"></script>
+<script>
+    // Definición del worker de PDF.js (importante para el funcionamiento)
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
+</script>
 <script src="tabs.js"></script>
 <script src="acta.js"></script>
 <script src="pdf-extractor.js"></script>
