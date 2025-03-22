@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario de Vehículos - Barrios Unidos</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        /* Sistema de diseño con variables CSS */
+        :root {
+            /* Colores principales */
+            --primary: #1a3b89;
+            --primary-dark: #0f2b6b;
+            --primary-light: #e4e9f7;
+            --secondary: #f0f4ff;
+            
+            /* Estados */
+            --success: #2ed573;
+            --success-light: #e3f9e5;
+            --warning: #ff9800;
+            --warning-light: #fff3e0;
+            --info: #2196f3;
+            --info-light: #e3f2fd;
+            
+            /* Neutrales */
+            --text: #333;
+            --text-light: #777;
+            --text-dark: #111;
+            --border: #ddd;
+            --light: #f9f9f9;
+            
+            /* Espaciados */
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            
+            /* Bordes */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            
+            /* Sombras */
+            --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 2px 10px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 5px 15px rgba(0, 0, 0, 0.15);
+            
+            /* Transiciones */
+            --transition: 0.3s ease;
+        }
+
+        /* Reset y estilos base */
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: var(--spacing-lg);
+            text-align: center;
+            box-shadow: var(--shadow-md);
+        }
+
+        header h1 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        /* Contenedor principal */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+        }
+/* Zona de carga de archivos */
+        .file-upload {
+            background-color: white;
+            border-radius: var(--radius-md);
+            padding: var(--spacing-xl);
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+            box-shadow: var(--shadow-md);
+            border: 2px dashed var(--border);
+            transition: all var(--transition);
+        }
+
+        .file-upload.active {
+            border-color: var(--success);
+            background-color: var(--success-light);
+            transform: scale(1.01);
+        }
+
+        h2 {
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .file-upload h2 {
+            margin-top: 0;
+            color: var(--primary);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .upload-btn {
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all var(--transition);
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Tabs de navegación */
+        .tabs {
+            display: flex;
+            margin-bottom: var(--spacing-lg);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tab {
+            padding: var(--spacing-md) var(--spacing-lg);
+            background-color: var(--primary-light);
+            cursor: pointer;
+            border: none;
+            flex: 1;
+            text-align: center;
+            font-weight: 500;
+            transition: all var(--transition);
+            color: var(--text-dark);
+        }
+
+        .tab.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Barra de notificaciones */
+        .notice-bar {
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            border-radius: var(--radius-sm);
+            background-color: var(--success);
+            color: white;
+            box-shadow: var(--shadow-sm);
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity var(--transition), transform var(--transition);
+            display: none;
+        }
+
+        .notice-bar.show {
+            opacity: 1;
+            transform: translateY(0);
+            display: block;
+        }
+
+        /* Control de búsqueda */
+        .search-bar {
+            display: flex;
+            margin-bottom: var(--spacing-lg);
+            gap: var(--spacing-md);
+        }
+
+        .search-input {
+            flex: 1;
+            padding: var(--spacing-md);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            transition: border-color var(--transition), box-shadow var(--transition);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(26, 59, 137, 0.1);
+        }
+
+        .search-by {
+            padding: var(--spacing-md);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background-color: white;
+            min-width: 120px;
+            cursor: pointer;
+        }
+
+        /* Toggle de visualización */
+        .view-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .view-toggle {
+            display: flex;
+            align-items: center;
+        }
+
+        .toggle-label {
+            margin-right: var(--spacing-sm);
+            font-size: 0.9rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            border-radius: 24px;
+            transition: var(--transition);
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Botones de filtro rápido */
+        .filter-buttons {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .process-btn {
+            display: flex;
+            align-items: center;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border: none;
+            border-radius: var(--radius-sm);
+            background-color: var(--primary);
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all var(--transition);
+            flex: 1;
+            justify-content: center;
+            box-shadow: var(--shadow-sm);
+            min-width: 150px;
+        }
+
+        .process-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            background-color: var(--primary-dark);
+        }
+
+        /* Badge para contadores */
+        .badge {
+            background-color: rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: var(--radius-sm);
+            padding: 0.1rem 0.5rem;
+            font-size: 0.7rem;
+            margin-left: var(--spacing-sm);
+            font-weight: bold;
+        }
+
+        /* Contenedor de vehículos */
+        .vehicle-container {
+            background-color: white;
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .vehicle-container h2 {
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--border);
+        }
+/* Stats de estado */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .stat-box {
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-sm);
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            transition: transform var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-box h3 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-light);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .stat-box p {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .stat-present {
+            background-color: var(--success-light);
+            border-left: 4px solid var(--success);
+        }
+
+        .stat-absent {
+            background-color: var(--warning-light);
+            border-left: 4px solid var(--warning);
+        }
+
+        .stat-total {
+            background-color: var(--info-light);
+            border-left: 4px solid var(--info);
+        }
+        
+        .stat-workshop {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+
+        .stat-retirement {
+            background-color: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+
+        /* Tabla de vehículos */
+        .vehicles-list {
+            max-height: 500px;
+            overflow-y: auto;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            color: white;
+            text-align: left;
+            padding: var(--spacing-md);
+            font-weight: 500;
+        }
+
+        td {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(240, 244, 255, 0.4);
+        }
+
+        /* Filas con estado */
+        .vehicle-row {
+            transition: all var(--transition);
+        }
+
+        .vehicle-row:hover {
+            background-color: rgba(240, 244, 255, 0.8);
+        }
+
+        .vehicle-row.present {
+            background-color: var(--success-light);
+        }
+
+        .vehicle-row.absent {
+            background-color: var(--warning-light);
+        }
+
+        .vehicle-row.pending {
+            background-color: #f5f5f5; /* Gris claro para pendientes */
+        }
+        
+        .vehicle-row.workshop {
+            background-color: #e3f2fd;
+        }
+
+        .vehicle-row.retirement {
+            background-color: #ffebee;
+        }
+
+        /* Botones de acción */
+        .presence-status {
+            display: flex;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .status-btn {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            width: 100px;
+            font-weight: 500;
+            transition: all var(--transition);
+            font-size: 0.85rem;
+        }
+
+        .present-btn {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .present-btn:hover {
+            background-color: #28b463;
+        }
+
+        .present-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .absent-btn {
+            background-color: var(--warning);
+            color: white;
+        }
+
+        .absent-btn:hover {
+            background-color: #f39c12;
+        }
+
+        .absent-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .workshop-btn {
+            background-color: #2196f3;
+            color: white;
+        }
+
+        .workshop-btn:hover {
+            background-color: #1976d2;
+        }
+
+        .workshop-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .retirement-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .retirement-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        .retirement-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Mensaje de sin datos */
+        .no-data {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--text-light);
+            font-style: italic;
+        }
+
+        /* Loader */
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 5px solid var(--primary);
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Alerta */
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-md);
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #f5c6cb;
+            z-index: 1000;
+            max-width: 300px;
+            animation: slideIn 0.3s;
+        }
+
+        .success-alert {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #c3e6cb;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        /* Animación de desaparición */
+        .fade-out {
+            animation: fadeOutRow 0.5s forwards;
+        }
+
+        @keyframes fadeOutRow {
+            from { opacity: 1; }
+            to { opacity: 0; height: 0; padding: 0; margin: 0; overflow: hidden; }
+        }
+
+        /* Estilos responsivos */
+        @media (max-width: 768px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-bar {
+                flex-direction: column;
+            }
+            
+            .filter-buttons {
+                flex-direction: column;
+            }
+            
+            .process-btn {
+                margin-right: 0;
+                margin-bottom: var(--spacing-sm);
+                min-width: 100%;
+            }
+            
+            .view-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .view-toggle {
+                margin-left: 0;
+                margin-top: var(--spacing-sm);
+                margin-bottom: var(--spacing-sm);
+            }
+            
+            th, td {
+                padding: var(--spacing-sm);
+                font-size: 0.9rem;
+            }
+            
+            .status-btn {
+                width: 90px;
+                font-size: 0.8rem;
+            }
+            
+            .presence-status {
+                flex-direction: column;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .presence-status {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            .status-btn {
+                width: 48%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Inventario de Vehículos - Barrios Unidos</h1>
+    </header>
+
+    <div class="container">
+        <!-- Sección de carga de archivos -->
+        <div class="file-upload" id="dropZone">
+            <h2>Cargar Archivo de Vehículos</h2>
+            <p>Arrastra un archivo Excel o haz clic para seleccionarlo</p>
+            <input type="file" id="fileInput" accept=".xlsx, .xls" style="display: none;" />
+            <button class="upload-btn" id="uploadBtn">Seleccionar Archivo</button>
+            <div class="loader" id="loader"></div>
+            <p id="fileName"></p>
+        </div>
+
+        <!-- Sección principal de datos -->
+        <div id="dataContainer" style="display: none;">
+            <!-- Tabs de navegación -->
+            <div class="tabs">
+                <button class="tab active" data-type="MOTOS">Motocicletas</button>
+                <button class="tab" data-type="VEHÍCULOS">Vehículos</button>
+            </div>
+
+            <!-- Notificaciones -->
+            <div id="noticeBar" class="notice-bar">
+                Vehículo marcado con éxito
+            </div>
+
+            <!-- Barra de búsqueda -->
+            <div class="search-bar">
+                <input type="text" class="search-input" id="searchInput" placeholder="Buscar...">
+                <select class="search-by" id="searchBy">
+                    <option value="SIGLA">Buscar por SIGLA</option>
+                    <option value="PLACA">Buscar por PLACA</option>
+                </select>
+                <select class="search-by" id="statusFilter">
+                    <option value="pending">Pendientes</option>
+                    <option value="all">Todos los estados</option>
+                    <option value="parking">En Parqueadero</option>
+                    <option value="service">En Servicio</option>
+                    <option value="workshop">En Taller</option>
+                    <option value="retirement">En Proceso de Baja</option>
+                </select>
+            </div>
+
+            <!-- Controles de vista -->
+            <div class="view-controls">
+                <div class="view-toggle">
+                    <span class="toggle-label">Ocultar vehículos marcados:</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="hideMarkedToggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <button class="process-btn" id="resetBtn">Reiniciar Aplicación</button>
+            </div>
+
+            <!-- Botones de filtro rápido -->
+            <div class="filter-buttons">
+                <button class="process-btn" id="parkingBtn">
+                    Ver En Parqueadero <span class="badge" id="parkingBadge">0</span>
+                </button>
+                <button class="process-btn" id="serviceBtn">
+                    Ver En Servicio <span class="badge" id="serviceBadge">0</span>
+                </button>
+                <button class="process-btn" id="workshopBtn">
+                    Ver En Taller <span class="badge" id="workshopBadge">0</span>
+                </button>
+                <button class="process-btn" id="retirementBtn">
+                    Ver En Proceso de Baja <span class="badge" id="retirementBadge">0</span>
+                </button>
+                <button class="process-btn" id="pendingBtn">
+                    Ver Pendientes <span class="badge" id="pendingBadge">0</span>
+                </button>
+            </div>
+
+            <!-- Contenedor principal de vehículos -->
+            <div class="vehicle-container">
+                <h2 id="sectionTitle">Motocicletas - Pendientes</h2>
+                
+                <!-- Estadísticas -->
+                <div class="stats">
+                    <div class="stat-box stat-present">
+                        <h3>En Parqueadero</h3>
+                        <p id="presentCount">0</p>
+                    </div>
+                    <div class="stat-box stat-absent">
+                        <h3>En Servicio</h3>
+                        <p id="absentCount">0</p>
+                    </div>
+                    <div class="stat-box stat-workshop">
+                        <h3>En Taller</h3>
+                        <p id="workshopCount">0</p>
+                    </div>
+                    <div class="stat-box stat-retirement">
+                        <h3>En Proceso de Baja</h3>
+                        <p id="retirementCount">0</p>
+                    </div>
+                    <div class="stat-box stat-total">
+                        <h3>Total</h3>
+                        <p id="totalCount">0</p>
+                    </div>
+                </div>
+<!-- Listado de vehículos -->
+                <div class="vehicles-list">
+                    <table id="vehiclesTable">
+                        <thead>
+                            <tr>
+                                <th>SIGLA</th>
+                                <th>PLACA</th>
+                                <th>CLASE</th>
+                                <th>MARCA</th>
+                                <th>LÍNEA</th>
+                                <th>CILINDRAJE</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vehiclesBody">
+                            <tr>
+                                <td colspan="7" class="no-data">Carga un archivo para ver los datos</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variables globales
+            let vehicles = [];
+            let filteredVehicles = [];
+            let activeTab = 'MOTOS';
+            let presentVehicles = new Set();
+            let absentVehicles = new Set();
+            let workshopVehicles = new Set(); // Nuevo estado: En Taller
+            let retirementVehicles = new Set(); // Nuevo estado: En Proceso de Baja
+            let hideMarked = true;
+
+            // Referencias DOM
+            const fileInput = document.getElementById('fileInput');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const dropZone = document.getElementById('dropZone');
+            const dataContainer = document.getElementById('dataContainer');
+            const vehiclesBody = document.getElementById('vehiclesBody');
+            const searchInput = document.getElementById('searchInput');
+            const searchBy = document.getElementById('searchBy');
+            const statusFilter = document.getElementById('statusFilter');
+            const tabs = document.querySelectorAll('.tab');
+            const loader = document.getElementById('loader');
+            const fileName = document.getElementById('fileName');
+            const presentCount = document.getElementById('presentCount');
+            const absentCount = document.getElementById('absentCount');
+            const workshopCount = document.getElementById('workshopCount'); // Nuevo
+            const retirementCount = document.getElementById('retirementCount'); // Nuevo
+            const totalCount = document.getElementById('totalCount');
+            const hideMarkedToggle = document.getElementById('hideMarkedToggle');
+            const noticeBar = document.getElementById('noticeBar');
+            const parkingBtn = document.getElementById('parkingBtn');
+            const serviceBtn = document.getElementById('serviceBtn');
+            const workshopBtn = document.getElementById('workshopBtn'); // Nuevo
+            const retirementBtn = document.getElementById('retirementBtn'); // Nuevo
+            const pendingBtn = document.getElementById('pendingBtn');
+            const resetBtn = document.getElementById('resetBtn'); // Nuevo botón de reinicio
+            const parkingBadge = document.getElementById('parkingBadge');
+            const serviceBadge = document.getElementById('serviceBadge');
+            const workshopBadge = document.getElementById('workshopBadge'); // Nuevo
+            const retirementBadge = document.getElementById('retirementBadge'); // Nuevo
+            const pendingBadge = document.getElementById('pendingBadge');
+            const sectionTitle = document.getElementById('sectionTitle');
+
+            // Cargar proceso de baja del localStorage
+            loadRetirementState();
+
+            // Event Listeners
+            uploadBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFileUpload);
+            dropZone.addEventListener('dragover', handleDragOver);
+            dropZone.addEventListener('dragleave', handleDragLeave);
+            dropZone.addEventListener('drop', handleDrop);
+            searchInput.addEventListener('input', filterVehicles);
+            searchBy.addEventListener('change', filterVehicles);
+            statusFilter.addEventListener('change', function() {
+                updateSectionTitle();
+                filterVehicles();
+            });
+            hideMarkedToggle.addEventListener('change', function() {
+                hideMarked = this.checked;
+                filterVehicles();
+            });
+            
+            // Botones de filtro
+            parkingBtn.addEventListener('click', function() {
+                statusFilter.value = 'parking';
+                updateSectionTitle();
+                filterVehicles();
+            });
+            
+            serviceBtn.addEventListener('click', function() {
+                statusFilter.value = 'service';
+                updateSectionTitle();
+                filterVehicles();
+            });
+            
+            workshopBtn.addEventListener('click', function() {
+                statusFilter.value = 'workshop';
+                updateSectionTitle();
+                filterVehicles();
+            });
+            
+            retirementBtn.addEventListener('click', function() {
+                statusFilter.value = 'retirement';
+                updateSectionTitle();
+                filterVehicles();
+            });
+            
+            pendingBtn.addEventListener('click', function() {
+                statusFilter.value = 'pending';
+                updateSectionTitle();
+                filterVehicles();
+            });
+
+            // Botón de reinicio
+            resetBtn.addEventListener('click', resetApplication);
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    activeTab = tab.dataset.type;
+                    updateSectionTitle();
+                    filterVehicles();
+                });
+            });
+
+            // Funciones de manipulación de archivos
+            function handleDragOver(e) {
+                e.preventDefault();
+                dropZone.classList.add('active');
+            }
+
+            function handleDragLeave(e) {
+                e.preventDefault();
+                dropZone.classList.remove('active');
+            }
+
+            function handleDrop(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.remove('active');
+                
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    handleFileUpload();
+                }
+            }
+
+            function handleFileUpload() {
+                const file = fileInput.files[0];
+                if (!file) return;
+
+                const fileExt = file.name.split('.').pop().toLowerCase();
+                
+                if (fileExt !== 'xlsx' && fileExt !== 'xls') {
+                    showAlert('Por favor, selecciona un archivo Excel válido (.xlsx o .xls)', 'error');
+                    return;
+                }
+
+                fileName.textContent = `Archivo: ${file.name}`;
+                loader.style.display = 'block';
+
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        
+                        // Obtener la primera hoja
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        
+                        // Convertir a JSON
+                        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                        
+                        // Procesar los datos
+                        processVehicleData(jsonData);
+                        
+                        loader.style.display = 'none';
+                        dataContainer.style.display = 'block';
+                        
+                        // Ocultar la sección de carga de archivo
+                        dropZone.style.display = 'none';
+                        
+                        showAlert('Archivo cargado con éxito', 'success');
+                    } catch (error) {
+                        loader.style.display = 'none';
+                        showAlert('Error al procesar el archivo: ' + error.message, 'error');
+                        console.error('Error al procesar el archivo:', error);
+                    }
+                };
+                
+                reader.onerror = function() {
+                    loader.style.display = 'none';
+                    showAlert('Error al leer el archivo', 'error');
+                };
+                
+                reader.readAsArrayBuffer(file);
+            }
+
+            // Procesamiento de datos
+            function processVehicleData(data) {
+                // Reiniciar estado
+                vehicles = [];
+                filteredVehicles = [];
+                presentVehicles.clear();
+                absentVehicles.clear();
+                workshopVehicles.clear();
+                // No reiniciamos retirementVehicles para mantenerlo persistente
+                
+                // Filtrar solo las columnas que necesitamos y limpiar los puntos en SIGLA
+                vehicles = data.map(item => ({
+                    SIGLA: item.SIGLA ? item.SIGLA.replace(/\./g, '') : '',
+                    PLACA: item.PLACA || '',
+                    TIPO: item.TIPO || '',
+                    CLASE: item.CLASE || '',
+                    MARCA: item.MARCA || '',
+                    LÍNEA: item.LÍNEA || '',
+                    COLOR: item.COLOR || '',
+                    CILINDRAJE: item.CILINDRAJE || ''
+                }));
+                
+                // Establecer el filtro inicial a "Pendientes"
+                statusFilter.value = 'pending';
+                
+                updateSectionTitle();
+                filterVehicles();
+            }
+
+            function filterVehicles() {
+                const searchTerm = searchInput.value.toLowerCase().replace(/\./g, '');
+                const searchField = searchBy.value;
+                const statusValue = statusFilter.value;
+                
+                // Filtrar por tipo, término de búsqueda y estado
+                filteredVehicles = vehicles.filter(vehicle => {
+                    const matchesType = vehicle.TIPO === activeTab;
+                    const matchesSearch = !searchTerm || 
+                        (vehicle[searchField] && vehicle[searchField].toString().toLowerCase().includes(searchTerm));
+                    
+                    const vehicleId = `${vehicle.TIPO}-${vehicle.SIGLA}-${vehicle.PLACA}`;
+                    const isPresent = presentVehicles.has(vehicleId);
+                    const isAbsent = absentVehicles.has(vehicleId);
+                    const isWorkshop = workshopVehicles.has(vehicleId);
+                    const isRetirement = retirementVehicles.has(vehicleId);
+                    const isMarked = isPresent || isAbsent || isWorkshop || isRetirement;
+                    
+                    // Si hideMarked está activado y estamos viendo pendientes,
+                    // ocultar los vehículos ya marcados
+                    if (hideMarked && statusValue === 'pending' && isMarked) {
+                        return false;
+                    }
+                    
+                    // Filtrar por estado
+                    let matchesStatus = true;
+                    if (statusValue !== 'all') {
+                        if (statusValue === 'parking') {
+                            matchesStatus = isPresent;
+                        } else if (statusValue === 'service') {
+                            matchesStatus = isAbsent;
+                        } else if (statusValue === 'workshop') {
+                            matchesStatus = isWorkshop;
+                        } else if (statusValue === 'retirement') {
+                            matchesStatus = isRetirement;
+                        } else if (statusValue === 'pending') {
+                            matchesStatus = !isMarked;
+                        }
+                    }
+                    
+                    return matchesType && matchesSearch && matchesStatus;
+                });
+                
+                updateVehiclesList();
+                updateStats();
+                updateBadges();
+            }
+
+            function updateVehiclesList() {
+                vehiclesBody.innerHTML = '';
+                
+                if (filteredVehicles.length === 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td colspan="7" class="no-data">No se encontraron vehículos</td>`;
+                    vehiclesBody.appendChild(row);
+                    return;
+                }
+                
+                filteredVehicles.forEach(vehicle => {
+                    const vehicleId = `${vehicle.TIPO}-${vehicle.SIGLA}-${vehicle.PLACA}`;
+                    const row = document.createElement('tr');
+                    row.id = `vehicle-${vehicleId}`;
+                    
+                    const isPresent = presentVehicles.has(vehicleId);
+                    const isAbsent = absentVehicles.has(vehicleId);
+                    const isWorkshop = workshopVehicles.has(vehicleId);
+                    const isRetirement = retirementVehicles.has(vehicleId);
+                    
+                    if (isPresent) {
+                        row.classList.add('vehicle-row', 'present');
+                    } else if (isAbsent) {
+                        row.classList.add('vehicle-row', 'absent');
+                    } else if (isWorkshop) {
+                        row.classList.add('vehicle-row', 'workshop');
+                    } else if (isRetirement) {
+                        row.classList.add('vehicle-row', 'retirement');
+                    } else {
+                        row.classList.add('vehicle-row', 'pending');
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${vehicle.SIGLA}</td>
+                        <td>${vehicle.PLACA}</td>
+                        <td>${vehicle.CLASE}</td>
+                        <td>${vehicle.MARCA}</td>
+                        <td>${vehicle.LÍNEA}</td>
+                        <td>${vehicle.CILINDRAJE}</td>
+                        <td>
+                            <div class="presence-status">
+                                <button class="status-btn present-btn" data-id="${vehicleId}" ${isPresent ? 'disabled' : ''}>
+                                    ${isPresent ? '✓ Parque' : 'Parque'}
+                                </button>
+                                <button class="status-btn absent-btn" data-id="${vehicleId}" ${isAbsent ? 'disabled' : ''}>
+                                    ${isAbsent ? '✓ Servicio' : 'Servicio'}
+                                </button>
+                                <button class="status-btn workshop-btn" data-id="${vehicleId}" ${isWorkshop ? 'disabled' : ''}>
+                                    ${isWorkshop ? '✓ Taller' : 'Taller'}
+                                </button>
+                                <button class="status-btn retirement-btn" data-id="${vehicleId}" ${isRetirement ? 'disabled' : ''}>
+                                    ${isRetirement ? '✓ Baja' : 'Baja'}
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    
+                    vehiclesBody.appendChild(row);
+                });
+                
+                // Agregar listeners a los botones
+                addStatusButtonListeners();
+            }
+            
+            function addStatusButtonListeners() {
+                document.querySelectorAll('.present-btn').forEach(btn => {
+                    btn.addEventListener('click', () => markVehicleStatus(btn.dataset.id, 'present'));
+                });
+                
+                document.querySelectorAll('.absent-btn').forEach(btn => {
+                    btn.addEventListener('click', () => markVehicleStatus(btn.dataset.id, 'absent'));
+                });
+                
+                document.querySelectorAll('.workshop-btn').forEach(btn => {
+                    btn.addEventListener('click', () => markVehicleStatus(btn.dataset.id, 'workshop'));
+                });
+                
+                document.querySelectorAll('.retirement-btn').forEach(btn => {
+                    btn.addEventListener('click', () => markVehicleStatus(btn.dataset.id, 'retirement'));
+                });
+            }
+
+            function markVehicleStatus(vehicleId, status) {
+                // Quitar el vehículo de todos los conjuntos
+                presentVehicles.delete(vehicleId);
+                absentVehicles.delete(vehicleId);
+                workshopVehicles.delete(vehicleId);
+                
+                // No quitamos de retirementVehicles para que sea persistente
+                
+                // Agregarlo al conjunto correspondiente según el nuevo estado
+                if (status === 'present') {
+                    presentVehicles.add(vehicleId);
+                    retirementVehicles.delete(vehicleId); // Permitir salir de proceso de baja
+                    showNotice('Vehículo marcado como "En Parqueadero"');
+                } else if (status === 'absent') {
+                    absentVehicles.add(vehicleId);
+                    retirementVehicles.delete(vehicleId); // Permitir salir de proceso de baja
+                    showNotice('Vehículo marcado como "En Servicio"');
+                } else if (status === 'workshop') {
+                    workshopVehicles.add(vehicleId);
+                    retirementVehicles.delete(vehicleId); // Permitir salir de proceso de baja
+                    showNotice('Vehículo marcado como "En Taller"');
+                } else if (status === 'retirement') {
+                    retirementVehicles.add(vehicleId);
+                    saveRetirementState(); // Guardar en localStorage
+                    showNotice('Vehículo marcado como "En Proceso de Baja"');
+                }
+                
+                // Si está activada la opción de ocultar marcados y estamos en vista "Pendientes"
+                if (hideMarked && statusFilter.value === 'pending') {
+                    const rowElement = document.getElementById(`vehicle-${vehicleId}`);
+                    if (rowElement) {
+                        // Animar la desaparición de la fila
+                        rowElement.classList.add('fade-out');
+                        setTimeout(() => {
+                            filterVehicles(); // Actualizar la lista después de la animación
+                        }, 500);
+                    } else {
+                        filterVehicles();
+                    }
+                } else {
+                    filterVehicles();
+                }
+            }
+
+            function updateStats() {
+                // Contar vehículos de tipo actual
+                const totalVehiclesOfType = vehicles.filter(v => v.TIPO === activeTab).length;
+                
+                // Contar por estado del tipo actual
+                let presentTotal = 0;
+                let absentTotal = 0;
+                let workshopTotal = 0;
+                let retirementTotal = 0;
+                
+                vehicles.forEach(vehicle => {
+                    if (vehicle.TIPO === activeTab) {
+                        const vehicleId = `${vehicle.TIPO}-${vehicle.SIGLA}-${vehicle.PLACA}`;
+                        if (presentVehicles.has(vehicleId)) presentTotal++;
+                        else if (absentVehicles.has(vehicleId)) absentTotal++;
+                        else if (workshopVehicles.has(vehicleId)) workshopTotal++;
+                        else if (retirementVehicles.has(vehicleId)) retirementTotal++;
+                    }
+                });
+                
+                // Actualizar contadores en la UI
+                presentCount.textContent = presentTotal;
+                absentCount.textContent = absentTotal;
+                workshopCount.textContent = workshopTotal;
+                retirementCount.textContent = retirementTotal;
+                totalCount.textContent = totalVehiclesOfType;
+            }
+            
+            function updateBadges() {
+                // Actualizar contadores de vehículos por categoría
+                let presentTotal = 0;
+                let absentTotal = 0;
+                let workshopTotal = 0;
+                let retirementTotal = 0;
+                let pendingTotal = 0;
+                
+                vehicles.forEach(vehicle => {
+                    if (vehicle.TIPO === activeTab) {
+                        const vehicleId = `${vehicle.TIPO}-${vehicle.SIGLA}-${vehicle.PLACA}`;
+                        if (presentVehicles.has(vehicleId)) presentTotal++;
+                        else if (absentVehicles.has(vehicleId)) absentTotal++;
+                        else if (workshopVehicles.has(vehicleId)) workshopTotal++;
+                        else if (retirementVehicles.has(vehicleId)) retirementTotal++;
+                        else pendingTotal++;
+                    }
+                });
+                
+                // Actualizar badges
+                parkingBadge.textContent = presentTotal;
+                serviceBadge.textContent = absentTotal;
+                workshopBadge.textContent = workshopTotal;
+                retirementBadge.textContent = retirementTotal;
+                pendingBadge.textContent = pendingTotal;
+            }
+
+            function updateSectionTitle() {
+                // Actualizar título de la sección según el filtro
+                let title = 'Vehículos';
+                if (activeTab === 'MOTOS') {
+                    title = 'Motocicletas';
+                }
+                
+                const currentStatusFilter = statusFilter.value;
+                if (currentStatusFilter === 'parking') {
+                    title += ' - En Parqueadero';
+                } else if (currentStatusFilter === 'service') {
+                    title += ' - En Servicio';
+                } else if (currentStatusFilter === 'workshop') {
+                    title += ' - En Taller';
+                } else if (currentStatusFilter === 'retirement') {
+                    title += ' - En Proceso de Baja';
+                } else if (currentStatusFilter === 'pending') {
+                    title += ' - Pendientes';
+                } else if (currentStatusFilter === 'all') {
+                    title += ' - Todos';
+                }
+                
+                // Actualizar título
+                sectionTitle.textContent = title;
+            }
+            
+            // Guardar estado de proceso de baja en localStorage
+            function saveRetirementState() {
+                localStorage.setItem('retirementVehicles', JSON.stringify(Array.from(retirementVehicles)));
+            }
+            
+            // Cargar estado de proceso de baja desde localStorage
+            function loadRetirementState() {
+                const saved = localStorage.getItem('retirementVehicles');
+                if (saved) {
+                    retirementVehicles = new Set(JSON.parse(saved));
+                }
+            }
+            
+            // Reiniciar la aplicación
+            function resetApplication() {
+                if (confirm('¿Estás seguro de que deseas reiniciar la aplicación? Se borrarán todos los estados excepto "En Proceso de Baja".')) {
+                    vehicles = [];
+                    filteredVehicles = [];
+                    presentVehicles.clear();
+                    absentVehicles.clear();
+                    workshopVehicles.clear();
+                    // Conservamos retirementVehicles
+                    
+                    // Restablecer UI
+                    vehiclesBody.innerHTML = `<tr><td colspan="7" class="no-data">Carga un archivo para ver los datos</td></tr>`;
+                    presentCount.textContent = '0';
+                    absentCount.textContent = '0';
+                    workshopCount.textContent = '0';
+                    retirementCount.textContent = '0';
+                    totalCount.textContent = '0';
+                    parkingBadge.textContent = '0';
+                    serviceBadge.textContent = '0';
+                    workshopBadge.textContent = '0';
+                    retirementBadge.textContent = '0';
+                    pendingBadge.textContent = '0';
+                    
+                    // Mostrar sección de carga
+                    dropZone.style.display = 'block';
+                    dataContainer.style.display = 'none';
+                    
+                    // Limpiar nombre de archivo
+                    fileName.textContent = '';
+                    
+                    showAlert('Aplicación reiniciada con éxito', 'success');
+                }
+            }
+            
+            function showNotice(message) {
+                noticeBar.textContent = message;
+                noticeBar.classList.add('show');
+                
+                setTimeout(() => {
+                    noticeBar.classList.remove('show');
+                }, 2000);
+            }
+
+            // Mostrar alertas
+            function showAlert(message, type = 'error') {
+                const alert = document.createElement('div');
+                alert.className = type === 'success' ? 'alert success-alert' : 'alert';
+                alert.textContent = message;
+                
+                document.body.appendChild(alert);
+                
+                setTimeout(() => {
+                    alert.remove();
+                }, 3500);
+            }
+        });
+    </script>
+</body>
+</html>
