@@ -367,12 +367,6 @@
             gap: var(--spacing-xs);
             margin-top: var(--spacing-sm);
         }
-        
-        .card-checkbox {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-        }
 
         /* Tabla de vehículos */
         .table-container {
@@ -704,7 +698,7 @@
                         <div id="cardsView" style="display: none;">
                             <div class="cards-container">
                                 <div id="vehiclesCards" class="cards-grid">
-                                    <!-- Las tarjetas se cargarán aquí con botones de acción -->
+                                    <!-- Las tarjetas se cargarán aquí con botones de acción pero sin checkboxes -->
                                 </div>
                             </div>
                         </div>
@@ -857,8 +851,8 @@
             uploadBtn.addEventListener('click', function() {
                 fileInput.click();
             });
-            
-            fileInput.addEventListener('change', handleFileUpload);
+
+fileInput.addEventListener('change', handleFileUpload);
             
             dropZone.addEventListener('dragover', function(e) {
                 e.preventDefault();
@@ -957,7 +951,7 @@
             // Listeners para los botones de acciones
             bulkMarkPresent.addEventListener('click', function() {
                 bulkUpdateStatus('present');
-});
+            });
 
             bulkMarkService.addEventListener('click', function() {
                 bulkUpdateStatus('service');
@@ -1220,11 +1214,8 @@
                         card.classList.add('retirement');
                     }
                     
-                    // Crear contenido de la tarjeta (con botones de acción)
+                    // Crear contenido de la tarjeta (sin checkbox, solo botones de acción)
                     card.innerHTML = `
-                        <div class="card-checkbox">
-                            <input type="checkbox" class="custom-checkbox vehicle-checkbox" data-id="${vehicleId}">
-                        </div>
                         <div class="card-header">
                             <h3 class="card-title">${vehicle.SIGLA || ''}</h3>
                             <span class="card-subtitle">${vehicle.PLACA || ''}</span>
@@ -1264,9 +1255,8 @@
                     vehiclesCards.appendChild(card);
                 }
                 
-                // Agregar listeners a los botones y checkboxes
+                // Agregar listeners a los botones
                 addStatusButtonListeners();
-                addCheckboxListeners();
             }
             
             function addStatusButtonListeners() {
