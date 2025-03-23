@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventario de Vehículos - Barrios Unidos</title>
-    <!-- Asegurar que la librería XLSX se cargue correctamente -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" integrity="sha512-r22gChDnGvBylk90+2e/ycr3RVrDi8DIOkIGNhJlKfuyQM4tIRAI062MaV8sfjQKYVGjOBaZBOA87z+IhZE9DA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         /* Sistema de diseño con variables CSS */
@@ -169,7 +168,7 @@
 
         @media (min-width: 768px) {
             .filter-controls {
-                grid-template-columns: 2fr 1fr 1fr auto;
+                grid-template-columns: 2fr 1fr 1fr;
                 align-items: center;
             }
         }
@@ -196,7 +195,13 @@
             margin-top: var(--spacing-xs);
         }
 
-        .reset-btn {
+        .action-buttons {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-md);
+        }
+
+        .btn {
             background-color: var(--primary);
             color: white;
             border: none;
@@ -204,6 +209,15 @@
             border-radius: var(--radius);
             cursor: pointer;
             white-space: nowrap;
+            flex: 1;
+        }
+
+        .btn-danger {
+            background-color: var(--retirement);
+        }
+
+        .btn:hover {
+            opacity: 0.9;
         }
 
         /* Panel de estadísticas */
@@ -270,7 +284,7 @@
             border-color: var(--primary);
         }
 
-        /* Tabla de vehículos */
+        /* Vista de tarjetas para vehículos */
         .vehicles-container {
             background-color: white;
             border-radius: var(--radius);
@@ -279,7 +293,96 @@
             overflow: hidden;
         }
 
-        .vehicles-list {
+        /* Modo tarjetas (solo para búsqueda) */
+        .cards-container {
+            max-height: 700px;
+            overflow-y: auto;
+            padding: var(--spacing-sm);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .vehicle-card {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: var(--spacing-md);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-top: 4px solid var(--primary);
+        }
+
+        .vehicle-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .vehicle-card.present {
+            border-top-color: var(--present);
+        }
+
+        .vehicle-card.service {
+            border-top-color: var(--service);
+        }
+
+        .vehicle-card.workshop {
+            border-top-color: var(--workshop);
+        }
+
+        .vehicle-card.retirement {
+            border-top-color: var(--retirement);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-md);
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .card-subtitle {
+            color: var(--text-light);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .card-info {
+            margin-bottom: var(--spacing-md);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-sm);
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .info-value {
+            font-weight: 500;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: var(--spacing-xs);
+            margin-top: var(--spacing-sm);
+        }
+
+        /* Tabla de vehículos */
+        .table-container {
             max-height: 500px;
             overflow-y: auto;
             border: 1px solid var(--border);
@@ -347,6 +450,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex: 1;
         }
 
         .btn-present {
@@ -368,6 +472,14 @@
         .status-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+        }
+
+        /* Botones de tabla */
+        .table-btn {
+            min-width: 28px;
+            height: 28px;
+            padding: 0;
+            margin: 0 2px;
         }
 
         /* Loader */
@@ -417,27 +529,6 @@
             font-style: italic;
         }
 
-        /* Ajustes para dispositivos móviles */
-        @media (max-width: 768px) {
-            th, td {
-                padding: var(--spacing-xs);
-                font-size: 0.85rem;
-            }
-
-            .status-btn {
-                min-width: 28px;
-                height: 28px;
-                font-size: 0.7rem;
-            }
-
-            .vehicle-row td:nth-child(3),
-            .vehicle-row th:nth-child(3),
-            .vehicle-row td:nth-child(5),
-            .vehicle-row th:nth-child(5) {
-                display: none;
-            }
-        }
-
         /* Switch toggle */
         .switch {
             position: relative;
@@ -483,6 +574,17 @@
         input:checked + .slider:before {
             transform: translateX(20px);
         }
+
+        /* Instrucción de búsqueda */
+        .search-prompt {
+            text-align: center;
+            padding: var(--spacing-lg);
+            color: var(--text-light);
+            font-style: italic;
+            background-color: var(--primary-light);
+            border-radius: var(--radius);
+            margin-bottom: var(--spacing-md);
+        }
     </style>
 </head>
 <body>
@@ -504,7 +606,7 @@
         <!-- Sección principal de datos (oculta inicialmente) -->
         <div id="dataContainer" style="display: none;">
             <div class="main-layout">
-                <!-- Panel principal con tabla -->
+                <!-- Panel principal con datos -->
                 <div>
                     <!-- Panel de control -->
                     <div class="control-panel">
@@ -531,8 +633,6 @@
                                 <option value="workshop">En Taller</option>
                                 <option value="retirement">En Baja</option>
                             </select>
-                            
-                            <button class="reset-btn" id="resetBtn">Iniciar Turno</button>
                         </div>
                         
                         <div class="filter-toggle">
@@ -542,30 +642,55 @@
                             </label>
                             <span>Ocultar vehículos marcados</span>
                         </div>
+
+                        <!-- Botones de acción -->
+                        <div class="action-buttons">
+                            <button class="btn" id="resetBtn">Iniciar Turno</button>
+                            <button class="btn btn-danger" id="resetAppBtn">Reiniciar Aplicación</button>
+                        </div>
                     </div>
 
-                    <!-- Tabla de vehículos -->
+                    <!-- Contenedor de vehículos -->
                     <div class="vehicles-container">
                         <h2 id="sectionTitle">Motocicletas - Pendientes</h2>
                         
-                        <div class="vehicles-list">
-                            <table id="vehiclesTable">
-                                <thead>
-                                    <tr>
-                                        <th>SIGLA</th>
-                                        <th>PLACA</th>
-                                        <th>CLASE</th>
-                                        <th>MARCA</th>
-                                        <th>LÍNEA</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="vehiclesBody">
-                                    <tr>
-                                        <td colspan="6" class="no-data">Carga un archivo para ver los datos</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <!-- Modo de tarjetas (solo para búsqueda) -->
+                        <div id="cardsView" style="display: none;">
+                            <div class="cards-container">
+                                <div id="vehiclesCards" class="cards-grid">
+                                    <!-- Las tarjetas se cargarán aquí -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modo de tabla (para todos los demás casos) -->
+                        <div id="tableView">
+                            <div class="table-container">
+                                <table id="vehiclesTable">
+                                    <thead>
+                                        <tr>
+                                            <th>SIGLA</th>
+                                            <th>PLACA</th>
+                                            <th>CLASE</th>
+                                            <th>MARCA</th>
+                                            <th>LÍNEA</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="vehiclesBody">
+                                        <tr>
+                                            <td colspan="6" class="no-data">Carga un archivo para ver los datos</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Mensaje para cuando no hay búsqueda -->
+                        <div id="searchPrompt" style="display: none;">
+                            <div class="search-prompt">
+                                Ingresa un término de búsqueda para ver los vehículos
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -617,6 +742,8 @@
             let workshopVehicles = new Set();
             let retirementVehicles = new Set();
             let hideMarked = true;
+            let dataLoaded = false;
+            let searchActive = false;
 
             // Referencias DOM
             const fileInput = document.getElementById('fileInput');
@@ -624,6 +751,7 @@
             const dropZone = document.getElementById('dropZone');
             const dataContainer = document.getElementById('dataContainer');
             const vehiclesBody = document.getElementById('vehiclesBody');
+            const vehiclesCards = document.getElementById('vehiclesCards');
             const searchInput = document.getElementById('searchInput');
             const searchBy = document.getElementById('searchBy');
             const statusFilter = document.getElementById('statusFilter');
@@ -638,7 +766,11 @@
             const hideMarkedToggle = document.getElementById('hideMarkedToggle');
             const toast = document.getElementById('toast');
             const resetBtn = document.getElementById('resetBtn');
+            const resetAppBtn = document.getElementById('resetAppBtn');
             const sectionTitle = document.getElementById('sectionTitle');
+            const cardsView = document.getElementById('cardsView');
+            const tableView = document.getElementById('tableView');
+            const searchPrompt = document.getElementById('searchPrompt');
 
             // Verificar si XLSX está disponible
             if (typeof XLSX === 'undefined') {
@@ -649,8 +781,8 @@
                 console.log('XLSX cargado correctamente');
             }
 
-            // Cargar proceso de baja del localStorage
-            loadRetirementState();
+            // Cargar datos guardados
+            loadSavedData();
 
             // Event Listeners
             uploadBtn.addEventListener('click', () => fileInput.click());
@@ -658,8 +790,8 @@
             dropZone.addEventListener('dragover', handleDragOver);
             dropZone.addEventListener('dragleave', handleDragLeave);
             dropZone.addEventListener('drop', handleDrop);
-            searchInput.addEventListener('input', filterVehicles);
-            searchBy.addEventListener('change', filterVehicles);
+            searchInput.addEventListener('input', handleSearchInput);
+            searchBy.addEventListener('change', handleSearchInput);
             statusFilter.addEventListener('change', function() {
                 updateSectionTitle();
                 filterVehicles();
@@ -668,7 +800,8 @@
                 hideMarked = this.checked;
                 filterVehicles();
             });
-            resetBtn.addEventListener('click', resetApplication);
+            resetBtn.addEventListener('click', resetTurn);
+            resetAppBtn.addEventListener('click', resetApplication);
 
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
@@ -679,6 +812,12 @@
                     filterVehicles();
                 });
             });
+
+            function handleSearchInput() {
+                const searchTerm = searchInput.value.trim();
+                searchActive = searchTerm.length > 0;
+                filterVehicles();
+            }
 
             // Funciones de manipulación de archivos
             function handleDragOver(e) {
@@ -750,6 +889,9 @@
                         // Ocultar la sección de carga de archivo
                         dropZone.style.display = 'none';
                         
+                        dataLoaded = true;
+                        saveDataToStorage();
+                        
                         showToast('Archivo cargado con éxito');
                     } catch (error) {
                         loader.style.display = 'none';
@@ -774,15 +916,11 @@
                 // Reiniciar estado
                 vehicles = [];
                 filteredVehicles = [];
-                presentVehicles.clear();
-                absentVehicles.clear();
-                workshopVehicles.clear();
-                // No reiniciamos retirementVehicles para mantenerlo persistente
                 
                 // Verificamos si tiene las columnas necesarias
                 const firstRow = data[0];
                 
-                if (!firstRow.SIGLA && !firstRow.PLACA && !firstRow.TIPO) {
+               if (!firstRow.SIGLA && !firstRow.PLACA && !firstRow.TIPO) {
                     console.error('Formato de archivo inválido, faltan columnas necesarias');
                     showToast('Formato de archivo inválido. Debe contener columnas: SIGLA, PLACA, TIPO');
                     return;
@@ -796,7 +934,8 @@
                     CLASE: item.CLASE || '',
                     MARCA: item.MARCA || '',
                     LÍNEA: item.LÍNEA || '',
-                    CILINDRAJE: item.CILINDRAJE || ''
+                    CILINDRAJE: item.CILINDRAJE || '',
+                    COLOR: item.COLOR || ''
                 }));
                 
                 console.log(`Datos procesados: ${vehicles.length} vehículos`);
@@ -841,7 +980,7 @@
                             matchesStatus = isPresent;
                         } else if (statusValue === 'service') {
                             matchesStatus = isAbsent;
-                } else if (statusValue === 'workshop') {
+                        } else if (statusValue === 'workshop') {
                             matchesStatus = isWorkshop;
                         } else if (statusValue === 'retirement') {
                             matchesStatus = isRetirement;
@@ -854,11 +993,29 @@
                 });
                 
                 console.log(`Vehículos filtrados: ${filteredVehicles.length}`);
-                updateVehiclesList();
+                updateDisplayMode();
                 updateStats();
+                saveDataToStorage();
+            }
+            
+            function updateDisplayMode() {
+                // Determinar el modo de visualización basado en la búsqueda
+                if (searchActive) {
+                    // Mostrar tarjetas si hay búsqueda activa
+                    cardsView.style.display = "block";
+                    tableView.style.display = "none";
+                    searchPrompt.style.display = "none";
+                    updateVehiclesCards();
+                } else {
+                    // Mostrar tabla para todo lo demás
+                    cardsView.style.display = "none";
+                    tableView.style.display = "block";
+                    searchPrompt.style.display = "none";
+                    updateVehiclesTable();
+                }
             }
 
-            function updateVehiclesList() {
+            function updateVehiclesTable() {
                 vehiclesBody.innerHTML = '';
                 
                 if (filteredVehicles.length === 0) {
@@ -898,15 +1055,94 @@
                         <td>${vehicle.LÍNEA || ''}</td>
                         <td>
                             <div class="status-actions">
-                                <button class="status-btn btn-present" title="En Parqueadero" data-id="${vehicleId}" ${isPresent ? 'disabled' : ''}>P</button>
-                                <button class="status-btn btn-service" title="En Servicio" data-id="${vehicleId}" ${isAbsent ? 'disabled' : ''}>S</button>
-                                <button class="status-btn btn-workshop" title="En Taller" data-id="${vehicleId}" ${isWorkshop ? 'disabled' : ''}>T</button>
-                                <button class="status-btn btn-retirement" title="En Proceso de Baja" data-id="${vehicleId}" ${isRetirement ? 'disabled' : ''}>B</button>
+                                <button class="status-btn btn-present table-btn" title="En Parqueadero" data-id="${vehicleId}" ${isPresent ? 'disabled' : ''}>P</button>
+                                <button class="status-btn btn-service table-btn" title="En Servicio" data-id="${vehicleId}" ${isAbsent ? 'disabled' : ''}>S</button>
+                                <button class="status-btn btn-workshop table-btn" title="En Taller" data-id="${vehicleId}" ${isWorkshop ? 'disabled' : ''}>T</button>
+                                <button class="status-btn btn-retirement table-btn" title="En Proceso de Baja" data-id="${vehicleId}" ${isRetirement ? 'disabled' : ''}>B</button>
                             </div>
                         </td>
                     `;
                     
                     vehiclesBody.appendChild(row);
+                });
+                
+                // Agregar listeners a los botones
+                addStatusButtonListeners();
+            }
+            
+            function updateVehiclesCards() {
+                vehiclesCards.innerHTML = '';
+                
+                if (filteredVehicles.length === 0) {
+                    vehiclesCards.innerHTML = `<div class="no-data">No se encontraron vehículos</div>`;
+                    return;
+                }
+                
+                filteredVehicles.forEach(vehicle => {
+                    const vehicleId = `${vehicle.TIPO}-${vehicle.SIGLA}-${vehicle.PLACA}`;
+                    const card = document.createElement('div');
+                    card.id = `vehicle-${vehicleId}`;
+                    
+                    const isPresent = presentVehicles.has(vehicleId);
+                    const isAbsent = absentVehicles.has(vehicleId);
+                    const isWorkshop = workshopVehicles.has(vehicleId);
+                    const isRetirement = retirementVehicles.has(vehicleId);
+                    
+                    // Agregar clases según el estado
+                    card.classList.add('vehicle-card');
+                    if (isPresent) {
+                        card.classList.add('present');
+                    } else if (isAbsent) {
+                        card.classList.add('service');
+                    } else if (isWorkshop) {
+                        card.classList.add('workshop');
+                    } else if (isRetirement) {
+                        card.classList.add('retirement');
+                    }
+                    
+                    // Crear contenido de la tarjeta
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <h3 class="card-title">${vehicle.SIGLA || ''}</h3>
+                            <span class="card-subtitle">${vehicle.PLACA || ''}</span>
+                        </div>
+                        <div class="card-info">
+                            <div class="info-item">
+                                <span class="info-label">Clase:</span>
+                                <span class="info-value">${vehicle.CLASE || '-'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Marca:</span>
+                                <span class="info-value">${vehicle.MARCA || '-'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Línea:</span>
+                                <span class="info-value">${vehicle.LÍNEA || '-'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">${vehicle.TIPO === 'MOTOS' ? 'Cilindraje:' : 'Color:'}</span>
+                                <span class="info-value">${vehicle.TIPO === 'MOTOS' ? (vehicle.CILINDRAJE || '-') : (vehicle.COLOR || '-')}</span>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <button class="status-btn btn-present" title="En Parqueadero" data-id="${vehicleId}" ${isPresent ? 'disabled' : ''}>
+                                ${isPresent ? '✓ Parqueadero' : 'Parqueadero'}
+                            </button>
+                            <button class="status-btn btn-service" title="En Servicio" data-id="${vehicleId}" ${isAbsent ? 'disabled' : ''}>
+                                ${isAbsent ? '✓ Servicio' : 'Servicio'}
+                            </button>
+                        </div>
+                        <div class="card-actions" style="margin-top: 5px;">
+                            <button class="status-btn btn-workshop" title="En Taller" data-id="${vehicleId}" ${isWorkshop ? 'disabled' : ''}>
+                                ${isWorkshop ? '✓ Taller' : 'Taller'}
+                            </button>
+                            <button class="status-btn btn-retirement" title="En Proceso de Baja" data-id="${vehicleId}" ${isRetirement ? 'disabled' : ''}>
+                                ${isRetirement ? '✓ Baja' : 'Baja'}
+                            </button>
+                        </div>
+                    `;
+                    
+                    vehiclesCards.appendChild(card);
                 });
                 
                 // Agregar listeners a los botones
@@ -954,17 +1190,16 @@
                     showToast('Vehículo marcado como "En Taller"');
                 } else if (status === 'retirement') {
                     retirementVehicles.add(vehicleId);
-                    saveRetirementState(); // Guardar en localStorage
                     showToast('Vehículo marcado como "En Proceso de Baja"');
                 }
                 
                 // Si está activada la opción de ocultar marcados y estamos en vista "Pendientes"
                 if (hideMarked && statusFilter.value === 'pending') {
-                    const rowElement = document.getElementById(`vehicle-${vehicleId}`);
-                    if (rowElement) {
+                    const element = document.getElementById(`vehicle-${vehicleId}`);
+                    if (element) {
                         // Actualizar vista con animación suave
-                        rowElement.style.opacity = '0';
-                        rowElement.style.transition = 'opacity 0.3s';
+                        element.style.opacity = '0';
+                        element.style.transition = 'opacity 0.3s';
                         setTimeout(() => {
                             filterVehicles(); // Actualizar la lista
                         }, 300);
@@ -974,6 +1209,9 @@
                 } else {
                     filterVehicles();
                 }
+                
+                // Guardar datos
+                saveDataToStorage();
             }
 
             function updateStats() {
@@ -1026,51 +1264,146 @@
                 sectionTitle.textContent = title;
             }
             
-            // Guardar estado de proceso de baja en localStorage
-            function saveRetirementState() {
+            // Guardar/cargar datos en localStorage
+            function saveDataToStorage() {
+                if (!dataLoaded) return;
+                
                 try {
+                    // Guardar vehículos
+                    localStorage.setItem('inventoryVehicles', JSON.stringify(vehicles));
+                    
+                    // Guardar estados
+                    localStorage.setItem('presentVehicles', JSON.stringify(Array.from(presentVehicles)));
+                    localStorage.setItem('absentVehicles', JSON.stringify(Array.from(absentVehicles)));
+                    localStorage.setItem('workshopVehicles', JSON.stringify(Array.from(workshopVehicles)));
                     localStorage.setItem('retirementVehicles', JSON.stringify(Array.from(retirementVehicles)));
-                    console.log('Estado de baja guardado en localStorage');
+                    
+                    // Guardar configuración
+                    localStorage.setItem('activeTab', activeTab);
+                    localStorage.setItem('statusFilter', statusFilter.value);
+                    localStorage.setItem('hideMarked', hideMarked);
+                    
+                    console.log('Datos guardados en localStorage');
                 } catch (e) {
                     console.error('Error guardando en localStorage:', e);
                 }
             }
             
-            // Cargar estado de proceso de baja desde localStorage
-            function loadRetirementState() {
+            function loadSavedData() {
                 try {
-                    const saved = localStorage.getItem('retirementVehicles');
-                    if (saved) {
-                        retirementVehicles = new Set(JSON.parse(saved));
-                        console.log(`Cargados ${retirementVehicles.size} vehículos en proceso de baja`);
+                    // Cargar vehículos
+                    const savedVehicles = localStorage.getItem('inventoryVehicles');
+                    if (savedVehicles) {
+                        vehicles = JSON.parse(savedVehicles);
+                        
+                        // Cargar estados
+                        const savedPresent = localStorage.getItem('presentVehicles');
+                        const savedAbsent = localStorage.getItem('absentVehicles');
+                        const savedWorkshop = localStorage.getItem('workshopVehicles');
+                        const savedRetirement = localStorage.getItem('retirementVehicles');
+                        
+                        if (savedPresent) presentVehicles = new Set(JSON.parse(savedPresent));
+                        if (savedAbsent) absentVehicles = new Set(JSON.parse(savedAbsent));
+                        if (savedWorkshop) workshopVehicles = new Set(JSON.parse(savedWorkshop));
+                        if (savedRetirement) retirementVehicles = new Set(JSON.parse(savedRetirement));
+                        
+                        // Cargar configuración
+                        const savedTab = localStorage.getItem('activeTab');
+                        const savedStatusFilter = localStorage.getItem('statusFilter');
+                        const savedHideMarked = localStorage.getItem('hideMarked');
+                        
+                        if (savedTab) {
+                            activeTab = savedTab;
+                            document.querySelectorAll('.tab').forEach(tab => {
+                                if (tab.dataset.type === activeTab) {
+                                    tab.classList.add('active');
+                                } else {
+                                    tab.classList.remove('active');
+                                }
+                            });
+                        }
+                        
+                        if (savedStatusFilter) statusFilter.value = savedStatusFilter;
+                        if (savedHideMarked !== null) {
+                            hideMarked = savedHideMarked === 'true';
+                            hideMarkedToggle.checked = hideMarked;
+                        }
+                        
+                        dataLoaded = true;
+                        dataContainer.style.display = 'block';
+                        dropZone.style.display = 'none';
+                        
+                        updateSectionTitle();
+                        filterVehicles();
+                        
+                        console.log('Datos cargados desde localStorage');
                     }
                 } catch (e) {
                     console.error('Error cargando desde localStorage:', e);
                 }
             }
             
-            // Función para reiniciar turno
-            function resetApplication() {
+            // Función para reiniciar turno (mantiene taller y baja)
+            function resetTurn() {
+                if (!dataLoaded) return;
+                
                 if (confirm('¿Estás seguro de que deseas iniciar un nuevo turno? Se conservarán los vehículos "En Taller" y "En Proceso de Baja".')) {
-                    console.log('Reiniciando aplicación...');
+                    console.log('Reiniciando turno...');
                     
                     // Conservar solo los vehículos en taller y en proceso de baja
                     presentVehicles.clear();
                     absentVehicles.clear();
                     
                     // Actualizar interfaz
-                    if (vehicles.length > 0) {
-                        updateStats();
-                        updateSectionTitle();
-                        filterVehicles();
-                        showToast('Turno reiniciado: se conservaron los vehículos en taller y en proceso de baja');
-                    } else {
-                        // No hay vehículos cargados, mostrar sección de carga
-                        dropZone.style.display = 'block';
-                        dataContainer.style.display = 'none';
-                        fileName.textContent = '';
-                        showToast('Turno reiniciado con éxito');
-                    }
+                    statusFilter.value = 'pending';
+                    updateSectionTitle();
+                    filterVehicles();
+                    showToast('Turno reiniciado: se conservaron los vehículos en taller y en proceso de baja');
+                    
+                    // Guardar cambios
+                    saveDataToStorage();
+                }
+            }
+            
+            // Función para reiniciar completamente la aplicación
+            function resetApplication() {
+                if (confirm('¿Estás seguro de que deseas reiniciar completamente la aplicación? Se perderán todos los datos y clasificaciones.')) {
+                    console.log('Reiniciando aplicación...');
+                    
+                    // Limpiar localStorage
+                    localStorage.removeItem('inventoryVehicles');
+                    localStorage.removeItem('presentVehicles');
+                    localStorage.removeItem('absentVehicles');
+                    localStorage.removeItem('workshopVehicles');
+                    localStorage.removeItem('retirementVehicles');
+                    localStorage.removeItem('activeTab');
+                    localStorage.removeItem('statusFilter');
+                    localStorage.removeItem('hideMarked');
+                    
+                    // Reiniciar variables
+                    vehicles = [];
+                    filteredVehicles = [];
+                    presentVehicles.clear();
+                    absentVehicles.clear();
+                    workshopVehicles.clear();
+                    retirementVehicles.clear();
+                    activeTab = 'MOTOS';
+                    dataLoaded = false;
+                    
+                    // Reiniciar interfaz
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabs[0].classList.add('active');
+                    statusFilter.value = 'pending';
+                    hideMarkedToggle.checked = true;
+                    hideMarked = true;
+                    searchInput.value = '';
+                    searchActive = false;
+                    
+                    // Mostrar pantalla de carga
+                    dataContainer.style.display = 'none';
+                    dropZone.style.display = 'block';
+                    
+                    showToast('Aplicación reiniciada correctamente');
                 }
             }
             
