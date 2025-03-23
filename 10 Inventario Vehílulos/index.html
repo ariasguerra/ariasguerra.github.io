@@ -180,6 +180,7 @@
         .action-buttons {
             display: flex;
             gap: var(--spacing-sm);
+            flex-wrap: wrap;
         }
 
         @media (max-width: 768px) {
@@ -304,6 +305,7 @@
             box-shadow: var(--shadow);
             padding: var(--spacing-md);
             border-top: 4px solid var(--primary);
+            position: relative;
         }
 
         .vehicle-card.present {
@@ -364,6 +366,12 @@
             display: flex;
             gap: var(--spacing-xs);
             margin-top: var(--spacing-sm);
+        }
+        
+        .card-checkbox {
+            position: absolute;
+            top: 8px;
+            left: 8px;
         }
 
         /* Tabla de vehículos */
@@ -462,6 +470,11 @@
             height: 28px;
             padding: 0;
             margin: 0 2px;
+        }
+
+        .checkbox-cell {
+            width: 40px;
+            text-align: center;
         }
 
         .loader {
@@ -563,6 +576,38 @@
             margin-bottom: var(--spacing-md);
         }
 
+        .table-header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .bulk-actions {
+            display: flex;
+            gap: var(--spacing-xs);
+            flex-wrap: wrap;
+        }
+
+        .select-all {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            margin-right: var(--spacing-md);
+        }
+
+        .custom-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .selection-counter {
+            margin-right: var(--spacing-md);
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
         /* Vista móvil */
         @media (max-width: 768px) {
             .container {
@@ -639,13 +684,27 @@
 
                     <!-- Contenedor de vehículos -->
                     <div class="vehicles-container">
-                        <h2 id="sectionTitle">Motocicletas - Pendientes</h2>
+                        <div class="table-header-actions">
+                            <h2 id="sectionTitle">Motocicletas - Pendientes</h2>
+                            
+                            <div class="bulk-actions" id="bulkActionsPanel" style="display: none;">
+                                <div class="select-all">
+                                    <input type="checkbox" id="selectAllCheckbox" class="custom-checkbox">
+                                    <label for="selectAllCheckbox">Seleccionar todos</label>
+                                </div>
+                                <span id="selectionCounter" class="selection-counter"></span>
+                                <button class="status-btn btn-present" id="bulkMarkPresent" title="Marcar como En Parqueadero">P</button>
+                                <button class="status-btn btn-service" id="bulkMarkService" title="Marcar como En Servicio">S</button>
+                                <button class="status-btn btn-workshop" id="bulkMarkWorkshop" title="Marcar como En Taller">T</button>
+                                <button class="status-btn btn-retirement" id="bulkMarkRetirement" title="Marcar como En Baja">B</button>
+                            </div>
+                        </div>
                         
                         <!-- Modo de tarjetas (solo para búsqueda) -->
                         <div id="cardsView" style="display: none;">
                             <div class="cards-container">
                                 <div id="vehiclesCards" class="cards-grid">
-                                    <!-- Las tarjetas se cargarán aquí -->
+                                    <!-- Las tarjetas se cargarán aquí con botones de acción -->
                                 </div>
                             </div>
                         </div>
@@ -656,17 +715,18 @@
                                 <table id="vehiclesTable">
                                     <thead>
                                         <tr>
+                                            <th class="checkbox-cell">
+                                                <input type="checkbox" id="headerCheckbox" class="custom-checkbox">
+                                            </th>
                                             <th>SIGLA</th>
                                             <th>PLACA</th>
-                                            <th>CLASE</th>
                                             <th>MARCA</th>
                                             <th>LÍNEA</th>
-                                            <th>Estado</th>
                                         </tr>
                                     </thead>
                                     <tbody id="vehiclesBody">
                                         <tr>
-                                            <td colspan="6" class="no-data">Carga un archivo para ver los datos</td>
+                                            <td colspan="5" class="no-data">Carga un archivo para ver los datos</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -746,6 +806,7 @@
             let hideMarked = true;
             let dataLoaded = false;
             let searchActive = false;
+            let selectedVehicles = new Set();
 
             // Referencias DOM
             const fileInput = document.getElementById('fileInput');
@@ -772,6 +833,16 @@
             const cardsView = document.getElementById('cardsView');
             const tableView = document.getElementById('tableView');
             const searchPrompt = document.getElementById('searchPrompt');
+            const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+            const headerCheckbox = document.getElementById('headerCheckbox');
+            const bulkActionsPanel = document.getElementById('bulkActionsPanel');
+            const selectionCounter = document.getElementById('selectionCounter');
+            
+            // Botones de control
+            const bulkMarkPresent = document.getElementById('bulkMarkPresent');
+            const bulkMarkService = document.getElementById('bulkMarkService');
+            const bulkMarkWorkshop = document.getElementById('bulkMarkWorkshop');
+            const bulkMarkRetirement = document.getElementById('bulkMarkRetirement');
 
             // Verificar XLSX
             if (typeof XLSX === 'undefined') {
@@ -838,7 +909,66 @@
                     activeTab = this.dataset.type;
                     updateSectionTitle();
                     filterVehicles();
+                    // Limpiar selecciones al cambiar de tab
+                    selectedVehicles.clear();
+                    updateSelectionUI();
                 });
+            });
+
+            // Event listeners para acciones masivas
+            headerCheckbox.addEventListener('change', function() {
+                const isChecked = this.checked;
+                const checkboxes = document.querySelectorAll('.vehicle-checkbox');
+                
+                checkboxes.forEach(function(checkbox) {
+                    checkbox.checked = isChecked;
+                    const vehicleId = checkbox.dataset.id;
+                    
+                    if (isChecked) {
+                        selectedVehicles.add(vehicleId);
+                    } else {
+                        selectedVehicles.delete(vehicleId);
+                    }
+                });
+                
+                selectAllCheckbox.checked = isChecked;
+                updateSelectionUI();
+            });
+
+            selectAllCheckbox.addEventListener('change', function() {
+                const isChecked = this.checked;
+                const checkboxes = document.querySelectorAll('.vehicle-checkbox');
+                
+                checkboxes.forEach(function(checkbox) {
+                    checkbox.checked = isChecked;
+                    const vehicleId = checkbox.dataset.id;
+                    
+                    if (isChecked) {
+                        selectedVehicles.add(vehicleId);
+                    } else {
+                        selectedVehicles.delete(vehicleId);
+                    }
+                });
+                
+                headerCheckbox.checked = isChecked;
+                updateSelectionUI();
+            });
+
+            // Listeners para los botones de acciones
+            bulkMarkPresent.addEventListener('click', function() {
+                bulkUpdateStatus('present');
+});
+
+            bulkMarkService.addEventListener('click', function() {
+                bulkUpdateStatus('service');
+            });
+
+            bulkMarkWorkshop.addEventListener('click', function() {
+                bulkUpdateStatus('workshop');
+            });
+
+            bulkMarkRetirement.addEventListener('click', function() {
+                bulkUpdateStatus('retirement');
             });
 
             // Funciones
@@ -902,6 +1032,7 @@
                 // Reiniciar estado
                 vehicles = [];
                 filteredVehicles = [];
+                selectedVehicles.clear();
                 
                 // Verificar primera fila
                 const firstRow = data[0] || {};
@@ -912,7 +1043,6 @@
                         SIGLA: item.SIGLA ? String(item.SIGLA).replace(/\./g, '') : '',
                         PLACA: item.PLACA ? String(item.PLACA) : '',
                         TIPO: item.TIPO ? String(item.TIPO) : '',
-                        CLASE: item.CLASE ? String(item.CLASE) : '',
                         MARCA: item.MARCA ? String(item.MARCA) : '',
                         LÍNEA: item.LÍNEA ? String(item.LÍNEA) : '',
                         CILINDRAJE: item.CILINDRAJE ? String(item.CILINDRAJE) : '',
@@ -928,65 +1058,69 @@
             }
 
             function filterVehicles() {
-    const searchTerm = searchInput.value.toLowerCase().replace(/\./g, '');
-    const statusValue = statusFilter.value;
-    
-    // Determinar si busca por placa o por sigla
-    const containsLetters = /[a-z]/i.test(searchTerm);
-    
-    // Filtrar vehículos
-    filteredVehicles = vehicles.filter(function(vehicle) {
-        // Por tipo
-        const matchesType = vehicle.TIPO === activeTab;
-        
-        // Por búsqueda inteligente
-        let matchesSearch = true;
-        if (searchTerm) {
-            if (containsLetters) {
-                // Si contiene letras, buscar en placa
-                matchesSearch = vehicle.PLACA && String(vehicle.PLACA).toLowerCase().includes(searchTerm);
-            } else {
-                // Si solo tiene números, buscar en SIGLA
-                matchesSearch = vehicle.SIGLA && String(vehicle.SIGLA).toLowerCase().includes(searchTerm);
+                const searchTerm = searchInput.value.toLowerCase().replace(/\./g, '');
+                const statusValue = statusFilter.value;
+                
+                // Determinar si busca por placa o por sigla
+                const containsLetters = /[a-z]/i.test(searchTerm);
+                
+                // Filtrar vehículos
+                filteredVehicles = vehicles.filter(function(vehicle) {
+                    // Por tipo
+                    const matchesType = vehicle.TIPO === activeTab;
+                    
+                    // Por búsqueda inteligente
+                    let matchesSearch = true;
+                    if (searchTerm) {
+                        if (containsLetters) {
+                            // Si contiene letras, buscar en placa
+                            matchesSearch = vehicle.PLACA && String(vehicle.PLACA).toLowerCase().includes(searchTerm);
+                        } else {
+                            // Si solo tiene números, buscar en SIGLA
+                            matchesSearch = vehicle.SIGLA && String(vehicle.SIGLA).toLowerCase().includes(searchTerm);
+                        }
+                    }
+                    
+                    // Por estado
+                    const vehicleId = `${vehicle.TIPO}-${vehicle.SIGLA}-${vehicle.PLACA}`;
+                    const isPresent = presentVehicles.has(vehicleId);
+                    const isAbsent = absentVehicles.has(vehicleId);
+                    const isWorkshop = workshopVehicles.has(vehicleId);
+                    const isRetirement = retirementVehicles.has(vehicleId);
+                    const isMarked = isPresent || isAbsent || isWorkshop || isRetirement;
+                    
+                    // Si hideMarked está activado y estamos viendo pendientes
+                    if (hideMarked && statusValue === 'pending' && isMarked) {
+                        return false;
+                    }
+                    
+                    // Filtrar por estado específico
+                    let matchesStatus = true;
+                    if (statusValue !== 'all') {
+                        if (statusValue === 'parking') {
+                            matchesStatus = isPresent;
+                        } else if (statusValue === 'service') {
+                            matchesStatus = isAbsent;
+                        } else if (statusValue === 'workshop') {
+                            matchesStatus = isWorkshop;
+                        } else if (statusValue === 'retirement') {
+                            matchesStatus = isRetirement;
+                        } else if (statusValue === 'pending') {
+                            matchesStatus = !isMarked;
+                        }
+                    }
+                    
+                    return matchesType && matchesSearch && matchesStatus;
+                });
+                
+                // Limpiar selecciones
+                selectedVehicles.clear();
+                updateSelectionUI();
+                
+                updateDisplayMode();
+                updateStats();
+                saveDataToStorage();
             }
-        }
-        
-        // Por estado
-        const vehicleId = `${vehicle.TIPO}-${vehicle.SIGLA}-${vehicle.PLACA}`;
-        const isPresent = presentVehicles.has(vehicleId);
-        const isAbsent = absentVehicles.has(vehicleId);
-        const isWorkshop = workshopVehicles.has(vehicleId);
-        const isRetirement = retirementVehicles.has(vehicleId);
-        const isMarked = isPresent || isAbsent || isWorkshop || isRetirement;
-        
-        // Si hideMarked está activado y estamos viendo pendientes
-        if (hideMarked && statusValue === 'pending' && isMarked) {
-            return false;
-        }
-        
-        // Filtrar por estado específico
-        let matchesStatus = true;
-        if (statusValue !== 'all') {
-            if (statusValue === 'parking') {
-                matchesStatus = isPresent;
-            } else if (statusValue === 'service') {
-                matchesStatus = isAbsent;
-            } else if (statusValue === 'workshop') {
-                matchesStatus = isWorkshop;
-            } else if (statusValue === 'retirement') {
-                matchesStatus = isRetirement;
-            } else if (statusValue === 'pending') {
-                matchesStatus = !isMarked;
-            }
-        }
-        
-        return matchesType && matchesSearch && matchesStatus;
-    });
-    
-    updateDisplayMode();
-    updateStats();
-    saveDataToStorage();
-}
             
             function updateDisplayMode() {
                 // Elegir modo de visualización basado en búsqueda
@@ -1010,7 +1144,7 @@
                 
                 if (filteredVehicles.length === 0) {
                     const row = document.createElement('tr');
-                    row.innerHTML = '<td colspan="6" class="no-data">No se encontraron vehículos</td>';
+                    row.innerHTML = '<td colspan="5" class="no-data">No se encontraron vehículos</td>';
                     vehiclesBody.appendChild(row);
                     return;
                 }
@@ -1039,26 +1173,20 @@
                     }
                     
                     row.innerHTML = `
+                        <td class="checkbox-cell">
+                            <input type="checkbox" class="custom-checkbox vehicle-checkbox" data-id="${vehicleId}">
+                        </td>
                         <td>${vehicle.SIGLA || ''}</td>
                         <td>${vehicle.PLACA || ''}</td>
-                        <td>${vehicle.CLASE || ''}</td>
                         <td>${vehicle.MARCA || ''}</td>
                         <td>${vehicle.LÍNEA || ''}</td>
-                        <td>
-                            <div class="status-actions">
-                                <button class="status-btn btn-present table-btn" title="En Parqueadero" data-id="${vehicleId}" ${isPresent ? 'disabled' : ''}>P</button>
-                                <button class="status-btn btn-service table-btn" title="En Servicio" data-id="${vehicleId}" ${isAbsent ? 'disabled' : ''}>S</button>
-                                <button class="status-btn btn-workshop table-btn" title="En Taller" data-id="${vehicleId}" ${isWorkshop ? 'disabled' : ''}>T</button>
-                                <button class="status-btn btn-retirement table-btn" title="En Proceso de Baja" data-id="${vehicleId}" ${isRetirement ? 'disabled' : ''}>B</button>
-                            </div>
-                        </td>
                     `;
                     
                     vehiclesBody.appendChild(row);
                 }
                 
-                // Agregar listeners a los botones
-                addStatusButtonListeners();
+                // Agregar listeners a los checkboxes
+                addCheckboxListeners();
             }
             
             function updateVehiclesCards() {
@@ -1092,17 +1220,16 @@
                         card.classList.add('retirement');
                     }
                     
-                    // Crear contenido de la tarjeta
+                    // Crear contenido de la tarjeta (con botones de acción)
                     card.innerHTML = `
+                        <div class="card-checkbox">
+                            <input type="checkbox" class="custom-checkbox vehicle-checkbox" data-id="${vehicleId}">
+                        </div>
                         <div class="card-header">
                             <h3 class="card-title">${vehicle.SIGLA || ''}</h3>
                             <span class="card-subtitle">${vehicle.PLACA || ''}</span>
                         </div>
                         <div class="card-info">
-                            <div class="info-item">
-                                <span class="info-label">Clase:</span>
-                                <span class="info-value">${vehicle.CLASE || '-'}</span>
-                            </div>
                             <div class="info-item">
                                 <span class="info-label">Marca:</span>
                                 <span class="info-value">${vehicle.MARCA || '-'}</span>
@@ -1137,8 +1264,9 @@
                     vehiclesCards.appendChild(card);
                 }
                 
-                // Agregar listeners a los botones
+                // Agregar listeners a los botones y checkboxes
                 addStatusButtonListeners();
+                addCheckboxListeners();
             }
             
             function addStatusButtonListeners() {
@@ -1179,55 +1307,135 @@
                 }
             }
             
+            function addCheckboxListeners() {
+                var checkboxes = document.querySelectorAll('.vehicle-checkbox');
+                for (var i = 0; i < checkboxes.length; i++) {
+                    (function(checkbox) {
+                        checkbox.addEventListener('change', function() {
+                            const vehicleId = this.dataset.id;
+                            if (this.checked) {
+                                selectedVehicles.add(vehicleId);
+                            } else {
+                                selectedVehicles.delete(vehicleId);
+                            }
+                            updateSelectionUI();
+                        });
+                    })(checkboxes[i]);
+                }
+            }
+            
+            function updateSelectionUI() {
+                const selectionCount = selectedVehicles.size;
+                
+                if (selectionCount > 0) {
+                    bulkActionsPanel.style.display = 'flex';
+                    selectionCounter.textContent = selectionCount === 1 
+                        ? "1 vehículo seleccionado" 
+                        : `${selectionCount} vehículos seleccionados`;
+                } else {
+                    bulkActionsPanel.style.display = 'none';
+                }
+                
+                // Actualizar estado de checkbox "seleccionar todos"
+                const allCheckboxes = document.querySelectorAll('.vehicle-checkbox');
+                const allChecked = allCheckboxes.length > 0 && selectedVehicles.size === allCheckboxes.length;
+                headerCheckbox.checked = allChecked;
+                selectAllCheckbox.checked = allChecked;
+            }
+            
+            function bulkUpdateStatus(status) {
+                if (selectedVehicles.size === 0) {
+                    showToast('Selecciona al menos un vehículo primero');
+                    return;
+                }
+                
+                let statusName = '';
+                if (status === 'present') statusName = 'En Parqueadero';
+                else if (status === 'service') statusName = 'En Servicio';
+                else if (status === 'workshop') statusName = 'En Taller';
+                else if (status === 'retirement') statusName = 'En Proceso de Baja';
+                
+                const count = selectedVehicles.size;
+                
+                // Aplicar estado a todos los vehículos seleccionados
+                selectedVehicles.forEach(function(vehicleId) {
+                    // Eliminar de todos los estados actuales
+                    presentVehicles.delete(vehicleId);
+                    absentVehicles.delete(vehicleId);
+                    workshopVehicles.delete(vehicleId);
+                    
+                    // Añadir al nuevo estado
+                    if (status === 'present') {
+                        presentVehicles.add(vehicleId);
+                        retirementVehicles.delete(vehicleId); // Permitir salir de baja
+                    } else if (status === 'service') {
+                        absentVehicles.add(vehicleId);
+                        retirementVehicles.delete(vehicleId); // Permitir salir de baja
+                    } else if (status === 'workshop') {
+                        workshopVehicles.add(vehicleId);
+                        retirementVehicles.delete(vehicleId); // Permitir salir de baja
+                    } else if (status === 'retirement') {
+                        retirementVehicles.add(vehicleId);
+                    }
+                });
+                
+                // Limpiar selecciones
+                selectedVehicles.clear();
+                
+                // Actualizar vista y guardar datos
+                filterVehicles();
+                showToast(`${count} vehículos marcados como "${statusName}"`);
+            }
+
             function markVehicleStatus(vehicleId, status) {
-    // Quitar el vehículo de todos los conjuntos excepto retirement si no es el destino
-    presentVehicles.delete(vehicleId);
-    absentVehicles.delete(vehicleId);
-    workshopVehicles.delete(vehicleId);
-    
-    // Agregarlo al conjunto correspondiente según el estado
-    if (status === 'present') {
-        presentVehicles.add(vehicleId);
-        retirementVehicles.delete(vehicleId); // Permitir salir de proceso de baja
-        showToast('Vehículo marcado como "En Parqueadero"');
-    } else if (status === 'service') {
-        absentVehicles.add(vehicleId);
-        retirementVehicles.delete(vehicleId); // Permitir salir de proceso de baja
-        showToast('Vehículo marcado como "En Servicio"');
-    } else if (status === 'workshop') {
-        workshopVehicles.add(vehicleId);
-        retirementVehicles.delete(vehicleId); // Permitir salir de proceso de baja
-        showToast('Vehículo marcado como "En Taller"');
-    } else if (status === 'retirement') {
-        retirementVehicles.add(vehicleId);
-        showToast('Vehículo marcado como "En Proceso de Baja"');
-    }
-    
-    // Limpiar el cuadro de búsqueda si estamos en modo búsqueda
-    if (searchActive) {
-        searchInput.value = '';
-        searchActive = false;
-    }
-    
-    // Si está activada la opción de ocultar marcados y estamos en vista "Pendientes"
-    if (hideMarked && statusFilter.value === 'pending') {
-        const element = document.getElementById(`vehicle-${vehicleId}`);
-        if (element) {
-            // Actualizar vista con animación suave
-            element.style.opacity = '0';
-            setTimeout(function() {
-                filterVehicles(); // Actualizar la lista
-            }, 300);
-        } else {
-            filterVehicles();
-        }
-    } else {
-        filterVehicles();
-    }
-    
-    // Guardar datos
-    saveDataToStorage();
-}
+                // Quitar el vehículo de todos los conjuntos excepto retirement si no es el destino
+                presentVehicles.delete(vehicleId);
+                absentVehicles.delete(vehicleId);
+                workshopVehicles.delete(vehicleId);
+                
+                // Agregarlo al conjunto correspondiente según el estado
+                if (status === 'present') {
+                    presentVehicles.add(vehicleId);
+                    retirementVehicles.delete(vehicleId); // Permitir salir de proceso de baja
+                    showToast('Vehículo marcado como "En Parqueadero"');
+                } else if (status === 'service') {
+                    absentVehicles.add(vehicleId);
+                    retirementVehicles.delete(vehicleId); // Permitir salir de proceso de baja
+                    showToast('Vehículo marcado como "En Servicio"');
+                } else if (status === 'workshop') {
+                    workshopVehicles.add(vehicleId);
+                    retirementVehicles.delete(vehicleId); // Permitir salir de proceso de baja
+                    showToast('Vehículo marcado como "En Taller"');
+                } else if (status === 'retirement') {
+                    retirementVehicles.add(vehicleId);
+                    showToast('Vehículo marcado como "En Proceso de Baja"');
+                }
+                
+                // Limpiar el cuadro de búsqueda si estamos en modo búsqueda
+                if (searchActive) {
+                    searchInput.value = '';
+                    searchActive = false;
+                }
+                
+                // Si está activada la opción de ocultar marcados y estamos en vista "Pendientes"
+                if (hideMarked && statusFilter.value === 'pending') {
+                    const element = document.getElementById(`vehicle-${vehicleId}`);
+                    if (element) {
+                        // Actualizar vista con animación suave
+                        element.style.opacity = '0';
+                        setTimeout(function() {
+                            filterVehicles(); // Actualizar la lista
+                        }, 300);
+                    } else {
+                        filterVehicles();
+                    }
+                } else {
+                    filterVehicles();
+                }
+                
+                // Guardar datos
+                saveDataToStorage();
+            }
 
             function updateStats() {
                 // Contar vehículos
@@ -1367,6 +1575,7 @@
                     // Conservar solo los vehículos en taller y en proceso de baja
                     presentVehicles.clear();
                     absentVehicles.clear();
+                    selectedVehicles.clear();
                     
                     // Actualizar interfaz
                     statusFilter.value = 'pending';
@@ -1399,6 +1608,7 @@
                     absentVehicles.clear();
                     workshopVehicles.clear();
                     retirementVehicles.clear();
+                    selectedVehicles.clear();
                     activeTab = 'MOTOS';
                     dataLoaded = false;
                     
@@ -1429,6 +1639,34 @@
                 setTimeout(function() {
                     toast.classList.remove('show');
                 }, 3000);
+            }
+            
+            // Evitar cierre accidental
+            window.addEventListener('beforeunload', function(e) {
+                if (dataLoaded) {
+                    // Mensaje de confirmación
+                    const confirmationMessage = '¿Estás seguro de que deseas salir? Los cambios están guardados, pero deberás cargar el archivo nuevamente.';
+                    e.returnValue = confirmationMessage;
+                    return confirmationMessage;
+                }
+            });
+            
+            // Verificar localStorage al iniciar
+            if (!storageAvailable()) {
+                alert('Tu navegador no soporta el almacenamiento local. La aplicación funcionará, pero no guardará tus datos entre sesiones.');
+            }
+            
+            // Verificar si hay compatibilidad con localStorage
+            function storageAvailable() {
+                try {
+                    const test = '__storage_test__';
+                    localStorage.setItem(test, test);
+                    localStorage.removeItem(test);
+                    return true;
+                } catch(e) {
+                    console.error('LocalStorage no disponible:', e);
+                    return false;
+                }
             }
         });
     </script>
