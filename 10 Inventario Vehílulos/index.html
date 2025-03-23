@@ -636,12 +636,12 @@
             
             /* Optimizar tabla para móvil */
             table {
-                min-width: 450px;
-                font-size: 0.85rem;
+                min-width: 400px; /* Reducido de 450px */
+                font-size: 0.8rem; /* Reducido de 0.85rem */
             }
             
             th, td {
-                padding: var(--spacing-xs) var(--spacing-sm);
+                padding: 4px 6px; /* Reducido aún más */
             }
             
             .table-btn {
@@ -683,8 +683,8 @@
             
             .status-btn {
                 font-size: 0.7rem;
-                min-width: 24px;
-                height: 24px;
+                min-width: 28px; /* Reducido */
+                height: 28px;
             }
             
             /* Botones del panel de acciones masivas */
@@ -716,12 +716,29 @@
             
             /* Optimizar acciones al final */
             .table-header-actions {
+                flex-direction: column;
+                align-items: flex-start;
                 margin-bottom: var(--spacing-xs);
             }
             
             .selection-counter {
-                font-size: 0.8rem;
-                margin-right: var(--spacing-xs);
+                display: none; /* Ocultar el contador de selección en móvil */
+            }
+            
+            /* Reducir ancho de la celda de checkbox */
+            .checkbox-cell {
+                width: 30px; /* Reducido de 40px */
+            }
+            
+            /* Hacer que el panel de acciones masivas sea más compacto */
+            .bulk-actions {
+                margin-top: 4px;
+            }
+            
+            /* Compactar título de sección */
+            #sectionTitle {
+                font-size: 0.9rem;
+                margin-bottom: 4px;
             }
             
             .btn {
@@ -945,7 +962,8 @@
             uploadBtn.addEventListener('click', function() {
                 fileInput.click();
             });
-fileInput.addEventListener('change', handleFileUpload);
+            
+            fileInput.addEventListener('change', handleFileUpload);
             
             dropZone.addEventListener('dragover', function(e) {
                 e.preventDefault();
@@ -966,7 +984,7 @@ fileInput.addEventListener('change', handleFileUpload);
                     fileInput.files = e.dataTransfer.files;
                     handleFileUpload();
                 }
-});
+            });
             
             searchInput.addEventListener('input', function() {
                 const searchTerm = this.value.trim();
@@ -1412,9 +1430,10 @@ fileInput.addEventListener('change', handleFileUpload);
                 
                 if (selectionCount > 0) {
                     bulkActionsPanel.style.display = 'flex';
-                    selectionCounter.textContent = selectionCount === 1 
-                        ? "1 vehículo seleccionado" 
-                        : `${selectionCount} vehículos seleccionados`;
+                    // Se elimina la línea que muestra el contador de selección
+                    // selectionCounter.textContent = selectionCount === 1 
+                    //    ? "1 vehículo seleccionado" 
+                    //    : `${selectionCount} vehículos seleccionados`;
                 } else {
                     bulkActionsPanel.style.display = 'none';
                 }
@@ -1700,7 +1719,7 @@ fileInput.addEventListener('change', handleFileUpload);
                         t.classList.remove('active');
                     });
                     tabs[0].classList.add('active');
-statusFilter.value = 'pending';
+                    statusFilter.value = 'pending';
                     hideMarkedToggle.checked = true;
                     hideMarked = true;
                     searchInput.value = '';
