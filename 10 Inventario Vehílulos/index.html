@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventario de Vehículos - Barrios Unidos</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Asegurar que la librería XLSX se cargue correctamente -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" integrity="sha512-r22gChDnGvBylk90+2e/ycr3RVrDi8DIOkIGNhJlKfuyQM4tIRAI062MaV8sfjQKYVGjOBaZBOA87z+IhZE9DA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         /* Sistema de diseño con variables CSS */
         :root {
@@ -12,45 +13,34 @@
             --primary: #1a3b89;
             --primary-dark: #0f2b6b;
             --primary-light: #e4e9f7;
-            --secondary: #f0f4ff;
             
             /* Estados */
-            --success: #2ed573;
-            --success-light: #e3f9e5;
-            --warning: #ff9800;
-            --warning-light: #fff3e0;
-            --info: #2196f3;
-            --info-light: #e3f2fd;
+            --present: #2ed573;
+            --present-light: #e3f9e5;
+            --service: #ff9800;
+            --service-light: #fff3e0;
+            --workshop: #2196f3;
+            --workshop-light: #e3f2fd;
+            --retirement: #f44336;
+            --retirement-light: #ffebee;
             
             /* Neutrales */
             --text: #333;
             --text-light: #777;
-            --text-dark: #111;
             --border: #ddd;
-            --light: #f9f9f9;
+            --bg-light: #f9f9f9;
             
             /* Espaciados */
             --spacing-xs: 0.25rem;
             --spacing-sm: 0.5rem;
             --spacing-md: 1rem;
             --spacing-lg: 1.5rem;
-            --spacing-xl: 2rem;
             
-            /* Bordes */
-            --radius-sm: 4px;
-            --radius-md: 8px;
-            --radius-lg: 12px;
-            
-            /* Sombras */
-            --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 2px 10px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 5px 15px rgba(0, 0, 0, 0.15);
-            
-            /* Transiciones */
-            --transition: 0.3s ease;
+            /* Bordes y sombras */
+            --radius: 4px;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        /* Reset y estilos base */
         * {
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -59,22 +49,22 @@
         }
 
         body {
-            background-color: var(--light);
+            background-color: var(--bg-light);
             color: var(--text);
-            line-height: 1.6;
+            line-height: 1.5;
         }
 
         /* Header */
         header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
             color: white;
-            padding: var(--spacing-lg);
+            padding: var(--spacing-md);
             text-align: center;
-            box-shadow: var(--shadow-md);
+            box-shadow: var(--shadow);
         }
 
         header h1 {
-            margin: 0;
+            font-size: 1.5rem;
             font-weight: 600;
         }
 
@@ -82,79 +72,86 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: var(--spacing-lg);
+            padding: var(--spacing-md);
         }
 
         /* Zona de carga de archivos */
         .file-upload {
             background-color: white;
-            border-radius: var(--radius-md);
-            padding: var(--spacing-xl);
+            border-radius: var(--radius);
+            padding: var(--spacing-lg);
             text-align: center;
-            margin-bottom: var(--spacing-xl);
-            box-shadow: var(--shadow-md);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--shadow);
             border: 2px dashed var(--border);
-            transition: all var(--transition);
+            transition: all 0.3s ease;
         }
 
         .file-upload.active {
-            border-color: var(--success);
-            background-color: var(--success-light);
-            transform: scale(1.01);
+            border-color: var(--present);
+            background-color: var(--present-light);
         }
 
         h2 {
             color: var(--primary);
-            margin-top: 0;
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
-        }
-
-        .file-upload h2 {
-            margin-top: 0;
-            color: var(--primary);
             margin-bottom: var(--spacing-md);
+            font-size: 1.25rem;
         }
 
         .upload-btn {
-            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            background-color: var(--primary);
             color: white;
             border: none;
             padding: var(--spacing-sm) var(--spacing-lg);
-            border-radius: var(--radius-sm);
+            border-radius: var(--radius);
             cursor: pointer;
             font-size: 1rem;
-            transition: all var(--transition);
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            transition: background-color 0.2s;
         }
 
         .upload-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            background-color: var(--primary-dark);
+        }
+
+        /* Estructura de dos paneles */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--spacing-md);
+        }
+
+        @media (min-width: 992px) {
+            .main-layout {
+                grid-template-columns: 3fr 1fr;
+            }
+        }
+
+        /* Panel de control */
+        .control-panel {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
         }
 
         /* Tabs de navegación */
         .tabs {
             display: flex;
-            margin-bottom: var(--spacing-lg);
-            border-radius: var(--radius-sm);
+            margin-bottom: var(--spacing-md);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
             overflow: hidden;
-            box-shadow: var(--shadow-sm);
         }
 
         .tab {
-            padding: var(--spacing-md) var(--spacing-lg);
-            background-color: var(--primary-light);
-            cursor: pointer;
-            border: none;
             flex: 1;
             text-align: center;
-            font-weight: 500;
-            transition: all var(--transition);
-            color: var(--text-dark);
+            padding: var(--spacing-sm);
+            background-color: var(--bg-light);
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s;
         }
 
         .tab.active {
@@ -162,247 +159,131 @@
             color: white;
         }
 
-        /* Barra de notificaciones */
-        .notice-bar {
-            padding: var(--spacing-md);
+        /* Controles de filtrado */
+        .filter-controls {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--spacing-sm);
             margin-bottom: var(--spacing-md);
-            border-radius: var(--radius-sm);
-            background-color: var(--success);
-            color: white;
-            box-shadow: var(--shadow-sm);
-            opacity: 0;
-            transform: translateY(-10px);
-            transition: opacity var(--transition), transform var(--transition);
-            display: none;
         }
 
-        .notice-bar.show {
-            opacity: 1;
-            transform: translateY(0);
-            display: block;
-        }
-
-        /* Control de búsqueda */
-        .search-bar {
-            display: flex;
-            margin-bottom: var(--spacing-lg);
-            gap: var(--spacing-md);
+        @media (min-width: 768px) {
+            .filter-controls {
+                grid-template-columns: 2fr 1fr 1fr auto;
+                align-items: center;
+            }
         }
 
         .search-input {
-            flex: 1;
-            padding: var(--spacing-md);
+            padding: var(--spacing-sm);
             border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            font-size: 1rem;
-            transition: border-color var(--transition), box-shadow var(--transition);
+            border-radius: var(--radius);
+            width: 100%;
         }
 
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(26, 59, 137, 0.1);
-        }
-
-        .search-by {
-            padding: var(--spacing-md);
+        .select-control {
+            padding: var(--spacing-sm);
             border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
+            border-radius: var(--radius);
             background-color: white;
-            min-width: 120px;
-            cursor: pointer;
+            width: 100%;
         }
 
-        /* Toggle de visualización */
-        .view-controls {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .view-toggle {
+        .filter-toggle {
             display: flex;
             align-items: center;
+            gap: var(--spacing-xs);
+            margin-top: var(--spacing-xs);
         }
 
-        .toggle-label {
-            margin-right: var(--spacing-sm);
-            font-size: 0.9rem;
-        }
-
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 48px;
-            height: 24px;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            border-radius: 24px;
-            transition: var(--transition);
-        }
-
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            border-radius: 50%;
-            transition: var(--transition);
-        }
-
-        input:checked + .toggle-slider {
+        .reset-btn {
             background-color: var(--primary);
-        }
-
-        input:checked + .toggle-slider:before {
-            transform: translateX(24px);
-        }
-
-        /* Botones de filtro rápido */
-        .filter-buttons {
-            display: flex;
-            gap: var(--spacing-md);
-            margin-bottom: var(--spacing-lg);
-            flex-wrap: wrap;
-        }
-
-        .process-btn {
-            display: flex;
-            align-items: center;
-            padding: var(--spacing-sm) var(--spacing-lg);
+            color: white;
             border: none;
-            border-radius: var(--radius-sm);
-            background-color: var(--primary);
-            color: white;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius);
             cursor: pointer;
-            font-weight: 500;
-            transition: all var(--transition);
-            flex: 1;
-            justify-content: center;
-            box-shadow: var(--shadow-sm);
-            min-width: 150px;
+            white-space: nowrap;
         }
 
-        .process-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-            background-color: var(--primary-dark);
-        }
-
-        /* Badge para contadores */
-        .badge {
-            background-color: rgba(255, 255, 255, 0.3);
-            color: white;
-            border-radius: var(--radius-sm);
-            padding: 0.1rem 0.5rem;
-            font-size: 0.7rem;
-            margin-left: var(--spacing-sm);
-            font-weight: bold;
-        }
-
-        /* Contenedor de vehículos */
-        .vehicle-container {
+        /* Panel de estadísticas */
+        .stats-panel {
             background-color: white;
-            border-radius: var(--radius-md);
-            padding: var(--spacing-lg);
-            box-shadow: var(--shadow-md);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: var(--spacing-md);
         }
 
-        .vehicle-container h2 {
-            margin-bottom: var(--spacing-lg);
-            padding-bottom: var(--spacing-sm);
-            border-bottom: 1px solid var(--border);
-        }
-
-        /* Stats de estado */
-        .stats {
+        .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: var(--spacing-md);
-            margin-bottom: var(--spacing-lg);
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-sm);
         }
 
-        .stat-box {
-            padding: var(--spacing-lg);
-            border-radius: var(--radius-sm);
-            text-align: center;
-            box-shadow: var(--shadow-sm);
-            transition: transform var(--transition);
+        @media (min-width: 992px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-item {
+            padding: var(--spacing-sm);
+            border-radius: var(--radius);
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            border-left: 3px solid var(--border);
         }
 
-        .stat-box:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .stat-box h3 {
-            margin: 0;
-            font-size: 1rem;
-            font-weight: 500;
+        .stat-label {
+            font-size: 0.9rem;
             color: var(--text-light);
             margin-bottom: var(--spacing-xs);
         }
 
-        .stat-box p {
-            margin: 0;
-            font-size: 1.8rem;
+        .stat-value {
+            font-size: 1.5rem;
             font-weight: 600;
-            color: var(--text-dark);
         }
 
         .stat-present {
-            background-color: var(--success-light);
-            border-left: 4px solid var(--success);
+            background-color: var(--present-light);
+            border-color: var(--present);
         }
 
-        .stat-absent {
-            background-color: var(--warning-light);
-            border-left: 4px solid var(--warning);
+        .stat-service {
+            background-color: var(--service-light);
+            border-color: var(--service);
         }
 
-        .stat-total {
-            background-color: var(--info-light);
-            border-left: 4px solid var(--info);
-        }
-        
         .stat-workshop {
-            background-color: #e3f2fd;
-            border-left: 4px solid #2196f3;
+            background-color: var(--workshop-light);
+            border-color: var(--workshop);
         }
 
         .stat-retirement {
-            background-color: #ffebee;
-            border-left: 4px solid #f44336;
+            background-color: var(--retirement-light);
+            border-color: var(--retirement);
+        }
+
+        .stat-total {
+            background-color: var(--primary-light);
+            border-color: var(--primary);
         }
 
         /* Tabla de vehículos */
+        .vehicles-container {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: var(--spacing-md);
+            overflow: hidden;
+        }
+
         .vehicles-list {
             max-height: 500px;
             overflow-y: auto;
-            border-radius: var(--radius-sm);
-            box-shadow: var(--shadow-sm);
             border: 1px solid var(--border);
+            border-radius: var(--radius);
         }
 
         table {
@@ -413,142 +294,91 @@
         th {
             position: sticky;
             top: 0;
-            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            background-color: var(--primary);
             color: white;
             text-align: left;
-            padding: var(--spacing-md);
+            padding: var(--spacing-sm);
             font-weight: 500;
+            font-size: 0.9rem;
         }
 
         td {
-            padding: var(--spacing-md);
+            padding: var(--spacing-sm);
             border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
         }
 
-        tr:nth-child(even) {
-            background-color: rgba(240, 244, 255, 0.4);
-        }
-
-        /* Filas con estado */
+        /* Estados de vehículos */
         .vehicle-row {
-            transition: all var(--transition);
-        }
-
-        .vehicle-row:hover {
-            background-color: rgba(240, 244, 255, 0.8);
+            transition: background-color 0.2s;
         }
 
         .vehicle-row.present {
-            background-color: var(--success-light);
+            background-color: var(--present-light);
         }
 
-        .vehicle-row.absent {
-            background-color: var(--warning-light);
+        .vehicle-row.service {
+            background-color: var(--service-light);
         }
 
-        .vehicle-row.pending {
-            background-color: #f5f5f5; /* Gris claro para pendientes */
-        }
-        
         .vehicle-row.workshop {
-            background-color: #e3f2fd;
+            background-color: var(--workshop-light);
         }
 
         .vehicle-row.retirement {
-            background-color: #ffebee;
+            background-color: var(--retirement-light);
         }
 
         /* Botones de acción */
-        .presence-status {
+        .status-actions {
             display: flex;
-            gap: var(--spacing-sm);
-            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+            flex-wrap: nowrap;
         }
 
         .status-btn {
-            padding: var(--spacing-sm) var(--spacing-md);
+            min-width: 32px;
+            height: 32px;
             border: none;
-            border-radius: var(--radius-sm);
+            border-radius: var(--radius);
             cursor: pointer;
-            width: 100px;
-            font-weight: 500;
-            transition: all var(--transition);
-            font-size: 0.85rem;
-        }
-
-        .present-btn {
-            background-color: var(--success);
+            font-size: 0.8rem;
             color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .present-btn:hover {
-            background-color: #28b463;
+        .btn-present {
+            background-color: var(--present);
         }
 
-        .present-btn:disabled {
-            opacity: 0.7;
+        .btn-service {
+            background-color: var(--service);
+        }
+
+        .btn-workshop {
+            background-color: var(--workshop);
+        }
+
+        .btn-retirement {
+            background-color: var(--retirement);
+        }
+
+        .status-btn:disabled {
+            opacity: 0.6;
             cursor: not-allowed;
-        }
-
-        .absent-btn {
-            background-color: var(--warning);
-            color: white;
-        }
-
-        .absent-btn:hover {
-            background-color: #f39c12;
-        }
-
-        .absent-btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-        
-        .workshop-btn {
-            background-color: #2196f3;
-            color: white;
-        }
-
-        .workshop-btn:hover {
-            background-color: #1976d2;
-        }
-
-        .workshop-btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-        .retirement-btn {
-            background-color: #f44336;
-            color: white;
-        }
-
-        .retirement-btn:hover {
-            background-color: #d32f2f;
-        }
-
-        .retirement-btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-        /* Mensaje de sin datos */
-        .no-data {
-            text-align: center;
-            padding: var(--spacing-xl);
-            color: var(--text-light);
-            font-style: italic;
         }
 
         /* Loader */
         .loader {
-            border: 5px solid #f3f3f3;
+            border: 4px solid #f3f3f3;
             border-radius: 50%;
-            border-top: 5px solid var(--primary);
-            width: 50px;
-            height: 50px;
+            border-top: 4px solid var(--primary);
+            width: 30px;
+            height: 30px;
             animation: spin 1s linear infinite;
-            margin: 20px auto;
+            margin: var(--spacing-md) auto;
             display: none;
         }
 
@@ -557,179 +387,101 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Alerta */
-        .alert {
+        /* Notificaciones */
+        .toast {
             position: fixed;
             top: 20px;
             right: 20px;
-            padding: var(--spacing-md) var(--spacing-lg);
-            border-radius: var(--radius-sm);
-            box-shadow: var(--shadow-md);
-            background-color: #f8d7da;
-            color: #721c24;
-            border-left: 4px solid #f5c6cb;
+            padding: var(--spacing-md);
+            border-radius: var(--radius);
+            background-color: var(--primary);
+            color: white;
+            box-shadow: var(--shadow);
             z-index: 1000;
             max-width: 300px;
-            animation: slideIn 0.3s;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s;
         }
 
-        .success-alert {
-            background-color: #d4edda;
-            color: #155724;
-            border-left: 4px solid #c3e6cb;
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; visibility: hidden; }
-        }
-
-        /* Animación de desaparición */
-        .fade-out {
-            animation: fadeOutRow 0.5s forwards;
-        }
-
-        @keyframes fadeOutRow {
-            from { opacity: 1; }
-            to { opacity: 0; height: 0; padding: 0; margin: 0; overflow: hidden; }
+        /* Mensaje de sin datos */
+        .no-data {
+            padding: var(--spacing-lg);
+            text-align: center;
+            color: var(--text-light);
+            font-style: italic;
         }
 
         /* Ajustes para dispositivos móviles */
         @media (max-width: 768px) {
-            /* Ajustar tamaño de contenedor principal */
-            .container {
-                padding: 0.5rem;
+            th, td {
+                padding: var(--spacing-xs);
+                font-size: 0.85rem;
             }
-            
-            /* Hacer tabla responsiva para móviles */
-            .vehicles-list {
-                max-height: none;
-            }
-            
-            /* Transformar tabla en tarjetas para móviles */
-            table, thead, tbody, th, td, tr { 
-                display: block; 
-            }
-            
-            thead tr { 
-                position: absolute;
-                top: -9999px;
-                left: -9999px;
-            }
-            
-            tr {
-                margin-bottom: 15px;
-                border: 1px solid var(--border);
-                border-radius: var(--radius-sm);
-                position: relative;
-                background-color: white !important;
-            }
-            
-            tr.present {
-                border-left: 5px solid var(--success) !important;
-            }
-            
-            tr.absent {
-                border-left: 5px solid var(--warning) !important;
-            }
-            
-            tr.workshop {
-                border-left: 5px solid #2196f3 !important;
-            }
-            
-            tr.retirement {
-                border-left: 5px solid #f44336 !important;
-            }
-            
-            tr.pending {
-                border-left: 5px solid #ccc !important;
-            }
-            
-            td { 
-                /* Hacer que todas las celdas sean como filas */
-                position: relative;
-                padding-left: 40% !important; 
-                text-align: left;
-                border-bottom: 1px solid #eee;
-                min-height: 40px;
-                display: flex;
-                align-items: center;
-            }
-            
-            td:last-child {
-                border-bottom: none;
-            }
-            
-            td:before { 
-                /* Añadir etiquetas a las celdas */
-                position: absolute;
-                left: 10px;
-                width: 35%; 
-                padding-right: 10px; 
-                font-weight: bold;
-                color: var(--primary);
-                content: attr(data-title);
-            }
-            
-            /* Ajustar controles para móviles */
-            .view-controls {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-            
-            .search-bar {
-                flex-direction: column;
-            }
-            
-            .filter-buttons {
-                flex-direction: column;
-            }
-            
-            .stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .process-btn {
-                margin-bottom: 5px;
-                width: 100%;
-            }
-            
-            /* Optimizar botones de acción para móviles */
-            .presence-status {
-                width: 100%;
-                padding: 0;
-            }
-            
+
             .status-btn {
-                width: calc(50% - 5px);
-                font-size: 0.75rem;
-                padding: 5px;
+                min-width: 28px;
+                height: 28px;
+                font-size: 0.7rem;
             }
-            
-            /* Ajustar los stats para móviles */
-            .stat-box {
-                padding: 10px;
+
+            .vehicle-row td:nth-child(3),
+            .vehicle-row th:nth-child(3),
+            .vehicle-row td:nth-child(5),
+            .vehicle-row th:nth-child(5) {
+                display: none;
             }
-            
-            .stat-box p {
-                font-size: 1.4rem;
-            }
-            
-            .stat-box h3 {
-                font-size: 0.9rem;
-            }
-            
-            /* Ajustar tabs para móviles */
-            .tab {
-                padding: 8px;
-                font-size: 0.9rem;
-            }
+        }
+
+        /* Switch toggle */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
         }
     </style>
 </head>
@@ -746,133 +498,124 @@
             <input type="file" id="fileInput" accept=".xlsx, .xls" style="display: none;" />
             <button class="upload-btn" id="uploadBtn">Seleccionar Archivo</button>
             <div class="loader" id="loader"></div>
-            <p id="fileName"></p>
+            <p id="fileName" style="margin-top: 10px; font-style: italic;"></p>
         </div>
 
-        <!-- Sección principal de datos -->
+        <!-- Sección principal de datos (oculta inicialmente) -->
         <div id="dataContainer" style="display: none;">
-            <!-- Tabs de navegación -->
-            <div class="tabs">
-                <button class="tab active" data-type="MOTOS">Motocicletas</button>
-                <button class="tab" data-type="VEHÍCULOS">Vehículos</button>
-            </div>
+            <div class="main-layout">
+                <!-- Panel principal con tabla -->
+                <div>
+                    <!-- Panel de control -->
+                    <div class="control-panel">
+                        <!-- Tabs de navegación -->
+                        <div class="tabs">
+                            <button class="tab active" data-type="MOTOS">Motocicletas</button>
+                            <button class="tab" data-type="VEHÍCULOS">Vehículos</button>
+                        </div>
+                        
+                        <!-- Controles de filtrado -->
+                        <div class="filter-controls">
+                            <input type="text" class="search-input" id="searchInput" placeholder="Buscar vehículo...">
+                            
+                            <select class="select-control" id="searchBy">
+                                <option value="SIGLA">Buscar por SIGLA</option>
+                                <option value="PLACA">Buscar por PLACA</option>
+                            </select>
+                            
+                            <select class="select-control" id="statusFilter">
+                                <option value="pending">Pendientes</option>
+                                <option value="all">Todos</option>
+                                <option value="parking">En Parqueadero</option>
+                                <option value="service">En Servicio</option>
+                                <option value="workshop">En Taller</option>
+                                <option value="retirement">En Baja</option>
+                            </select>
+                            
+                            <button class="reset-btn" id="resetBtn">Iniciar Turno</button>
+                        </div>
+                        
+                        <div class="filter-toggle">
+                            <label class="switch">
+                                <input type="checkbox" id="hideMarkedToggle" checked>
+                                <span class="slider"></span>
+                            </label>
+                            <span>Ocultar vehículos marcados</span>
+                        </div>
+                    </div>
 
-            <!-- Notificaciones -->
-            <div id="noticeBar" class="notice-bar">
-                Vehículo marcado con éxito
-            </div>
-
-            <!-- Barra de búsqueda -->
-            <div class="search-bar">
-                <input type="text" class="search-input" id="searchInput" placeholder="Buscar...">
-                <select class="search-by" id="searchBy">
-                    <option value="SIGLA">Buscar por SIGLA</option>
-                    <option value="PLACA">Buscar por PLACA</option>
-                </select>
-                <select class="search-by" id="statusFilter">
-                    <option value="pending">Pendientes</option>
-                    <option value="all">Todos los estados</option>
-                    <option value="parking">En Parqueadero</option>
-                    <option value="service">En Servicio</option>
-                    <option value="workshop">En Taller</option>
-                    <option value="retirement">En Proceso de Baja</option>
-                </select>
-            </div>
-
-            <!-- Controles de vista -->
-            <div class="view-controls">
-                <div class="view-toggle">
-                    <span class="toggle-label">Ocultar vehículos marcados:</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="hideMarkedToggle" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
+                    <!-- Tabla de vehículos -->
+                    <div class="vehicles-container">
+                        <h2 id="sectionTitle">Motocicletas - Pendientes</h2>
+                        
+                        <div class="vehicles-list">
+                            <table id="vehiclesTable">
+                                <thead>
+                                    <tr>
+                                        <th>SIGLA</th>
+                                        <th>PLACA</th>
+                                        <th>CLASE</th>
+                                        <th>MARCA</th>
+                                        <th>LÍNEA</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vehiclesBody">
+                                    <tr>
+                                        <td colspan="6" class="no-data">Carga un archivo para ver los datos</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <button class="process-btn" id="resetBtn">Iniciar Turno</button>
-            </div>
-
-            <!-- Botones de filtro rápido -->
-            <div class="filter-buttons">
-                <button class="process-btn" id="parkingBtn">
-                    Ver En Parqueadero <span class="badge" id="parkingBadge">0</span>
-                </button>
-                <button class="process-btn" id="serviceBtn">
-                    Ver En Servicio <span class="badge" id="serviceBadge">0</span>
-                </button>
-                <button class="process-btn" id="workshopBtn">
-                    Ver En Taller <span class="badge" id="workshopBadge">0</span>
-                </button>
-                <button class="process-btn" id="retirementBtn">
-                    Ver En Proceso de Baja <span class="badge" id="retirementBadge">0</span>
-                </button>
-                <button class="process-btn" id="pendingBtn">
-                    Ver Pendientes <span class="badge" id="pendingBadge">0</span>
-                </button>
-            </div>
-
-            <!-- Contenedor principal de vehículos -->
-            <div class="vehicle-container">
-                <h2 id="sectionTitle">Motocicletas - Pendientes</h2>
                 
-                <!-- Estadísticas -->
-                <div class="stats">
-                    <div class="stat-box stat-present">
-                        <h3>En Parqueadero</h3>
-                        <p id="presentCount">0</p>
+                <!-- Panel lateral de estadísticas -->
+                <div class="stats-panel">
+                    <h2>Resumen</h2>
+                    <div class="stats-grid">
+                        <div class="stat-item stat-present">
+                            <span class="stat-label">En Parqueadero</span>
+                            <span class="stat-value" id="presentCount">0</span>
+                        </div>
+                        <div class="stat-item stat-service">
+                            <span class="stat-label">En Servicio</span>
+                            <span class="stat-value" id="absentCount">0</span>
+                        </div>
+                        <div class="stat-item stat-workshop">
+                            <span class="stat-label">En Taller</span>
+                            <span class="stat-value" id="workshopCount">0</span>
+                        </div>
+                        <div class="stat-item stat-retirement">
+                            <span class="stat-label">En Proceso de Baja</span>
+                            <span class="stat-value" id="retirementCount">0</span>
+                        </div>
+                        <div class="stat-item stat-total">
+                            <span class="stat-label">Total</span>
+                            <span class="stat-value" id="totalCount">0</span>
+                        </div>
                     </div>
-                    <div class="stat-box stat-absent">
-                        <h3>En Servicio</h3>
-                        <p id="absentCount">0</p>
-                    </div>
-                    <div class="stat-box stat-workshop">
-                        <h3>En Taller</h3>
-                        <p id="workshopCount">0</p>
-                    </div>
-                    <div class="stat-box stat-retirement">
-                        <h3>En Proceso de Baja</h3>
-                        <p id="retirementCount">0</p>
-                    </div>
-                    <div class="stat-box stat-total">
-                        <h3>Total</h3>
-                        <p id="totalCount">0</p>
-                    </div>
-                </div>
-
-                <!-- Listado de vehículos -->
-                <div class="vehicles-list">
-                    <table id="vehiclesTable">
-                        <thead>
-                            <tr>
-                                <th>SIGLA</th>
-                                <th>PLACA</th>
-                                <th>CLASE</th>
-                                <th>MARCA</th>
-                                <th>LÍNEA</th>
-                                <th>CILINDRAJE</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="vehiclesBody">
-                            <tr>
-                                <td colspan="7" class="no-data">Carga un archivo para ver los datos</td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>
+        
+        <!-- Notificación toast -->
+        <div class="toast" id="toast"></div>
     </div>
 
     <script>
+        // Esperar a que el DOM esté completamente cargado
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM cargado, iniciando aplicación...');
+            
             // Variables globales
             let vehicles = [];
             let filteredVehicles = [];
             let activeTab = 'MOTOS';
             let presentVehicles = new Set();
             let absentVehicles = new Set();
-            let workshopVehicles = new Set(); // Nuevo estado: En Taller
-            let retirementVehicles = new Set(); // Nuevo estado: En Proceso de Baja
+            let workshopVehicles = new Set();
+            let retirementVehicles = new Set();
             let hideMarked = true;
 
             // Referencias DOM
@@ -889,23 +632,22 @@
             const fileName = document.getElementById('fileName');
             const presentCount = document.getElementById('presentCount');
             const absentCount = document.getElementById('absentCount');
-            const workshopCount = document.getElementById('workshopCount'); // Nuevo
-            const retirementCount = document.getElementById('retirementCount'); // Nuevo
+            const workshopCount = document.getElementById('workshopCount');
+            const retirementCount = document.getElementById('retirementCount');
             const totalCount = document.getElementById('totalCount');
             const hideMarkedToggle = document.getElementById('hideMarkedToggle');
-            const noticeBar = document.getElementById('noticeBar');
-            const parkingBtn = document.getElementById('parkingBtn');
-            const serviceBtn = document.getElementById('serviceBtn');
-            const workshopBtn = document.getElementById('workshopBtn'); // Nuevo
-            const retirementBtn = document.getElementById('retirementBtn'); // Nuevo
-            const pendingBtn = document.getElementById('pendingBtn');
-            const resetBtn = document.getElementById('resetBtn'); // Nuevo botón de reinicio
-            const parkingBadge = document.getElementById('parkingBadge');
-            const serviceBadge = document.getElementById('serviceBadge');
-            const workshopBadge = document.getElementById('workshopBadge'); // Nuevo
-            const retirementBadge = document.getElementById('retirementBadge'); // Nuevo
-            const pendingBadge = document.getElementById('pendingBadge');
+            const toast = document.getElementById('toast');
+            const resetBtn = document.getElementById('resetBtn');
             const sectionTitle = document.getElementById('sectionTitle');
+
+            // Verificar si XLSX está disponible
+            if (typeof XLSX === 'undefined') {
+                console.error('Error: La librería XLSX no está cargada');
+                showToast('Error: No se pudo cargar la librería XLSX. Recarga la página e intenta nuevamente.');
+                return;
+            } else {
+                console.log('XLSX cargado correctamente');
+            }
 
             // Cargar proceso de baja del localStorage
             loadRetirementState();
@@ -926,39 +668,6 @@
                 hideMarked = this.checked;
                 filterVehicles();
             });
-            
-            // Botones de filtro
-            parkingBtn.addEventListener('click', function() {
-                statusFilter.value = 'parking';
-                updateSectionTitle();
-                filterVehicles();
-            });
-            
-            serviceBtn.addEventListener('click', function() {
-                statusFilter.value = 'service';
-                updateSectionTitle();
-                filterVehicles();
-            });
-            
-           workshopBtn.addEventListener('click', function() {
-                statusFilter.value = 'workshop';
-                updateSectionTitle();
-                filterVehicles();
-            });
-            
-            retirementBtn.addEventListener('click', function() {
-                statusFilter.value = 'retirement';
-                updateSectionTitle();
-                filterVehicles();
-            });
-            
-            pendingBtn.addEventListener('click', function() {
-                statusFilter.value = 'pending';
-                updateSectionTitle();
-                filterVehicles();
-            });
-
-            // Botón de reinicio
             resetBtn.addEventListener('click', resetApplication);
 
             tabs.forEach(tab => {
@@ -1000,7 +709,7 @@
                 const fileExt = file.name.split('.').pop().toLowerCase();
                 
                 if (fileExt !== 'xlsx' && fileExt !== 'xls') {
-                    showAlert('Por favor, selecciona un archivo Excel válido (.xlsx o .xls)', 'error');
+                    showToast('Por favor, selecciona un archivo Excel válido (.xlsx o .xls)');
                     return;
                 }
 
@@ -1011,14 +720,26 @@
                 
                 reader.onload = function(e) {
                     try {
+                        console.log('Leyendo archivo Excel...');
                         const data = new Uint8Array(e.target.result);
                         const workbook = XLSX.read(data, { type: 'array' });
+                        
+                        // Verificar si hay hojas disponibles
+                        if (workbook.SheetNames.length === 0) {
+                            throw new Error('El archivo Excel no contiene hojas');
+                        }
                         
                         // Obtener la primera hoja
                         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                         
                         // Convertir a JSON
                         const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                        
+                        if (jsonData.length === 0) {
+                            throw new Error('No se encontraron datos en el archivo');
+                        }
+                        
+                        console.log(`Se encontraron ${jsonData.length} registros en el archivo`);
                         
                         // Procesar los datos
                         processVehicleData(jsonData);
@@ -1029,17 +750,18 @@
                         // Ocultar la sección de carga de archivo
                         dropZone.style.display = 'none';
                         
-                        showAlert('Archivo cargado con éxito', 'success');
+                        showToast('Archivo cargado con éxito');
                     } catch (error) {
                         loader.style.display = 'none';
-                        showAlert('Error al procesar el archivo: ' + error.message, 'error');
                         console.error('Error al procesar el archivo:', error);
+                        showToast('Error al procesar el archivo: ' + error.message);
                     }
                 };
                 
                 reader.onerror = function() {
                     loader.style.display = 'none';
-                    showAlert('Error al leer el archivo', 'error');
+                    console.error('Error al leer el archivo');
+                    showToast('Error al leer el archivo');
                 };
                 
                 reader.readAsArrayBuffer(file);
@@ -1047,6 +769,8 @@
 
             // Procesamiento de datos
             function processVehicleData(data) {
+                console.log('Procesando datos...');
+                
                 // Reiniciar estado
                 vehicles = [];
                 filteredVehicles = [];
@@ -1055,17 +779,27 @@
                 workshopVehicles.clear();
                 // No reiniciamos retirementVehicles para mantenerlo persistente
                 
+                // Verificamos si tiene las columnas necesarias
+                const firstRow = data[0];
+                
+                if (!firstRow.SIGLA && !firstRow.PLACA && !firstRow.TIPO) {
+                    console.error('Formato de archivo inválido, faltan columnas necesarias');
+                    showToast('Formato de archivo inválido. Debe contener columnas: SIGLA, PLACA, TIPO');
+                    return;
+                }
+                
                 // Filtrar solo las columnas que necesitamos y limpiar los puntos en SIGLA
                 vehicles = data.map(item => ({
-                    SIGLA: item.SIGLA ? item.SIGLA.replace(/\./g, '') : '',
+                    SIGLA: item.SIGLA ? String(item.SIGLA).replace(/\./g, '') : '',
                     PLACA: item.PLACA || '',
                     TIPO: item.TIPO || '',
                     CLASE: item.CLASE || '',
                     MARCA: item.MARCA || '',
                     LÍNEA: item.LÍNEA || '',
-                    COLOR: item.COLOR || '',
                     CILINDRAJE: item.CILINDRAJE || ''
                 }));
+                
+                console.log(`Datos procesados: ${vehicles.length} vehículos`);
                 
                 // Establecer el filtro inicial a "Pendientes"
                 statusFilter.value = 'pending';
@@ -1075,6 +809,8 @@
             }
 
             function filterVehicles() {
+                console.log('Filtrando vehículos...');
+                
                 const searchTerm = searchInput.value.toLowerCase().replace(/\./g, '');
                 const searchField = searchBy.value;
                 const statusValue = statusFilter.value;
@@ -1083,7 +819,7 @@
                 filteredVehicles = vehicles.filter(vehicle => {
                     const matchesType = vehicle.TIPO === activeTab;
                     const matchesSearch = !searchTerm || 
-                        (vehicle[searchField] && vehicle[searchField].toString().toLowerCase().includes(searchTerm));
+                        (vehicle[searchField] && String(vehicle[searchField]).toLowerCase().includes(searchTerm));
                     
                     const vehicleId = `${vehicle.TIPO}-${vehicle.SIGLA}-${vehicle.PLACA}`;
                     const isPresent = presentVehicles.has(vehicleId);
@@ -1105,7 +841,7 @@
                             matchesStatus = isPresent;
                         } else if (statusValue === 'service') {
                             matchesStatus = isAbsent;
-                        } else if (statusValue === 'workshop') {
+                } else if (statusValue === 'workshop') {
                             matchesStatus = isWorkshop;
                         } else if (statusValue === 'retirement') {
                             matchesStatus = isRetirement;
@@ -1117,9 +853,9 @@
                     return matchesType && matchesSearch && matchesStatus;
                 });
                 
+                console.log(`Vehículos filtrados: ${filteredVehicles.length}`);
                 updateVehiclesList();
                 updateStats();
-                updateBadges();
             }
 
             function updateVehiclesList() {
@@ -1127,7 +863,7 @@
                 
                 if (filteredVehicles.length === 0) {
                     const row = document.createElement('tr');
-                    row.innerHTML = `<td colspan="7" class="no-data">No se encontraron vehículos</td>`;
+                    row.innerHTML = `<td colspan="6" class="no-data">No se encontraron vehículos</td>`;
                     vehiclesBody.appendChild(row);
                     return;
                 }
@@ -1145,37 +881,27 @@
                     if (isPresent) {
                         row.classList.add('vehicle-row', 'present');
                     } else if (isAbsent) {
-                        row.classList.add('vehicle-row', 'absent');
+                        row.classList.add('vehicle-row', 'service');
                     } else if (isWorkshop) {
                         row.classList.add('vehicle-row', 'workshop');
                     } else if (isRetirement) {
                         row.classList.add('vehicle-row', 'retirement');
                     } else {
-                        row.classList.add('vehicle-row', 'pending');
+                        row.classList.add('vehicle-row');
                     }
                     
-                    // Agregar atributos data-title para la vista móvil
                     row.innerHTML = `
-                        <td data-title="SIGLA:">${vehicle.SIGLA}</td>
-                        <td data-title="PLACA:">${vehicle.PLACA}</td>
-                        <td data-title="CLASE:">${vehicle.CLASE}</td>
-                        <td data-title="MARCA:">${vehicle.MARCA}</td>
-                        <td data-title="LÍNEA:">${vehicle.LÍNEA}</td>
-                        <td data-title="CILINDRAJE:">${vehicle.CILINDRAJE}</td>
-                        <td data-title="Estado:">
-                            <div class="presence-status">
-                                <button class="status-btn present-btn" data-id="${vehicleId}" ${isPresent ? 'disabled' : ''}>
-                                    ${isPresent ? '✓ P' : 'P'}
-                                </button>
-                                <button class="status-btn absent-btn" data-id="${vehicleId}" ${isAbsent ? 'disabled' : ''}>
-                                    ${isAbsent ? '✓ S' : 'S'}
-                                </button>
-                                <button class="status-btn workshop-btn" data-id="${vehicleId}" ${isWorkshop ? 'disabled' : ''}>
-                                    ${isWorkshop ? '✓ T' : 'T'}
-                                </button>
-                                <button class="status-btn retirement-btn" data-id="${vehicleId}" ${isRetirement ? 'disabled' : ''}>
-                                    ${isRetirement ? '✓ B' : 'B'}
-                                </button>
+                        <td>${vehicle.SIGLA || ''}</td>
+                        <td>${vehicle.PLACA || ''}</td>
+                        <td>${vehicle.CLASE || ''}</td>
+                        <td>${vehicle.MARCA || ''}</td>
+                        <td>${vehicle.LÍNEA || ''}</td>
+                        <td>
+                            <div class="status-actions">
+                                <button class="status-btn btn-present" title="En Parqueadero" data-id="${vehicleId}" ${isPresent ? 'disabled' : ''}>P</button>
+                                <button class="status-btn btn-service" title="En Servicio" data-id="${vehicleId}" ${isAbsent ? 'disabled' : ''}>S</button>
+                                <button class="status-btn btn-workshop" title="En Taller" data-id="${vehicleId}" ${isWorkshop ? 'disabled' : ''}>T</button>
+                                <button class="status-btn btn-retirement" title="En Proceso de Baja" data-id="${vehicleId}" ${isRetirement ? 'disabled' : ''}>B</button>
                             </div>
                         </td>
                     `;
@@ -1188,57 +914,60 @@
             }
             
             function addStatusButtonListeners() {
-                document.querySelectorAll('.present-btn').forEach(btn => {
+                document.querySelectorAll('.btn-present').forEach(btn => {
                     btn.addEventListener('click', () => markVehicleStatus(btn.dataset.id, 'present'));
                 });
                 
-                document.querySelectorAll('.absent-btn').forEach(btn => {
-                    btn.addEventListener('click', () => markVehicleStatus(btn.dataset.id, 'absent'));
+                document.querySelectorAll('.btn-service').forEach(btn => {
+                    btn.addEventListener('click', () => markVehicleStatus(btn.dataset.id, 'service'));
                 });
                 
-                document.querySelectorAll('.workshop-btn').forEach(btn => {
+                document.querySelectorAll('.btn-workshop').forEach(btn => {
                     btn.addEventListener('click', () => markVehicleStatus(btn.dataset.id, 'workshop'));
                 });
                 
-                document.querySelectorAll('.retirement-btn').forEach(btn => {
+                document.querySelectorAll('.btn-retirement').forEach(btn => {
                     btn.addEventListener('click', () => markVehicleStatus(btn.dataset.id, 'retirement'));
                 });
             }
-
+            
             function markVehicleStatus(vehicleId, status) {
-                // Quitar el vehículo de todos los conjuntos excepto de retirement
+                console.log(`Marcando vehículo ${vehicleId} como ${status}`);
+                
+                // Quitar el vehículo de todos los conjuntos excepto retirement si no es el destino
                 presentVehicles.delete(vehicleId);
                 absentVehicles.delete(vehicleId);
                 workshopVehicles.delete(vehicleId);
                 
-                // Agregarlo al conjunto correspondiente según el nuevo estado
+                // Agregarlo al conjunto correspondiente según el estado
                 if (status === 'present') {
                     presentVehicles.add(vehicleId);
                     retirementVehicles.delete(vehicleId); // Permitir salir de proceso de baja
-                    showNotice('Vehículo marcado como "En Parqueadero"');
-                } else if (status === 'absent') {
+                    showToast('Vehículo marcado como "En Parqueadero"');
+                } else if (status === 'service') {
                     absentVehicles.add(vehicleId);
                     retirementVehicles.delete(vehicleId); // Permitir salir de proceso de baja
-                    showNotice('Vehículo marcado como "En Servicio"');
+                    showToast('Vehículo marcado como "En Servicio"');
                 } else if (status === 'workshop') {
                     workshopVehicles.add(vehicleId);
                     retirementVehicles.delete(vehicleId); // Permitir salir de proceso de baja
-                    showNotice('Vehículo marcado como "En Taller"');
+                    showToast('Vehículo marcado como "En Taller"');
                 } else if (status === 'retirement') {
                     retirementVehicles.add(vehicleId);
                     saveRetirementState(); // Guardar en localStorage
-                    showNotice('Vehículo marcado como "En Proceso de Baja"');
+                    showToast('Vehículo marcado como "En Proceso de Baja"');
                 }
                 
                 // Si está activada la opción de ocultar marcados y estamos en vista "Pendientes"
                 if (hideMarked && statusFilter.value === 'pending') {
                     const rowElement = document.getElementById(`vehicle-${vehicleId}`);
                     if (rowElement) {
-                        // Animar la desaparición de la fila
-                        rowElement.classList.add('fade-out');
+                        // Actualizar vista con animación suave
+                        rowElement.style.opacity = '0';
+                        rowElement.style.transition = 'opacity 0.3s';
                         setTimeout(() => {
-                            filterVehicles(); // Actualizar la lista después de la animación
-                        }, 500);
+                            filterVehicles(); // Actualizar la lista
+                        }, 300);
                     } else {
                         filterVehicles();
                     }
@@ -1275,39 +1004,9 @@
                 totalCount.textContent = totalVehiclesOfType;
             }
             
-            function updateBadges() {
-                // Actualizar contadores de vehículos por categoría
-                let presentTotal = 0;
-                let absentTotal = 0;
-                let workshopTotal = 0;
-                let retirementTotal = 0;
-                let pendingTotal = 0;
-                
-                vehicles.forEach(vehicle => {
-                    if (vehicle.TIPO === activeTab) {
-                        const vehicleId = `${vehicle.TIPO}-${vehicle.SIGLA}-${vehicle.PLACA}`;
-                        if (presentVehicles.has(vehicleId)) presentTotal++;
-                        else if (absentVehicles.has(vehicleId)) absentTotal++;
-                        else if (workshopVehicles.has(vehicleId)) workshopTotal++;
-                        else if (retirementVehicles.has(vehicleId)) retirementTotal++;
-                        else pendingTotal++;
-                    }
-                });
-                
-                // Actualizar badges
-                parkingBadge.textContent = presentTotal;
-                serviceBadge.textContent = absentTotal;
-                workshopBadge.textContent = workshopTotal;
-                retirementBadge.textContent = retirementTotal;
-                pendingBadge.textContent = pendingTotal;
-            }
-
             function updateSectionTitle() {
-                // Actualizar título de la sección según el filtro
-                let title = 'Vehículos';
-                if (activeTab === 'MOTOS') {
-                    title = 'Motocicletas';
-                }
+                // Actualizar título de la sección según el filtro actual
+                let title = activeTab === 'MOTOS' ? 'Motocicletas' : 'Vehículos';
                 
                 const currentStatusFilter = statusFilter.value;
                 if (currentStatusFilter === 'parking') {
@@ -1324,85 +1023,70 @@
                     title += ' - Todos';
                 }
                 
-                // Actualizar título
                 sectionTitle.textContent = title;
             }
             
             // Guardar estado de proceso de baja en localStorage
             function saveRetirementState() {
-                localStorage.setItem('retirementVehicles', JSON.stringify(Array.from(retirementVehicles)));
+                try {
+                    localStorage.setItem('retirementVehicles', JSON.stringify(Array.from(retirementVehicles)));
+                    console.log('Estado de baja guardado en localStorage');
+                } catch (e) {
+                    console.error('Error guardando en localStorage:', e);
+                }
             }
             
             // Cargar estado de proceso de baja desde localStorage
             function loadRetirementState() {
-                const saved = localStorage.getItem('retirementVehicles');
-                if (saved) {
-                    retirementVehicles = new Set(JSON.parse(saved));
+                try {
+                    const saved = localStorage.getItem('retirementVehicles');
+                    if (saved) {
+                        retirementVehicles = new Set(JSON.parse(saved));
+                        console.log(`Cargados ${retirementVehicles.size} vehículos en proceso de baja`);
+                    }
+                } catch (e) {
+                    console.error('Error cargando desde localStorage:', e);
                 }
             }
             
-            // Iniciar Turno
-function resetApplication() {
-    if (confirm('¿Estás seguro de que deseas iniciar turno? Se conservarán los vehículos "En Taller" y "En Proceso de Baja".')) {
-        // Conservar solo los vehículos en taller y en proceso de baja
-        // Limpiar presentVehicles y absentVehicles
-        presentVehicles.clear();
-        absentVehicles.clear();
-        
-        // Los vehículos en workshopVehicles y retirementVehicles se conservan
-        
-        // Restablecer UI parcialmente
-        vehiclesBody.innerHTML = `<tr><td colspan="7" class="no-data">Carga un archivo para ver los datos</td></tr>`;
-        
-        // Si hay vehículos cargados actualmente, actualizar la vista
-        if (vehicles.length > 0) {
-            // No limpiamos los vehicles, solo actualizamos la UI
-            updateStats();
-            updateBadges();
-            updateSectionTitle();
-            filterVehicles();
+            // Función para reiniciar turno
+            function resetApplication() {
+                if (confirm('¿Estás seguro de que deseas iniciar un nuevo turno? Se conservarán los vehículos "En Taller" y "En Proceso de Baja".')) {
+                    console.log('Reiniciando aplicación...');
+                    
+                    // Conservar solo los vehículos en taller y en proceso de baja
+                    presentVehicles.clear();
+                    absentVehicles.clear();
+                    
+                    // Actualizar interfaz
+                    if (vehicles.length > 0) {
+                        updateStats();
+                        updateSectionTitle();
+                        filterVehicles();
+                        showToast('Turno reiniciado: se conservaron los vehículos en taller y en proceso de baja');
+                    } else {
+                        // No hay vehículos cargados, mostrar sección de carga
+                        dropZone.style.display = 'block';
+                        dataContainer.style.display = 'none';
+                        fileName.textContent = '';
+                        showToast('Turno reiniciado con éxito');
+                    }
+                }
+            }
             
-            // Mostrar sección de datos
-            dropZone.style.display = 'none';
-            dataContainer.style.display = 'block';
-            
-            showAlert('Turno reiniciado: se conservaron los vehículos en taller y en proceso de baja', 'success');
-        } else {
-            // No hay vehículos cargados, mostrar sección de carga
-            dropZone.style.display = 'block';
-            dataContainer.style.display = 'none';
-            
-            // Limpiar nombre de archivo
-            fileName.textContent = '';
-            
-            showAlert('Turno reiniciado con éxito', 'success');
-        }
-    }
-}
-            
-            function showNotice(message) {
-                noticeBar.textContent = message;
-                noticeBar.classList.add('show');
+            // Mostrar notificaciones toast
+            function showToast(message) {
+                console.log('Notificación:', message);
+                toast.textContent = message;
+                toast.classList.add('show');
                 
                 setTimeout(() => {
-                    noticeBar.classList.remove('show');
-                }, 2000);
+                    toast.classList.remove('show');
+                }, 3000);
             }
-
-            // Mostrar alertas
-            function showAlert(message, type = 'error') {
-                const alert = document.createElement('div');
-                alert.className = type === 'success' ? 'alert success-alert' : 'alert';
-                alert.textContent = message;
-                
-                document.body.appendChild(alert);
-                
-                setTimeout(() => {
-                    alert.remove();
-                }, 3500);
-            }
+            
+            console.log('Aplicación inicializada correctamente');
         });
     </script>
 </body>
 </html>
-
