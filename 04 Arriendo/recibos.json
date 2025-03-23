@@ -229,5 +229,26 @@
     "periodoFin": "2025-04-06",
     "nombreQuienRecibe": "Manuel Antonio Arias Guerra",
     "cedulaQuienRecibe": "1.057.736.060"
+  },
+  {
+    "numeroRecibo": "PVJC2025003",
+    "lugarExpedicion": "Bogotá D.C.",
+    "fechaExpedicion": "23 de marzo de 2025",
+    "nombreArrendatario": "Mayerline Maidi Tarazona Miranda",
+    "documentoArrendatario": "27601972",
+    "telefonoArrendatario": "3124680833",
+    "emailArrendatario": "tarazonamayito5@gmail.com",
+    "montoPagado": "800000",
+    "montoEnLetras": "ochocientos mil pesos M/CTE",
+    "formaPago": "Consignación bancaria",
+    "fechaPago": "2025-03-22",
+    "horaPago": "18:44",
+    "concepto": "Canon de arrendamiento",
+    "direccionInmueble": "CALLE 31A NO. 12B-14 BARRIO VILLA JARDÍN, PAIPA (BOYACÁ)",
+    "parteArrendada": "Inmueble completo",
+    "periodoInicio": "2025-03-20",
+    "periodoFin": "2025-04-19",
+    "nombreQuienRecibe": "Manuel Antonio Arias Guerra",
+    "cedulaQuienRecibe": "1.057.736.060"
   }
 ]
