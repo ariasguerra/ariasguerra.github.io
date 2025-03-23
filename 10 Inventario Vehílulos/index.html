@@ -1180,48 +1180,54 @@
             }
             
             function markVehicleStatus(vehicleId, status) {
-                // Quitar el vehículo de todos los conjuntos excepto retirement si no es el destino
-                presentVehicles.delete(vehicleId);
-                absentVehicles.delete(vehicleId);
-                workshopVehicles.delete(vehicleId);
-                
-                // Agregarlo al conjunto correspondiente según el estado
-                if (status === 'present') {
-                    presentVehicles.add(vehicleId);
-                    retirementVehicles.delete(vehicleId); // Permitir salir de proceso de baja
-                    showToast('Vehículo marcado como "En Parqueadero"');
-                } else if (status === 'service') {
-                    absentVehicles.add(vehicleId);
-                    retirementVehicles.delete(vehicleId); // Permitir salir de proceso de baja
-                    showToast('Vehículo marcado como "En Servicio"');
-                } else if (status === 'workshop') {
-                    workshopVehicles.add(vehicleId);
-                    retirementVehicles.delete(vehicleId); // Permitir salir de proceso de baja
-                    showToast('Vehículo marcado como "En Taller"');
-                } else if (status === 'retirement') {
-                    retirementVehicles.add(vehicleId);
-                    showToast('Vehículo marcado como "En Proceso de Baja"');
-                }
-                
-                // Si está activada la opción de ocultar marcados y estamos en vista "Pendientes"
-                if (hideMarked && statusFilter.value === 'pending') {
-                    const element = document.getElementById(`vehicle-${vehicleId}`);
-                    if (element) {
-                        // Actualizar vista con animación suave
-                        element.style.opacity = '0';
-                        setTimeout(function() {
-                            filterVehicles(); // Actualizar la lista
-                        }, 300);
-                    } else {
-                        filterVehicles();
-                    }
-                } else {
-                    filterVehicles();
-                }
-                
-                // Guardar datos
-                saveDataToStorage();
-            }
+    // Quitar el vehículo de todos los conjuntos excepto retirement si no es el destino
+    presentVehicles.delete(vehicleId);
+    absentVehicles.delete(vehicleId);
+    workshopVehicles.delete(vehicleId);
+    
+    // Agregarlo al conjunto correspondiente según el estado
+    if (status === 'present') {
+        presentVehicles.add(vehicleId);
+        retirementVehicles.delete(vehicleId); // Permitir salir de proceso de baja
+        showToast('Vehículo marcado como "En Parqueadero"');
+    } else if (status === 'service') {
+        absentVehicles.add(vehicleId);
+        retirementVehicles.delete(vehicleId); // Permitir salir de proceso de baja
+        showToast('Vehículo marcado como "En Servicio"');
+    } else if (status === 'workshop') {
+        workshopVehicles.add(vehicleId);
+        retirementVehicles.delete(vehicleId); // Permitir salir de proceso de baja
+        showToast('Vehículo marcado como "En Taller"');
+    } else if (status === 'retirement') {
+        retirementVehicles.add(vehicleId);
+        showToast('Vehículo marcado como "En Proceso de Baja"');
+    }
+    
+    // Limpiar el cuadro de búsqueda si estamos en modo búsqueda
+    if (searchActive) {
+        searchInput.value = '';
+        searchActive = false;
+    }
+    
+    // Si está activada la opción de ocultar marcados y estamos en vista "Pendientes"
+    if (hideMarked && statusFilter.value === 'pending') {
+        const element = document.getElementById(`vehicle-${vehicleId}`);
+        if (element) {
+            // Actualizar vista con animación suave
+            element.style.opacity = '0';
+            setTimeout(function() {
+                filterVehicles(); // Actualizar la lista
+            }, 300);
+        } else {
+            filterVehicles();
+        }
+    } else {
+        filterVehicles();
+    }
+    
+    // Guardar datos
+    saveDataToStorage();
+}
 
             function updateStats() {
                 // Contar vehículos
