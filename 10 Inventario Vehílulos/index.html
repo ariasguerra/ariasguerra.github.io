@@ -47,19 +47,6 @@
             line-height: 1.5;
         }
 
-        header {
-            background: var(--primary);
-            color: white;
-            padding: var(--spacing-md);
-            text-align: center;
-            box-shadow: var(--shadow);
-        }
-
-        header h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -152,7 +139,7 @@
 
         @media (min-width: 768px) {
             .filter-controls {
-                grid-template-columns: 2fr 1fr 1fr;
+                grid-template-columns: 3fr 1fr;
                 gap: var(--spacing-md);
             }
         }
@@ -172,6 +159,17 @@
             width: 100%;
         }
 
+        .bottom-controls {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: var(--spacing-md);
+        }
+
         .filter-toggle {
             display: flex;
             align-items: center;
@@ -182,7 +180,6 @@
         .action-buttons {
             display: flex;
             gap: var(--spacing-sm);
-            margin-top: var(--spacing-md);
         }
 
         @media (max-width: 768px) {
@@ -602,10 +599,6 @@
     </style>
 </head>
 <body>
-    <header>
-        <h1>Inventario de Vehículos - Barrios Unidos</h1>
-    </header>
-
     <div class="container">
         <!-- Sección de carga de archivos -->
         <div class="file-upload" id="dropZone">
@@ -633,12 +626,6 @@
                         <!-- Controles de filtrado -->
                         <div class="filter-controls">
                             <input type="text" class="search-input" id="searchInput" placeholder="Buscar vehículo...">
-                            
-                            <select class="select-control" id="searchBy">
-                                <option value="SIGLA">Buscar por SIGLA</option>
-                                <option value="PLACA">Buscar por PLACA</option>
-                            </select>
-                            
                             <select class="select-control" id="statusFilter">
                                 <option value="pending">Pendientes</option>
                                 <option value="all">Todos</option>
@@ -647,20 +634,6 @@
                                 <option value="workshop">En Taller</option>
                                 <option value="retirement">En Baja</option>
                             </select>
-                        </div>
-                        
-                        <div class="filter-toggle">
-                            <label class="switch">
-                                <input type="checkbox" id="hideMarkedToggle" checked>
-                                <span class="slider"></span>
-                            </label>
-                            <span>Ocultar vehículos marcados</span>
-                        </div>
-
-                        <!-- Botones de acción -->
-                        <div class="action-buttons">
-                            <button class="btn" id="resetBtn">Iniciar Turno</button>
-                            <button class="btn btn-danger" id="resetAppBtn">Reiniciar Aplicación</button>
                         </div>
                     </div>
 
@@ -710,28 +683,46 @@
                 </div>
                 
                 <!-- Panel lateral de estadísticas -->
-                <div class="stats-panel">
-                    <h2>Resumen</h2>
-                    <div class="stats-grid">
-                        <div class="stat-item stat-present">
-                            <span class="stat-label">En Parqueadero</span>
-                            <span class="stat-value" id="presentCount">0</span>
+                <div>
+                    <div class="stats-panel">
+                        <h2>Resumen</h2>
+                        <div class="stats-grid">
+                            <div class="stat-item stat-present">
+                                <span class="stat-label">En Parqueadero</span>
+                                <span class="stat-value" id="presentCount">0</span>
+                            </div>
+                            <div class="stat-item stat-service">
+                                <span class="stat-label">En Servicio</span>
+                                <span class="stat-value" id="absentCount">0</span>
+                            </div>
+                            <div class="stat-item stat-workshop">
+                                <span class="stat-label">En Taller</span>
+                                <span class="stat-value" id="workshopCount">0</span>
+                            </div>
+                            <div class="stat-item stat-retirement">
+                                <span class="stat-label">En Proceso de Baja</span>
+                                <span class="stat-value" id="retirementCount">0</span>
+                            </div>
+                            <div class="stat-item stat-total">
+                                <span class="stat-label">Total</span>
+                                <span class="stat-value" id="totalCount">0</span>
+                            </div>
                         </div>
-                        <div class="stat-item stat-service">
-                            <span class="stat-label">En Servicio</span>
-                            <span class="stat-value" id="absentCount">0</span>
+                    </div>
+                    
+                    <!-- Controles inferiores -->
+                    <div class="bottom-controls">
+                        <div class="filter-toggle">
+                            <label class="switch">
+                                <input type="checkbox" id="hideMarkedToggle" checked>
+                                <span class="slider"></span>
+                            </label>
+                            <span>Ocultar vehículos marcados</span>
                         </div>
-                        <div class="stat-item stat-workshop">
-                            <span class="stat-label">En Taller</span>
-                            <span class="stat-value" id="workshopCount">0</span>
-                        </div>
-                        <div class="stat-item stat-retirement">
-                            <span class="stat-label">En Proceso de Baja</span>
-                            <span class="stat-value" id="retirementCount">0</span>
-                        </div>
-                        <div class="stat-item stat-total">
-                            <span class="stat-label">Total</span>
-                            <span class="stat-value" id="totalCount">0</span>
+                        
+                        <div class="action-buttons">
+                            <button class="btn" id="resetBtn">Iniciar Turno</button>
+                            <button class="btn btn-danger" id="resetAppBtn">Reiniciar Aplicación</button>
                         </div>
                     </div>
                 </div>
@@ -764,7 +755,6 @@
             const vehiclesBody = document.getElementById('vehiclesBody');
             const vehiclesCards = document.getElementById('vehiclesCards');
             const searchInput = document.getElementById('searchInput');
-            const searchBy = document.getElementById('searchBy');
             const statusFilter = document.getElementById('statusFilter');
             const hideMarkedToggle = document.getElementById('hideMarkedToggle');
             const tabs = document.querySelectorAll('.tab');
@@ -823,10 +813,6 @@
             searchInput.addEventListener('input', function() {
                 const searchTerm = this.value.trim();
                 searchActive = searchTerm.length > 0;
-                filterVehicles();
-            });
-            
-            searchBy.addEventListener('change', function() {
                 filterVehicles();
             });
             
@@ -942,58 +928,65 @@
             }
 
             function filterVehicles() {
-                const searchTerm = searchInput.value.toLowerCase().replace(/\./g, '');
-                const searchField = searchBy.value;
-                const statusValue = statusFilter.value;
-                
-                // Filtrar vehículos
-                filteredVehicles = vehicles.filter(function(vehicle) {
-                    // Por tipo
-                    const matchesType = vehicle.TIPO === activeTab;
-                    
-                    // Por búsqueda
-                    let matchesSearch = true;
-                    if (searchTerm) {
-                        const fieldValue = vehicle[searchField];
-                        matchesSearch = fieldValue && String(fieldValue).toLowerCase().includes(searchTerm);
-                    }
-                    
-                    // Por estado
-                    const vehicleId = `${vehicle.TIPO}-${vehicle.SIGLA}-${vehicle.PLACA}`;
-                    const isPresent = presentVehicles.has(vehicleId);
-                    const isAbsent = absentVehicles.has(vehicleId);
-                    const isWorkshop = workshopVehicles.has(vehicleId);
-                    const isRetirement = retirementVehicles.has(vehicleId);
-                    const isMarked = isPresent || isAbsent || isWorkshop || isRetirement;
-                    
-                    // Si hideMarked está activado y estamos viendo pendientes
-                    if (hideMarked && statusValue === 'pending' && isMarked) {
-                        return false;
-                    }
-                    
-                    // Filtrar por estado específico
-                    let matchesStatus = true;
-                    if (statusValue !== 'all') {
-                        if (statusValue === 'parking') {
-                            matchesStatus = isPresent;
-                        } else if (statusValue === 'service') {
-                            matchesStatus = isAbsent;
-                        } else if (statusValue === 'workshop') {
-                            matchesStatus = isWorkshop;
-                        } else if (statusValue === 'retirement') {
-                            matchesStatus = isRetirement;
-                        } else if (statusValue === 'pending') {
-                            matchesStatus = !isMarked;
-                        }
-                    }
-                    
-                    return matchesType && matchesSearch && matchesStatus;
-                });
-                
-                updateDisplayMode();
-                updateStats();
-                saveDataToStorage();
+    const searchTerm = searchInput.value.toLowerCase().replace(/\./g, '');
+    const statusValue = statusFilter.value;
+    
+    // Determinar si busca por placa o por sigla
+    const containsLetters = /[a-z]/i.test(searchTerm);
+    
+    // Filtrar vehículos
+    filteredVehicles = vehicles.filter(function(vehicle) {
+        // Por tipo
+        const matchesType = vehicle.TIPO === activeTab;
+        
+        // Por búsqueda inteligente
+        let matchesSearch = true;
+        if (searchTerm) {
+            if (containsLetters) {
+                // Si contiene letras, buscar en placa
+                matchesSearch = vehicle.PLACA && String(vehicle.PLACA).toLowerCase().includes(searchTerm);
+            } else {
+                // Si solo tiene números, buscar en SIGLA
+                matchesSearch = vehicle.SIGLA && String(vehicle.SIGLA).toLowerCase().includes(searchTerm);
             }
+        }
+        
+        // Por estado
+        const vehicleId = `${vehicle.TIPO}-${vehicle.SIGLA}-${vehicle.PLACA}`;
+        const isPresent = presentVehicles.has(vehicleId);
+        const isAbsent = absentVehicles.has(vehicleId);
+        const isWorkshop = workshopVehicles.has(vehicleId);
+        const isRetirement = retirementVehicles.has(vehicleId);
+        const isMarked = isPresent || isAbsent || isWorkshop || isRetirement;
+        
+        // Si hideMarked está activado y estamos viendo pendientes
+        if (hideMarked && statusValue === 'pending' && isMarked) {
+            return false;
+        }
+        
+        // Filtrar por estado específico
+        let matchesStatus = true;
+        if (statusValue !== 'all') {
+            if (statusValue === 'parking') {
+                matchesStatus = isPresent;
+            } else if (statusValue === 'service') {
+                matchesStatus = isAbsent;
+            } else if (statusValue === 'workshop') {
+                matchesStatus = isWorkshop;
+            } else if (statusValue === 'retirement') {
+                matchesStatus = isRetirement;
+            } else if (statusValue === 'pending') {
+                matchesStatus = !isMarked;
+            }
+        }
+        
+        return matchesType && matchesSearch && matchesStatus;
+    });
+    
+    updateDisplayMode();
+    updateStats();
+    saveDataToStorage();
+}
             
             function updateDisplayMode() {
                 // Elegir modo de visualización basado en búsqueda
