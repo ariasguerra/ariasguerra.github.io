@@ -84,7 +84,8 @@
             margin: 0 auto;
             padding: var(--spacing-lg);
         }
-/* Zona de carga de archivos */
+
+        /* Zona de carga de archivos */
         .file-upload {
             background-color: white;
             border-radius: var(--radius-md);
@@ -329,7 +330,8 @@
             padding-bottom: var(--spacing-sm);
             border-bottom: 1px solid var(--border);
         }
-/* Stats de estado */
+
+        /* Stats de estado */
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -597,10 +599,88 @@
             to { opacity: 0; height: 0; padding: 0; margin: 0; overflow: hidden; }
         }
 
-        /* Estilos responsivos */
+        /* Ajustes para dispositivos móviles */
         @media (max-width: 768px) {
-            .stats {
-                grid-template-columns: 1fr;
+            /* Ajustar tamaño de contenedor principal */
+            .container {
+                padding: 0.5rem;
+            }
+            
+            /* Hacer tabla responsiva para móviles */
+            .vehicles-list {
+                max-height: none;
+            }
+            
+            /* Transformar tabla en tarjetas para móviles */
+            table, thead, tbody, th, td, tr { 
+                display: block; 
+            }
+            
+            thead tr { 
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            
+            tr {
+                margin-bottom: 15px;
+                border: 1px solid var(--border);
+                border-radius: var(--radius-sm);
+                position: relative;
+                background-color: white !important;
+            }
+            
+            tr.present {
+                border-left: 5px solid var(--success) !important;
+            }
+            
+            tr.absent {
+                border-left: 5px solid var(--warning) !important;
+            }
+            
+            tr.workshop {
+                border-left: 5px solid #2196f3 !important;
+            }
+            
+            tr.retirement {
+                border-left: 5px solid #f44336 !important;
+            }
+            
+            tr.pending {
+                border-left: 5px solid #ccc !important;
+            }
+            
+            td { 
+                /* Hacer que todas las celdas sean como filas */
+                position: relative;
+                padding-left: 40% !important; 
+                text-align: left;
+                border-bottom: 1px solid #eee;
+                min-height: 40px;
+                display: flex;
+                align-items: center;
+            }
+            
+            td:last-child {
+                border-bottom: none;
+            }
+            
+            td:before { 
+                /* Añadir etiquetas a las celdas */
+                position: absolute;
+                left: 10px;
+                width: 35%; 
+                padding-right: 10px; 
+                font-weight: bold;
+                color: var(--primary);
+                content: attr(data-title);
+            }
+            
+            /* Ajustar controles para móviles */
+            .view-controls {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
             }
             
             .search-bar {
@@ -611,45 +691,44 @@
                 flex-direction: column;
             }
             
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
             .process-btn {
-                margin-right: 0;
-                margin-bottom: var(--spacing-sm);
-                min-width: 100%;
+                margin-bottom: 5px;
+                width: 100%;
             }
             
-            .view-controls {
-                flex-direction: column;
-                align-items: flex-start;
+            /* Optimizar botones de acción para móviles */
+            .presence-status {
+                width: 100%;
+                padding: 0;
             }
             
-            .view-toggle {
-                margin-left: 0;
-                margin-top: var(--spacing-sm);
-                margin-bottom: var(--spacing-sm);
+            .status-btn {
+                width: calc(50% - 5px);
+                font-size: 0.75rem;
+                padding: 5px;
             }
             
-            th, td {
-                padding: var(--spacing-sm);
+            /* Ajustar los stats para móviles */
+            .stat-box {
+                padding: 10px;
+            }
+            
+            .stat-box p {
+                font-size: 1.4rem;
+            }
+            
+            .stat-box h3 {
                 font-size: 0.9rem;
             }
             
-            .status-btn {
-                width: 90px;
-                font-size: 0.8rem;
-            }
-            
-            .presence-status {
-                flex-direction: column;
-            }
-        }
-
-        @media (min-width: 769px) and (max-width: 1024px) {
-            .presence-status {
-                flex-wrap: wrap;
-                gap: 5px;
-            }
-            .status-btn {
-                width: 48%;
+            /* Ajustar tabs para móviles */
+            .tab {
+                padding: 8px;
+                font-size: 0.9rem;
             }
         }
     </style>
@@ -709,7 +788,7 @@
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
-                <button class="process-btn" id="resetBtn">Reiniciar Aplicación</button>
+                <button class="process-btn" id="resetBtn">Iniciar Turno</button>
             </div>
 
             <!-- Botones de filtro rápido -->
@@ -758,7 +837,8 @@
                         <p id="totalCount">0</p>
                     </div>
                 </div>
-<!-- Listado de vehículos -->
+
+                <!-- Listado de vehículos -->
                 <div class="vehicles-list">
                     <table id="vehiclesTable">
                         <thead>
@@ -860,7 +940,7 @@
                 filterVehicles();
             });
             
-            workshopBtn.addEventListener('click', function() {
+           workshopBtn.addEventListener('click', function() {
                 statusFilter.value = 'workshop';
                 updateSectionTitle();
                 filterVehicles();
@@ -1074,26 +1154,27 @@
                         row.classList.add('vehicle-row', 'pending');
                     }
                     
+                    // Agregar atributos data-title para la vista móvil
                     row.innerHTML = `
-                        <td>${vehicle.SIGLA}</td>
-                        <td>${vehicle.PLACA}</td>
-                        <td>${vehicle.CLASE}</td>
-                        <td>${vehicle.MARCA}</td>
-                        <td>${vehicle.LÍNEA}</td>
-                        <td>${vehicle.CILINDRAJE}</td>
-                        <td>
+                        <td data-title="SIGLA:">${vehicle.SIGLA}</td>
+                        <td data-title="PLACA:">${vehicle.PLACA}</td>
+                        <td data-title="CLASE:">${vehicle.CLASE}</td>
+                        <td data-title="MARCA:">${vehicle.MARCA}</td>
+                        <td data-title="LÍNEA:">${vehicle.LÍNEA}</td>
+                        <td data-title="CILINDRAJE:">${vehicle.CILINDRAJE}</td>
+                        <td data-title="Estado:">
                             <div class="presence-status">
                                 <button class="status-btn present-btn" data-id="${vehicleId}" ${isPresent ? 'disabled' : ''}>
-                                    ${isPresent ? '✓ Parque' : 'Parque'}
+                                    ${isPresent ? '✓ P' : 'P'}
                                 </button>
                                 <button class="status-btn absent-btn" data-id="${vehicleId}" ${isAbsent ? 'disabled' : ''}>
-                                    ${isAbsent ? '✓ Servicio' : 'Servicio'}
+                                    ${isAbsent ? '✓ S' : 'S'}
                                 </button>
                                 <button class="status-btn workshop-btn" data-id="${vehicleId}" ${isWorkshop ? 'disabled' : ''}>
-                                    ${isWorkshop ? '✓ Taller' : 'Taller'}
+                                    ${isWorkshop ? '✓ T' : 'T'}
                                 </button>
                                 <button class="status-btn retirement-btn" data-id="${vehicleId}" ${isRetirement ? 'disabled' : ''}>
-                                    ${isRetirement ? '✓ Baja' : 'Baja'}
+                                    ${isRetirement ? '✓ B' : 'B'}
                                 </button>
                             </div>
                         </td>
@@ -1125,12 +1206,10 @@
             }
 
             function markVehicleStatus(vehicleId, status) {
-                // Quitar el vehículo de todos los conjuntos
+                // Quitar el vehículo de todos los conjuntos excepto de retirement
                 presentVehicles.delete(vehicleId);
                 absentVehicles.delete(vehicleId);
                 workshopVehicles.delete(vehicleId);
-                
-                // No quitamos de retirementVehicles para que sea persistente
                 
                 // Agregarlo al conjunto correspondiente según el nuevo estado
                 if (status === 'present') {
@@ -1262,39 +1341,44 @@
                 }
             }
             
-            // Reiniciar la aplicación
-            function resetApplication() {
-                if (confirm('¿Estás seguro de que deseas reiniciar la aplicación? Se borrarán todos los estados excepto "En Proceso de Baja".')) {
-                    vehicles = [];
-                    filteredVehicles = [];
-                    presentVehicles.clear();
-                    absentVehicles.clear();
-                    workshopVehicles.clear();
-                    // Conservamos retirementVehicles
-                    
-                    // Restablecer UI
-                    vehiclesBody.innerHTML = `<tr><td colspan="7" class="no-data">Carga un archivo para ver los datos</td></tr>`;
-                    presentCount.textContent = '0';
-                    absentCount.textContent = '0';
-                    workshopCount.textContent = '0';
-                    retirementCount.textContent = '0';
-                    totalCount.textContent = '0';
-                    parkingBadge.textContent = '0';
-                    serviceBadge.textContent = '0';
-                    workshopBadge.textContent = '0';
-                    retirementBadge.textContent = '0';
-                    pendingBadge.textContent = '0';
-                    
-                    // Mostrar sección de carga
-                    dropZone.style.display = 'block';
-                    dataContainer.style.display = 'none';
-                    
-                    // Limpiar nombre de archivo
-                    fileName.textContent = '';
-                    
-                    showAlert('Aplicación reiniciada con éxito', 'success');
-                }
-            }
+            // Iniciar Turno
+function resetApplication() {
+    if (confirm('¿Estás seguro de que deseas iniciar turno? Se conservarán los vehículos "En Taller" y "En Proceso de Baja".')) {
+        // Conservar solo los vehículos en taller y en proceso de baja
+        // Limpiar presentVehicles y absentVehicles
+        presentVehicles.clear();
+        absentVehicles.clear();
+        
+        // Los vehículos en workshopVehicles y retirementVehicles se conservan
+        
+        // Restablecer UI parcialmente
+        vehiclesBody.innerHTML = `<tr><td colspan="7" class="no-data">Carga un archivo para ver los datos</td></tr>`;
+        
+        // Si hay vehículos cargados actualmente, actualizar la vista
+        if (vehicles.length > 0) {
+            // No limpiamos los vehicles, solo actualizamos la UI
+            updateStats();
+            updateBadges();
+            updateSectionTitle();
+            filterVehicles();
+            
+            // Mostrar sección de datos
+            dropZone.style.display = 'none';
+            dataContainer.style.display = 'block';
+            
+            showAlert('Turno reiniciado: se conservaron los vehículos en taller y en proceso de baja', 'success');
+        } else {
+            // No hay vehículos cargados, mostrar sección de carga
+            dropZone.style.display = 'block';
+            dataContainer.style.display = 'none';
+            
+            // Limpiar nombre de archivo
+            fileName.textContent = '';
+            
+            showAlert('Turno reiniciado con éxito', 'success');
+        }
+    }
+}
             
             function showNotice(message) {
                 noticeBar.textContent = message;
@@ -1321,3 +1405,4 @@
     </script>
 </body>
 </html>
+
