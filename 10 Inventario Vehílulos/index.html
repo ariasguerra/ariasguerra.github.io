@@ -610,116 +610,123 @@
             }
 
             h2 {
-                font-size: 1.1rem;
+                font-size: 1rem;
             }
 
             .tab {
                 padding: var(--spacing-xs);
-                font-size: 0.9rem;
+                font-size: 0.85rem;
             }
 
-            .status-btn {
-                min-width: 28px;
-                height: 28px;
-                font-size: 0.7rem;
-            }
-
-            .table-btn {
-                min-width: 24px;
-                height: 24px;
-            }
-
-            .toast {
-                padding: var(--spacing-sm);
-                font-size: 0.9rem;
-                max-width: 90%;
-                right: 5%;
-            }
-            
-            /* Mejoras específicas para móviles */
             .vehicles-container, .control-panel, .stats-panel, .bottom-controls {
-                padding: var(--spacing-sm);
+                padding: var(--spacing-xs);
             }
             
             .file-upload {
-                padding: var(--spacing-md);
-            }
-            
-            .card-info {
-                grid-template-columns: 1fr;
-            }
-            
-            .card-actions {
-                flex-wrap: wrap;
-            }
-            
-            .status-btn {
-                padding: 0;
-                min-width: unset;
-                flex: 1;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
+                padding: var(--spacing-sm);
             }
             
             .stat-item {
                 padding: var(--spacing-xs);
-                margin-bottom: var(--spacing-xs);
             }
             
             .stat-value {
                 font-size: 1.2rem;
             }
             
-            .table-header-actions {
-                flex-direction: column;
-                align-items: flex-start;
+            /* Optimizar tabla para móvil */
+            table {
+                min-width: 450px;
+                font-size: 0.85rem;
             }
             
-            .table-header-actions h2 {
-                margin-bottom: var(--spacing-sm);
+            th, td {
+                padding: var(--spacing-xs) var(--spacing-sm);
             }
             
-            .bulk-actions {
-                width: 100%;
-                margin-bottom: var(--spacing-xs);
-            }
-
-            /* Optimizar botones de acción en tarjetas */
-            .card-actions {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: var(--spacing-xs);
+            .table-btn {
+                min-width: 24px;
+                height: 24px;
+                font-size: 0.7rem;
             }
             
-            /* Ajustes para tabla móvil */
+            .toast {
+                padding: var(--spacing-sm);
+                font-size: 0.85rem;
+                max-width: 90%;
+                right: 5%;
+                top: 10px;
+            }
+            
+            /* Mejorar rendimiento en móvil */
             .table-container {
                 max-height: 400px;
             }
             
-            /* Botones grandes para móvil en tarjetas */
-            .vehicle-card .status-btn {
-                height: 40px;
-                font-size: 0.9rem;
-                display: flex;
-                justify-content: center;
-                align-items: center;
+            /* Ajustar espaciado en todas partes */
+            .control-panel, .vehicles-container, .stats-panel, .bottom-controls {
+                margin-bottom: var(--spacing-xs);
             }
             
-            /* Datos principales más visibles */
+            /* Tarjetas más compactas */
+            .vehicle-card {
+                padding: var(--spacing-sm);
+            }
+            
+            .card-info {
+                gap: var(--spacing-xs);
+            }
+            
+            .card-actions {
+                gap: 2px;
+            }
+            
+            .status-btn {
+                font-size: 0.7rem;
+                min-width: 24px;
+                height: 24px;
+            }
+            
+            /* Botones del panel de acciones masivas */
+            .bulk-actions .status-btn {
+                min-width: 30px;
+                height: 30px;
+            }
+            
+            /* Ajustar espaciado en tarjetas */
+            .card-header {
+                margin-bottom: var(--spacing-xs);
+            }
+            
             .card-title {
-                font-size: 1.2rem;
+                font-size: 0.95rem;
             }
             
             .card-subtitle {
-                font-size: 1rem;
+                font-size: 0.85rem;
             }
             
-            /* Más fácil de seleccionar */
-            .custom-checkbox {
-                width: 20px;
-                height: 20px;
+            .info-label {
+                font-size: 0.75rem;
+            }
+            
+            .info-value {
+                font-size: 0.85rem;
+            }
+            
+            /* Optimizar acciones al final */
+            .table-header-actions {
+                margin-bottom: var(--spacing-xs);
+            }
+            
+            .selection-counter {
+                font-size: 0.8rem;
+                margin-right: var(--spacing-xs);
+            }
+            
+            .btn {
+                padding: var(--spacing-xs) var(--spacing-sm);
+                font-size: 0.85rem;
             }
         }
     </style>
@@ -821,37 +828,10 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Estadísticas para móvil (visible en pantallas pequeñas) -->
-                    <div class="stats-panel mobile-stats" style="display: none; margin-top: var(--spacing-md);">
-                        <h2>Resumen</h2>
-                        <div class="stats-grid">
-                            <div class="stat-item stat-present">
-                                <span class="stat-label">En Parqueadero</span>
-                                <span class="stat-value" id="mobilePresent">0</span>
-                            </div>
-                            <div class="stat-item stat-service">
-                                <span class="stat-label">En Servicio</span>
-                                <span class="stat-value" id="mobileAbsent">0</span>
-                            </div>
-                            <div class="stat-item stat-workshop">
-                                <span class="stat-label">En Taller</span>
-                                <span class="stat-value" id="mobileWorkshop">0</span>
-                            </div>
-                            <div class="stat-item stat-retirement">
-                                <span class="stat-label">En Baja</span>
-                                <span class="stat-value" id="mobileRetirement">0</span>
-                            </div>
-                            <div class="stat-item stat-total">
-                                <span class="stat-label">Total</span>
-                                <span class="stat-value" id="mobileTotal">0</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 
-                <!-- Panel lateral de estadísticas (para desktop) -->
-                <div class="desktop-stats">
+                <!-- Panel lateral de estadísticas -->
+                <div>
                     <div class="stats-panel">
                         <h2>Resumen</h2>
                         <div class="stats-grid">
@@ -915,7 +895,6 @@
             let dataLoaded = false;
             let searchActive = false;
             let selectedVehicles = new Set();
-            let isMobile = window.innerWidth < 768;
 
             // Referencias DOM
             const fileInput = document.getElementById('fileInput');
@@ -935,11 +914,6 @@
             const workshopCount = document.getElementById('workshopCount');
             const retirementCount = document.getElementById('retirementCount');
             const totalCount = document.getElementById('totalCount');
-            const mobilePresent = document.getElementById('mobilePresent');
-            const mobileAbsent = document.getElementById('mobileAbsent');
-            const mobileWorkshop = document.getElementById('mobileWorkshop');
-            const mobileRetirement = document.getElementById('mobileRetirement');
-            const mobileTotal = document.getElementById('mobileTotal');
             const toast = document.getElementById('toast');
             const resetBtn = document.getElementById('resetBtn');
             const resetAppBtn = document.getElementById('resetAppBtn');
@@ -951,8 +925,6 @@
             const headerCheckbox = document.getElementById('headerCheckbox');
             const bulkActionsPanel = document.getElementById('bulkActionsPanel');
             const selectionCounter = document.getElementById('selectionCounter');
-            const mobileStatsPanel = document.querySelector('.mobile-stats');
-            const desktopStatsPanel = document.querySelector('.desktop-stats');
             
             // Botones de control
             const bulkMarkPresent = document.getElementById('bulkMarkPresent');
@@ -966,9 +938,6 @@
                 return;
             }
 
-            // Verificar si es móvil y configurar vista
-            checkMobileView();
-
             // Cargar datos guardados
             loadSavedData();
 
@@ -976,8 +945,7 @@
             uploadBtn.addEventListener('click', function() {
                 fileInput.click();
             });
-            
-            fileInput.addEventListener('change', handleFileUpload);
+fileInput.addEventListener('change', handleFileUpload);
             
             dropZone.addEventListener('dragover', function(e) {
                 e.preventDefault();
@@ -998,7 +966,7 @@
                     fileInput.files = e.dataTransfer.files;
                     handleFileUpload();
                 }
-            });
+});
             
             searchInput.addEventListener('input', function() {
                 const searchTerm = this.value.trim();
@@ -1018,9 +986,6 @@
             
             resetBtn.addEventListener('click', resetTurn);
             resetAppBtn.addEventListener('click', resetApplication);
-
-            // Escuchar cambios de tamaño de ventana para móvil/desktop
-            window.addEventListener('resize', checkMobileView);
 
             tabs.forEach(function(tab) {
                 tab.addEventListener('click', function() {
@@ -1094,21 +1059,6 @@
             });
 
             // Funciones
-            function checkMobileView() {
-                isMobile = window.innerWidth < 768;
-                
-                // Mostrar u ocultar paneles según dispositivo
-                if (dataLoaded) {
-                    if (isMobile) {
-                        if (mobileStatsPanel) mobileStatsPanel.style.display = 'block';
-                        if (desktopStatsPanel) desktopStatsPanel.style.display = 'none';
-                    } else {
-                        if (mobileStatsPanel) mobileStatsPanel.style.display = 'none';
-                        if (desktopStatsPanel) desktopStatsPanel.style.display = 'block';
-                    }
-                }
-            }
-
             function handleFileUpload() {
                 const file = fileInput.files[0];
                 if (!file) return;
@@ -1149,9 +1099,6 @@
                         
                         dataLoaded = true;
                         saveDataToStorage();
-                        
-                        // Actualizar vista móvil/desktop
-                        checkMobileView();
                         
                         showToast('Archivo cargado con éxito');
                     } catch (error) {
@@ -1257,33 +1204,25 @@
                 selectedVehicles.clear();
                 updateSelectionUI();
                 
-                // Actualizar vista
                 updateDisplayMode();
                 updateStats();
                 saveDataToStorage();
             }
             
             function updateDisplayMode() {
-                // Para móviles, preferimos usar tarjetas para todo
-                if (isMobile && dataLoaded) {
-                    // En móvil, siempre mostrar tarjetas
+                // Elegir modo de visualización basado en búsqueda
+                if (searchActive) {
+                    // Mostrar tarjetas para búsqueda
                     cardsView.style.display = "block";
                     tableView.style.display = "none";
                     searchPrompt.style.display = "none";
                     updateVehiclesCards();
                 } else {
-                    // En desktop, elegir basado en búsqueda
-                    if (searchActive) {
-                        cardsView.style.display = "block";
-                        tableView.style.display = "none";
-                        searchPrompt.style.display = "none";
-                        updateVehiclesCards();
-                    } else {
-                        cardsView.style.display = "none";
-                        tableView.style.display = "block";
-                        searchPrompt.style.display = "none";
-                        updateVehiclesTable();
-                    }
+                    // Mostrar tabla para lo demás
+                    cardsView.style.display = "none";
+                    tableView.style.display = "block";
+                    searchPrompt.style.display = "none";
+                    updateVehiclesTable();
                 }
             }
 
@@ -1606,19 +1545,12 @@
                     }
                 }
                 
-                // Actualizar contadores en la UI (desktop)
+                // Actualizar contadores en la UI
                 presentCount.textContent = presentTotal;
                 absentCount.textContent = absentTotal;
                 workshopCount.textContent = workshopTotal;
                 retirementCount.textContent = retirementTotal;
                 totalCount.textContent = totalVehiclesOfType;
-                
-                // Actualizar contadores para móvil
-                if (mobilePresent) mobilePresent.textContent = presentTotal;
-                if (mobileAbsent) mobileAbsent.textContent = absentTotal;
-                if (mobileWorkshop) mobileWorkshop.textContent = workshopTotal;
-                if (mobileRetirement) mobileRetirement.textContent = retirementTotal;
-                if (mobileTotal) mobileTotal.textContent = totalVehiclesOfType;
             }
             
             function updateSectionTitle() {
@@ -1710,9 +1642,6 @@
                         dataContainer.style.display = 'block';
                         dropZone.style.display = 'none';
                         
-                        // Configurar vista móvil/desktop
-                        checkMobileView();
-                        
                         updateSectionTitle();
                         filterVehicles();
                     }
@@ -1771,7 +1700,7 @@
                         t.classList.remove('active');
                     });
                     tabs[0].classList.add('active');
-                    statusFilter.value = 'pending';
+statusFilter.value = 'pending';
                     hideMarkedToggle.checked = true;
                     hideMarked = true;
                     searchInput.value = '';
@@ -1780,9 +1709,6 @@
                     // Mostrar pantalla de carga
                     dataContainer.style.display = 'none';
                     dropZone.style.display = 'block';
-                    
-                    // Ocultar paneles de estadísticas móviles
-                    if (mobileStatsPanel) mobileStatsPanel.style.display = 'none';
                     
                     showToast('Aplicación reiniciada correctamente');
                 }
@@ -1829,4 +1755,3 @@
     </script>
 </body>
 </html>
-
