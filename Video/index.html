@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor de Videos JSON</title>
+    <link rel="stylesheet" href="style.css"> <!-- Enlaza la hoja de estilos CSS -->
+</head>
+<body>
+
+    <div class="container"> <!-- Contenedor principal -->
+        <h1>Reproductor de Videos</h1>
+
+        <div class="player-area"> <!-- Área del reproductor -->
+            <video id="videoPlayer" controls width="720">
+                <!-- Mensaje para navegadores que no soportan la etiqueta video -->
+                Tu navegador no soporta la etiqueta de video HTML5.
+                <!-- Nota sobre la compatibilidad de MKV -->
+                <p><strong>Nota:</strong> La reproducción de archivos .mkv puede no funcionar en todos los navegadores. Se recomienda usar formatos como MP4.</p>
+            </video>
+            <div id="videoInfo"> <!-- Información del video actual -->
+                <h2 id="videoTitle">Selecciona un video de la lista</h2>
+                <p id="videoDescription"></p>
+            </div>
+        </div>
+
+        <div class="list-area"> <!-- Área de la lista de videos -->
+            <h2>Lista de Videos</h2>
+            <ul id="videoList">
+                <!-- La lista de videos se cargará aquí mediante JavaScript -->
+                <li>Cargando videos...</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="script.js"></script> <!-- Enlaza el archivo JavaScript -->
+</body>
+</html>

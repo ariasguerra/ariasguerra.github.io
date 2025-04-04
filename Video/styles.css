@@ -1,0 +1,185 @@
+/* --- Importar Fuente (Opcional pero recomendado) --- */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+/* --- Variables CSS (Opcional, para fácil personalización) --- */
+:root {
+    --primary-color: #007bff; /* Azul primario */
+    --light-primary-color: #cce5ff; /* Azul claro para hover/activo */
+    --dark-text: #343a40; /* Texto oscuro */
+    --light-text: #f8f9fa; /* Texto claro */
+    --secondary-text: #6c757d; /* Texto secundario/gris */
+    --background-color: #f8f9fa; /* Fondo general */
+    --container-bg: #ffffff; /* Fondo del contenedor principal */
+    --border-color: #dee2e6; /* Color de borde sutil */
+}
+
+/* --- Estilos Generales --- */
+body {
+    font-family: 'Roboto', sans-serif; /* Fuente más moderna */
+    line-height: 1.6;
+    margin: 0;
+    padding: 0; /* Quitamos el padding del body */
+    background-color: var(--background-color);
+    color: var(--dark-text);
+}
+
+html {
+    box-sizing: border-box;
+    scroll-behavior: smooth; /* Desplazamiento suave al hacer clic en enlaces (si los hubiera) */
+}
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+/* --- Contenedor Principal --- */
+.container {
+    max-width: 1140px; /* Un poco más ancho */
+    margin: 30px auto; /* Más margen superior/inferior */
+    background: var(--container-bg);
+    padding: 30px; /* Más relleno */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Sombra más pronunciada */
+    border-radius: 8px; /* Esquinas redondeadas */
+    display: grid; /* Usar Grid para layout (opcional, alternativa a flex o normal flow) */
+    grid-template-columns: 1fr; /* Por defecto una columna */
+    gap: 30px; /* Espacio entre áreas */
+}
+
+/* Layout en pantallas más grandes */
+@media (min-width: 992px) {
+    .container {
+        /* Dos columnas: Reproductor a la izquierda, lista a la derecha */
+        grid-template-columns: 2fr 1fr;
+    }
+     /* Ordenar las áreas si es necesario (opcional) */
+    .player-area { grid-column: 1 / 2; grid-row: 2 / 3; }
+    .list-area { grid-column: 2 / 3; grid-row: 2 / 3; }
+    h1 { grid-column: 1 / -1; grid-row: 1 / 2; } /* El título ocupa todo el ancho */
+}
+
+
+/* --- Título Principal --- */
+h1 {
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 20px; /* Menos margen si está en la grid */
+    font-weight: 700;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 15px;
+}
+
+/* --- Área del Reproductor --- */
+.player-area {
+    /* No necesita estilos especiales si usa Grid, el gap ya da espacio */
+    background-color: #000; /* Fondo negro para el área del video */
+    border-radius: 5px; /* Redondear esquinas del contenedor del video */
+    overflow: hidden; /* Asegura que el video no se salga */
+    display: flex; /* Para centrar info debajo */
+    flex-direction: column;
+}
+
+#videoPlayer {
+    max-width: 100%;
+    display: block; /* Quita espacio extra debajo del video */
+    background-color: #000; /* Fondo por si tarda en cargar */
+    /* border-radius: 5px 5px 0 0;  Redondeo solo arriba si la info va pegada */
+}
+
+#videoInfo {
+    padding: 15px 20px; /* Espacio alrededor del título/descripción */
+    background-color: var(--container-bg); /* Fondo blanco para la info */
+    border-top: 1px solid var(--border-color); /* Línea separadora */
+    border-radius: 0 0 5px 5px; /* Redondear esquinas inferiores */
+}
+
+#videoInfo h2 {
+    font-size: 1.3em;
+    color: var(--dark-text);
+    margin: 0 0 5px 0; /* Ajustar márgenes */
+    font-weight: 500;
+    text-align: left;
+}
+#videoInfo p {
+    font-size: 0.95em;
+    color: var(--secondary-text);
+    margin: 0;
+    text-align: left;
+}
+
+/* --- Área de la Lista de Videos --- */
+.list-area {
+    /* Opcional: añadir un borde o fondo si no se usa grid */
+    /* border: 1px solid var(--border-color); */
+    /* border-radius: 5px; */
+    /* padding: 15px; */
+}
+
+.list-area h2 {
+    font-size: 1.4em;
+    color: var(--dark-text);
+    margin-bottom: 15px;
+    text-align: left;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 500;
+}
+
+#videoList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 500px; /* Altura máxima para la lista, habilita scroll */
+    overflow-y: auto; /* Scroll vertical si se supera la altura */
+    border: 1px solid var(--border-color); /* Borde alrededor de la lista */
+    border-radius: 5px;
+}
+
+#videoList li {
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    font-size: 0.98em;
+    color: var(--secondary-text); /* Color de texto normal */
+}
+
+#videoList li:last-child {
+    border-bottom: none; /* Sin borde en el último elemento */
+}
+
+#videoList li:hover {
+    background-color: #eef5ff; /* Un hover azul muy claro */
+    color: var(--primary-color); /* Cambiar color de texto en hover */
+}
+
+/* Estilo para el elemento activo (seleccionado) */
+#videoList li.active {
+    background-color: var(--primary-color); /* Fondo azul */
+    color: var(--light-text); /* Texto blanco */
+    font-weight: 500; /* Un poco más de peso */
+}
+#videoList li.active:hover {
+     background-color: #0056b3; /* Un azul un poco más oscuro en hover activo */
+     color: var(--light-text);
+}
+
+/* --- Estilo para la barra de scroll (Opcional, no funciona en todos los navegadores igual) --- */
+#videoList::-webkit-scrollbar {
+  width: 8px;
+}
+#videoList::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+#videoList::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+#videoList::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+/* --- Mensaje de error dentro de la info (si se añade) --- */
+#videoInfo .error-message {
+    color: #dc3545; /* Color rojo para errores */
+    font-weight: bold;
+}

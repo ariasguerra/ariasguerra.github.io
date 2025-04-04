@@ -1,0 +1,17 @@
+[
+  {
+    "titulo": "Video de Ejemplo 1 (MKV)",
+    "descripcion": "Una breve descripción del primer video.",
+    "url": "ruta/a/tu/video1.mkv"
+  },
+  {
+    "titulo": "Segundo Video (También MKV)",
+    "descripcion": "Descripción del segundo video.",
+    "url": "https://ejemplo.com/ruta/externa/video2.mkv"
+  },
+  {
+    "titulo": "Video Recomendado (MP4)",
+    "descripcion": "Este video está en formato MP4 para mejor compatibilidad.",
+    "url": "ruta/a/tu/video_compatible.mp4"
+  }
+]
