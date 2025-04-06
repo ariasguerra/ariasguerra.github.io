@@ -1,0 +1,8 @@
+[
+  { "name": "ESTACIÓN DE POLICÍA BARRIOS UNIDOS" },
+  { "name": "CAI MODELO" },
+  { "name": "CAI ALCÁZARES" },
+  { "name": "CAI GAITÁN" },
+  { "name": "CAI ENTRE RÍOS" },
+  { "name": "CAI LA CASTELLANA" }
+]
