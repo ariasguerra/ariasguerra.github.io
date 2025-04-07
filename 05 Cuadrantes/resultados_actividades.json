@@ -1,5 +1,14 @@
 [
   {
+    "categoria": "Sin resultados",
+    "resultados": [
+      "Sin resultados Operativos",
+      "Solicitud infundada",
+      "Solución mediante mediación policial",
+      "Situación resuelta antes de llegada"
+    ]
+  },
+  {
     "categoria": "Capturas",
     "resultados": [
       "Captura por orden judicial",
@@ -40,15 +49,6 @@
     "categoria": "Otros procedimientos",
     "resultados": [
       "Recuperación de vehículo hurtado",
-    ]
-  },
-  {
-    "categoria": "Sin resultados",
-    "resultados": [
-      "Sin resultados Operativos",
-      "Solicitud infundada",
-      "Solución mediante mediación policial",
-      "Situación resuelta antes de llegada"
     ]
   }
 ]
