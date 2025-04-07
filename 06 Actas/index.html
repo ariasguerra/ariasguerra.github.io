@@ -25,11 +25,7 @@
         .container { max-width: 800px; margin: 20px auto; background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; border: 1px solid var(--border); }
         h1 { text-align: center; font-size: 14pt; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         h1 i { color: var(--primary); }
-        #actaGenerada h3 { /* Estilo específico para h3 dentro del acta */
-             font-size: 10pt;
-             margin: 15px 0 5px;
-             display: inline-block; /* Permite que el botón se alinee al lado */
-        }
+        #actaGenerada h3 { font-size: 10pt; margin: 15px 0 5px; display: inline-block; }
         form .form-group { margin-bottom: 15px; }
         form label { font-weight: 600; display: block; margin-bottom: 5px; font-size: 10pt; }
         form input[type="text"], form textarea, form select { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 10pt; background-color: white; }
@@ -40,7 +36,7 @@
         button:disabled { background-color: #ccc; cursor: not-allowed; }
         #actaGenerada { border-top: 1px solid var(--border); margin-top: 20px; padding-top: 20px; text-align: justify; }
         #primerParrafo { text-transform: uppercase; margin-bottom: 5px; }
-        #primerParrafo + .copy-btn-inline { margin-bottom: 15px; /* Espacio después del botón de copia del primer párrafo */ }
+        #primerParrafo + .copy-btn-inline { margin-bottom: 15px; }
         .drop-zone { border: 2px dashed var(--border); padding: 50px; text-align: center; cursor: pointer; background-color: var(--secondary); margin: 20px 0; border-radius: var(--radius); transition: all 0.3s; display: flex; flex-direction: column; align-items: center; gap: 15px; }
         .drop-zone i { font-size: 2.5rem; color: var(--text-light); }
         .drop-zone.dragover { border-color: var(--primary); background-color: #e6ffe6; }
@@ -69,7 +65,7 @@
         .image-counter { font-size: 10pt; color: var(--text-light); }
         .toast-notification { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(76,175,80,0.9); color:white; padding:8px 16px; border-radius:4px; z-index:1000; font-size:10pt; transition: opacity 0.5s ease-in-out; opacity: 0; }
         .toast-notification.show { opacity: 1; }
-        .toast-notification.error { background-color: var(--danger); } /* Estilo para toast de error */
+        .toast-notification.error { background-color: var(--danger); }
         #fabTemasSugeridos { position: fixed; bottom: 25px; right: 25px; width: var(--fab-size); height: var(--fab-size); background-color: var(--primary); color: white; border: none; border-radius: 50%; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 1000; transition: background-color 0.3s, transform 0.3s ease-out, opacity 0.3s ease-out; opacity: 0; transform: scale(0); pointer-events: none; }
         #fabTemasSugeridos.visible { opacity: 1; transform: scale(1); pointer-events: auto; }
         #fabTemasSugeridos:hover { background-color: var(--primary-dark); }
@@ -87,45 +83,24 @@
         #temasPanelContent .tema-card-title { font-weight: 600; color: var(--text); display: block; margin-right: 20px; }
         #temasPanelContent .tema-card::after { content: "\f054"; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--primary); opacity: 0.3; transition: opacity 0.2s; }
         #temasPanelContent .tema-card:hover::after { opacity: 0.8; }
-
-        /* --- Estilos Botones Copia Inline --- */
-        .copy-btn-inline {
-            background-color: var(--secondary); color: var(--text-light); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 2px 6px; font-size: 9pt; margin-left: 8px; /* Ajuste ligero */
-            cursor: pointer; transition: all 0.2s; vertical-align: middle; line-height: 1;
-            display: inline-flex; align-items: center; gap: 0; /* Sin gap interno */
-        }
+        .copy-btn-inline { background-color: var(--secondary); color: var(--text-light); border: 1px solid var(--border); border-radius: var(--radius); padding: 2px 6px; font-size: 9pt; margin-left: 8px; cursor: pointer; transition: all 0.2s; vertical-align: middle; line-height: 1; display: inline-flex; align-items: center; gap: 0; }
         .copy-btn-inline:hover { background-color: var(--primary-light); color: var(--primary-dark); border-color: var(--primary); }
-        .copy-btn-inline i { font-size: 0.9em; /* Icono un poco más grande */ }
-        #copyTargetEquipo { display: inline-flex; align-items: center; gap: 8px; /* Ajuste ligero */ }
+        .copy-btn-inline i { font-size: 0.9em; }
+        #copyTargetEquipo { display: inline-flex; align-items: center; gap: 8px; }
         #copyTargetEquipo span { margin: 0; }
-        /* Posicionar botón junto a h3 */
-        #actaContenidoDetallado h3 + .copy-btn-inline {
-             margin-left: 10px;
-             vertical-align: baseline; /* Alinear con base del h3 */
-        }
-
-
-        /* --- Estilos Responsivos --- */
+        #actaContenidoDetallado h3 + .copy-btn-inline { margin-left: 10px; vertical-align: baseline; }
         @media (max-width: 600px) { .container { padding: 10px; margin: 10px auto; } .drop-zone { padding: 30px 15px; } .icon-group { flex-direction: column; } nav { flex-wrap: wrap; justify-content: center; } #fabTemasSugeridos { bottom: 15px; right: 15px; width: calc(var(--fab-size) * 0.9); height: calc(var(--fab-size) * 0.9); font-size: 16px; } #temasPanel { width: 95%; } .copy-btn-inline { padding: 1px 4px; font-size: 8pt; margin-left: 5px;} }
     </style>
 </head>
 <body>
-
      <header> <h1 class="app-title">Aplicación Unificada</h1> <p class="app-subtitle">Generación de Acta de Instrucción & Extractor de Contenido PDF</p> </header>
      <nav> <a href="#" id="tabActa" class="active"><i class="fas fa-file-alt"></i> Generar Acta</a> <a href="#" id="tabPdf"><i class="fas fa-file-pdf"></i> Extractor PDF</a> </nav>
-
     <main>
-        <!-- SECCIÓN GENERACIÓN DE ACTA -->
         <section id="actaSection" class="container">
             <h1><i class="fas fa-file-signature"></i> Generar Acta de Instrucción</h1>
             <form id="actaForm"> <div class="form-group"> <label for="equipoActa">Equipo de Trabajo</label> <select id="equipoActa" required> <option value="" disabled selected>Cargando equipos...</option> </select> </div> <div class="form-group"> <label for="grado">Grado</label> <input type="text" id="grado" placeholder="Ej: Capitán" required> </div> <div class="form-group"> <label for="nombre">Nombre</label> <input type="text" id="nombre" placeholder="Nombre completo" required> </div> <div class="form-group"> <label for="cargo">Cargo</label> <input type="text" id="cargo" placeholder="Cargo del funcionario" required> </div> <div class="form-group"> <label for="tema">Tema de Instrucción</label> <input type="text" id="tema" placeholder="Tema (use 💡 para sugerencias)" required> </div> <div class="form-group"> <label for="temas">Temas a tratar</label> <textarea id="temas" placeholder="Lista de temas (use 💡 para sugerencias)" required rows="4"></textarea> </div> <button type="submit" style="margin-top: 20px;"><i class="fas fa-check-circle"></i> Generar Acta</button> </form>
-
-            <!-- Div Acta Generada -->
             <div id="actaGenerada" style="display:none;">
                 <h1>ACTA DE INSTRUCCIÓN</h1>
-
-                <!-- Línea Equipo con botón -->
                 <p id="actaInfoEquipo">Equipo de Trabajo:
                     <span id="copyTargetEquipo">
                         <span id="actaEquipoDisplay"></span>
@@ -135,8 +110,6 @@
                     </span>
                 </p>
                 <br>
-
-                <!-- Primer párrafo con botón después -->
                 <p id="primerParrafo">
                     LA INSTRUCCIÓN DIRIGIDA POR PARTE DEL SEÑOR
                     <span id="actaGrado"></span>,
@@ -148,8 +121,6 @@
                      <i class="fas fa-copy"></i>
                  </button>
                 <br>
-
-                <!-- Contenedor para el resto del contenido a copiar -->
                 <div id="actaContenidoDetallado">
                     <h3>ORDEN DEL DÍA</h3>
                     <button id="copyOrdenDesarrolloBtn" class="copy-btn-inline" title="Copiar Orden del Día y Desarrollo">
@@ -162,22 +133,9 @@
                         <li>Temas a tratar</li>
                     </ol>
                     <br><h3>DESARROLLO</h3>
-                    <p>
-                        Se realiza instrucción al personal adscrito <span id="actaEquipo2"></span>
-                        por parte del señor <span id="actaGrado2"></span>, <span id="actaCargo2"></span>,
-                        a quienes se les socializan los lineamientos sobre
-                        <span id="articuloTema2"></span> <span id="actaTema2"></span>.
-                    </p>
+                    <p> Se realiza instrucción al personal adscrito <span id="actaEquipo2"></span> por parte del señor <span id="actaGrado2"></span>, <span id="actaCargo2"></span>, a quienes se les socializan los lineamientos sobre <span id="articuloTema2"></span> <span id="actaTema2"></span>. </p>
                     <br><h3>1. Verificación de asistentes</h3>
-                    <p>
-                        Se verifica la asistencia del personal adscrito a la unidad y se constata la compatibilidad
-                        de los correos electrónicos del personal que integra <span id="actaEquipo3"></span>.
-                        Dejando constancia que la presente acta de instrucción se surtirá presencialmente, por correo
-                        electrónico y a través del Sistema de Información Gestor de Documentos Policiales, en virtud
-                        a lo dispuesto en el Art. 103 del Código General del Proceso -- Uso de las tecnologías de la
-                        información y de las comunicaciones, Ley 527 del 18 de agosto de 1999, Ley 794 del 01 de agosto
-                        de 2003 y la Ley 962 del 08 de julio de 2005.
-                    </p>
+                    <p> Se verifica la asistencia del personal adscrito a la unidad y se constata la compatibilidad de los correos electrónicos del personal que integra <span id="actaEquipo3"></span>. Dejando constancia que la presente acta de instrucción se surtirá presencialmente, por correo electrónico y a través del Sistema de Información Gestor de Documentos Policiales, en virtud a lo dispuesto en el Art. 103 del Código General del Proceso -- Uso de las tecnologías de la información y de las comunicaciones, Ley 527 del 18 de agosto de 1999, Ley 794 del 01 de agosto de 2003 y la Ley 962 del 08 de julio de 2005. </p>
                     <br><h3>2. Lectura del acta anterior</h3><p>(NO APLICA)</p>
                     <br><h3>3. Verificación de los compromisos</h3><p>(NO APLICA)</p>
                     <br><h3>4. Temas a tratar</h3>
@@ -185,20 +143,12 @@
                 </div>
             </div>
         </section>
-
-        <!-- SECCIÓN EXTRACTOR PDF (Sin cambios) -->
         <section id="pdfSection" class="container" style="display:none;">
               <h1><i class="fas fa-file-export"></i> Extractor de Contenido PDF Mejorado</h1> <div class="form-group"> <label for="fileInput">Seleccionar archivo PDF o arrastrar y soltar:</label> <div id="dropZone" class="drop-zone"> <i class="fas fa-file-upload"></i> <p>Arrastra y suelta el archivo PDF aquí o haz clic para seleccionarlo</p> </div> <input type="file" id="fileInput" accept=".pdf" style="display: none;"> </div> <div id="suggestion"></div> <div class="range-container"> <label for="marginRange">Margen sugerido para recorte (píxeles): <span id="rangeValue">150</span></label> <input type="range" id="marginRange" value="150" min="0" max="200" step="1"> </div> <div> <p style="margin: 10px 0; font-weight: 600;">Elige modo de agrupación:</p> <div class="icon-group"> <input type="radio" id="singleMode" name="pagesMode" value="1" checked> <label for="singleMode"><div class="single-box"></div><span>1 Hoja</span></label> <input type="radio" id="fourMode" name="pagesMode" value="4"> <label for="fourMode"><div class="four-boxes"><div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div></div><span>4 Hojas</span></label> </div> </div> <button id="processButton"><i class="fas fa-cogs"></i> Procesar PDF</button> <div id="output"></div> <div id="stats" style="display: none;"> <div class="stat-item"><i class="fas fa-file-alt"></i><span id="processedStat">0</span> páginas procesadas</div> <div class="stat-item"><i class="fas fa-file"></i><span id="blankStat">0</span> páginas en blanco omitidas</div> </div> <div class="image-container" id="imageContainer" style="display:none;"> <div class="image-wrapper"><img id="currentImage" alt="Imagen actual extraída del PDF"></div> <div class="image-navigation"> <button id="prevButton"><i class="fas fa-chevron-left"></i> Anterior</button> <span class="image-counter">Imagen <span id="currentImageIndex">1</span> de <span id="totalImages">1</span></span> <button id="nextButton">Siguiente <i class="fas fa-chevron-right"></i></button> </div> </div> <button id="downloadAll" style="display: none; margin-top: 20px;"><i class="fas fa-download"></i> Descargar todas las imágenes</button>
         </section>
     </main>
-
-    <!-- BOTÓN FLOTANTE Y MODAL (Sin cambios) -->
      <button id="fabTemasSugeridos" title="Temas Sugeridos"> <i class="fas fa-lightbulb"></i> </button> <div id="temasOverlay"></div> <div id="temasPanel"> <div id="temasPanelHeader"> <h4><i class="fas fa-list-ul"></i> Temas Frecuentes</h4> <button id="temasPanelCloseBtn" title="Cerrar">×</button> </div> <div id="temasPanelContent"> <p style="color: var(--text-light); text-align: center;">Cargando temas...</p> </div> </div>
-
-    <!-- Librerías JS (Sin cambios) -->
      <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js"></script>
-
-    <!-- SCRIPT DE LA APLICACIÓN -->
     <script>
         // --- Referencias DOM ---
         const tabActa = document.getElementById('tabActa'); const tabPdf = document.getElementById('tabPdf'); const actaSection = document.getElementById('actaSection'); const pdfSection = document.getElementById('pdfSection'); const equipoActaSelect = document.getElementById('equipoActa'); const actaForm = document.getElementById('actaForm'); const actaGeneradaDiv = document.getElementById('actaGenerada'); const temaInput = document.getElementById('tema'); const temasTextarea = document.getElementById('temas'); const fabTemasSugeridos = document.getElementById('fabTemasSugeridos'); const temasOverlay = document.getElementById('temasOverlay'); const temasPanel = document.getElementById('temasPanel'); const temasPanelContent = document.getElementById('temasPanelContent'); const temasPanelCloseBtn = document.getElementById('temasPanelCloseBtn');
@@ -242,47 +192,66 @@
 
              // --- AÑADIR LISTENERS A LOS BOTONES DE COPIA ---
              try {
+                 // Asegurarse de obtener las referencias *después* de que el HTML existe
                  const btnCopyEquipo = document.getElementById('copyEquipoBtn');
                  const btnCopyPrimerP = document.getElementById('copyPrimerParrafoBtn');
                  const btnCopyOrdenDes = document.getElementById('copyOrdenDesarrolloBtn');
-                 const targetEquipo = document.getElementById('copyTargetEquipo'); // El span que contiene el nombre
+                 const targetEquipo = document.getElementById('copyTargetEquipo');
                  const targetPrimerP = document.getElementById('primerParrafo');
-                 const targetOrdenDes = document.getElementById('actaContenidoDetallado'); // El div que envuelve Orden y Desarrollo
+                 const targetOrdenDes = document.getElementById('actaContenidoDetallado');
 
                  // Listener Botón 1: Copiar Equipo
                  if (btnCopyEquipo && targetEquipo) {
-                      // Limpiar listener anterior si existe para evitar duplicados
-                      btnCopyEquipo.replaceWith(btnCopyEquipo.cloneNode(true)); // Clona el botón para quitar listeners viejos
-                      document.getElementById('copyEquipoBtn').addEventListener('click', () => {
+                     const newBtnCopyEquipo = btnCopyEquipo.cloneNode(true); // Clonar para limpiar listeners
+                     btnCopyEquipo.parentNode.replaceChild(newBtnCopyEquipo, btnCopyEquipo);
+                     newBtnCopyEquipo.addEventListener('click', () => {
                          copyToClipboard(targetEquipo.innerText.trim(), 'Equipo copiado!');
                      });
-                 }
+                 } else { console.warn("No se encontró botón/target para copiar equipo."); }
 
                   // Listener Botón 2: Copiar Primer Párrafo
                  if (btnCopyPrimerP && targetPrimerP) {
-                      btnCopyPrimerP.replaceWith(btnCopyPrimerP.cloneNode(true));
-                      document.getElementById('copyPrimerParrafoBtn').addEventListener('click', () => {
+                     const newBtnCopyPrimerP = btnCopyPrimerP.cloneNode(true);
+                     btnCopyPrimerP.parentNode.replaceChild(newBtnCopyPrimerP, btnCopyPrimerP);
+                     newBtnCopyPrimerP.addEventListener('click', () => {
                          copyToClipboard(targetPrimerP.innerText.trim(), 'Párrafo inicial copiado!');
                       });
-                 }
+                 } else { console.warn("No se encontró botón/target para copiar primer párrafo."); }
 
-                  // Listener Botón 3: Copiar Orden del Día y Desarrollo
+                  // Listener Botón 3: Copiar Orden del Día y Desarrollo (modificado)
                  if (btnCopyOrdenDes && targetOrdenDes) {
-                       btnCopyOrdenDes.replaceWith(btnCopyOrdenDes.cloneNode(true));
-                       document.getElementById('copyOrdenDesarrolloBtn').addEventListener('click', () => {
-                           // innerText intenta preservar mejor los saltos de línea visibles
-                           copyToClipboard(targetOrdenDes.innerText.trim(), 'Orden y Desarrollo copiados!');
+                       const newBtnCopyOrdenDes = btnCopyOrdenDes.cloneNode(true);
+                       btnCopyOrdenDes.parentNode.replaceChild(newBtnCopyOrdenDes, btnCopyOrdenDes);
+                       newBtnCopyOrdenDes.addEventListener('click', () => {
+                           const contenidoCompleto = document.getElementById('actaContenidoDetallado');
+                           if (!contenidoCompleto) return;
+
+                           // Clonar el nodo para no modificar el original visible
+                           const clon = contenidoCompleto.cloneNode(true);
+
+                           // Buscar y eliminar el primer H3 y el primer botón de copia dentro del clon
+                           const primerH3 = clon.querySelector('h3');
+                           const primerBotonCopia = clon.querySelector('.copy-btn-inline'); // Asume que es el botón junto al h3
+
+                           if (primerH3) {
+                               primerH3.remove();
+                           }
+                           if (primerBotonCopia) {
+                               primerBotonCopia.remove();
+                           }
+
+                           // Obtener el innerText del clon modificado
+                           const textoACopiar = clon.innerText.trim();
+                           copyToClipboard(textoACopiar, 'Orden y Desarrollo copiados!');
                       });
-                 }
+                 } else { console.warn("No se encontró botón/target para copiar orden/desarrollo."); }
 
              } catch (error) {
                  console.error("Error añadiendo listeners de copia:", error);
              }
         }
 
-        // --------------------------------------------------------------------
-        // INICIALIZACIÓN (DOMContentLoaded)
-        // --------------------------------------------------------------------
+        // --- INICIALIZACIÓN ---
         document.addEventListener('DOMContentLoaded', async function() {
              try { const [equiposResponse, temasResponse] = await Promise.all([ fetch('equipos.json').catch(e => { console.error("Fetch equipos falló:", e); return null; }), fetch('temas.json').catch(e => { console.error("Fetch temas falló:", e); return null; }) ]); if (equiposResponse && equiposResponse.ok) { const equiposData = await equiposResponse.json(); populateEquiposDropdown(equiposData); } else { console.error("Error cargando equipos.json:", equiposResponse?.statusText || "Fetch failed"); populateEquiposDropdown(null); } if (temasResponse && temasResponse.ok) { const temasData = await temasResponse.json(); populateTemaCards(temasData); } else { console.error("Error cargando temas.json:", temasResponse?.statusText || "Fetch failed"); populateTemaCards(null); } } catch (error) { console.error("Error general cargando datos JSON:", error); if (equipoActaSelect.options.length <= 1) populateEquiposDropdown(null); if (temasPanelContent.children.length <= 1) populateTemaCards(null); }
              const savedData = loadFromLocalStorage(); updateForm(savedData);
@@ -290,11 +259,10 @@
              if (savedData && savedData.grado && savedData.equipo && savedData.tema && savedData.temas) { setTimeout(() => { if (equipoActaSelect.value === savedData.equipo) { generateActa(savedData); } }, 200); }
         });
 
-        // --- Event Listener: Enviar formulario ---
+        // --- Submit Formulario ---
         actaForm.addEventListener('submit', function(e) { e.preventDefault(); const data = { equipo: equipoActaSelect.value, grado: document.getElementById('grado').value, nombre: document.getElementById('nombre').value, cargo: document.getElementById('cargo').value, tema: temaInput.value, temas: temasTextarea.value }; if (!data.equipo) { alert("Seleccione un equipo."); equipoActaSelect.focus(); return; } if (!data.grado || !data.nombre || !data.cargo || !data.tema || !data.temas) { alert("Por favor, complete todos los campos."); return; } saveToLocalStorage(data); generateActa(data); });
 
-
-        // --- EXTRACTOR PDF (Funciones sin cambios, omitidas por brevedad) ---
+        // --- EXTRACTOR PDF (Funciones sin cambios, omitidas) ---
          pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
          const fileInput = document.getElementById('fileInput'); const dropZone = document.getElementById('dropZone'); const processButton = document.getElementById('processButton'); const output = document.getElementById('output'); const suggestion = document.getElementById('suggestion'); const stats = document.getElementById('stats'); const processedStat = document.getElementById('processedStat'); const blankStat = document.getElementById('blankStat'); const imageContainer = document.getElementById('imageContainer'); const currentImage = document.getElementById('currentImage'); const downloadAllButton = document.getElementById('downloadAll'); const currentImageIndex = document.getElementById('currentImageIndex'); const totalImages = document.getElementById('totalImages'); const marginRange = document.getElementById('marginRange'); const rangeValueSpan = document.getElementById('rangeValue'); const prevButton = document.getElementById('prevButton'); const nextButton = document.getElementById('nextButton'); let singlePageImages = []; let processedImages = []; let currentIndex = 0; let currentPdfDocument = null;
          marginRange.addEventListener('input', () => { rangeValueSpan.textContent = marginRange.value; }); dropZone.addEventListener('click', () => fileInput.click()); dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); }); dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('dragover'); }); dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); const files = e.dataTransfer.files; if (files.length) { fileInput.files = files; handleFileSelection(); } }); fileInput.addEventListener('change', handleFileSelection); processButton.addEventListener('click', () => { if (currentPdfDocument) { processPDF(currentPdfDocument); } else { suggestion.innerHTML = '<i class="fas fa-exclamation-circle"></i> Primero carga un archivo PDF.'; suggestion.style.display = 'block'; } });
@@ -311,6 +279,5 @@
          downloadAllButton.addEventListener('click', downloadAllImages);
 
     </script>
-
 </body>
 </html>
