@@ -19,83 +19,33 @@
             --secondary: #f4f4f4; --text: #333333; --text-light: #666666;
             --border: #cccccc; --danger: #f44336; --success: #4caf50;
             --radius: 0.375rem; --shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            --fab-size: 50px;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Arial', Segoe UI, sans-serif; font-size: 10pt; color: var(--text); background-color: #f9fafb; line-height: 1.5; margin: 0; }
 
-        /* ------------------------- */
-        /* Estilos del Encabezado    */
-        /* ------------------------- */
+        /* --- Estilos Header, Nav, Container, Form, Botones, Acta Generada, PDF Extractor (Igual que antes) --- */
         header { background: var(--primary); color: white; text-align: center; padding: 20px; box-shadow: var(--shadow); }
         .app-title { font-size: 14pt; font-weight: 600; margin-bottom: 0.5rem; }
         .app-subtitle { font-size: 10pt; opacity: 0.9; }
-
-        /* ------------------------- */
-        /* Estilos de Navegación     */
-        /* ------------------------- */
         nav { background: var(--secondary); display: flex; justify-content: center; gap: 20px; padding: 10px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         nav a { text-decoration: none; color: var(--text); padding: 8px 15px; border-radius: var(--radius); transition: background-color 0.3s; font-weight: 500; display: flex; align-items: center; gap: 8px; }
         nav a:hover { background-color: var(--primary-light); color: var(--text); }
         nav a.active { background-color: var(--primary); color: white; }
-
-        /* ------------------------- */
-        /* Contenedor Principal      */
-        /* ------------------------- */
-        .container {
-            max-width: 800px;
-            margin: 20px auto; /* Centrado simple */
-            background: white;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 20px;
-            border: 1px solid var(--border);
-        }
-
-
-        /* ------------------------- */
-        /* Títulos y Encabezados     */
-        /* ------------------------- */
+        .container { max-width: 800px; margin: 20px auto; background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; border: 1px solid var(--border); }
         h1 { text-align: center; font-size: 14pt; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         h1 i { color: var(--primary); }
         h3 { font-size: 10pt; margin: 15px 0 5px; }
-        /* Estilo específico para el título de temas sugeridos */
-        #temasSugeridosInline h4 {
-            font-size: 10.5pt;
-            margin-top: 20px; /* Espacio sobre el título */
-            margin-bottom: 10px;
-            color: var(--primary);
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 5px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* ------------------------- */
-        /* Estilos de Formularios    */
-        /* ------------------------- */
         form .form-group { margin-bottom: 15px; }
         form label { font-weight: 600; display: block; margin-bottom: 5px; font-size: 10pt; }
         form input[type="text"], form textarea, form select { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 10pt; background-color: white; }
         form input[type="text"]:focus, form textarea:focus, form select:focus { outline: none; border-color: var(--primary); }
         form select:disabled { background-color: #eee; cursor: not-allowed; }
-
-        /* ------------------------- */
-        /* Estilos de Botones        */
-        /* ------------------------- */
         button { background-color: var(--primary); color: white; border: none; border-radius: var(--radius); cursor: pointer; padding: 10px 15px; font-size: 10pt; display: inline-flex; align-items: center; gap: 8px; transition: background-color 0.3s; }
         button:hover { background-color: var(--primary-dark); }
         button:disabled { background-color: #ccc; cursor: not-allowed; }
-
-        /* ----------------------------- */
-        /* Estilos Acta Generada         */
-        /* ----------------------------- */
         #actaGenerada { border-top: 1px solid var(--border); margin-top: 20px; padding-top: 20px; text-align: justify; }
         #primerParrafo { text-transform: uppercase; }
-
-        /* ----------------------------- */
-        /* Estilos Extractor PDF         */
-        /* ----------------------------- */
         .drop-zone { border: 2px dashed var(--border); padding: 50px; text-align: center; cursor: pointer; background-color: var(--secondary); margin: 20px 0; border-radius: var(--radius); transition: all 0.3s; display: flex; flex-direction: column; align-items: center; gap: 15px; }
         .drop-zone i { font-size: 2.5rem; color: var(--text-light); }
         .drop-zone.dragover { border-color: var(--primary); background-color: #e6ffe6; }
@@ -126,21 +76,123 @@
         .toast-notification.show { opacity: 1; }
 
         /* ---------------------------------- */
-        /* Estilos Contenedor Temas Sugeridos Inline */
+        /* Estilos Botón Flotante (FAB)       */
         /* ---------------------------------- */
-        #temasSugeridosInline {
-            margin-top: 25px; /* Espacio entre el form y las sugerencias */
-            padding-top: 15px;
-            border-top: 1px dashed var(--border); /* Separador visual */
+        #fabTemasSugeridos {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: var(--fab-size);
+            height: var(--fab-size);
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            font-size: 18px; /* Tamaño del icono */
+            cursor: pointer;
+            display: flex; /* Para centrar icono */
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: background-color 0.3s, transform 0.3s ease-out, opacity 0.3s ease-out;
+            opacity: 0; /* Oculto por defecto */
+            transform: scale(0); /* Oculto por defecto */
+            pointer-events: none; /* No interactuable cuando oculto */
         }
 
-        #temasCardsListInline {
-            /* Opcional: Si se esperan muchas tarjetas, añadir scroll */
-             max-height: 250px;
-             overflow-y: auto;
-             padding-right: 5px; /* Espacio pequeño para scrollbar si aparece */
+        #fabTemasSugeridos.visible {
+             opacity: 1;
+             transform: scale(1);
+             pointer-events: auto; /* Interactuable cuando visible */
         }
 
+        #fabTemasSugeridos:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* ---------------------------------- */
+        /* Estilos Overlay y Panel Modal      */
+        /* ---------------------------------- */
+        #temasOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1040;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            pointer-events: none; /* No interactuable cuando oculto */
+        }
+
+        #temasPanel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.95); /* Empieza ligeramente encogido */
+            width: 90%;
+            max-width: 500px; /* Ancho máximo del panel */
+            max-height: 80vh; /* Altura máxima */
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1050;
+            display: flex; /* Usar flex para estructura interna */
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+            pointer-events: none; /* No interactuable cuando oculto */
+        }
+
+        #temasOverlay.visible,
+        #temasPanel.visible {
+            opacity: 1;
+            pointer-events: auto; /* Interactuable cuando visible */
+        }
+        #temasPanel.visible {
+             transform: translate(-50%, -50%) scale(1); /* Escala normal al ser visible */
+        }
+
+
+        /* Contenido del Panel Modal */
+        #temasPanelHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0; /* No encoger el header */
+        }
+        #temasPanelHeader h4 {
+            margin: 0;
+            font-size: 11pt;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #temasPanelCloseBtn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 5px;
+             line-height: 1; /* Para mejor alineación vertical */
+        }
+        #temasPanelCloseBtn:hover {
+            color: var(--danger);
+        }
+
+        #temasPanelContent {
+            padding: 15px;
+            overflow-y: auto; /* Scroll para las tarjetas */
+            flex-grow: 1; /* Ocupar espacio disponible */
+        }
+
+        /* Estilos Tarjetas dentro del Panel */
         .tema-card {
             background-color: var(--secondary);
             border: 1px solid var(--border);
@@ -150,37 +202,26 @@
             cursor: pointer;
             transition: background-color 0.2s, border-color 0.2s;
             font-size: 9.5pt;
-            position: relative; /* Para posicionar pseudo-elementos si se usan */
+            position: relative;
         }
-
         .tema-card:hover {
             background-color: var(--primary-light);
             border-color: var(--primary);
         }
-
         .tema-card-title {
             font-weight: 600;
             color: var(--text);
-            display: block; /* Asegura que ocupe su línea */
-             margin-right: 20px; /* Espacio para posible icono */
+            display: block;
+             margin-right: 20px;
         }
-
-         /* Icono opcional (menos prominente que en sidebar) */
-        .tema-card::after {
+        .tema-card::after { /* Icono opcional */
             content: "\f054"; /* Font Awesome chevron-right */
             font-family: "Font Awesome 6 Free";
             font-weight: 900;
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--primary);
-            opacity: 0.3;
-            transition: opacity 0.2s;
+            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+            color: var(--primary); opacity: 0.3; transition: opacity 0.2s;
         }
-        .tema-card:hover::after {
-            opacity: 0.8;
-        }
+        .tema-card:hover::after { opacity: 0.8; }
 
 
         /* ------------------------- */
@@ -191,8 +232,8 @@
             .drop-zone { padding: 30px 15px; }
             .icon-group { flex-direction: column; }
             nav { flex-wrap: wrap; justify-content: center; }
-            #temasSugeridosInline h4 { font-size: 10pt; }
-            .tema-card { font-size: 9pt; padding: 8px 10px;}
+            #fabTemasSugeridos { bottom: 15px; right: 15px; width: calc(var(--fab-size) * 0.9); height: calc(var(--fab-size) * 0.9); font-size: 16px; }
+            #temasPanel { width: 95%; }
         }
     </style>
 </head>
@@ -248,66 +289,23 @@
                 </div>
                 <div class="form-group">
                     <label for="tema">Tema de Instrucción</label>
-                    <input type="text" id="tema" placeholder="Tema o seleccione abajo" required>
+                    <input type="text" id="tema" placeholder="Tema (use 💡 para sugerencias)" required>
                 </div>
                 <div class="form-group">
                     <label for="temas">Temas a tratar</label>
-                    <textarea id="temas" placeholder="Lista de temas o seleccione abajo" required rows="4"></textarea>
+                    <textarea id="temas" placeholder="Lista de temas (use 💡 para sugerencias)" required rows="4"></textarea>
                 </div>
 
-                 <!-- Contenedor para las tarjetas de temas sugeridos (Inline) -->
-                 <div id="temasSugeridosInline">
-                    <h4><i class="fas fa-lightbulb"></i> Temas Frecuentes</h4>
-                    <div id="temasCardsListInline">
-                        <!-- Las tarjetas se cargarán aquí por JS -->
-                        <p style="color: var(--text-light);">Cargando temas...</p>
-                    </div>
-                 </div>
+                <!-- El contenedor inline #temasSugeridosInline ha sido eliminado -->
 
-                <!-- Botón submit debe ir después del form-group, pero antes de cerrar el form -->
-                 <button type="submit" style="margin-top: 20px;"><i class="fas fa-check-circle"></i> Generar Acta</button>
+                <button type="submit" style="margin-top: 20px;"><i class="fas fa-check-circle"></i> Generar Acta</button>
             </form> <!-- Fin del formulario -->
 
 
-            <!-- Div donde se mostrará el acta generada (va después del form y sugerencias) -->
+            <!-- Div donde se mostrará el acta generada -->
             <div id="actaGenerada" style="display:none;">
-                <h1>ACTA DE INSTRUCCIÓN</h1>
-                <p id="actaInfoEquipo">Equipo de Trabajo: <span id="actaEquipoDisplay"></span></p>
-                <br>
-                <p id="primerParrafo">
-                    LA INSTRUCCIÓN DIRIGIDA POR PARTE DEL SEÑOR
-                    <span id="actaGrado"></span>,
-                    <span id="actaCargo"></span>,
-                    AL PERSONAL QUE CONFORMA <span id="actaEquipo1"></span>,
-                    SOBRE <span id="articuloTema"></span> <span id="actaTema"></span>.
-                </p>
-                <br><h3>ORDEN DEL DÍA</h3>
-                    <ol style="padding-left: 60px;">
-                        <li>Verificación de asistentes</li>
-                        <li>Lectura del acta anterior</li>
-                        <li>Verificación de los compromisos</li>
-                        <li>Temas a tratar</li>
-                    </ol>
-                <br><h3>DESARROLLO</h3>
-                <p>
-                    Se realiza instrucción al personal adscrito <span id="actaEquipo2"></span>
-                    por parte del señor <span id="actaGrado2"></span>, <span id="actaCargo2"></span>,
-                    a quienes se les socializan los lineamientos sobre
-                    <span id="articuloTema2"></span> <span id="actaTema2"></span>.
-                </p>
-                <br><h3>1. Verificación de asistentes</h3>
-                <p>
-                    Se verifica la asistencia del personal adscrito a la unidad y se constata la compatibilidad
-                    de los correos electrónicos del personal que integra <span id="actaEquipo3"></span>.
-                    Dejando constancia que la presente acta de instrucción se surtirá presencialmente, por correo
-                    electrónico y a través del Sistema de Información Gestor de Documentos Policiales, en virtud
-                    a lo dispuesto en el Art. 103 del Código General del Proceso -- Uso de las tecnologías de la
-                    información y de las comunicaciones, Ley 527 del 18 de agosto de 1999, Ley 794 del 01 de agosto
-                    de 2003 y la Ley 962 del 08 de julio de 2005.
-                </p>
-                <br><h3>2. Lectura del acta anterior</h3><p>(NO APLICA)</p>
-                <br><h3>3. Verificación de los compromisos</h3><p>(NO APLICA)</p>
-                <br><h3>4. Temas a tratar</h3><p id="temasTratar"></p> <!-- Este se llena con el contenido de la textarea -->
+                <!-- Contenido del acta (sin cambios) -->
+                <h1>ACTA DE INSTRUCCIÓN</h1> <p id="actaInfoEquipo">Equipo de Trabajo: <span id="actaEquipoDisplay"></span></p> <br> <p id="primerParrafo"> LA INSTRUCCIÓN DIRIGIDA POR PARTE DEL SEÑOR <span id="actaGrado"></span>, <span id="actaCargo"></span>, AL PERSONAL QUE CONFORMA <span id="actaEquipo1"></span>, SOBRE <span id="articuloTema"></span> <span id="actaTema"></span>. </p> <br><h3>ORDEN DEL DÍA</h3> <ol style="padding-left: 60px;"> <li>Verificación de asistentes</li> <li>Lectura del acta anterior</li> <li>Verificación de los compromisos</li> <li>Temas a tratar</li> </ol> <br><h3>DESARROLLO</h3> <p> Se realiza instrucción al personal adscrito <span id="actaEquipo2"></span> por parte del señor <span id="actaGrado2"></span>, <span id="actaCargo2"></span>, a quienes se les socializan los lineamientos sobre <span id="articuloTema2"></span> <span id="actaTema2"></span>. </p> <br><h3>1. Verificación de asistentes</h3> <p> Se verifica la asistencia del personal adscrito a la unidad y se constata la compatibilidad de los correos electrónicos del personal que integra <span id="actaEquipo3"></span>. Dejando constancia que la presente acta de instrucción se surtirá presencialmente, por correo electrónico y a través del Sistema de Información Gestor de Documentos Policiales, en virtud a lo dispuesto en el Art. 103 del Código General del Proceso -- Uso de las tecnologías de la información y de las comunicaciones, Ley 527 del 18 de agosto de 1999, Ley 794 del 01 de agosto de 2003 y la Ley 962 del 08 de julio de 2005. </p> <br><h3>2. Lectura del acta anterior</h3><p>(NO APLICA)</p> <br><h3>3. Verificación de los compromisos</h3><p>(NO APLICA)</p> <br><h3>4. Temas a tratar</h3><p id="temasTratar"></p>
             </div>
         </section>
 
@@ -317,48 +315,30 @@
         <section id="pdfSection" class="container" style="display:none;">
              <h1><i class="fas fa-file-export"></i> Extractor de Contenido PDF Mejorado</h1>
              <!-- Contenido del Extractor PDF (sin cambios) -->
-             <div class="form-group">
-                <label for="fileInput">Seleccionar archivo PDF o arrastrar y soltar:</label>
-                <div id="dropZone" class="drop-zone">
-                    <i class="fas fa-file-upload"></i>
-                    <p>Arrastra y suelta el archivo PDF aquí o haz clic para seleccionarlo</p>
-                </div>
-                <input type="file" id="fileInput" accept=".pdf" style="display: none;">
-            </div>
-            <div id="suggestion"></div>
-            <div class="range-container">
-                <label for="marginRange">Margen sugerido para recorte (píxeles): <span id="rangeValue">150</span></label>
-                <input type="range" id="marginRange" value="150" min="0" max="200" step="1">
-            </div>
-             <div>
-                <p style="margin: 10px 0; font-weight: 600;">Elige modo de agrupación:</p>
-                <div class="icon-group">
-                    <input type="radio" id="singleMode" name="pagesMode" value="1" checked>
-                    <label for="singleMode"><div class="single-box"></div><span>1 Hoja</span></label>
-                    <input type="radio" id="fourMode" name="pagesMode" value="4">
-                    <label for="fourMode"><div class="four-boxes"><div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div></div><span>4 Hojas</span></label>
-                </div>
-            </div>
-            <button id="processButton"><i class="fas fa-cogs"></i> Procesar PDF</button>
-            <div id="output"></div>
-            <div id="stats" style="display: none;">
-                <div class="stat-item"><i class="fas fa-file-alt"></i><span id="processedStat">0</span> páginas procesadas</div>
-                <div class="stat-item"><i class="fas fa-file"></i><span id="blankStat">0</span> páginas en blanco omitidas</div>
-            </div>
-            <div class="image-container" id="imageContainer" style="display:none;">
-                <div class="image-wrapper"><img id="currentImage" alt="Imagen actual extraída del PDF"></div>
-                <div class="image-navigation">
-                    <button id="prevButton"><i class="fas fa-chevron-left"></i> Anterior</button>
-                    <span class="image-counter">Imagen <span id="currentImageIndex">1</span> de <span id="totalImages">1</span></span>
-                    <button id="nextButton">Siguiente <i class="fas fa-chevron-right"></i></button>
-                </div>
-            </div>
-            <button id="downloadAll" style="display: none; margin-top: 20px;"><i class="fas fa-download"></i> Descargar todas las imágenes</button>
+             <div class="form-group"> <label for="fileInput">Seleccionar archivo PDF o arrastrar y soltar:</label> <div id="dropZone" class="drop-zone"> <i class="fas fa-file-upload"></i> <p>Arrastra y suelta el archivo PDF aquí o haz clic para seleccionarlo</p> </div> <input type="file" id="fileInput" accept=".pdf" style="display: none;"> </div> <div id="suggestion"></div> <div class="range-container"> <label for="marginRange">Margen sugerido para recorte (píxeles): <span id="rangeValue">150</span></label> <input type="range" id="marginRange" value="150" min="0" max="200" step="1"> </div> <div> <p style="margin: 10px 0; font-weight: 600;">Elige modo de agrupación:</p> <div class="icon-group"> <input type="radio" id="singleMode" name="pagesMode" value="1" checked> <label for="singleMode"><div class="single-box"></div><span>1 Hoja</span></label> <input type="radio" id="fourMode" name="pagesMode" value="4"> <label for="fourMode"><div class="four-boxes"><div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div></div><span>4 Hojas</span></label> </div> </div> <button id="processButton"><i class="fas fa-cogs"></i> Procesar PDF</button> <div id="output"></div> <div id="stats" style="display: none;"> <div class="stat-item"><i class="fas fa-file-alt"></i><span id="processedStat">0</span> páginas procesadas</div> <div class="stat-item"><i class="fas fa-file"></i><span id="blankStat">0</span> páginas en blanco omitidas</div> </div> <div class="image-container" id="imageContainer" style="display:none;"> <div class="image-wrapper"><img id="currentImage" alt="Imagen actual extraída del PDF"></div> <div class="image-navigation"> <button id="prevButton"><i class="fas fa-chevron-left"></i> Anterior</button> <span class="image-counter">Imagen <span id="currentImageIndex">1</span> de <span id="totalImages">1</span></span> <button id="nextButton">Siguiente <i class="fas fa-chevron-right"></i></button> </div> </div> <button id="downloadAll" style="display: none; margin-top: 20px;"><i class="fas fa-download"></i> Descargar todas las imágenes</button>
         </section>
 
-        <!-- El <aside> ha sido eliminado -->
-
     </main>
+
+    <!-- ======================== -->
+    <!-- BOTÓN FLOTANTE Y MODAL   -->
+    <!-- ======================== -->
+    <button id="fabTemasSugeridos" title="Temas Sugeridos">
+        <i class="fas fa-lightbulb"></i>
+    </button>
+
+    <div id="temasOverlay"></div>
+    <div id="temasPanel">
+        <div id="temasPanelHeader">
+            <h4><i class="fas fa-list-ul"></i> Temas Frecuentes</h4>
+            <button id="temasPanelCloseBtn" title="Cerrar">×</button>
+        </div>
+        <div id="temasPanelContent">
+             <!-- Las tarjetas se cargarán aquí por JS -->
+             <p style="color: var(--text-light); text-align: center;">Cargando temas...</p>
+        </div>
+    </div>
+
 
     <!-- ======================== -->
     <!-- LIBRERÍAS JAVASCRIPT     -->
@@ -383,19 +363,23 @@
         const actaGeneradaDiv = document.getElementById('actaGenerada');
         const temaInput = document.getElementById('tema');
         const temasTextarea = document.getElementById('temas');
-        // const temasSugeridosContainer = document.getElementById('temasSugeridosContainer'); // REMOVED
-        const temasCardsListInline = document.getElementById('temasCardsListInline'); // UPDATED reference
+        // FAB and Modal Elements
+        const fabTemasSugeridos = document.getElementById('fabTemasSugeridos');
+        const temasOverlay = document.getElementById('temasOverlay');
+        const temasPanel = document.getElementById('temasPanel');
+        const temasPanelContent = document.getElementById('temasPanelContent');
+        const temasPanelCloseBtn = document.getElementById('temasPanelCloseBtn');
         // PDF Extractor Elements... (defined below)
 
         // --------------------------------------------------------------------
-        // LÓGICA DE PESTAÑAS (Tabs) - Simplified (No sidebar logic)
+        // LÓGICA DE PESTAÑAS (Tabs) y Visibilidad del FAB
         // --------------------------------------------------------------------
         function showActaSection() {
             tabActa.classList.add('active');
             tabPdf.classList.remove('active');
             actaSection.style.display = 'block';
             pdfSection.style.display = 'none';
-            // document.body.classList.add('sidebar-visible'); // REMOVED
+            fabTemasSugeridos.classList.add('visible'); // Mostrar FAB
         }
 
         function showPdfSection() {
@@ -403,35 +387,45 @@
             tabActa.classList.remove('active');
             pdfSection.style.display = 'block';
             actaSection.style.display = 'none';
-             // document.body.classList.remove('sidebar-visible'); // REMOVED
+            fabTemasSugeridos.classList.remove('visible'); // Ocultar FAB
+            closeTemasPanel(); // Asegurarse que el panel esté cerrado si se cambia de pestaña
         }
 
-        tabActa.addEventListener('click', (e) => {
-            e.preventDefault();
-            showActaSection();
-        });
+        tabActa.addEventListener('click', (e) => { e.preventDefault(); showActaSection(); });
+        tabPdf.addEventListener('click', (e) => { e.preventDefault(); showPdfSection(); });
 
-        tabPdf.addEventListener('click', (e) => {
-            e.preventDefault();
-            showPdfSection();
-        });
+        // --------------------------------------------------------------------
+        // LÓGICA PANEL/MODAL TEMAS SUGERIDOS
+        // --------------------------------------------------------------------
+        function openTemasPanel() {
+            temasOverlay.classList.add('visible');
+            temasPanel.classList.add('visible');
+        }
+
+        function closeTemasPanel() {
+            temasOverlay.classList.remove('visible');
+            temasPanel.classList.remove('visible');
+        }
+
+        fabTemasSugeridos.addEventListener('click', openTemasPanel);
+        temasPanelCloseBtn.addEventListener('click', closeTemasPanel);
+        temasOverlay.addEventListener('click', closeTemasPanel); // Cerrar al hacer clic fuera
+
 
         // --------------------------------------------------------------------
         // FUNCIONES PARA GENERAR ACTA
         // --------------------------------------------------------------------
 
-        // --- Poblar dropdown de Equipos --- (No changes needed)
-        function populateEquiposDropdown(equiposData) {
-             equipoActaSelect.options.length = 0; const initialOption = document.createElement('option'); initialOption.value = ""; initialOption.textContent = "Seleccione un equipo..."; initialOption.disabled = true; initialOption.selected = true; equipoActaSelect.appendChild(initialOption); if (!equiposData || !Array.isArray(equiposData)) { console.error("Datos de equipos inválidos."); equipoActaSelect.disabled = true; initialOption.textContent = "Error al cargar"; return; } equiposData.forEach(equipo => { const option = document.createElement('option'); option.value = equipo.name; option.textContent = equipo.name; equipoActaSelect.appendChild(option); }); equipoActaSelect.disabled = false;
-        }
+        // --- Poblar dropdown de Equipos --- (Sin cambios)
+        function populateEquiposDropdown(equiposData) { equipoActaSelect.options.length = 0; const initialOption = document.createElement('option'); initialOption.value = ""; initialOption.textContent = "Seleccione un equipo..."; initialOption.disabled = true; initialOption.selected = true; equipoActaSelect.appendChild(initialOption); if (!equiposData || !Array.isArray(equiposData)) { console.error("Datos de equipos inválidos."); equipoActaSelect.disabled = true; initialOption.textContent = "Error al cargar"; return; } equiposData.forEach(equipo => { const option = document.createElement('option'); option.value = equipo.name; option.textContent = equipo.name; equipoActaSelect.appendChild(option); }); equipoActaSelect.disabled = false; }
 
-        // --- Poblar Tarjetas de Temas Inline --- (Renamed & target updated)
+        // --- Poblar Tarjetas de Temas en el Panel Modal ---
         function populateTemaCards(temasData) {
-            temasCardsListInline.innerHTML = ''; // Clear target list
+            temasPanelContent.innerHTML = ''; // Limpiar contenido anterior o mensaje de carga
 
             if (!temasData || !Array.isArray(temasData) || temasData.length === 0) {
                 console.warn("Datos de temas inválidos o vacíos.");
-                temasCardsListInline.innerHTML = '<p style="text-align: center; color: var(--text-light);">No hay temas sugeridos.</p>';
+                temasPanelContent.innerHTML = '<p style="text-align: center; color: var(--text-light);">No hay temas sugeridos.</p>';
                 return;
             }
 
@@ -449,87 +443,63 @@
                 card.addEventListener('click', () => {
                     temaInput.value = card.dataset.tema;
                     temasTextarea.value = card.dataset.tratar;
-                    // Scroll into view slightly if needed
-                     temaInput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    closeTemasPanel(); // Cerrar el panel al seleccionar
+                    // Opcional: hacer foco en el siguiente campo o en el acta
+                    // document.getElementById('grado').focus();
                 });
 
-                temasCardsListInline.appendChild(card); // Append to inline list
+                temasPanelContent.appendChild(card);
             });
         }
 
-        // --- LocalStorage para datos del formulario --- (No changes needed)
+        // --- LocalStorage, UpdateForm, DeterminarArtículo, ToTitleCase, GenerateActa --- (Sin cambios)
         function saveToLocalStorage(data) { localStorage.setItem('actaData', JSON.stringify(data)); }
         function loadFromLocalStorage() { const data = localStorage.getItem('actaData'); return data ? JSON.parse(data) : null; }
-
-        // --- Actualizar formulario desde LocalStorage --- (No changes needed)
-        function updateForm(data) {
-            if (data) {
-                document.getElementById('grado').value = data.grado || ''; document.getElementById('nombre').value = data.nombre || ''; document.getElementById('cargo').value = data.cargo || ''; temaInput.value = data.tema || ''; temasTextarea.value = data.temas || '';
-                setTimeout(() => { if (data.equipo && equipoActaSelect.options.length > 1) { if ([...equipoActaSelect.options].some(option => option.value === data.equipo)) { equipoActaSelect.value = data.equipo; } else { console.warn(`Equipo guardado "${data.equipo}" no encontrado.`); equipoActaSelect.value = ""; } } else { equipoActaSelect.value = ""; } }, 100);
-            } else { actaForm.reset(); equipoActaSelect.value = ""; }
-        }
-
-        // --- Determinar Artículo (EL/LA/LOS/LAS) --- (No changes needed)
-        function determinarArticulo(tema) {
-             const t = tema.trim().toLowerCase(); if (!t) return { articulo: "EL", articuloMin: "el" }; const m = ["protocolo", "procedimiento", "manual", "instructivo", "reglamento", "decreto", "código", "estatuto", "memorando", "oficio", "formulario", "programa", "plan", "sistema", "método", "formato", "proceso", "uso", "manejo", "curso", "taller", "seminario", "simposio", "congreso", "informe", "reporte", "documento", "expediente", "registro", "archivo", "control", "seguimiento", "operativo", "operacional", "servicio", "deber"]; const f = ["normativa", "norma", "directiva", "instrucción", "circular", "resolución", "orden", "directriz", "ley", "regulación", "disposición", "medida", "acción", "guía", "metodología", "técnica", "estrategia", "táctica", "operación", "actividad", "capacitación", "formación", "conferencia", "charla", "presentación", "exposición", "jornada", "sesión", "reunión", "clase", "política", "aplicación", "implementación", "comunicación"]; const mp = ["protocolos", "procedimientos", "manuales", "instructivos", "reglamentos", "decretos", "códigos", "estatutos", "memorandos", "oficios", "formularios", "programas", "planes", "sistemas", "métodos", "formatos", "procesos", "usos", "manejos", "cursos", "talleres", "seminarios", "simposios", "congresos", "informes", "reportes", "documentos", "expedientes", "registros", "archivos", "controles", "seguimientos", "operativos"]; const fp = ["normativas", "normas", "directivas", "instrucciones", "circulares", "resoluciones", "órdenes", "directrices", "leyes", "regulaciones", "disposiciones", "medidas", "acciones", "guías", "metodologías", "técnicas", "estrategias", "tácticas", "operaciones", "actividades", "capacitaciones", "formaciones", "conferencias", "charlas", "presentaciones", "exposiciones", "jornadas", "sesiones", "reuniones", "clases", "políticas", "comunicaciones"]; const p = t.split(' '); let i = 0; const pa = ["de", "del", "la", "el", "los", "las", "sobre", "para", "en", "con", "y", "o"]; while (i < p.length && pa.includes(p[i])) { i++; } const p1 = (i < p.length) ? p[i] : p[0]; if (!p1) return { articulo: "EL", articuloMin: "el" }; const plural = p1.endsWith('s') || p1.endsWith('es'); if (mp.includes(p1)) return { articulo: "LOS", articuloMin: "los" }; if (fp.includes(p1)) return { articulo: "LAS", articuloMin: "las" }; if (m.includes(p1)) return { articulo: "EL", articuloMin: "el" }; if (f.includes(p1)) return { articulo: "LA", articuloMin: "la" }; if (plural) { const s = p1.endsWith('es') ? p1.slice(0, -2) : p1.slice(0, -1); if (s.endsWith('a') || s.endsWith('dad') || s.endsWith('ción') || s.endsWith('sión') || s.endsWith('tud') || s.endsWith('umbre')) return { articulo: "LAS", articuloMin: "las" }; else return { articulo: "LOS", articuloMin: "los" }; } else { if (p1.endsWith('a') || p1.endsWith('dad') || p1.endsWith('ción') || p1.endsWith('sión') || p1.endsWith('tud') || p1.endsWith('umbre')) return { articulo: "LA", articuloMin: "la" }; else return { articulo: "EL", articuloMin: "el" }; }
-        }
-
-        // --- Convertir a Formato Título --- (No changes needed)
+        function updateForm(data) { if (data) { document.getElementById('grado').value = data.grado || ''; document.getElementById('nombre').value = data.nombre || ''; document.getElementById('cargo').value = data.cargo || ''; temaInput.value = data.tema || ''; temasTextarea.value = data.temas || ''; setTimeout(() => { if (data.equipo && equipoActaSelect.options.length > 1) { if ([...equipoActaSelect.options].some(option => option.value === data.equipo)) { equipoActaSelect.value = data.equipo; } else { console.warn(`Equipo guardado "${data.equipo}" no encontrado.`); equipoActaSelect.value = ""; } } else { equipoActaSelect.value = ""; } }, 100); } else { actaForm.reset(); equipoActaSelect.value = ""; } }
+        function determinarArticulo(tema) { const t = tema.trim().toLowerCase(); if (!t) return { articulo: "EL", articuloMin: "el" }; const m = ["protocolo", "procedimiento", "manual", "instructivo", "reglamento", "decreto", "código", "estatuto", "memorando", "oficio", "formulario", "programa", "plan", "sistema", "método", "formato", "proceso", "uso", "manejo", "curso", "taller", "seminario", "simposio", "congreso", "informe", "reporte", "documento", "expediente", "registro", "archivo", "control", "seguimiento", "operativo", "operacional", "servicio", "deber"]; const f = ["normativa", "norma", "directiva", "instrucción", "circular", "resolución", "orden", "directriz", "ley", "regulación", "disposición", "medida", "acción", "guía", "metodología", "técnica", "estrategia", "táctica", "operación", "actividad", "capacitación", "formación", "conferencia", "charla", "presentación", "exposición", "jornada", "sesión", "reunión", "clase", "política", "aplicación", "implementación", "comunicación"]; const mp = ["protocolos", "procedimientos", "manuales", "instructivos", "reglamentos", "decretos", "códigos", "estatutos", "memorandos", "oficios", "formularios", "programas", "planes", "sistemas", "métodos", "formatos", "procesos", "usos", "manejos", "cursos", "talleres", "seminarios", "simposios", "congresos", "informes", "reportes", "documentos", "expedientes", "registros", "archivos", "controles", "seguimientos", "operativos"]; const fp = ["normativas", "normas", "directivas", "instrucciones", "circulares", "resoluciones", "órdenes", "directrices", "leyes", "regulaciones", "disposiciones", "medidas", "acciones", "guías", "metodologías", "técnicas", "estrategias", "tácticas", "operaciones", "actividades", "capacitaciones", "formaciones", "conferencias", "charlas", "presentaciones", "exposiciones", "jornadas", "sesiones", "reuniones", "clases", "políticas", "comunicaciones"]; const p = t.split(' '); let i = 0; const pa = ["de", "del", "la", "el", "los", "las", "sobre", "para", "en", "con", "y", "o"]; while (i < p.length && pa.includes(p[i])) { i++; } const p1 = (i < p.length) ? p[i] : p[0]; if (!p1) return { articulo: "EL", articuloMin: "el" }; const plural = p1.endsWith('s') || p1.endsWith('es'); if (mp.includes(p1)) return { articulo: "LOS", articuloMin: "los" }; if (fp.includes(p1)) return { articulo: "LAS", articuloMin: "las" }; if (m.includes(p1)) return { articulo: "EL", articuloMin: "el" }; if (f.includes(p1)) return { articulo: "LA", articuloMin: "la" }; if (plural) { const s = p1.endsWith('es') ? p1.slice(0, -2) : p1.slice(0, -1); if (s.endsWith('a') || s.endsWith('dad') || s.endsWith('ción') || s.endsWith('sión') || s.endsWith('tud') || s.endsWith('umbre')) return { articulo: "LAS", articuloMin: "las" }; else return { articulo: "LOS", articuloMin: "los" }; } else { if (p1.endsWith('a') || p1.endsWith('dad') || p1.endsWith('ción') || p1.endsWith('sión') || p1.endsWith('tud') || p1.endsWith('umbre')) return { articulo: "LA", articuloMin: "la" }; else return { articulo: "EL", articuloMin: "el" }; } }
         function toTitleCase(str) { if (!str) return ""; return str.toLowerCase().split(' ').map(function(word) { if (word === 'cai') { return 'CAI'; } let capitalizedWord = word.charAt(0).toUpperCase() + word.slice(1); if (word === 'de') { capitalizedWord = 'de'; } return capitalizedWord; }).join(' '); }
+        function generateActa(data) { const selectedEquipo = data.equipo; if (!selectedEquipo) return; let preposition = "a la", article = "la"; if (selectedEquipo.startsWith("CAI")) { preposition = "al"; article = "el"; } const titleCaseEquipo = toTitleCase(selectedEquipo); const { articulo, articuloMin } = determinarArticulo(data.tema); document.getElementById('actaGrado').textContent = data.grado + ' ' + data.nombre; document.getElementById('actaCargo').textContent = data.cargo; document.getElementById('actaTema').textContent = data.tema; document.getElementById('actaGrado2').textContent = data.grado + ' ' + data.nombre; document.getElementById('actaCargo2').textContent = data.cargo; document.getElementById('actaTema2').textContent = data.tema; document.getElementById('temasTratar').textContent = data.temas; document.getElementById('actaEquipoDisplay').textContent = selectedEquipo; let equipo1Text = selectedEquipo; if (selectedEquipo.startsWith("ESTACIÓN")) { equipo1Text = "LA " + selectedEquipo; } else if (selectedEquipo.startsWith("CAI")) { equipo1Text = "EL " + selectedEquipo; } document.getElementById('actaEquipo1').textContent = equipo1Text; document.getElementById('actaEquipo2').textContent = preposition + " " + titleCaseEquipo; document.getElementById('actaEquipo3').textContent = article + " " + titleCaseEquipo; document.getElementById('articuloTema').textContent = articulo; document.getElementById('articuloTema2').textContent = articuloMin; actaGeneradaDiv.style.display = 'block'; }
 
-        // --- Generar el Acta (HTML) --- (No changes needed)
-        function generateActa(data) {
-            const selectedEquipo = data.equipo; if (!selectedEquipo) return; let preposition = "a la", article = "la"; if (selectedEquipo.startsWith("CAI")) { preposition = "al"; article = "el"; } const titleCaseEquipo = toTitleCase(selectedEquipo); const { articulo, articuloMin } = determinarArticulo(data.tema); document.getElementById('actaGrado').textContent = data.grado + ' ' + data.nombre; document.getElementById('actaCargo').textContent = data.cargo; document.getElementById('actaTema').textContent = data.tema; document.getElementById('actaGrado2').textContent = data.grado + ' ' + data.nombre; document.getElementById('actaCargo2').textContent = data.cargo; document.getElementById('actaTema2').textContent = data.tema; document.getElementById('temasTratar').textContent = data.temas; document.getElementById('actaEquipoDisplay').textContent = selectedEquipo; let equipo1Text = selectedEquipo; if (selectedEquipo.startsWith("ESTACIÓN")) { equipo1Text = "LA " + selectedEquipo; } else if (selectedEquipo.startsWith("CAI")) { equipo1Text = "EL " + selectedEquipo; } document.getElementById('actaEquipo1').textContent = equipo1Text; document.getElementById('actaEquipo2').textContent = preposition + " " + titleCaseEquipo; document.getElementById('actaEquipo3').textContent = article + " " + titleCaseEquipo; document.getElementById('articuloTema').textContent = articulo; document.getElementById('articuloTema2').textContent = articuloMin; actaGeneradaDiv.style.display = 'block';
-        }
 
         // --------------------------------------------------------------------
         // INICIALIZACIÓN (DOMContentLoaded)
         // --------------------------------------------------------------------
         document.addEventListener('DOMContentLoaded', async function() {
-            // --- Cargar Equipos y Temas en Paralelo ---
+            // --- Cargar Equipos y Temas ---
             try {
                 const [equiposResponse, temasResponse] = await Promise.all([
                     fetch('equipos.json').catch(e => { console.error("Fetch equipos falló:", e); return null; }),
                     fetch('temas.json').catch(e => { console.error("Fetch temas falló:", e); return null; })
                 ]);
-
                 // Procesar Equipos
-                if (equiposResponse && equiposResponse.ok) {
-                    const equiposData = await equiposResponse.json(); populateEquiposDropdown(equiposData);
-                } else { console.error("Error cargando equipos.json:", equiposResponse?.statusText || "Fetch failed"); populateEquiposDropdown(null); }
-
-                 // Procesar Temas
-                if (temasResponse && temasResponse.ok) {
-                    const temasData = await temasResponse.json(); populateTemaCards(temasData); // Use updated function name
-                } else { console.error("Error cargando temas.json:", temasResponse?.statusText || "Fetch failed"); populateTemaCards(null); } // Use updated function name
-
+                if (equiposResponse && equiposResponse.ok) { const equiposData = await equiposResponse.json(); populateEquiposDropdown(equiposData); }
+                else { console.error("Error cargando equipos.json:", equiposResponse?.statusText || "Fetch failed"); populateEquiposDropdown(null); }
+                 // Procesar Temas (poblar el panel oculto)
+                if (temasResponse && temasResponse.ok) { const temasData = await temasResponse.json(); populateTemaCards(temasData); }
+                else { console.error("Error cargando temas.json:", temasResponse?.statusText || "Fetch failed"); populateTemaCards(null); }
             } catch (error) {
                 console.error("Error general cargando datos JSON:", error);
                  if (equipoActaSelect.options.length <= 1) populateEquiposDropdown(null);
-                 if (temasCardsListInline.children.length <= 1) populateTemaCards(null); // Use updated reference
+                 if (temasPanelContent.children.length <= 1) populateTemaCards(null);
             }
 
             // --- Cargar datos guardados del formulario ---
             const savedData = loadFromLocalStorage();
             updateForm(savedData);
 
-            // --- Mostrar sección inicial correcta (Acta por defecto) ---
-            if (tabActa.classList.contains('active')) {
-                 showActaSection();
-            } else if (tabPdf.classList.contains('active')) {
-                 showPdfSection();
-            } else {
-                 showActaSection(); // Default to Acta if none are explicitly active
-            }
+             // --- Mostrar sección inicial y FAB correctos ---
+            if (tabPdf.classList.contains('active')) {
+                 showPdfSection(); // Si PDF está activo, oculta FAB
+             } else {
+                 showActaSection(); // Por defecto o si Acta está activa, muestra FAB
+             }
 
             // --- Intentar generar acta si hay datos guardados válidos ---
             setTimeout(() => { if (savedData && savedData.grado && savedData.equipo && equipoActaSelect.value === savedData.equipo) { generateActa(savedData); } }, 150);
         });
 
-        // --- Event Listener: Enviar formulario del acta --- (No changes needed)
-        actaForm.addEventListener('submit', function(e) {
-            e.preventDefault(); const data = { equipo: equipoActaSelect.value, grado: document.getElementById('grado').value, nombre: document.getElementById('nombre').value, cargo: document.getElementById('cargo').value, tema: temaInput.value, temas: temasTextarea.value }; if (!data.equipo) { alert("Seleccione un equipo."); equipoActaSelect.focus(); return; } saveToLocalStorage(data); generateActa(data);
-        });
+        // --- Event Listener: Enviar formulario del acta --- (Sin cambios)
+        actaForm.addEventListener('submit', function(e) { e.preventDefault(); const data = { equipo: equipoActaSelect.value, grado: document.getElementById('grado').value, nombre: document.getElementById('nombre').value, cargo: document.getElementById('cargo').value, tema: temaInput.value, temas: temasTextarea.value }; if (!data.equipo) { alert("Seleccione un equipo."); equipoActaSelect.focus(); return; } saveToLocalStorage(data); generateActa(data); });
 
 
         // --------------------------------------------------------------------
