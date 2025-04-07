@@ -4,7 +4,6 @@
     "resultados": [
       "Captura por orden judicial",
       "Captura en flagrancia",
-      "Captura por circular ilegal",
       "Captura por comercialización de estupefacientes",
       "Captura por porte ilegal de armas"
     ]
@@ -34,7 +33,6 @@
     "categoria": "Protección",
     "resultados": [
       "Traslado por protección",
-      "Medida de protección a víctima",
       "Atención a menor en situación de vulnerabilidad"
     ]
   },
@@ -42,15 +40,12 @@
     "categoria": "Otros procedimientos",
     "resultados": [
       "Recuperación de vehículo hurtado",
-      "Recuperación de bien inmueble",
-      "Disuasión de riña",
-      "Acompañamiento a diligencia judicial",
-      "Verificación de antecedentes"
     ]
   },
   {
     "categoria": "Sin resultados",
     "resultados": [
+      "Sin resultados Operativos",
       "Apoyo a otro cuadrante",
       "Solicitud infundada",
       "Solución mediante mediación policial",
