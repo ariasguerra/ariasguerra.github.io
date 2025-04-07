@@ -11,9 +11,7 @@
 
     <!-- Estilos CSS -->
     <style>
-        /* ------------------------- */
-        /* Variables y Reset Global  */
-        /* ------------------------- */
+        /* --- Variables y Reset Global --- */
         :root {
             --primary: #4CAF50; --primary-dark: #45a049; --primary-light: #a5d6a7;
             --secondary: #f4f4f4; --text: #333333; --text-light: #666666;
@@ -24,7 +22,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Arial', Segoe UI, sans-serif; font-size: 10pt; color: var(--text); background-color: #f9fafb; line-height: 1.5; margin: 0; }
 
-        /* --- Estilos Header, Nav, Container, Form, Botones, Acta Generada, PDF Extractor (Igual que antes) --- */
+        /* --- Estilos Header, Nav, Container, Form, Botones, etc. (Sin cambios) --- */
         header { background: var(--primary); color: white; text-align: center; padding: 20px; box-shadow: var(--shadow); }
         .app-title { font-size: 14pt; font-weight: 600; margin-bottom: 0.5rem; }
         .app-subtitle { font-size: 10pt; opacity: 0.9; }
@@ -35,7 +33,7 @@
         .container { max-width: 800px; margin: 20px auto; background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; border: 1px solid var(--border); }
         h1 { text-align: center; font-size: 14pt; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         h1 i { color: var(--primary); }
-        h3 { font-size: 10pt; margin: 15px 0 5px; }
+        h3 { font-size: 10pt; margin: 15px 0 5px; display: inline-block; /* Para que el botón quede al lado */ }
         form .form-group { margin-bottom: 15px; }
         form label { font-weight: 600; display: block; margin-bottom: 5px; font-size: 10pt; }
         form input[type="text"], form textarea, form select { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 10pt; background-color: white; }
@@ -44,8 +42,10 @@
         button { background-color: var(--primary); color: white; border: none; border-radius: var(--radius); cursor: pointer; padding: 10px 15px; font-size: 10pt; display: inline-flex; align-items: center; gap: 8px; transition: background-color 0.3s; }
         button:hover { background-color: var(--primary-dark); }
         button:disabled { background-color: #ccc; cursor: not-allowed; }
+        /* -- Estilos Acta Generada, PDF Extractor (Sin cambios relevantes aquí) -- */
         #actaGenerada { border-top: 1px solid var(--border); margin-top: 20px; padding-top: 20px; text-align: justify; }
-        #primerParrafo { text-transform: uppercase; }
+        #primerParrafo { text-transform: uppercase; margin-bottom: 5px; /* Espacio antes del botón */ }
+        #primerParrafo + .copy-btn-inline { margin-bottom: 15px; /* Espacio después del botón */ }
         .drop-zone { border: 2px dashed var(--border); padding: 50px; text-align: center; cursor: pointer; background-color: var(--secondary); margin: 20px 0; border-radius: var(--radius); transition: all 0.3s; display: flex; flex-direction: column; align-items: center; gap: 15px; }
         .drop-zone i { font-size: 2.5rem; color: var(--text-light); }
         .drop-zone.dragover { border-color: var(--primary); background-color: #e6ffe6; }
@@ -74,452 +74,322 @@
         .image-counter { font-size: 10pt; color: var(--text-light); }
         .toast-notification { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(76,175,80,0.9); color:white; padding:8px 16px; border-radius:4px; z-index:1000; font-size:10pt; transition: opacity 0.5s ease-in-out; opacity: 0; }
         .toast-notification.show { opacity: 1; }
+        /* --- Estilos FAB y Modal (Sin cambios) --- */
+        #fabTemasSugeridos { position: fixed; bottom: 25px; right: 25px; width: var(--fab-size); height: var(--fab-size); background-color: var(--primary); color: white; border: none; border-radius: 50%; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 1000; transition: background-color 0.3s, transform 0.3s ease-out, opacity 0.3s ease-out; opacity: 0; transform: scale(0); pointer-events: none; }
+        #fabTemasSugeridos.visible { opacity: 1; transform: scale(1); pointer-events: auto; }
+        #fabTemasSugeridos:hover { background-color: var(--primary-dark); }
+        #temasOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 1040; opacity: 0; transition: opacity 0.3s ease-in-out; pointer-events: none; }
+        #temasPanel { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.95); width: 90%; max-width: 500px; max-height: 80vh; background-color: white; border-radius: var(--radius); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); z-index: 1050; display: flex; flex-direction: column; opacity: 0; transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out; pointer-events: none; }
+        #temasOverlay.visible, #temasPanel.visible { opacity: 1; pointer-events: auto; }
+        #temasPanel.visible { transform: translate(-50%, -50%) scale(1); }
+        #temasPanelHeader { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+        #temasPanelHeader h4 { margin: 0; font-size: 11pt; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        #temasPanelCloseBtn { background: none; border: none; font-size: 18px; color: var(--text-light); cursor: pointer; padding: 5px; line-height: 1; }
+        #temasPanelCloseBtn:hover { color: var(--danger); }
+        #temasPanelContent { padding: 15px; overflow-y: auto; flex-grow: 1; }
+        #temasPanelContent .tema-card { background-color: var(--secondary); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; margin-bottom: 8px; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; font-size: 9.5pt; position: relative; }
+        #temasPanelContent .tema-card:hover { background-color: var(--primary-light); border-color: var(--primary); }
+        #temasPanelContent .tema-card-title { font-weight: 600; color: var(--text); display: block; margin-right: 20px; }
+        #temasPanelContent .tema-card::after { content: "\f054"; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--primary); opacity: 0.3; transition: opacity 0.2s; }
+        #temasPanelContent .tema-card:hover::after { opacity: 0.8; }
 
         /* ---------------------------------- */
-        /* Estilos Botón Flotante (FAB)       */
+        /* Estilos Botones de Copia Inline    */
         /* ---------------------------------- */
-        #fabTemasSugeridos {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            width: var(--fab-size);
-            height: var(--fab-size);
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            font-size: 18px; /* Tamaño del icono */
-            cursor: pointer;
-            display: flex; /* Para centrar icono */
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            transition: background-color 0.3s, transform 0.3s ease-out, opacity 0.3s ease-out;
-            opacity: 0; /* Oculto por defecto */
-            transform: scale(0); /* Oculto por defecto */
-            pointer-events: none; /* No interactuable cuando oculto */
-        }
-
-        #fabTemasSugeridos.visible {
-             opacity: 1;
-             transform: scale(1);
-             pointer-events: auto; /* Interactuable cuando visible */
-        }
-
-        #fabTemasSugeridos:hover {
-            background-color: var(--primary-dark);
-        }
-
-        /* ---------------------------------- */
-        /* Estilos Overlay y Panel Modal      */
-        /* ---------------------------------- */
-        #temasOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            z-index: 1040;
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
-            pointer-events: none; /* No interactuable cuando oculto */
-        }
-
-        #temasPanel {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.95); /* Empieza ligeramente encogido */
-            width: 90%;
-            max-width: 500px; /* Ancho máximo del panel */
-            max-height: 80vh; /* Altura máxima */
-            background-color: white;
-            border-radius: var(--radius);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            z-index: 1050;
-            display: flex; /* Usar flex para estructura interna */
-            flex-direction: column;
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-            pointer-events: none; /* No interactuable cuando oculto */
-        }
-
-        #temasOverlay.visible,
-        #temasPanel.visible {
-            opacity: 1;
-            pointer-events: auto; /* Interactuable cuando visible */
-        }
-        #temasPanel.visible {
-             transform: translate(-50%, -50%) scale(1); /* Escala normal al ser visible */
-        }
-
-
-        /* Contenido del Panel Modal */
-        #temasPanelHeader {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 15px;
-            border-bottom: 1px solid var(--border);
-            flex-shrink: 0; /* No encoger el header */
-        }
-        #temasPanelHeader h4 {
-            margin: 0;
-            font-size: 11pt;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        #temasPanelCloseBtn {
-            background: none;
-            border: none;
-            font-size: 18px;
-            color: var(--text-light);
-            cursor: pointer;
-            padding: 5px;
-             line-height: 1; /* Para mejor alineación vertical */
-        }
-        #temasPanelCloseBtn:hover {
-            color: var(--danger);
-        }
-
-        #temasPanelContent {
-            padding: 15px;
-            overflow-y: auto; /* Scroll para las tarjetas */
-            flex-grow: 1; /* Ocupar espacio disponible */
-        }
-
-        /* Estilos Tarjetas dentro del Panel */
-        .tema-card {
+        .copy-btn-inline {
             background-color: var(--secondary);
+            color: var(--text-light);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 10px 12px;
-            margin-bottom: 8px;
+            padding: 2px 6px; /* Más pequeño */
+            font-size: 9pt;   /* Más pequeño */
+            margin-left: 10px; /* Espacio a la izquierda */
             cursor: pointer;
-            transition: background-color 0.2s, border-color 0.2s;
-            font-size: 9.5pt;
-            position: relative;
+            transition: all 0.2s;
+            vertical-align: middle; /* Alinear con el texto */
+            line-height: 1; /* Prevenir altura extra */
+            display: inline-flex; /* Asegurar alineación del icono interno */
+            align-items: center;
+            gap: 4px;
         }
-        .tema-card:hover {
+        .copy-btn-inline:hover {
             background-color: var(--primary-light);
+            color: var(--primary-dark);
             border-color: var(--primary);
         }
-        .tema-card-title {
-            font-weight: 600;
-            color: var(--text);
-            display: block;
-             margin-right: 20px;
+        .copy-btn-inline i {
+             font-size: 0.8em; /* Icono un poco más pequeño */
         }
-        .tema-card::after { /* Icono opcional */
-            content: "\f054"; /* Font Awesome chevron-right */
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-            color: var(--primary); opacity: 0.3; transition: opacity 0.2s;
+
+        /* Ajuste para el botón junto al nombre del equipo */
+        #copyTargetEquipo {
+             display: inline-flex; /* Usa flex para alinear texto y botón */
+             align-items: center;
+             gap: 10px; /* Espacio entre texto y botón */
         }
-        .tema-card:hover::after { opacity: 0.8; }
+        /* El span interno ahora no necesita margen extra */
+        #copyTargetEquipo span {
+             margin: 0;
+        }
 
 
-        /* ------------------------- */
-        /* Estilos Responsivos       */
-        /* ------------------------- */
-        @media (max-width: 600px) {
-            .container { padding: 10px; margin: 10px auto; }
-            .drop-zone { padding: 30px 15px; }
-            .icon-group { flex-direction: column; }
-            nav { flex-wrap: wrap; justify-content: center; }
-            #fabTemasSugeridos { bottom: 15px; right: 15px; width: calc(var(--fab-size) * 0.9); height: calc(var(--fab-size) * 0.9); font-size: 16px; }
-            #temasPanel { width: 95%; }
-        }
+        /* --- Estilos Responsivos (Sin cambios relevantes aquí) --- */
+        @media (max-width: 600px) { .container { padding: 10px; margin: 10px auto; } .drop-zone { padding: 30px 15px; } .icon-group { flex-direction: column; } nav { flex-wrap: wrap; justify-content: center; } #fabTemasSugeridos { bottom: 15px; right: 15px; width: calc(var(--fab-size) * 0.9); height: calc(var(--fab-size) * 0.9); font-size: 16px; } #temasPanel { width: 95%; } .copy-btn-inline { padding: 1px 4px; font-size: 8pt; margin-left: 5px;} }
     </style>
 </head>
 <body>
 
-    <!-- ======================== -->
-    <!--      ENCABEZADO          -->
-    <!-- ======================== -->
-    <header>
-        <h1 class="app-title">Aplicación Unificada</h1>
-        <p class="app-subtitle">Generación de Acta de Instrucción & Extractor de Contenido PDF</p>
-    </header>
+    <!-- Header y Nav (Sin cambios) -->
+     <header> <h1 class="app-title">Aplicación Unificada</h1> <p class="app-subtitle">Generación de Acta de Instrucción & Extractor de Contenido PDF</p> </header>
+     <nav> <a href="#" id="tabActa" class="active"><i class="fas fa-file-alt"></i> Generar Acta</a> <a href="#" id="tabPdf"><i class="fas fa-file-pdf"></i> Extractor PDF</a> </nav>
 
-    <!-- ======================== -->
-    <!--      NAVEGACIÓN          -->
-    <!-- ======================== -->
-    <nav>
-        <a href="#" id="tabActa" class="active"><i class="fas fa-file-alt"></i> Generar Acta</a>
-        <a href="#" id="tabPdf"><i class="fas fa-file-pdf"></i> Extractor PDF</a>
-    </nav>
-
-    <!-- ======================== -->
-    <!--   CONTENIDO PRINCIPAL    -->
-    <!-- ======================== -->
     <main>
-
-        <!-- ----------------------------- -->
-        <!-- SECCIÓN GENERACIÓN DE ACTA    -->
-        <!-- ----------------------------- -->
+        <!-- SECCIÓN GENERACIÓN DE ACTA -->
         <section id="actaSection" class="container">
             <h1><i class="fas fa-file-signature"></i> Generar Acta de Instrucción</h1>
+            <!-- Formulario (sin cambios internos) -->
+            <form id="actaForm"> <div class="form-group"> <label for="equipoActa">Equipo de Trabajo</label> <select id="equipoActa" required> <option value="" disabled selected>Cargando equipos...</option> </select> </div> <div class="form-group"> <label for="grado">Grado</label> <input type="text" id="grado" placeholder="Ej: Capitán" required> </div> <div class="form-group"> <label for="nombre">Nombre</label> <input type="text" id="nombre" placeholder="Nombre completo" required> </div> <div class="form-group"> <label for="cargo">Cargo</label> <input type="text" id="cargo" placeholder="Cargo del funcionario" required> </div> <div class="form-group"> <label for="tema">Tema de Instrucción</label> <input type="text" id="tema" placeholder="Tema (use 💡 para sugerencias)" required> </div> <div class="form-group"> <label for="temas">Temas a tratar</label> <textarea id="temas" placeholder="Lista de temas (use 💡 para sugerencias)" required rows="4"></textarea> </div> <button type="submit" style="margin-top: 20px;"><i class="fas fa-check-circle"></i> Generar Acta</button> </form>
 
-            <!-- Formulario para ingresar datos del acta -->
-            <form id="actaForm">
-                <div class="form-group">
-                    <label for="equipoActa">Equipo de Trabajo</label>
-                    <select id="equipoActa" required>
-                        <option value="" disabled selected>Cargando equipos...</option>
-                        <!-- Opciones cargadas por JavaScript desde equipos.json -->
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="grado">Grado</label>
-                    <input type="text" id="grado" placeholder="Ej: Capitán" required>
-                </div>
-                <div class="form-group">
-                    <label for="nombre">Nombre</label>
-                    <input type="text" id="nombre" placeholder="Nombre completo" required>
-                </div>
-                <div class="form-group">
-                    <label for="cargo">Cargo</label>
-                    <input type="text" id="cargo" placeholder="Cargo del funcionario" required>
-                </div>
-                <div class="form-group">
-                    <label for="tema">Tema de Instrucción</label>
-                    <input type="text" id="tema" placeholder="Tema (use 💡 para sugerencias)" required>
-                </div>
-                <div class="form-group">
-                    <label for="temas">Temas a tratar</label>
-                    <textarea id="temas" placeholder="Lista de temas (use 💡 para sugerencias)" required rows="4"></textarea>
-                </div>
-
-                <!-- El contenedor inline #temasSugeridosInline ha sido eliminado -->
-
-                <button type="submit" style="margin-top: 20px;"><i class="fas fa-check-circle"></i> Generar Acta</button>
-            </form> <!-- Fin del formulario -->
-
-
-            <!-- Div donde se mostrará el acta generada -->
+            <!-- Div Acta Generada -->
             <div id="actaGenerada" style="display:none;">
-                <!-- Contenido del acta (sin cambios) -->
-                <h1>ACTA DE INSTRUCCIÓN</h1> <p id="actaInfoEquipo">Equipo de Trabajo: <span id="actaEquipoDisplay"></span></p> <br> <p id="primerParrafo"> LA INSTRUCCIÓN DIRIGIDA POR PARTE DEL SEÑOR <span id="actaGrado"></span>, <span id="actaCargo"></span>, AL PERSONAL QUE CONFORMA <span id="actaEquipo1"></span>, SOBRE <span id="articuloTema"></span> <span id="actaTema"></span>. </p> <br><h3>ORDEN DEL DÍA</h3> <ol style="padding-left: 60px;"> <li>Verificación de asistentes</li> <li>Lectura del acta anterior</li> <li>Verificación de los compromisos</li> <li>Temas a tratar</li> </ol> <br><h3>DESARROLLO</h3> <p> Se realiza instrucción al personal adscrito <span id="actaEquipo2"></span> por parte del señor <span id="actaGrado2"></span>, <span id="actaCargo2"></span>, a quienes se les socializan los lineamientos sobre <span id="articuloTema2"></span> <span id="actaTema2"></span>. </p> <br><h3>1. Verificación de asistentes</h3> <p> Se verifica la asistencia del personal adscrito a la unidad y se constata la compatibilidad de los correos electrónicos del personal que integra <span id="actaEquipo3"></span>. Dejando constancia que la presente acta de instrucción se surtirá presencialmente, por correo electrónico y a través del Sistema de Información Gestor de Documentos Policiales, en virtud a lo dispuesto en el Art. 103 del Código General del Proceso -- Uso de las tecnologías de la información y de las comunicaciones, Ley 527 del 18 de agosto de 1999, Ley 794 del 01 de agosto de 2003 y la Ley 962 del 08 de julio de 2005. </p> <br><h3>2. Lectura del acta anterior</h3><p>(NO APLICA)</p> <br><h3>3. Verificación de los compromisos</h3><p>(NO APLICA)</p> <br><h3>4. Temas a tratar</h3><p id="temasTratar"></p>
+                <h1>ACTA DE INSTRUCCIÓN</h1>
+
+                <!-- Línea Equipo con botón de copia -->
+                <p id="actaInfoEquipo">Equipo de Trabajo:
+                    <span id="copyTargetEquipo">
+                        <span id="actaEquipoDisplay"></span>
+                        <button id="copyEquipoBtn" class="copy-btn-inline" title="Copiar Equipo">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </span>
+                </p>
+                <br>
+
+                <!-- Primer párrafo con botón de copia (Fragmento) después -->
+                <p id="primerParrafo">
+                    LA INSTRUCCIÓN DIRIGIDA POR PARTE DEL SEÑOR
+                    <span id="actaGrado"></span>,
+                    <span id="actaCargo"></span>,
+                    AL PERSONAL QUE CONFORMA <span id="actaEquipo1"></span>,
+                    SOBRE <span id="articuloTema"></span> <span id="actaTema"></span>.
+                </p>
+                 <button id="copyFragmentoBtn2" class="copy-btn-inline" title="Copiar Orden del Día y Desarrollo">
+                     <i class="fas fa-copy"></i> Copiar Detalle
+                 </button>
+                <br>
+
+                <!-- Wrapper para Orden del Día y Desarrollo -->
+                <div id="copyTargetOrdenDesarrollo">
+                    <h3>ORDEN DEL DÍA</h3>
+                    <button id="copyFragmentoBtn1" class="copy-btn-inline" title="Copiar Orden del Día y Desarrollo">
+                         <i class="fas fa-copy"></i> Copiar Detalle
+                    </button>
+                    <ol style="padding-left: 60px;">
+                        <li>Verificación de asistentes</li>
+                        <li>Lectura del acta anterior</li>
+                        <li>Verificación de los compromisos</li>
+                        <li>Temas a tratar</li>
+                    </ol>
+                    <br><h3>DESARROLLO</h3>
+                    <p>
+                        Se realiza instrucción al personal adscrito <span id="actaEquipo2"></span>
+                        por parte del señor <span id="actaGrado2"></span>, <span id="actaCargo2"></span>,
+                        a quienes se les socializan los lineamientos sobre
+                        <span id="articuloTema2"></span> <span id="actaTema2"></span>.
+                    </p>
+                    <br><h3>1. Verificación de asistentes</h3>
+                    <p>
+                        Se verifica la asistencia del personal adscrito a la unidad y se constata la compatibilidad
+                        de los correos electrónicos del personal que integra <span id="actaEquipo3"></span>.
+                        Dejando constancia que la presente acta de instrucción se surtirá presencialmente, por correo
+                        electrónico y a través del Sistema de Información Gestor de Documentos Policiales, en virtud
+                        a lo dispuesto en el Art. 103 del Código General del Proceso -- Uso de las tecnologías de la
+                        información y de las comunicaciones, Ley 527 del 18 de agosto de 1999, Ley 794 del 01 de agosto
+                        de 2003 y la Ley 962 del 08 de julio de 2005.
+                    </p>
+                    <br><h3>2. Lectura del acta anterior</h3><p>(NO APLICA)</p>
+                    <br><h3>3. Verificación de los compromisos</h3><p>(NO APLICA)</p>
+                    <br><h3>4. Temas a tratar</h3>
+                    <p id="temasTratar"></p> <!-- El texto se inserta aquí -->
+                </div> <!-- Fin copyTargetOrdenDesarrollo -->
             </div>
         </section>
 
-        <!-- ----------------------------- -->
-        <!-- SECCIÓN EXTRACTOR PDF         -->
-        <!-- ----------------------------- -->
+        <!-- SECCIÓN EXTRACTOR PDF (Sin cambios) -->
         <section id="pdfSection" class="container" style="display:none;">
-             <h1><i class="fas fa-file-export"></i> Extractor de Contenido PDF Mejorado</h1>
-             <!-- Contenido del Extractor PDF (sin cambios) -->
-             <div class="form-group"> <label for="fileInput">Seleccionar archivo PDF o arrastrar y soltar:</label> <div id="dropZone" class="drop-zone"> <i class="fas fa-file-upload"></i> <p>Arrastra y suelta el archivo PDF aquí o haz clic para seleccionarlo</p> </div> <input type="file" id="fileInput" accept=".pdf" style="display: none;"> </div> <div id="suggestion"></div> <div class="range-container"> <label for="marginRange">Margen sugerido para recorte (píxeles): <span id="rangeValue">150</span></label> <input type="range" id="marginRange" value="150" min="0" max="200" step="1"> </div> <div> <p style="margin: 10px 0; font-weight: 600;">Elige modo de agrupación:</p> <div class="icon-group"> <input type="radio" id="singleMode" name="pagesMode" value="1" checked> <label for="singleMode"><div class="single-box"></div><span>1 Hoja</span></label> <input type="radio" id="fourMode" name="pagesMode" value="4"> <label for="fourMode"><div class="four-boxes"><div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div></div><span>4 Hojas</span></label> </div> </div> <button id="processButton"><i class="fas fa-cogs"></i> Procesar PDF</button> <div id="output"></div> <div id="stats" style="display: none;"> <div class="stat-item"><i class="fas fa-file-alt"></i><span id="processedStat">0</span> páginas procesadas</div> <div class="stat-item"><i class="fas fa-file"></i><span id="blankStat">0</span> páginas en blanco omitidas</div> </div> <div class="image-container" id="imageContainer" style="display:none;"> <div class="image-wrapper"><img id="currentImage" alt="Imagen actual extraída del PDF"></div> <div class="image-navigation"> <button id="prevButton"><i class="fas fa-chevron-left"></i> Anterior</button> <span class="image-counter">Imagen <span id="currentImageIndex">1</span> de <span id="totalImages">1</span></span> <button id="nextButton">Siguiente <i class="fas fa-chevron-right"></i></button> </div> </div> <button id="downloadAll" style="display: none; margin-top: 20px;"><i class="fas fa-download"></i> Descargar todas las imágenes</button>
+             <h1><i class="fas fa-file-export"></i> Extractor de Contenido PDF Mejorado</h1> <div class="form-group"> <label for="fileInput">Seleccionar archivo PDF o arrastrar y soltar:</label> <div id="dropZone" class="drop-zone"> <i class="fas fa-file-upload"></i> <p>Arrastra y suelta el archivo PDF aquí o haz clic para seleccionarlo</p> </div> <input type="file" id="fileInput" accept=".pdf" style="display: none;"> </div> <div id="suggestion"></div> <div class="range-container"> <label for="marginRange">Margen sugerido para recorte (píxeles): <span id="rangeValue">150</span></label> <input type="range" id="marginRange" value="150" min="0" max="200" step="1"> </div> <div> <p style="margin: 10px 0; font-weight: 600;">Elige modo de agrupación:</p> <div class="icon-group"> <input type="radio" id="singleMode" name="pagesMode" value="1" checked> <label for="singleMode"><div class="single-box"></div><span>1 Hoja</span></label> <input type="radio" id="fourMode" name="pagesMode" value="4"> <label for="fourMode"><div class="four-boxes"><div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div></div><span>4 Hojas</span></label> </div> </div> <button id="processButton"><i class="fas fa-cogs"></i> Procesar PDF</button> <div id="output"></div> <div id="stats" style="display: none;"> <div class="stat-item"><i class="fas fa-file-alt"></i><span id="processedStat">0</span> páginas procesadas</div> <div class="stat-item"><i class="fas fa-file"></i><span id="blankStat">0</span> páginas en blanco omitidas</div> </div> <div class="image-container" id="imageContainer" style="display:none;"> <div class="image-wrapper"><img id="currentImage" alt="Imagen actual extraída del PDF"></div> <div class="image-navigation"> <button id="prevButton"><i class="fas fa-chevron-left"></i> Anterior</button> <span class="image-counter">Imagen <span id="currentImageIndex">1</span> de <span id="totalImages">1</span></span> <button id="nextButton">Siguiente <i class="fas fa-chevron-right"></i></button> </div> </div> <button id="downloadAll" style="display: none; margin-top: 20px;"><i class="fas fa-download"></i> Descargar todas las imágenes</button>
         </section>
-
     </main>
 
-    <!-- ======================== -->
-    <!-- BOTÓN FLOTANTE Y MODAL   -->
-    <!-- ======================== -->
-    <button id="fabTemasSugeridos" title="Temas Sugeridos">
-        <i class="fas fa-lightbulb"></i>
-    </button>
+    <!-- BOTÓN FLOTANTE Y MODAL (Sin cambios) -->
+     <button id="fabTemasSugeridos" title="Temas Sugeridos"> <i class="fas fa-lightbulb"></i> </button> <div id="temasOverlay"></div> <div id="temasPanel"> <div id="temasPanelHeader"> <h4><i class="fas fa-list-ul"></i> Temas Frecuentes</h4> <button id="temasPanelCloseBtn" title="Cerrar">×</button> </div> <div id="temasPanelContent"> <p style="color: var(--text-light); text-align: center;">Cargando temas...</p> </div> </div>
 
-    <div id="temasOverlay"></div>
-    <div id="temasPanel">
-        <div id="temasPanelHeader">
-            <h4><i class="fas fa-list-ul"></i> Temas Frecuentes</h4>
-            <button id="temasPanelCloseBtn" title="Cerrar">×</button>
-        </div>
-        <div id="temasPanelContent">
-             <!-- Las tarjetas se cargarán aquí por JS -->
-             <p style="color: var(--text-light); text-align: center;">Cargando temas...</p>
-        </div>
-    </div>
+    <!-- Librerías JS (Sin cambios) -->
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js"></script>
 
-
-    <!-- ======================== -->
-    <!-- LIBRERÍAS JAVASCRIPT     -->
-    <!-- ======================== -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js"></script>
-
-    <!-- ======================== -->
-    <!-- SCRIPT DE LA APLICACIÓN  -->
-    <!-- ======================== -->
+    <!-- SCRIPT DE LA APLICACIÓN -->
     <script>
-        // --------------------------------------------------------------------
-        // DOM Elements Reference
-        // --------------------------------------------------------------------
-        const tabActa = document.getElementById('tabActa');
-        const tabPdf = document.getElementById('tabPdf');
-        const actaSection = document.getElementById('actaSection');
-        const pdfSection = document.getElementById('pdfSection');
-        const equipoActaSelect = document.getElementById('equipoActa');
-        const actaForm = document.getElementById('actaForm');
-        const actaGeneradaDiv = document.getElementById('actaGenerada');
-        const temaInput = document.getElementById('tema');
-        const temasTextarea = document.getElementById('temas');
-        // FAB and Modal Elements
-        const fabTemasSugeridos = document.getElementById('fabTemasSugeridos');
-        const temasOverlay = document.getElementById('temasOverlay');
-        const temasPanel = document.getElementById('temasPanel');
-        const temasPanelContent = document.getElementById('temasPanelContent');
-        const temasPanelCloseBtn = document.getElementById('temasPanelCloseBtn');
-        // PDF Extractor Elements... (defined below)
+        // --- Referencias DOM (Sin cambios) ---
+        const tabActa = document.getElementById('tabActa'); const tabPdf = document.getElementById('tabPdf'); const actaSection = document.getElementById('actaSection'); const pdfSection = document.getElementById('pdfSection'); const equipoActaSelect = document.getElementById('equipoActa'); const actaForm = document.getElementById('actaForm'); const actaGeneradaDiv = document.getElementById('actaGenerada'); const temaInput = document.getElementById('tema'); const temasTextarea = document.getElementById('temas'); const fabTemasSugeridos = document.getElementById('fabTemasSugeridos'); const temasOverlay = document.getElementById('temasOverlay'); const temasPanel = document.getElementById('temasPanel'); const temasPanelContent = document.getElementById('temasPanelContent'); const temasPanelCloseBtn = document.getElementById('temasPanelCloseBtn');
 
-        // --------------------------------------------------------------------
-        // LÓGICA DE PESTAÑAS (Tabs) y Visibilidad del FAB
-        // --------------------------------------------------------------------
-        function showActaSection() {
-            tabActa.classList.add('active');
-            tabPdf.classList.remove('active');
-            actaSection.style.display = 'block';
-            pdfSection.style.display = 'none';
-            fabTemasSugeridos.classList.add('visible'); // Mostrar FAB
-        }
+        // --- Lógica Pestañas y FAB (Sin cambios) ---
+        function showActaSection() { tabActa.classList.add('active'); tabPdf.classList.remove('active'); actaSection.style.display = 'block'; pdfSection.style.display = 'none'; fabTemasSugeridos.classList.add('visible'); }
+        function showPdfSection() { tabPdf.classList.add('active'); tabActa.classList.remove('active'); pdfSection.style.display = 'block'; actaSection.style.display = 'none'; fabTemasSugeridos.classList.remove('visible'); closeTemasPanel(); }
+        tabActa.addEventListener('click', (e) => { e.preventDefault(); showActaSection(); }); tabPdf.addEventListener('click', (e) => { e.preventDefault(); showPdfSection(); });
 
-        function showPdfSection() {
-            tabPdf.classList.add('active');
-            tabActa.classList.remove('active');
-            pdfSection.style.display = 'block';
-            actaSection.style.display = 'none';
-            fabTemasSugeridos.classList.remove('visible'); // Ocultar FAB
-            closeTemasPanel(); // Asegurarse que el panel esté cerrado si se cambia de pestaña
-        }
+        // --- Lógica Panel Modal (Sin cambios) ---
+        function openTemasPanel() { temasOverlay.classList.add('visible'); temasPanel.classList.add('visible'); }
+        function closeTemasPanel() { temasOverlay.classList.remove('visible'); temasPanel.classList.remove('visible'); }
+        fabTemasSugeridos.addEventListener('click', openTemasPanel); temasPanelCloseBtn.addEventListener('click', closeTemasPanel); temasOverlay.addEventListener('click', closeTemasPanel);
 
-        tabActa.addEventListener('click', (e) => { e.preventDefault(); showActaSection(); });
-        tabPdf.addEventListener('click', (e) => { e.preventDefault(); showPdfSection(); });
-
-        // --------------------------------------------------------------------
-        // LÓGICA PANEL/MODAL TEMAS SUGERIDOS
-        // --------------------------------------------------------------------
-        function openTemasPanel() {
-            temasOverlay.classList.add('visible');
-            temasPanel.classList.add('visible');
-        }
-
-        function closeTemasPanel() {
-            temasOverlay.classList.remove('visible');
-            temasPanel.classList.remove('visible');
-        }
-
-        fabTemasSugeridos.addEventListener('click', openTemasPanel);
-        temasPanelCloseBtn.addEventListener('click', closeTemasPanel);
-        temasOverlay.addEventListener('click', closeTemasPanel); // Cerrar al hacer clic fuera
-
-
-        // --------------------------------------------------------------------
-        // FUNCIONES PARA GENERAR ACTA
-        // --------------------------------------------------------------------
-
-        // --- Poblar dropdown de Equipos --- (Sin cambios)
+        // --- Poblar Dropdown Equipos (Sin cambios) ---
         function populateEquiposDropdown(equiposData) { equipoActaSelect.options.length = 0; const initialOption = document.createElement('option'); initialOption.value = ""; initialOption.textContent = "Seleccione un equipo..."; initialOption.disabled = true; initialOption.selected = true; equipoActaSelect.appendChild(initialOption); if (!equiposData || !Array.isArray(equiposData)) { console.error("Datos de equipos inválidos."); equipoActaSelect.disabled = true; initialOption.textContent = "Error al cargar"; return; } equiposData.forEach(equipo => { const option = document.createElement('option'); option.value = equipo.name; option.textContent = equipo.name; equipoActaSelect.appendChild(option); }); equipoActaSelect.disabled = false; }
 
-        // --- Poblar Tarjetas de Temas en el Panel Modal ---
-        function populateTemaCards(temasData) {
-            temasPanelContent.innerHTML = ''; // Limpiar contenido anterior o mensaje de carga
+        // --- Poblar Tarjetas Temas en Panel (Sin cambios) ---
+        function populateTemaCards(temasData) { temasPanelContent.innerHTML = ''; if (!temasData || !Array.isArray(temasData) || temasData.length === 0) { console.warn("Datos de temas inválidos o vacíos."); temasPanelContent.innerHTML = '<p style="text-align: center; color: var(--text-light);">No hay temas sugeridos.</p>'; return; } temasData.forEach(tema => { const card = document.createElement('div'); card.className = 'tema-card'; card.dataset.tema = tema.temaInstruccion; card.dataset.tratar = tema.temasTratar; const title = document.createElement('span'); title.className = 'tema-card-title'; title.textContent = tema.temaInstruccion; card.appendChild(title); card.addEventListener('click', () => { temaInput.value = card.dataset.tema; temasTextarea.value = card.dataset.tratar; closeTemasPanel(); }); temasPanelContent.appendChild(card); }); }
 
-            if (!temasData || !Array.isArray(temasData) || temasData.length === 0) {
-                console.warn("Datos de temas inválidos o vacíos.");
-                temasPanelContent.innerHTML = '<p style="text-align: center; color: var(--text-light);">No hay temas sugeridos.</p>';
-                return;
-            }
-
-            temasData.forEach(tema => {
-                const card = document.createElement('div');
-                card.className = 'tema-card';
-                card.dataset.tema = tema.temaInstruccion;
-                card.dataset.tratar = tema.temasTratar;
-
-                const title = document.createElement('span');
-                title.className = 'tema-card-title';
-                title.textContent = tema.temaInstruccion;
-                card.appendChild(title);
-
-                card.addEventListener('click', () => {
-                    temaInput.value = card.dataset.tema;
-                    temasTextarea.value = card.dataset.tratar;
-                    closeTemasPanel(); // Cerrar el panel al seleccionar
-                    // Opcional: hacer foco en el siguiente campo o en el acta
-                    // document.getElementById('grado').focus();
-                });
-
-                temasPanelContent.appendChild(card);
-            });
-        }
-
-        // --- LocalStorage, UpdateForm, DeterminarArtículo, ToTitleCase, GenerateActa --- (Sin cambios)
+        // --- LocalStorage y UpdateForm (Sin cambios) ---
         function saveToLocalStorage(data) { localStorage.setItem('actaData', JSON.stringify(data)); }
         function loadFromLocalStorage() { const data = localStorage.getItem('actaData'); return data ? JSON.parse(data) : null; }
         function updateForm(data) { if (data) { document.getElementById('grado').value = data.grado || ''; document.getElementById('nombre').value = data.nombre || ''; document.getElementById('cargo').value = data.cargo || ''; temaInput.value = data.tema || ''; temasTextarea.value = data.temas || ''; setTimeout(() => { if (data.equipo && equipoActaSelect.options.length > 1) { if ([...equipoActaSelect.options].some(option => option.value === data.equipo)) { equipoActaSelect.value = data.equipo; } else { console.warn(`Equipo guardado "${data.equipo}" no encontrado.`); equipoActaSelect.value = ""; } } else { equipoActaSelect.value = ""; } }, 100); } else { actaForm.reset(); equipoActaSelect.value = ""; } }
+
+        // --- Determinar Artículo y ToTitleCase (Sin cambios) ---
         function determinarArticulo(tema) { const t = tema.trim().toLowerCase(); if (!t) return { articulo: "EL", articuloMin: "el" }; const m = ["protocolo", "procedimiento", "manual", "instructivo", "reglamento", "decreto", "código", "estatuto", "memorando", "oficio", "formulario", "programa", "plan", "sistema", "método", "formato", "proceso", "uso", "manejo", "curso", "taller", "seminario", "simposio", "congreso", "informe", "reporte", "documento", "expediente", "registro", "archivo", "control", "seguimiento", "operativo", "operacional", "servicio", "deber"]; const f = ["normativa", "norma", "directiva", "instrucción", "circular", "resolución", "orden", "directriz", "ley", "regulación", "disposición", "medida", "acción", "guía", "metodología", "técnica", "estrategia", "táctica", "operación", "actividad", "capacitación", "formación", "conferencia", "charla", "presentación", "exposición", "jornada", "sesión", "reunión", "clase", "política", "aplicación", "implementación", "comunicación"]; const mp = ["protocolos", "procedimientos", "manuales", "instructivos", "reglamentos", "decretos", "códigos", "estatutos", "memorandos", "oficios", "formularios", "programas", "planes", "sistemas", "métodos", "formatos", "procesos", "usos", "manejos", "cursos", "talleres", "seminarios", "simposios", "congresos", "informes", "reportes", "documentos", "expedientes", "registros", "archivos", "controles", "seguimientos", "operativos"]; const fp = ["normativas", "normas", "directivas", "instrucciones", "circulares", "resoluciones", "órdenes", "directrices", "leyes", "regulaciones", "disposiciones", "medidas", "acciones", "guías", "metodologías", "técnicas", "estrategias", "tácticas", "operaciones", "actividades", "capacitaciones", "formaciones", "conferencias", "charlas", "presentaciones", "exposiciones", "jornadas", "sesiones", "reuniones", "clases", "políticas", "comunicaciones"]; const p = t.split(' '); let i = 0; const pa = ["de", "del", "la", "el", "los", "las", "sobre", "para", "en", "con", "y", "o"]; while (i < p.length && pa.includes(p[i])) { i++; } const p1 = (i < p.length) ? p[i] : p[0]; if (!p1) return { articulo: "EL", articuloMin: "el" }; const plural = p1.endsWith('s') || p1.endsWith('es'); if (mp.includes(p1)) return { articulo: "LOS", articuloMin: "los" }; if (fp.includes(p1)) return { articulo: "LAS", articuloMin: "las" }; if (m.includes(p1)) return { articulo: "EL", articuloMin: "el" }; if (f.includes(p1)) return { articulo: "LA", articuloMin: "la" }; if (plural) { const s = p1.endsWith('es') ? p1.slice(0, -2) : p1.slice(0, -1); if (s.endsWith('a') || s.endsWith('dad') || s.endsWith('ción') || s.endsWith('sión') || s.endsWith('tud') || s.endsWith('umbre')) return { articulo: "LAS", articuloMin: "las" }; else return { articulo: "LOS", articuloMin: "los" }; } else { if (p1.endsWith('a') || p1.endsWith('dad') || p1.endsWith('ción') || p1.endsWith('sión') || p1.endsWith('tud') || p1.endsWith('umbre')) return { articulo: "LA", articuloMin: "la" }; else return { articulo: "EL", articuloMin: "el" }; } }
         function toTitleCase(str) { if (!str) return ""; return str.toLowerCase().split(' ').map(function(word) { if (word === 'cai') { return 'CAI'; } let capitalizedWord = word.charAt(0).toUpperCase() + word.slice(1); if (word === 'de') { capitalizedWord = 'de'; } return capitalizedWord; }).join(' '); }
-        function generateActa(data) { const selectedEquipo = data.equipo; if (!selectedEquipo) return; let preposition = "a la", article = "la"; if (selectedEquipo.startsWith("CAI")) { preposition = "al"; article = "el"; } const titleCaseEquipo = toTitleCase(selectedEquipo); const { articulo, articuloMin } = determinarArticulo(data.tema); document.getElementById('actaGrado').textContent = data.grado + ' ' + data.nombre; document.getElementById('actaCargo').textContent = data.cargo; document.getElementById('actaTema').textContent = data.tema; document.getElementById('actaGrado2').textContent = data.grado + ' ' + data.nombre; document.getElementById('actaCargo2').textContent = data.cargo; document.getElementById('actaTema2').textContent = data.tema; document.getElementById('temasTratar').textContent = data.temas; document.getElementById('actaEquipoDisplay').textContent = selectedEquipo; let equipo1Text = selectedEquipo; if (selectedEquipo.startsWith("ESTACIÓN")) { equipo1Text = "LA " + selectedEquipo; } else if (selectedEquipo.startsWith("CAI")) { equipo1Text = "EL " + selectedEquipo; } document.getElementById('actaEquipo1').textContent = equipo1Text; document.getElementById('actaEquipo2').textContent = preposition + " " + titleCaseEquipo; document.getElementById('actaEquipo3').textContent = article + " " + titleCaseEquipo; document.getElementById('articuloTema').textContent = articulo; document.getElementById('articuloTema2').textContent = articuloMin; actaGeneradaDiv.style.display = 'block'; }
 
+        // --- Función Toast (Sin cambios) ---
+        function showToast(message, type = 'success') {
+             const toast = document.createElement('div');
+             toast.className = `toast-notification ${type}`; // Añade tipo si se necesita estilo diferente
+             toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+             // Cambiar color de fondo para errores si se define un estilo .error
+             if(type === 'error') toast.style.backgroundColor = 'var(--danger)';
+
+             document.body.appendChild(toast);
+             setTimeout(() => { toast.classList.add('show'); }, 10);
+             setTimeout(() => {
+                 toast.classList.remove('show');
+                 toast.addEventListener('transitionend', () => { if (toast.parentNode) { document.body.removeChild(toast); } });
+                 setTimeout(() => { if (toast.parentNode) { document.body.removeChild(toast); } }, 600);
+             }, 2000);
+         }
+
+         // --- Función Copiar Texto ---
+         async function copyToClipboard(text, successMessage = '¡Texto copiado!') {
+             if (!navigator.clipboard) {
+                 showToast('El portapapeles no es compatible en este navegador.', 'error');
+                 console.warn('Clipboard API no disponible.');
+                 return;
+             }
+             try {
+                 await navigator.clipboard.writeText(text);
+                 showToast(successMessage);
+             } catch (err) {
+                 showToast('Error al copiar texto.', 'error');
+                 console.error('Error al copiar al portapapeles:', err);
+             }
+         }
+
+
+        // --- Generar el Acta (HTML) y *Añadir Listeners de Copia* ---
+        function generateActa(data) {
+            const selectedEquipo = data.equipo; if (!selectedEquipo) return; let preposition = "a la", article = "la"; if (selectedEquipo.startsWith("CAI")) { preposition = "al"; article = "el"; } const titleCaseEquipo = toTitleCase(selectedEquipo); const { articulo, articuloMin } = determinarArticulo(data.tema);
+
+            // Poblar el contenido del acta (igual que antes)
+            document.getElementById('actaGrado').textContent = data.grado + ' ' + data.nombre; document.getElementById('actaCargo').textContent = data.cargo; document.getElementById('actaTema').textContent = data.tema; document.getElementById('actaGrado2').textContent = data.grado + ' ' + data.nombre; document.getElementById('actaCargo2').textContent = data.cargo; document.getElementById('actaTema2').textContent = data.tema; document.getElementById('temasTratar').textContent = data.temas; // <-- Aquí se inserta el texto de la textarea
+            document.getElementById('actaEquipoDisplay').textContent = selectedEquipo; // <-- Aquí el nombre del equipo
+            let equipo1Text = selectedEquipo; if (selectedEquipo.startsWith("ESTACIÓN")) { equipo1Text = "LA " + selectedEquipo; } else if (selectedEquipo.startsWith("CAI")) { equipo1Text = "EL " + selectedEquipo; } document.getElementById('actaEquipo1').textContent = equipo1Text; document.getElementById('actaEquipo2').textContent = preposition + " " + titleCaseEquipo; document.getElementById('actaEquipo3').textContent = article + " " + titleCaseEquipo; document.getElementById('articuloTema').textContent = articulo; document.getElementById('articuloTema2').textContent = articuloMin;
+
+            // Mostrar el div del acta
+            actaGeneradaDiv.style.display = 'block';
+
+             // --- AÑADIR LISTENERS A LOS BOTONES DE COPIA (DESPUÉS DE GENERAR) ---
+             // Usar try/catch por si los elementos no se encuentran (aunque no debería pasar aquí)
+             try {
+                 const btnCopyEquipo = document.getElementById('copyEquipoBtn');
+                 const btnCopyFrag1 = document.getElementById('copyFragmentoBtn1');
+                 const btnCopyFrag2 = document.getElementById('copyFragmentoBtn2');
+                 const targetEquipo = document.getElementById('copyTargetEquipo');
+                 const targetOrdenDesarrollo = document.getElementById('copyTargetOrdenDesarrollo');
+
+                 if (btnCopyEquipo && targetEquipo) {
+                     // Usar una función nombrada o anónima para remover listeners si se regenera el acta (opcional pero buena práctica)
+                     const copyEquipoHandler = () => {
+                         copyToClipboard(targetEquipo.innerText.trim(), 'Equipo copiado!');
+                     };
+                     // Remove previous listener if exists? Not strictly necessary if generateActa replaces the whole div content, but safer if elements persist
+                     // btnCopyEquipo.removeEventListener('click', copyEquipoHandler); // Example if needed
+                     btnCopyEquipo.addEventListener('click', copyEquipoHandler);
+                 }
+
+                 const copyFragmentoHandler = () => {
+                    // innerText intenta preservar saltos de línea visibles
+                     copyToClipboard(targetOrdenDesarrollo.innerText.trim(), 'Detalle copiado!');
+                 };
+
+                 if (btnCopyFrag1 && targetOrdenDesarrollo) {
+                     btnCopyFrag1.addEventListener('click', copyFragmentoHandler);
+                 }
+                 if (btnCopyFrag2 && targetOrdenDesarrollo) {
+                      btnCopyFrag2.addEventListener('click', copyFragmentoHandler);
+                 }
+
+             } catch (error) {
+                 console.error("Error añadiendo listeners de copia:", error);
+             }
+        }
 
         // --------------------------------------------------------------------
         // INICIALIZACIÓN (DOMContentLoaded)
         // --------------------------------------------------------------------
         document.addEventListener('DOMContentLoaded', async function() {
-            // --- Cargar Equipos y Temas ---
-            try {
-                const [equiposResponse, temasResponse] = await Promise.all([
-                    fetch('equipos.json').catch(e => { console.error("Fetch equipos falló:", e); return null; }),
-                    fetch('temas.json').catch(e => { console.error("Fetch temas falló:", e); return null; })
-                ]);
-                // Procesar Equipos
-                if (equiposResponse && equiposResponse.ok) { const equiposData = await equiposResponse.json(); populateEquiposDropdown(equiposData); }
-                else { console.error("Error cargando equipos.json:", equiposResponse?.statusText || "Fetch failed"); populateEquiposDropdown(null); }
-                 // Procesar Temas (poblar el panel oculto)
-                if (temasResponse && temasResponse.ok) { const temasData = await temasResponse.json(); populateTemaCards(temasData); }
-                else { console.error("Error cargando temas.json:", temasResponse?.statusText || "Fetch failed"); populateTemaCards(null); }
-            } catch (error) {
-                console.error("Error general cargando datos JSON:", error);
-                 if (equipoActaSelect.options.length <= 1) populateEquiposDropdown(null);
-                 if (temasPanelContent.children.length <= 1) populateTemaCards(null);
-            }
-
-            // --- Cargar datos guardados del formulario ---
-            const savedData = loadFromLocalStorage();
-            updateForm(savedData);
-
-             // --- Mostrar sección inicial y FAB correctos ---
-            if (tabPdf.classList.contains('active')) {
-                 showPdfSection(); // Si PDF está activo, oculta FAB
-             } else {
-                 showActaSection(); // Por defecto o si Acta está activa, muestra FAB
+             // --- Cargar Equipos y Temas ---
+             try { const [equiposResponse, temasResponse] = await Promise.all([ fetch('equipos.json').catch(e => { console.error("Fetch equipos falló:", e); return null; }), fetch('temas.json').catch(e => { console.error("Fetch temas falló:", e); return null; }) ]); if (equiposResponse && equiposResponse.ok) { const equiposData = await equiposResponse.json(); populateEquiposDropdown(equiposData); } else { console.error("Error cargando equipos.json:", equiposResponse?.statusText || "Fetch failed"); populateEquiposDropdown(null); } if (temasResponse && temasResponse.ok) { const temasData = await temasResponse.json(); populateTemaCards(temasData); } else { console.error("Error cargando temas.json:", temasResponse?.statusText || "Fetch failed"); populateTemaCards(null); } } catch (error) { console.error("Error general cargando datos JSON:", error); if (equipoActaSelect.options.length <= 1) populateEquiposDropdown(null); if (temasPanelContent.children.length <= 1) populateTemaCards(null); }
+             // --- Cargar datos guardados ---
+             const savedData = loadFromLocalStorage(); updateForm(savedData);
+             // --- Mostrar sección inicial y FAB ---
+             if (tabPdf.classList.contains('active')) { showPdfSection(); } else { showActaSection(); }
+             // --- Generar acta si hay datos guardados ---
+             // Se mueve la lógica de attach listeners a DENTRO de generateActa
+              if (savedData && savedData.grado && savedData.equipo && savedData.tema && savedData.temas) {
+                 // Esperar un poco para que el dropdown se actualice correctamente
+                 setTimeout(() => {
+                     if (equipoActaSelect.value === savedData.equipo) {
+                        generateActa(savedData);
+                     }
+                 }, 200); // Aumentar ligeramente la espera si es necesario
              }
-
-            // --- Intentar generar acta si hay datos guardados válidos ---
-            setTimeout(() => { if (savedData && savedData.grado && savedData.equipo && equipoActaSelect.value === savedData.equipo) { generateActa(savedData); } }, 150);
         });
 
-        // --- Event Listener: Enviar formulario del acta --- (Sin cambios)
-        actaForm.addEventListener('submit', function(e) { e.preventDefault(); const data = { equipo: equipoActaSelect.value, grado: document.getElementById('grado').value, nombre: document.getElementById('nombre').value, cargo: document.getElementById('cargo').value, tema: temaInput.value, temas: temasTextarea.value }; if (!data.equipo) { alert("Seleccione un equipo."); equipoActaSelect.focus(); return; } saveToLocalStorage(data); generateActa(data); });
+        // --- Event Listener: Enviar formulario ---
+        actaForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = { equipo: equipoActaSelect.value, grado: document.getElementById('grado').value, nombre: document.getElementById('nombre').value, cargo: document.getElementById('cargo').value, tema: temaInput.value, temas: temasTextarea.value };
+            if (!data.equipo) { alert("Seleccione un equipo."); equipoActaSelect.focus(); return; }
+            if (!data.grado || !data.nombre || !data.cargo || !data.tema || !data.temas) {
+                 alert("Por favor, complete todos los campos del formulario.");
+                 return; // Añadir validación de campos vacíos
+             }
+            saveToLocalStorage(data);
+            generateActa(data); // Genera el acta Y añade los listeners de copia
+        });
 
 
-        // --------------------------------------------------------------------
-        // FUNCIONES EXTRACTOR PDF (Sin cambios funcionales)
-        // --------------------------------------------------------------------
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
-        const fileInput = document.getElementById('fileInput'); const dropZone = document.getElementById('dropZone'); const processButton = document.getElementById('processButton'); const output = document.getElementById('output'); const suggestion = document.getElementById('suggestion'); const stats = document.getElementById('stats'); const processedStat = document.getElementById('processedStat'); const blankStat = document.getElementById('blankStat'); const imageContainer = document.getElementById('imageContainer'); const currentImage = document.getElementById('currentImage'); const downloadAllButton = document.getElementById('downloadAll'); const currentImageIndex = document.getElementById('currentImageIndex'); const totalImages = document.getElementById('totalImages'); const marginRange = document.getElementById('marginRange'); const rangeValueSpan = document.getElementById('rangeValue'); const prevButton = document.getElementById('prevButton'); const nextButton = document.getElementById('nextButton'); let singlePageImages = []; let processedImages = []; let currentIndex = 0; let currentPdfDocument = null;
-        marginRange.addEventListener('input', () => { rangeValueSpan.textContent = marginRange.value; }); dropZone.addEventListener('click', () => fileInput.click()); dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); }); dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('dragover'); }); dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); const files = e.dataTransfer.files; if (files.length) { fileInput.files = files; handleFileSelection(); } }); fileInput.addEventListener('change', handleFileSelection); processButton.addEventListener('click', () => { if (currentPdfDocument) { processPDF(currentPdfDocument); } else { suggestion.innerHTML = '<i class="fas fa-exclamation-circle"></i> Primero carga un archivo PDF.'; suggestion.style.display = 'block'; } });
-        async function handleFileSelection() { const file = fileInput.files[0]; output.innerHTML = ''; output.style.display = 'none'; stats.style.display = 'none'; imageContainer.style.display = 'none'; downloadAllButton.style.display = 'none'; singlePageImages = []; processedImages = []; currentIndex = 0; currentPdfDocument = null; if (!file || file.type !== 'application/pdf') { suggestion.innerHTML = '<i class="fas fa-exclamation-circle"></i> Sube un PDF válido.'; suggestion.style.display = 'block'; return; } suggestion.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analizando archivo...'; suggestion.style.display = 'block'; try { const arrayBuffer = await file.arrayBuffer(); currentPdfDocument = await pdfjsLib.getDocument(arrayBuffer).promise; suggestion.innerHTML = `<i class="fas fa-check-circle"></i> PDF cargado (${currentPdfDocument.numPages} pág). Listo para procesar.`; } catch (error) { suggestion.innerHTML = '<i class="fas fa-times-circle"></i> Error al cargar PDF.'; console.error("Error cargar PDF:", error); currentPdfDocument = null; } }
-        async function processPDF(pdf) { output.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando PDF...'; output.style.display = 'block'; imageContainer.style.display = 'none'; stats.style.display = 'none'; singlePageImages = []; processedImages = []; currentIndex = 0; downloadAllButton.style.display = 'none'; try { const numPages = pdf.numPages; let processedPages = 0; let blankPages = 0; const pagesMode = parseInt(document.querySelector('input[name="pagesMode"]:checked').value, 10); for (let i = 1; i <= numPages; i++) { output.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Procesando pág ${i} de ${numPages}...`; const isBlank = await processPage(pdf, i); if (isBlank) { blankPages++; } else { processedPages++; } } if (pagesMode === 1) { processedImages = singlePageImages; } else if (pagesMode === 4 && singlePageImages.length > 0) { let index = 0; while (index < singlePageImages.length) { const group = singlePageImages.slice(index, index + 4); if (group.length === 4) { const collage = await createCollageOfFour(group); processedImages.push(collage); index += 4; } else { processedImages.push(...group); break; } } } else { processedImages = singlePageImages; } processedStat.textContent = processedPages; blankStat.textContent = blankPages; stats.style.display = 'flex'; output.innerHTML = '<i class="fas fa-check-circle"></i> Proceso completado.'; if (processedImages.length > 0) { currentIndex = 0; totalImages.textContent = processedImages.length; showImage(currentIndex); imageContainer.style.display = 'block'; downloadAllButton.style.display = 'inline-flex'; } else { imageContainer.style.display = 'none'; downloadAllButton.style.display = 'none'; output.innerHTML += '<br>No se extrajeron imágenes con contenido.'; } } catch (error) { output.innerHTML = `<i class="fas fa-times-circle"></i> Error procesando: ${error.message}`; console.error('Error procesando PDF:', error); } }
-        async function processPage(pdf, pageNumber) { const page = await pdf.getPage(pageNumber); const scale = 3; const viewport = page.getViewport({ scale }); const canvas = document.createElement('canvas'); const context = canvas.getContext('2d'); canvas.height = viewport.height; canvas.width = viewport.width; await page.render({ canvasContext: context, viewport: viewport }).promise; const imageData = context.getImageData(0, 0, canvas.width, canvas.height); if (isPageBlank(imageData)) { return true; } const bounds = findContentBounds(imageData); if (bounds.width <= 0 || bounds.height <= 0) { console.warn(`Pág ${pageNumber}: Contenido inválido tras recorte. Omitiendo.`); return true; } const croppedCanvas = document.createElement('canvas'); croppedCanvas.width = bounds.width; croppedCanvas.height = bounds.height; const croppedContext = croppedCanvas.getContext('2d'); croppedContext.drawImage(canvas, bounds.left, bounds.top, bounds.width, bounds.height, 0, 0, bounds.width, bounds.height); const dataUrl = croppedCanvas.toDataURL('image/png'); singlePageImages.push({ name: `pagina_${pageNumber}.png`, dataUrl: dataUrl }); return false; }
-        function isPageBlank(imageData) { const { data, width, height } = imageData; const threshold = 245; const sampleSize = 100; let whitePixels = 0; for (let i = 0; i < sampleSize; i++) { const randomX = Math.floor(Math.random() * width); const randomY = Math.floor(Math.random() * height); const index = (randomY * width + randomX) * 4; if (data[index] > threshold && data[index + 1] > threshold && data[index + 2] > threshold) { whitePixels++; } } return (whitePixels / sampleSize) > 0.98; }
-        function findContentBounds(imageData) { const { data, width, height } = imageData; let initialMargin; try { initialMargin = parseInt(marginRange.value, 10); if (isNaN(initialMargin)) throw new Error("Invalid margin"); } catch (e) { console.warn("Using default margin:", e); initialMargin = 150; } let minX = width, minY = height, maxX = 0, maxY = 0; const threshold = 200; const extraMargin = 5; const safeMarginX = Math.min(initialMargin, Math.floor(width / 2) - 1); const safeMarginY = Math.min(initialMargin, Math.floor(height / 2) - 1); for (let y = safeMarginY; y < height - safeMarginY; y++) { for (let x = safeMarginX; x < width - safeMarginX; x++) { const i = (y * width + x) * 4; if (data[i] < threshold || data[i + 1] < threshold || data[i + 2] < threshold) { minX = Math.min(minX, x); minY = Math.min(minY, y); maxX = Math.max(maxX, x); maxY = Math.max(maxY, y); } } } if (maxX < minX || maxY < minY) { console.warn("No content found within margins."); return { left: safeMarginX, top: safeMarginY, width: Math.max(0, width - 2 * safeMarginX), height: Math.max(0, height - 2 * safeMarginY) }; } const left = Math.max(safeMarginX, minX - extraMargin); const top = Math.max(safeMarginY, minY - extraMargin); const right = Math.min(width - safeMarginX - 1, maxX + extraMargin); const bottom = Math.min(height - safeMarginY - 1, maxY + extraMargin); return { left: left, top: top, width: Math.max(0, right - left + 1), height: Math.max(0, bottom - top + 1) }; }
-        async function createCollageOfFour(imagesGroup) { const collageWidth = 1275; const collageHeight = 1650; const collageCanvas = document.createElement('canvas'); collageCanvas.width = collageWidth; collageCanvas.height = collageHeight; const collageContext = collageCanvas.getContext('2d'); collageContext.fillStyle = 'white'; collageContext.fillRect(0, 0, collageWidth, collageHeight); const quadrantWidth = collageWidth / 2; const quadrantHeight = collageHeight / 2; for (let i = 0; i < imagesGroup.length; i++) { const imageData = imagesGroup[i]; const imageEl = new Image(); await new Promise((resolve, reject) => { imageEl.onload = resolve; imageEl.onerror = reject; imageEl.src = imageData.dataUrl; }); const row = Math.floor(i / 2); const col = i % 2; const dx = col * quadrantWidth; const dy = row * quadrantHeight; const aspectRatio = imageEl.width / imageEl.height; let drawWidth = quadrantWidth; let drawHeight = quadrantHeight; if (quadrantWidth / quadrantHeight > aspectRatio) { drawWidth = quadrantHeight * aspectRatio; } else { drawHeight = quadrantWidth / aspectRatio; } const offsetX = dx + (quadrantWidth - drawWidth) / 2; const offsetY = dy + (quadrantHeight - drawHeight) / 2; collageContext.drawImage(imageEl, offsetX, offsetY, drawWidth, drawHeight); } const pageNumberMatch = imagesGroup[0].name.match(/pagina_(\d+)/); const collageName = pageNumberMatch ? `collage_pag_${pageNumberMatch[1]}.png` : `collage_${Date.now()}.png`; return { name: collageName, dataUrl: collageCanvas.toDataURL('image/png') }; }
-        function showImage(index) { if (!processedImages || processedImages.length === 0 || index < 0 || index >= processedImages.length) { imageContainer.style.display = 'none'; return; } const imageData = processedImages[index]; currentImage.src = imageData.dataUrl; currentImage.alt = imageData.name || `Imagen ${index + 1}`; currentImageIndex.textContent = index + 1; totalImages.textContent = processedImages.length; prevButton.disabled = (index === 0); nextButton.disabled = (index === processedImages.length - 1); imageContainer.style.display = 'block'; }
-        prevButton.addEventListener('click', () => { if (currentIndex > 0) { currentIndex--; showImage(currentIndex); } }); nextButton.addEventListener('click', () => { if (currentIndex < processedImages.length - 1) { currentIndex++; showImage(currentIndex); } });
-        function showToast(message) { const toast = document.createElement('div'); toast.className = 'toast-notification'; toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`; document.body.appendChild(toast); setTimeout(() => { toast.classList.add('show'); }, 10); setTimeout(() => { toast.classList.remove('show'); toast.addEventListener('transitionend', () => { if (toast.parentNode) { document.body.removeChild(toast); } }); setTimeout(() => { if (toast.parentNode) { document.body.removeChild(toast); } }, 600); }, 2000); }
-        currentImage.addEventListener('click', async () => { if (!processedImages || processedImages.length === 0 || !navigator.clipboard || !navigator.clipboard.write) { console.warn("Clipboard API not available or no image."); return; } try { const dataUrl = processedImages[currentIndex].dataUrl; const blob = await (await fetch(dataUrl)).blob(); let clipboardItemInput; if (ClipboardItem && blob.type === 'image/png') { clipboardItemInput = { [blob.type]: blob }; } else { console.warn("ClipboardItem PNG might not be supported, using blob type:", blob.type); clipboardItemInput = { [blob.type || 'application/octet-stream']: blob }; } const clipboardItem = new ClipboardItem(clipboardItemInput); await navigator.clipboard.write([clipboardItem]); console.log('Imagen copiada.'); showToast('¡Imagen copiada!'); if (currentIndex < processedImages.length - 1) { currentIndex++; showImage(currentIndex); } } catch (error) { console.error('Error al copiar imagen:', error); showToast('Error al copiar imagen.'); } });
-        async function downloadAllImages() { if (!processedImages || processedImages.length === 0) return; const zip = new JSZip(); processedImages.forEach((image) => { const base64Data = image.dataUrl.split(',')[1]; let safeFileName = (image.name || `imagen_${Date.now()}.png`).replace(/[^a-z0-9_.\-]/gi, '_'); zip.file(safeFileName, base64Data, { base64: true }); }); output.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando ZIP...'; try { const content = await zip.generateAsync({ type: 'blob' }); const link = document.createElement('a'); link.href = URL.createObjectURL(content); link.download = 'imagenes_extraidas.zip'; link.click(); URL.revokeObjectURL(link.href); output.innerHTML = '<i class="fas fa-check-circle"></i> ZIP generado.'; } catch (error) { output.innerHTML = '<i class="fas fa-times-circle"></i> Error generando ZIP.'; console.error("Error generando ZIP:", error); } }
-        downloadAllButton.addEventListener('click', downloadAllImages);
+        // --- EXTRACTOR PDF (Funciones sin cambios, omitidas por brevedad) ---
+         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
+         const fileInput = document.getElementById('fileInput'); const dropZone = document.getElementById('dropZone'); const processButton = document.getElementById('processButton'); const output = document.getElementById('output'); const suggestion = document.getElementById('suggestion'); const stats = document.getElementById('stats'); const processedStat = document.getElementById('processedStat'); const blankStat = document.getElementById('blankStat'); const imageContainer = document.getElementById('imageContainer'); const currentImage = document.getElementById('currentImage'); const downloadAllButton = document.getElementById('downloadAll'); const currentImageIndex = document.getElementById('currentImageIndex'); const totalImages = document.getElementById('totalImages'); const marginRange = document.getElementById('marginRange'); const rangeValueSpan = document.getElementById('rangeValue'); const prevButton = document.getElementById('prevButton'); const nextButton = document.getElementById('nextButton'); let singlePageImages = []; let processedImages = []; let currentIndex = 0; let currentPdfDocument = null;
+         marginRange.addEventListener('input', () => { rangeValueSpan.textContent = marginRange.value; }); dropZone.addEventListener('click', () => fileInput.click()); dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); }); dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('dragover'); }); dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); const files = e.dataTransfer.files; if (files.length) { fileInput.files = files; handleFileSelection(); } }); fileInput.addEventListener('change', handleFileSelection); processButton.addEventListener('click', () => { if (currentPdfDocument) { processPDF(currentPdfDocument); } else { suggestion.innerHTML = '<i class="fas fa-exclamation-circle"></i> Primero carga un archivo PDF.'; suggestion.style.display = 'block'; } });
+         async function handleFileSelection() { const file = fileInput.files[0]; output.innerHTML = ''; output.style.display = 'none'; stats.style.display = 'none'; imageContainer.style.display = 'none'; downloadAllButton.style.display = 'none'; singlePageImages = []; processedImages = []; currentIndex = 0; currentPdfDocument = null; if (!file || file.type !== 'application/pdf') { suggestion.innerHTML = '<i class="fas fa-exclamation-circle"></i> Sube un PDF válido.'; suggestion.style.display = 'block'; return; } suggestion.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analizando archivo...'; suggestion.style.display = 'block'; try { const arrayBuffer = await file.arrayBuffer(); currentPdfDocument = await pdfjsLib.getDocument(arrayBuffer).promise; suggestion.innerHTML = `<i class="fas fa-check-circle"></i> PDF cargado (${currentPdfDocument.numPages} pág). Listo para procesar.`; } catch (error) { suggestion.innerHTML = '<i class="fas fa-times-circle"></i> Error al cargar PDF.'; console.error("Error cargar PDF:", error); currentPdfDocument = null; } }
+         async function processPDF(pdf) { output.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando PDF...'; output.style.display = 'block'; imageContainer.style.display = 'none'; stats.style.display = 'none'; singlePageImages = []; processedImages = []; currentIndex = 0; downloadAllButton.style.display = 'none'; try { const numPages = pdf.numPages; let processedPages = 0; let blankPages = 0; const pagesMode = parseInt(document.querySelector('input[name="pagesMode"]:checked').value, 10); for (let i = 1; i <= numPages; i++) { output.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Procesando pág ${i} de ${numPages}...`; const isBlank = await processPage(pdf, i); if (isBlank) { blankPages++; } else { processedPages++; } } if (pagesMode === 1) { processedImages = singlePageImages; } else if (pagesMode === 4 && singlePageImages.length > 0) { let index = 0; while (index < singlePageImages.length) { const group = singlePageImages.slice(index, index + 4); if (group.length === 4) { const collage = await createCollageOfFour(group); processedImages.push(collage); index += 4; } else { processedImages.push(...group); break; } } } else { processedImages = singlePageImages; } processedStat.textContent = processedPages; blankStat.textContent = blankPages; stats.style.display = 'flex'; output.innerHTML = '<i class="fas fa-check-circle"></i> Proceso completado.'; if (processedImages.length > 0) { currentIndex = 0; totalImages.textContent = processedImages.length; showImage(currentIndex); imageContainer.style.display = 'block'; downloadAllButton.style.display = 'inline-flex'; } else { imageContainer.style.display = 'none'; downloadAllButton.style.display = 'none'; output.innerHTML += '<br>No se extrajeron imágenes con contenido.'; } } catch (error) { output.innerHTML = `<i class="fas fa-times-circle"></i> Error procesando: ${error.message}`; console.error('Error procesando PDF:', error); } }
+         async function processPage(pdf, pageNumber) { const page = await pdf.getPage(pageNumber); const scale = 3; const viewport = page.getViewport({ scale }); const canvas = document.createElement('canvas'); const context = canvas.getContext('2d'); canvas.height = viewport.height; canvas.width = viewport.width; await page.render({ canvasContext: context, viewport: viewport }).promise; const imageData = context.getImageData(0, 0, canvas.width, canvas.height); if (isPageBlank(imageData)) { return true; } const bounds = findContentBounds(imageData); if (bounds.width <= 0 || bounds.height <= 0) { console.warn(`Pág ${pageNumber}: Contenido inválido tras recorte. Omitiendo.`); return true; } const croppedCanvas = document.createElement('canvas'); croppedCanvas.width = bounds.width; croppedCanvas.height = bounds.height; const croppedContext = croppedCanvas.getContext('2d'); croppedContext.drawImage(canvas, bounds.left, bounds.top, bounds.width, bounds.height, 0, 0, bounds.width, bounds.height); const dataUrl = croppedCanvas.toDataURL('image/png'); singlePageImages.push({ name: `pagina_${pageNumber}.png`, dataUrl: dataUrl }); return false; }
+         function isPageBlank(imageData) { const { data, width, height } = imageData; const threshold = 245; const sampleSize = 100; let whitePixels = 0; for (let i = 0; i < sampleSize; i++) { const randomX = Math.floor(Math.random() * width); const randomY = Math.floor(Math.random() * height); const index = (randomY * width + randomX) * 4; if (data[index] > threshold && data[index + 1] > threshold && data[index + 2] > threshold) { whitePixels++; } } return (whitePixels / sampleSize) > 0.98; }
+         function findContentBounds(imageData) { const { data, width, height } = imageData; let initialMargin; try { initialMargin = parseInt(marginRange.value, 10); if (isNaN(initialMargin)) throw new Error("Invalid margin"); } catch (e) { console.warn("Using default margin:", e); initialMargin = 150; } let minX = width, minY = height, maxX = 0, maxY = 0; const threshold = 200; const extraMargin = 5; const safeMarginX = Math.min(initialMargin, Math.floor(width / 2) - 1); const safeMarginY = Math.min(initialMargin, Math.floor(height / 2) - 1); for (let y = safeMarginY; y < height - safeMarginY; y++) { for (let x = safeMarginX; x < width - safeMarginX; x++) { const i = (y * width + x) * 4; if (data[i] < threshold || data[i + 1] < threshold || data[i + 2] < threshold) { minX = Math.min(minX, x); minY = Math.min(minY, y); maxX = Math.max(maxX, x); maxY = Math.max(maxY, y); } } } if (maxX < minX || maxY < minY) { console.warn("No content found within margins."); return { left: safeMarginX, top: safeMarginY, width: Math.max(0, width - 2 * safeMarginX), height: Math.max(0, height - 2 * safeMarginY) }; } const left = Math.max(safeMarginX, minX - extraMargin); const top = Math.max(safeMarginY, minY - extraMargin); const right = Math.min(width - safeMarginX - 1, maxX + extraMargin); const bottom = Math.min(height - safeMarginY - 1, maxY + extraMargin); return { left: left, top: top, width: Math.max(0, right - left + 1), height: Math.max(0, bottom - top + 1) }; }
+         async function createCollageOfFour(imagesGroup) { const collageWidth = 1275; const collageHeight = 1650; const collageCanvas = document.createElement('canvas'); collageCanvas.width = collageWidth; collageCanvas.height = collageHeight; const collageContext = collageCanvas.getContext('2d'); collageContext.fillStyle = 'white'; collageContext.fillRect(0, 0, collageWidth, collageHeight); const quadrantWidth = collageWidth / 2; const quadrantHeight = collageHeight / 2; for (let i = 0; i < imagesGroup.length; i++) { const imageData = imagesGroup[i]; const imageEl = new Image(); await new Promise((resolve, reject) => { imageEl.onload = resolve; imageEl.onerror = reject; imageEl.src = imageData.dataUrl; }); const row = Math.floor(i / 2); const col = i % 2; const dx = col * quadrantWidth; const dy = row * quadrantHeight; const aspectRatio = imageEl.width / imageEl.height; let drawWidth = quadrantWidth; let drawHeight = quadrantHeight; if (quadrantWidth / quadrantHeight > aspectRatio) { drawWidth = quadrantHeight * aspectRatio; } else { drawHeight = quadrantWidth / aspectRatio; } const offsetX = dx + (quadrantWidth - drawWidth) / 2; const offsetY = dy + (quadrantHeight - drawHeight) / 2; collageContext.drawImage(imageEl, offsetX, offsetY, drawWidth, drawHeight); } const pageNumberMatch = imagesGroup[0].name.match(/pagina_(\d+)/); const collageName = pageNumberMatch ? `collage_pag_${pageNumberMatch[1]}.png` : `collage_${Date.now()}.png`; return { name: collageName, dataUrl: collageCanvas.toDataURL('image/png') }; }
+         function showImage(index) { if (!processedImages || processedImages.length === 0 || index < 0 || index >= processedImages.length) { imageContainer.style.display = 'none'; return; } const imageData = processedImages[index]; currentImage.src = imageData.dataUrl; currentImage.alt = imageData.name || `Imagen ${index + 1}`; currentImageIndex.textContent = index + 1; totalImages.textContent = processedImages.length; prevButton.disabled = (index === 0); nextButton.disabled = (index === processedImages.length - 1); imageContainer.style.display = 'block'; }
+         prevButton.addEventListener('click', () => { if (currentIndex > 0) { currentIndex--; showImage(currentIndex); } }); nextButton.addEventListener('click', () => { if (currentIndex < processedImages.length - 1) { currentIndex++; showImage(currentIndex); } });
+         currentImage.addEventListener('click', async () => { if (!processedImages || processedImages.length === 0 || !navigator.clipboard || !navigator.clipboard.write) { console.warn("Clipboard API not available or no image."); return; } try { const dataUrl = processedImages[currentIndex].dataUrl; const blob = await (await fetch(dataUrl)).blob(); let clipboardItemInput; if (ClipboardItem && blob.type === 'image/png') { clipboardItemInput = { [blob.type]: blob }; } else { console.warn("ClipboardItem PNG might not be supported, using blob type:", blob.type); clipboardItemInput = { [blob.type || 'application/octet-stream']: blob }; } const clipboardItem = new ClipboardItem(clipboardItemInput); await navigator.clipboard.write([clipboardItem]); console.log('Imagen copiada.'); showToast('¡Imagen copiada!'); if (currentIndex < processedImages.length - 1) { currentIndex++; showImage(currentIndex); } } catch (error) { console.error('Error al copiar imagen:', error); showToast('Error al copiar imagen.'); } });
+         async function downloadAllImages() { if (!processedImages || processedImages.length === 0) return; const zip = new JSZip(); processedImages.forEach((image) => { const base64Data = image.dataUrl.split(',')[1]; let safeFileName = (image.name || `imagen_${Date.now()}.png`).replace(/[^a-z0-9_.\-]/gi, '_'); zip.file(safeFileName, base64Data, { base64: true }); }); output.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando ZIP...'; try { const content = await zip.generateAsync({ type: 'blob' }); const link = document.createElement('a'); link.href = URL.createObjectURL(content); link.download = 'imagenes_extraidas.zip'; link.click(); URL.revokeObjectURL(link.href); output.innerHTML = '<i class="fas fa-check-circle"></i> ZIP generado.'; } catch (error) { output.innerHTML = '<i class="fas fa-times-circle"></i> Error generando ZIP.'; console.error("Error generando ZIP:", error); } }
+         downloadAllButton.addEventListener('click', downloadAllImages);
 
     </script>
 
