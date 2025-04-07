@@ -19,11 +19,9 @@
             --secondary: #f4f4f4; --text: #333333; --text-light: #666666;
             --border: #cccccc; --danger: #f44336; --success: #4caf50;
             --radius: 0.375rem; --shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            --sidebar-width: 280px; /* Ancho del sidebar de temas */
-            --sidebar-gap: 20px;   /* Espacio entre contenido y sidebar */
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Arial', Segoe UI, sans-serif; font-size: 10pt; color: var(--text); background-color: #f9fafb; line-height: 1.5; margin: 0; position: relative; /* Needed for sidebar positioning later */ }
+        body { font-family: 'Arial', Segoe UI, sans-serif; font-size: 10pt; color: var(--text); background-color: #f9fafb; line-height: 1.5; margin: 0; }
 
         /* ------------------------- */
         /* Estilos del Encabezado    */
@@ -35,7 +33,7 @@
         /* ------------------------- */
         /* Estilos de Navegación     */
         /* ------------------------- */
-        nav { background: var(--secondary); display: flex; justify-content: center; /* Centrar pestañas */ gap: 20px; padding: 10px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        nav { background: var(--secondary); display: flex; justify-content: center; gap: 20px; padding: 10px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         nav a { text-decoration: none; color: var(--text); padding: 8px 15px; border-radius: var(--radius); transition: background-color 0.3s; font-weight: 500; display: flex; align-items: center; gap: 8px; }
         nav a:hover { background-color: var(--primary-light); color: var(--text); }
         nav a.active { background-color: var(--primary); color: white; }
@@ -45,17 +43,12 @@
         /* ------------------------- */
         .container {
             max-width: 800px;
-            margin: 20px auto; /* Centrado por defecto */
+            margin: 20px auto; /* Centrado simple */
             background: white;
             border-radius: var(--radius);
             box-shadow: var(--shadow);
             padding: 20px;
             border: 1px solid var(--border);
-            transition: margin-right 0.3s ease-in-out; /* Suave transición al aparecer/desaparecer sidebar */
-        }
-        /* Ajuste del margen derecho cuando el sidebar es visible */
-        body.sidebar-visible .container {
-            margin-right: calc(var(--sidebar-width) + var(--sidebar-gap) * 2); /* Empuja el container a la izquierda */
         }
 
 
@@ -65,6 +58,18 @@
         h1 { text-align: center; font-size: 14pt; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         h1 i { color: var(--primary); }
         h3 { font-size: 10pt; margin: 15px 0 5px; }
+        /* Estilo específico para el título de temas sugeridos */
+        #temasSugeridosInline h4 {
+            font-size: 10.5pt;
+            margin-top: 20px; /* Espacio sobre el título */
+            margin-bottom: 10px;
+            color: var(--primary);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
         /* ------------------------- */
         /* Estilos de Formularios    */
@@ -121,58 +126,31 @@
         .toast-notification.show { opacity: 1; }
 
         /* ---------------------------------- */
-        /* Estilos Sidebar Temas Sugeridos    */
+        /* Estilos Contenedor Temas Sugeridos Inline */
         /* ---------------------------------- */
-        #temasSugeridosContainer {
-            position: fixed;
-            top: 140px; /* Ajustar según altura del header+nav */
-            right: var(--sidebar-gap);
-            width: var(--sidebar-width);
-            max-height: calc(100vh - 160px); /* Altura máxima con margen */
-            background-color: #ffffff;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 15px;
-            overflow-y: auto; /* Scroll si hay muchos temas */
-            z-index: 950;
-            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-            transform: translateX(100%); /* Empieza fuera de la pantalla */
-            opacity: 0;
-            display: flex; /* Usar flex para organizar título y lista */
-            flex-direction: column;
+        #temasSugeridosInline {
+            margin-top: 25px; /* Espacio entre el form y las sugerencias */
+            padding-top: 15px;
+            border-top: 1px dashed var(--border); /* Separador visual */
         }
 
-        body.sidebar-visible #temasSugeridosContainer {
-            transform: translateX(0); /* Mover a la posición visible */
-            opacity: 1;
-        }
-
-        #temasSugeridosContainer h3 {
-            margin-top: 0;
-            margin-bottom: 15px;
-            text-align: center;
-            color: var(--primary);
-            font-size: 11pt;
-            flex-shrink: 0; /* Evitar que el título se encoja */
-        }
-
-        #temasCardsList {
-            flex-grow: 1; /* Permitir que la lista ocupe el espacio restante */
-            overflow-y: auto; /* Scroll interno si es necesario (además del general) */
-            margin-right: -10px; /* Compensar padding del scrollbar */
-            padding-right: 10px; /* Espacio para scrollbar */
+        #temasCardsListInline {
+            /* Opcional: Si se esperan muchas tarjetas, añadir scroll */
+             max-height: 250px;
+             overflow-y: auto;
+             padding-right: 5px; /* Espacio pequeño para scrollbar si aparece */
         }
 
         .tema-card {
             background-color: var(--secondary);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 10px;
-            margin-bottom: 10px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
             cursor: pointer;
             transition: background-color 0.2s, border-color 0.2s;
             font-size: 9.5pt;
+            position: relative; /* Para posicionar pseudo-elementos si se usan */
         }
 
         .tema-card:hover {
@@ -183,40 +161,38 @@
         .tema-card-title {
             font-weight: 600;
             color: var(--text);
-            margin-bottom: 5px; /* Espacio entre título y texto (si hubiera) */
-            display: block; /* Asegurar que ocupe su línea */
+            display: block; /* Asegura que ocupe su línea */
+             margin-right: 20px; /* Espacio para posible icono */
         }
-        /* Icono opcional para indicar acción */
+
+         /* Icono opcional (menos prominente que en sidebar) */
         .tema-card::after {
-            content: "\f0a9"; /* Font Awesome right arrow icon */
+            content: "\f054"; /* Font Awesome chevron-right */
             font-family: "Font Awesome 6 Free";
             font-weight: 900;
-            float: right;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
             color: var(--primary);
-            opacity: 0.6;
+            opacity: 0.3;
             transition: opacity 0.2s;
         }
         .tema-card:hover::after {
-            opacity: 1;
+            opacity: 0.8;
         }
 
 
         /* ------------------------- */
         /* Estilos Responsivos       */
         /* ------------------------- */
-        @media (max-width: 1200px) { /* Ocultar sidebar en pantallas más pequeñas */
-             body.sidebar-visible .container {
-                margin-right: auto; /* Volver al centrado normal */
-            }
-             #temasSugeridosContainer {
-                display: none; /* Ocultar completamente el sidebar */
-            }
-        }
         @media (max-width: 600px) {
-            .container { padding: 10px; margin: 10px auto; /* Asegurar centrado */ }
+            .container { padding: 10px; margin: 10px auto; }
             .drop-zone { padding: 30px 15px; }
             .icon-group { flex-direction: column; }
-            nav { flex-wrap: wrap; justify-content: center; } /* Permitir que la nav se ajuste */
+            nav { flex-wrap: wrap; justify-content: center; }
+            #temasSugeridosInline h4 { font-size: 10pt; }
+            .tema-card { font-size: 9pt; padding: 8px 10px;}
         }
     </style>
 </head>
@@ -272,16 +248,28 @@
                 </div>
                 <div class="form-group">
                     <label for="tema">Tema de Instrucción</label>
-                    <input type="text" id="tema" placeholder="Tema o seleccione de la derecha" required>
+                    <input type="text" id="tema" placeholder="Tema o seleccione abajo" required>
                 </div>
                 <div class="form-group">
                     <label for="temas">Temas a tratar</label>
-                    <textarea id="temas" placeholder="Lista de temas o seleccione de la derecha" required rows="4"></textarea>
+                    <textarea id="temas" placeholder="Lista de temas o seleccione abajo" required rows="4"></textarea>
                 </div>
-                <button type="submit"><i class="fas fa-check-circle"></i> Generar Acta</button>
-            </form>
 
-            <!-- Div donde se mostrará el acta generada -->
+                 <!-- Contenedor para las tarjetas de temas sugeridos (Inline) -->
+                 <div id="temasSugeridosInline">
+                    <h4><i class="fas fa-lightbulb"></i> Temas Frecuentes</h4>
+                    <div id="temasCardsListInline">
+                        <!-- Las tarjetas se cargarán aquí por JS -->
+                        <p style="color: var(--text-light);">Cargando temas...</p>
+                    </div>
+                 </div>
+
+                <!-- Botón submit debe ir después del form-group, pero antes de cerrar el form -->
+                 <button type="submit" style="margin-top: 20px;"><i class="fas fa-check-circle"></i> Generar Acta</button>
+            </form> <!-- Fin del formulario -->
+
+
+            <!-- Div donde se mostrará el acta generada (va después del form y sugerencias) -->
             <div id="actaGenerada" style="display:none;">
                 <h1>ACTA DE INSTRUCCIÓN</h1>
                 <p id="actaInfoEquipo">Equipo de Trabajo: <span id="actaEquipoDisplay"></span></p>
@@ -319,7 +307,7 @@
                 </p>
                 <br><h3>2. Lectura del acta anterior</h3><p>(NO APLICA)</p>
                 <br><h3>3. Verificación de los compromisos</h3><p>(NO APLICA)</p>
-                <br><h3>4. Temas a tratar</h3><p id="temasTratar"></p>
+                <br><h3>4. Temas a tratar</h3><p id="temasTratar"></p> <!-- Este se llena con el contenido de la textarea -->
             </div>
         </section>
 
@@ -327,10 +315,9 @@
         <!-- SECCIÓN EXTRACTOR PDF         -->
         <!-- ----------------------------- -->
         <section id="pdfSection" class="container" style="display:none;">
-            <h1><i class="fas fa-file-export"></i> Extractor de Contenido PDF Mejorado</h1>
-
-            <!-- Input de archivo y zona de arrastre -->
-            <div class="form-group">
+             <h1><i class="fas fa-file-export"></i> Extractor de Contenido PDF Mejorado</h1>
+             <!-- Contenido del Extractor PDF (sin cambios) -->
+             <div class="form-group">
                 <label for="fileInput">Seleccionar archivo PDF o arrastrar y soltar:</label>
                 <div id="dropZone" class="drop-zone">
                     <i class="fas fa-file-upload"></i>
@@ -338,18 +325,12 @@
                 </div>
                 <input type="file" id="fileInput" accept=".pdf" style="display: none;">
             </div>
-
-            <!-- Mensajes al usuario -->
             <div id="suggestion"></div>
-
-            <!-- Control de margen -->
             <div class="range-container">
                 <label for="marginRange">Margen sugerido para recorte (píxeles): <span id="rangeValue">150</span></label>
                 <input type="range" id="marginRange" value="150" min="0" max="200" step="1">
             </div>
-
-            <!-- Control de agrupación de páginas -->
-            <div>
+             <div>
                 <p style="margin: 10px 0; font-weight: 600;">Elige modo de agrupación:</p>
                 <div class="icon-group">
                     <input type="radio" id="singleMode" name="pagesMode" value="1" checked>
@@ -358,18 +339,12 @@
                     <label for="fourMode"><div class="four-boxes"><div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div></div><span>4 Hojas</span></label>
                 </div>
             </div>
-
-            <!-- Botón para procesar -->
             <button id="processButton"><i class="fas fa-cogs"></i> Procesar PDF</button>
-
-            <!-- Salida y estadísticas -->
             <div id="output"></div>
             <div id="stats" style="display: none;">
                 <div class="stat-item"><i class="fas fa-file-alt"></i><span id="processedStat">0</span> páginas procesadas</div>
                 <div class="stat-item"><i class="fas fa-file"></i><span id="blankStat">0</span> páginas en blanco omitidas</div>
             </div>
-
-            <!-- Visor y navegación de imágenes -->
             <div class="image-container" id="imageContainer" style="display:none;">
                 <div class="image-wrapper"><img id="currentImage" alt="Imagen actual extraída del PDF"></div>
                 <div class="image-navigation">
@@ -378,21 +353,10 @@
                     <button id="nextButton">Siguiente <i class="fas fa-chevron-right"></i></button>
                 </div>
             </div>
-
-            <!-- Botón de descarga -->
             <button id="downloadAll" style="display: none; margin-top: 20px;"><i class="fas fa-download"></i> Descargar todas las imágenes</button>
         </section>
 
-        <!-- ---------------------------------- -->
-        <!--      SIDEBAR TEMAS SUGERIDOS       -->
-        <!-- ---------------------------------- -->
-        <aside id="temasSugeridosContainer">
-             <h3><i class="fas fa-lightbulb"></i> Temas Frecuentes</h3>
-             <div id="temasCardsList">
-                 <!-- Las tarjetas se cargarán aquí por JS -->
-                 <p>Cargando temas...</p>
-             </div>
-        </aside>
+        <!-- El <aside> ha sido eliminado -->
 
     </main>
 
@@ -419,19 +383,19 @@
         const actaGeneradaDiv = document.getElementById('actaGenerada');
         const temaInput = document.getElementById('tema');
         const temasTextarea = document.getElementById('temas');
-        const temasSugeridosContainer = document.getElementById('temasSugeridosContainer');
-        const temasCardsList = document.getElementById('temasCardsList');
-        // PDF Extractor Elements... (already defined below, just listing for context)
+        // const temasSugeridosContainer = document.getElementById('temasSugeridosContainer'); // REMOVED
+        const temasCardsListInline = document.getElementById('temasCardsListInline'); // UPDATED reference
+        // PDF Extractor Elements... (defined below)
 
         // --------------------------------------------------------------------
-        // LÓGICA DE PESTAÑAS (Tabs) & Sidebar Visibility
+        // LÓGICA DE PESTAÑAS (Tabs) - Simplified (No sidebar logic)
         // --------------------------------------------------------------------
         function showActaSection() {
             tabActa.classList.add('active');
             tabPdf.classList.remove('active');
             actaSection.style.display = 'block';
             pdfSection.style.display = 'none';
-            document.body.classList.add('sidebar-visible'); // Show sidebar
+            // document.body.classList.add('sidebar-visible'); // REMOVED
         }
 
         function showPdfSection() {
@@ -439,7 +403,7 @@
             tabActa.classList.remove('active');
             pdfSection.style.display = 'block';
             actaSection.style.display = 'none';
-             document.body.classList.remove('sidebar-visible'); // Hide sidebar
+             // document.body.classList.remove('sidebar-visible'); // REMOVED
         }
 
         tabActa.addEventListener('click', (e) => {
@@ -456,365 +420,135 @@
         // FUNCIONES PARA GENERAR ACTA
         // --------------------------------------------------------------------
 
-        // --- Poblar dropdown de Equipos ---
+        // --- Poblar dropdown de Equipos --- (No changes needed)
         function populateEquiposDropdown(equiposData) {
-            equipoActaSelect.options.length = 0;
-            const initialOption = document.createElement('option');
-            initialOption.value = "";
-            initialOption.textContent = "Seleccione un equipo...";
-            initialOption.disabled = true;
-            initialOption.selected = true;
-            equipoActaSelect.appendChild(initialOption);
-
-            if (!equiposData || !Array.isArray(equiposData)) {
-                 console.error("Datos de equipos inválidos.");
-                 equipoActaSelect.disabled = true;
-                 initialOption.textContent = "Error al cargar";
-                 return;
-            }
-
-            equiposData.forEach(equipo => {
-                const option = document.createElement('option');
-                option.value = equipo.name;
-                option.textContent = equipo.name;
-                equipoActaSelect.appendChild(option);
-            });
-            equipoActaSelect.disabled = false;
+             equipoActaSelect.options.length = 0; const initialOption = document.createElement('option'); initialOption.value = ""; initialOption.textContent = "Seleccione un equipo..."; initialOption.disabled = true; initialOption.selected = true; equipoActaSelect.appendChild(initialOption); if (!equiposData || !Array.isArray(equiposData)) { console.error("Datos de equipos inválidos."); equipoActaSelect.disabled = true; initialOption.textContent = "Error al cargar"; return; } equiposData.forEach(equipo => { const option = document.createElement('option'); option.value = equipo.name; option.textContent = equipo.name; equipoActaSelect.appendChild(option); }); equipoActaSelect.disabled = false;
         }
 
-        // --- Poblar Sidebar de Temas ---
-        function populateTemasSidebar(temasData) {
-            temasCardsList.innerHTML = ''; // Clear previous content or loading message
+        // --- Poblar Tarjetas de Temas Inline --- (Renamed & target updated)
+        function populateTemaCards(temasData) {
+            temasCardsListInline.innerHTML = ''; // Clear target list
 
             if (!temasData || !Array.isArray(temasData) || temasData.length === 0) {
                 console.warn("Datos de temas inválidos o vacíos.");
-                temasCardsList.innerHTML = '<p style="text-align: center; color: var(--text-light);">No hay temas sugeridos.</p>';
+                temasCardsListInline.innerHTML = '<p style="text-align: center; color: var(--text-light);">No hay temas sugeridos.</p>';
                 return;
             }
 
             temasData.forEach(tema => {
                 const card = document.createElement('div');
                 card.className = 'tema-card';
-                card.dataset.tema = tema.temaInstruccion;    // Store data in dataset
-                card.dataset.tratar = tema.temasTratar;     // Store data in dataset
+                card.dataset.tema = tema.temaInstruccion;
+                card.dataset.tratar = tema.temasTratar;
 
                 const title = document.createElement('span');
                 title.className = 'tema-card-title';
                 title.textContent = tema.temaInstruccion;
                 card.appendChild(title);
 
-                // Add click listener to the card
                 card.addEventListener('click', () => {
                     temaInput.value = card.dataset.tema;
                     temasTextarea.value = card.dataset.tratar;
-                    // Optional: Scroll to top of form or highlight fields
-                    // temaInput.focus();
+                    // Scroll into view slightly if needed
+                     temaInput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 });
 
-                temasCardsList.appendChild(card);
+                temasCardsListInline.appendChild(card); // Append to inline list
             });
         }
 
+        // --- LocalStorage para datos del formulario --- (No changes needed)
+        function saveToLocalStorage(data) { localStorage.setItem('actaData', JSON.stringify(data)); }
+        function loadFromLocalStorage() { const data = localStorage.getItem('actaData'); return data ? JSON.parse(data) : null; }
 
-        // --- LocalStorage para datos del formulario ---
-        function saveToLocalStorage(data) {
-            localStorage.setItem('actaData', JSON.stringify(data));
-        }
-        function loadFromLocalStorage() {
-            const data = localStorage.getItem('actaData');
-            return data ? JSON.parse(data) : null;
-        }
-
-        // --- Actualizar formulario desde LocalStorage ---
+        // --- Actualizar formulario desde LocalStorage --- (No changes needed)
         function updateForm(data) {
             if (data) {
-                document.getElementById('grado').value = data.grado || '';
-                document.getElementById('nombre').value = data.nombre || '';
-                document.getElementById('cargo').value = data.cargo || '';
-                temaInput.value = data.tema || ''; // Use const reference
-                temasTextarea.value = data.temas || ''; // Use const reference
-
-                // Handle dropdown selection (with delay for safety)
-                 setTimeout(() => {
-                    if (data.equipo && equipoActaSelect.options.length > 1) {
-                        if ([...equipoActaSelect.options].some(option => option.value === data.equipo)) {
-                            equipoActaSelect.value = data.equipo;
-                        } else {
-                            console.warn(`Equipo guardado "${data.equipo}" no encontrado.`);
-                            equipoActaSelect.value = "";
-                        }
-                    } else {
-                        equipoActaSelect.value = "";
-                    }
-                }, 100);
-
-            } else {
-                actaForm.reset();
-                equipoActaSelect.value = "";
-            }
+                document.getElementById('grado').value = data.grado || ''; document.getElementById('nombre').value = data.nombre || ''; document.getElementById('cargo').value = data.cargo || ''; temaInput.value = data.tema || ''; temasTextarea.value = data.temas || '';
+                setTimeout(() => { if (data.equipo && equipoActaSelect.options.length > 1) { if ([...equipoActaSelect.options].some(option => option.value === data.equipo)) { equipoActaSelect.value = data.equipo; } else { console.warn(`Equipo guardado "${data.equipo}" no encontrado.`); equipoActaSelect.value = ""; } } else { equipoActaSelect.value = ""; } }, 100);
+            } else { actaForm.reset(); equipoActaSelect.value = ""; }
         }
 
-        // --- Determinar Artículo (EL/LA/LOS/LAS) ---
+        // --- Determinar Artículo (EL/LA/LOS/LAS) --- (No changes needed)
         function determinarArticulo(tema) {
-             // (Función sin cambios, omitida por brevedad - igual que la anterior)
-            const t = tema.trim().toLowerCase();
-            if (!t) return { articulo: "EL", articuloMin: "el" };
-            const m = ["protocolo", "procedimiento", "manual", "instructivo", "reglamento", "decreto", "código", "estatuto", "memorando", "oficio", "formulario", "programa", "plan", "sistema", "método", "formato", "proceso", "uso", "manejo", "curso", "taller", "seminario", "simposio", "congreso", "informe", "reporte", "documento", "expediente", "registro", "archivo", "control", "seguimiento", "operativo", "operacional", "servicio", "deber"];
-            const f = ["normativa", "norma", "directiva", "instrucción", "circular", "resolución", "orden", "directriz", "ley", "regulación", "disposición", "medida", "acción", "guía", "metodología", "técnica", "estrategia", "táctica", "operación", "actividad", "capacitación", "formación", "conferencia", "charla", "presentación", "exposición", "jornada", "sesión", "reunión", "clase", "política", "aplicación", "implementación", "comunicación"];
-            const mp = ["protocolos", "procedimientos", "manuales", "instructivos", "reglamentos", "decretos", "códigos", "estatutos", "memorandos", "oficios", "formularios", "programas", "planes", "sistemas", "métodos", "formatos", "procesos", "usos", "manejos", "cursos", "talleres", "seminarios", "simposios", "congresos", "informes", "reportes", "documentos", "expedientes", "registros", "archivos", "controles", "seguimientos", "operativos"];
-            const fp = ["normativas", "normas", "directivas", "instrucciones", "circulares", "resoluciones", "órdenes", "directrices", "leyes", "regulaciones", "disposiciones", "medidas", "acciones", "guías", "metodologías", "técnicas", "estrategias", "tácticas", "operaciones", "actividades", "capacitaciones", "formaciones", "conferencias", "charlas", "presentaciones", "exposiciones", "jornadas", "sesiones", "reuniones", "clases", "políticas", "comunicaciones"];
-            const p = t.split(' '); let i = 0; const pa = ["de", "del", "la", "el", "los", "las", "sobre", "para", "en", "con", "y", "o"];
-            while (i < p.length && pa.includes(p[i])) { i++; } const p1 = (i < p.length) ? p[i] : p[0]; if (!p1) return { articulo: "EL", articuloMin: "el" }; const plural = p1.endsWith('s') || p1.endsWith('es');
-            if (mp.includes(p1)) return { articulo: "LOS", articuloMin: "los" }; if (fp.includes(p1)) return { articulo: "LAS", articuloMin: "las" }; if (m.includes(p1)) return { articulo: "EL", articuloMin: "el" }; if (f.includes(p1)) return { articulo: "LA", articuloMin: "la" };
-            if (plural) { const s = p1.endsWith('es') ? p1.slice(0, -2) : p1.slice(0, -1); if (s.endsWith('a') || s.endsWith('dad') || s.endsWith('ción') || s.endsWith('sión') || s.endsWith('tud') || s.endsWith('umbre')) return { articulo: "LAS", articuloMin: "las" }; else return { articulo: "LOS", articuloMin: "los" }; }
-            else { if (p1.endsWith('a') || p1.endsWith('dad') || p1.endsWith('ción') || p1.endsWith('sión') || p1.endsWith('tud') || p1.endsWith('umbre')) return { articulo: "LA", articuloMin: "la" }; else return { articulo: "EL", articuloMin: "el" }; }
+             const t = tema.trim().toLowerCase(); if (!t) return { articulo: "EL", articuloMin: "el" }; const m = ["protocolo", "procedimiento", "manual", "instructivo", "reglamento", "decreto", "código", "estatuto", "memorando", "oficio", "formulario", "programa", "plan", "sistema", "método", "formato", "proceso", "uso", "manejo", "curso", "taller", "seminario", "simposio", "congreso", "informe", "reporte", "documento", "expediente", "registro", "archivo", "control", "seguimiento", "operativo", "operacional", "servicio", "deber"]; const f = ["normativa", "norma", "directiva", "instrucción", "circular", "resolución", "orden", "directriz", "ley", "regulación", "disposición", "medida", "acción", "guía", "metodología", "técnica", "estrategia", "táctica", "operación", "actividad", "capacitación", "formación", "conferencia", "charla", "presentación", "exposición", "jornada", "sesión", "reunión", "clase", "política", "aplicación", "implementación", "comunicación"]; const mp = ["protocolos", "procedimientos", "manuales", "instructivos", "reglamentos", "decretos", "códigos", "estatutos", "memorandos", "oficios", "formularios", "programas", "planes", "sistemas", "métodos", "formatos", "procesos", "usos", "manejos", "cursos", "talleres", "seminarios", "simposios", "congresos", "informes", "reportes", "documentos", "expedientes", "registros", "archivos", "controles", "seguimientos", "operativos"]; const fp = ["normativas", "normas", "directivas", "instrucciones", "circulares", "resoluciones", "órdenes", "directrices", "leyes", "regulaciones", "disposiciones", "medidas", "acciones", "guías", "metodologías", "técnicas", "estrategias", "tácticas", "operaciones", "actividades", "capacitaciones", "formaciones", "conferencias", "charlas", "presentaciones", "exposiciones", "jornadas", "sesiones", "reuniones", "clases", "políticas", "comunicaciones"]; const p = t.split(' '); let i = 0; const pa = ["de", "del", "la", "el", "los", "las", "sobre", "para", "en", "con", "y", "o"]; while (i < p.length && pa.includes(p[i])) { i++; } const p1 = (i < p.length) ? p[i] : p[0]; if (!p1) return { articulo: "EL", articuloMin: "el" }; const plural = p1.endsWith('s') || p1.endsWith('es'); if (mp.includes(p1)) return { articulo: "LOS", articuloMin: "los" }; if (fp.includes(p1)) return { articulo: "LAS", articuloMin: "las" }; if (m.includes(p1)) return { articulo: "EL", articuloMin: "el" }; if (f.includes(p1)) return { articulo: "LA", articuloMin: "la" }; if (plural) { const s = p1.endsWith('es') ? p1.slice(0, -2) : p1.slice(0, -1); if (s.endsWith('a') || s.endsWith('dad') || s.endsWith('ción') || s.endsWith('sión') || s.endsWith('tud') || s.endsWith('umbre')) return { articulo: "LAS", articuloMin: "las" }; else return { articulo: "LOS", articuloMin: "los" }; } else { if (p1.endsWith('a') || p1.endsWith('dad') || p1.endsWith('ción') || p1.endsWith('sión') || p1.endsWith('tud') || p1.endsWith('umbre')) return { articulo: "LA", articuloMin: "la" }; else return { articulo: "EL", articuloMin: "el" }; }
         }
 
-        // --- Convertir a Formato Título ---
-        function toTitleCase(str) {
-            // (Función sin cambios, omitida por brevedad - igual que la anterior)
-            if (!str) return ""; return str.toLowerCase().split(' ').map(function(word) { if (word === 'cai') { return 'CAI'; } let capitalizedWord = word.charAt(0).toUpperCase() + word.slice(1); if (word === 'de') { capitalizedWord = 'de'; } return capitalizedWord; }).join(' ');
-        }
+        // --- Convertir a Formato Título --- (No changes needed)
+        function toTitleCase(str) { if (!str) return ""; return str.toLowerCase().split(' ').map(function(word) { if (word === 'cai') { return 'CAI'; } let capitalizedWord = word.charAt(0).toUpperCase() + word.slice(1); if (word === 'de') { capitalizedWord = 'de'; } return capitalizedWord; }).join(' '); }
 
-        // --- Generar el Acta (HTML) ---
+        // --- Generar el Acta (HTML) --- (No changes needed)
         function generateActa(data) {
-            const selectedEquipo = data.equipo;
-            if (!selectedEquipo) return;
-
-            let preposition = "a la", article = "la";
-            if (selectedEquipo.startsWith("CAI")) { preposition = "al"; article = "el"; }
-            const titleCaseEquipo = toTitleCase(selectedEquipo);
-            const { articulo, articuloMin } = determinarArticulo(data.tema);
-
-            document.getElementById('actaGrado').textContent = data.grado + ' ' + data.nombre;
-            document.getElementById('actaCargo').textContent = data.cargo;
-            document.getElementById('actaTema').textContent = data.tema;
-            document.getElementById('actaGrado2').textContent = data.grado + ' ' + data.nombre;
-            document.getElementById('actaCargo2').textContent = data.cargo;
-            document.getElementById('actaTema2').textContent = data.tema;
-            document.getElementById('temasTratar').textContent = data.temas; // Aquí se inserta el texto del textarea
-            document.getElementById('actaEquipoDisplay').textContent = selectedEquipo;
-            let equipo1Text = selectedEquipo;
-            if (selectedEquipo.startsWith("ESTACIÓN")) { equipo1Text = "LA " + selectedEquipo; }
-            else if (selectedEquipo.startsWith("CAI")) { equipo1Text = "EL " + selectedEquipo; }
-            document.getElementById('actaEquipo1').textContent = equipo1Text;
-            document.getElementById('actaEquipo2').textContent = preposition + " " + titleCaseEquipo;
-            document.getElementById('actaEquipo3').textContent = article + " " + titleCaseEquipo;
-            document.getElementById('articuloTema').textContent = articulo;
-            document.getElementById('articuloTema2').textContent = articuloMin;
-
-            actaGeneradaDiv.style.display = 'block';
+            const selectedEquipo = data.equipo; if (!selectedEquipo) return; let preposition = "a la", article = "la"; if (selectedEquipo.startsWith("CAI")) { preposition = "al"; article = "el"; } const titleCaseEquipo = toTitleCase(selectedEquipo); const { articulo, articuloMin } = determinarArticulo(data.tema); document.getElementById('actaGrado').textContent = data.grado + ' ' + data.nombre; document.getElementById('actaCargo').textContent = data.cargo; document.getElementById('actaTema').textContent = data.tema; document.getElementById('actaGrado2').textContent = data.grado + ' ' + data.nombre; document.getElementById('actaCargo2').textContent = data.cargo; document.getElementById('actaTema2').textContent = data.tema; document.getElementById('temasTratar').textContent = data.temas; document.getElementById('actaEquipoDisplay').textContent = selectedEquipo; let equipo1Text = selectedEquipo; if (selectedEquipo.startsWith("ESTACIÓN")) { equipo1Text = "LA " + selectedEquipo; } else if (selectedEquipo.startsWith("CAI")) { equipo1Text = "EL " + selectedEquipo; } document.getElementById('actaEquipo1').textContent = equipo1Text; document.getElementById('actaEquipo2').textContent = preposition + " " + titleCaseEquipo; document.getElementById('actaEquipo3').textContent = article + " " + titleCaseEquipo; document.getElementById('articuloTema').textContent = articulo; document.getElementById('articuloTema2').textContent = articuloMin; actaGeneradaDiv.style.display = 'block';
         }
 
         // --------------------------------------------------------------------
         // INICIALIZACIÓN (DOMContentLoaded)
         // --------------------------------------------------------------------
         document.addEventListener('DOMContentLoaded', async function() {
-
             // --- Cargar Equipos y Temas en Paralelo ---
             try {
                 const [equiposResponse, temasResponse] = await Promise.all([
-                    fetch('equipos.json').catch(e => { console.error("Fetch equipos falló:", e); return null; }), // Add catch here
-                    fetch('temas.json').catch(e => { console.error("Fetch temas falló:", e); return null; })     // Add catch here
+                    fetch('equipos.json').catch(e => { console.error("Fetch equipos falló:", e); return null; }),
+                    fetch('temas.json').catch(e => { console.error("Fetch temas falló:", e); return null; })
                 ]);
 
                 // Procesar Equipos
                 if (equiposResponse && equiposResponse.ok) {
-                    const equiposData = await equiposResponse.json();
-                    populateEquiposDropdown(equiposData);
-                } else {
-                    console.error("Error cargando equipos.json:", equiposResponse?.statusText || "Fetch failed");
-                    populateEquiposDropdown(null); // Muestra estado de error
-                }
+                    const equiposData = await equiposResponse.json(); populateEquiposDropdown(equiposData);
+                } else { console.error("Error cargando equipos.json:", equiposResponse?.statusText || "Fetch failed"); populateEquiposDropdown(null); }
 
                  // Procesar Temas
                 if (temasResponse && temasResponse.ok) {
-                    const temasData = await temasResponse.json();
-                    populateTemasSidebar(temasData);
-                } else {
-                    console.error("Error cargando temas.json:", temasResponse?.statusText || "Fetch failed");
-                    populateTemasSidebar(null); // Muestra estado de error
-                }
+                    const temasData = await temasResponse.json(); populateTemaCards(temasData); // Use updated function name
+                } else { console.error("Error cargando temas.json:", temasResponse?.statusText || "Fetch failed"); populateTemaCards(null); } // Use updated function name
 
             } catch (error) {
-                // Catch errors from Promise.all or await .json()
                 console.error("Error general cargando datos JSON:", error);
-                 // Asegurarse de que los estados de error se muestren si algo falla
                  if (equipoActaSelect.options.length <= 1) populateEquiposDropdown(null);
-                 if (temasCardsList.children.length <= 1) populateTemasSidebar(null);
+                 if (temasCardsListInline.children.length <= 1) populateTemaCards(null); // Use updated reference
             }
-
 
             // --- Cargar datos guardados del formulario ---
             const savedData = loadFromLocalStorage();
             updateForm(savedData);
 
-            // --- Mostrar Sidebar si estamos en la pestaña Acta ---
-             if (tabActa.classList.contains('active')) {
-                showActaSection(); // Asegura que el sidebar sea visible al cargar si Acta es la pestaña activa
-             } else {
-                 document.body.classList.remove('sidebar-visible'); // Asegura que esté oculto si PDF es la activa
-             }
+            // --- Mostrar sección inicial correcta (Acta por defecto) ---
+            if (tabActa.classList.contains('active')) {
+                 showActaSection();
+            } else if (tabPdf.classList.contains('active')) {
+                 showPdfSection();
+            } else {
+                 showActaSection(); // Default to Acta if none are explicitly active
+            }
 
             // --- Intentar generar acta si hay datos guardados válidos ---
-            setTimeout(() => {
-                if (savedData && savedData.grado && savedData.equipo && equipoActaSelect.value === savedData.equipo) {
-                    generateActa(savedData);
-                }
-             }, 150);
-
+            setTimeout(() => { if (savedData && savedData.grado && savedData.equipo && equipoActaSelect.value === savedData.equipo) { generateActa(savedData); } }, 150);
         });
 
-        // --- Event Listener: Enviar formulario del acta ---
+        // --- Event Listener: Enviar formulario del acta --- (No changes needed)
         actaForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const data = {
-                equipo: equipoActaSelect.value,
-                grado: document.getElementById('grado').value,
-                nombre: document.getElementById('nombre').value,
-                cargo: document.getElementById('cargo').value,
-                tema: temaInput.value,
-                temas: temasTextarea.value
-            };
-
-            if (!data.equipo) {
-                 alert("Por favor, seleccione un equipo de trabajo.");
-                 equipoActaSelect.focus();
-                 return;
-             }
-
-            saveToLocalStorage(data);
-            generateActa(data);
+            e.preventDefault(); const data = { equipo: equipoActaSelect.value, grado: document.getElementById('grado').value, nombre: document.getElementById('nombre').value, cargo: document.getElementById('cargo').value, tema: temaInput.value, temas: temasTextarea.value }; if (!data.equipo) { alert("Seleccione un equipo."); equipoActaSelect.focus(); return; } saveToLocalStorage(data); generateActa(data);
         });
 
 
         // --------------------------------------------------------------------
-        // FUNCIONES EXTRACTOR PDF (Sin cambios funcionales relevantes)
+        // FUNCIONES EXTRACTOR PDF (Sin cambios funcionales)
         // --------------------------------------------------------------------
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
-
-        const fileInput = document.getElementById('fileInput');
-        const dropZone = document.getElementById('dropZone');
-        const processButton = document.getElementById('processButton');
-        const output = document.getElementById('output');
-        const suggestion = document.getElementById('suggestion');
-        const stats = document.getElementById('stats');
-        const processedStat = document.getElementById('processedStat');
-        const blankStat = document.getElementById('blankStat');
-        const imageContainer = document.getElementById('imageContainer');
-        const currentImage = document.getElementById('currentImage');
-        const downloadAllButton = document.getElementById('downloadAll');
-        const currentImageIndex = document.getElementById('currentImageIndex');
-        const totalImages = document.getElementById('totalImages');
-        const marginRange = document.getElementById('marginRange');
-        const rangeValueSpan = document.getElementById('rangeValue');
-        const prevButton = document.getElementById('prevButton');
-        const nextButton = document.getElementById('nextButton');
-
-        let singlePageImages = [];
-        let processedImages = [];
-        let currentIndex = 0;
-        let currentPdfDocument = null;
-
-        marginRange.addEventListener('input', () => { rangeValueSpan.textContent = marginRange.value; });
-        dropZone.addEventListener('click', () => fileInput.click());
-        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
-        dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('dragover'); });
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault(); dropZone.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (files.length) { fileInput.files = files; handleFileSelection(); }
-        });
-        fileInput.addEventListener('change', handleFileSelection);
-        processButton.addEventListener('click', () => {
-            if (currentPdfDocument) { processPDF(currentPdfDocument); }
-            else { suggestion.innerHTML = '<i class="fas fa-exclamation-circle"></i> Primero carga un archivo PDF.'; suggestion.style.display = 'block'; }
-        });
-
-        async function handleFileSelection() {
-            const file = fileInput.files[0];
-            // Reset UI state first
-            output.innerHTML = ''; output.style.display = 'none'; stats.style.display = 'none';
-            imageContainer.style.display = 'none'; downloadAllButton.style.display = 'none';
-            singlePageImages = []; processedImages = []; currentIndex = 0; currentPdfDocument = null;
-
-            if (!file || file.type !== 'application/pdf') {
-                suggestion.innerHTML = '<i class="fas fa-exclamation-circle"></i> Sube un archivo PDF válido.'; suggestion.style.display = 'block'; return;
-            }
-            suggestion.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analizando archivo...'; suggestion.style.display = 'block';
-
-            try {
-                const arrayBuffer = await file.arrayBuffer();
-                currentPdfDocument = await pdfjsLib.getDocument(arrayBuffer).promise;
-                suggestion.innerHTML = `<i class="fas fa-check-circle"></i> PDF cargado (${currentPdfDocument.numPages} pág). Listo para procesar.`;
-            } catch (error) {
-                suggestion.innerHTML = '<i class="fas fa-times-circle"></i> Error al cargar PDF.'; console.error("Error cargar PDF:", error); currentPdfDocument = null;
-            }
-        }
-
-        async function processPDF(pdf) {
-             output.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando PDF...'; output.style.display = 'block';
-             imageContainer.style.display = 'none'; stats.style.display = 'none'; singlePageImages = []; processedImages = []; currentIndex = 0; downloadAllButton.style.display = 'none';
-             try {
-                 const numPages = pdf.numPages; let processedPages = 0; let blankPages = 0;
-                 const pagesMode = parseInt(document.querySelector('input[name="pagesMode"]:checked').value, 10);
-                 for (let i = 1; i <= numPages; i++) {
-                     output.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Procesando pág ${i} de ${numPages}...`;
-                     const isBlank = await processPage(pdf, i);
-                     if (isBlank) { blankPages++; } else { processedPages++; }
-                 }
-                 if (pagesMode === 1) { processedImages = singlePageImages; }
-                 else if (pagesMode === 4 && singlePageImages.length > 0) {
-                     let index = 0; while (index < singlePageImages.length) { const group = singlePageImages.slice(index, index + 4); if (group.length === 4) { const collage = await createCollageOfFour(group); processedImages.push(collage); index += 4; } else { processedImages.push(...group); break; } }
-                 } else { processedImages = singlePageImages; }
-                 processedStat.textContent = processedPages; blankStat.textContent = blankPages; stats.style.display = 'flex'; output.innerHTML = '<i class="fas fa-check-circle"></i> Proceso completado.';
-                 if (processedImages.length > 0) { currentIndex = 0; totalImages.textContent = processedImages.length; showImage(currentIndex); imageContainer.style.display = 'block'; downloadAllButton.style.display = 'inline-flex'; }
-                 else { imageContainer.style.display = 'none'; downloadAllButton.style.display = 'none'; output.innerHTML += '<br>No se extrajeron imágenes con contenido.'; }
-             } catch (error) { output.innerHTML = `<i class="fas fa-times-circle"></i> Error procesando: ${error.message}`; console.error('Error procesando PDF:', error); }
-        }
-
-        async function processPage(pdf, pageNumber) {
-            // (Función sin cambios, omitida por brevedad)
-             const page = await pdf.getPage(pageNumber); const scale = 3; const viewport = page.getViewport({ scale }); const canvas = document.createElement('canvas'); const context = canvas.getContext('2d'); canvas.height = viewport.height; canvas.width = viewport.width; await page.render({ canvasContext: context, viewport: viewport }).promise; const imageData = context.getImageData(0, 0, canvas.width, canvas.height); if (isPageBlank(imageData)) { return true; } const bounds = findContentBounds(imageData); if (bounds.width <= 0 || bounds.height <= 0) { console.warn(`Pág ${pageNumber}: Contenido inválido tras recorte. Omitiendo.`); return true; } const croppedCanvas = document.createElement('canvas'); croppedCanvas.width = bounds.width; croppedCanvas.height = bounds.height; const croppedContext = croppedCanvas.getContext('2d'); croppedContext.drawImage(canvas, bounds.left, bounds.top, bounds.width, bounds.height, 0, 0, bounds.width, bounds.height); const dataUrl = croppedCanvas.toDataURL('image/png'); singlePageImages.push({ name: `pagina_${pageNumber}.png`, dataUrl: dataUrl }); return false;
-        }
-
-        function isPageBlank(imageData) {
-            // (Función sin cambios, omitida por brevedad)
-            const { data, width, height } = imageData; const threshold = 245; const sampleSize = 100; let whitePixels = 0; for (let i = 0; i < sampleSize; i++) { const randomX = Math.floor(Math.random() * width); const randomY = Math.floor(Math.random() * height); const index = (randomY * width + randomX) * 4; if (data[index] > threshold && data[index + 1] > threshold && data[index + 2] > threshold) { whitePixels++; } } return (whitePixels / sampleSize) > 0.98;
-        }
-
-        function findContentBounds(imageData) {
-            // (Función sin cambios, omitida por brevedad)
-            const { data, width, height } = imageData; let initialMargin; try { initialMargin = parseInt(marginRange.value, 10); if (isNaN(initialMargin)) throw new Error("Invalid margin"); } catch (e) { console.warn("Using default margin:", e); initialMargin = 150; } let minX = width, minY = height, maxX = 0, maxY = 0; const threshold = 200; const extraMargin = 5; const safeMarginX = Math.min(initialMargin, Math.floor(width / 2) - 1); const safeMarginY = Math.min(initialMargin, Math.floor(height / 2) - 1); for (let y = safeMarginY; y < height - safeMarginY; y++) { for (let x = safeMarginX; x < width - safeMarginX; x++) { const i = (y * width + x) * 4; if (data[i] < threshold || data[i + 1] < threshold || data[i + 2] < threshold) { minX = Math.min(minX, x); minY = Math.min(minY, y); maxX = Math.max(maxX, x); maxY = Math.max(maxY, y); } } } if (maxX < minX || maxY < minY) { console.warn("No content found within margins."); return { left: safeMarginX, top: safeMarginY, width: Math.max(0, width - 2 * safeMarginX), height: Math.max(0, height - 2 * safeMarginY) }; } const left = Math.max(safeMarginX, minX - extraMargin); const top = Math.max(safeMarginY, minY - extraMargin); const right = Math.min(width - safeMarginX - 1, maxX + extraMargin); const bottom = Math.min(height - safeMarginY - 1, maxY + extraMargin); return { left: left, top: top, width: Math.max(0, right - left + 1), height: Math.max(0, bottom - top + 1) };
-        }
-
-        async function createCollageOfFour(imagesGroup) {
-            // (Función sin cambios, omitida por brevedad)
-             const collageWidth = 1275; const collageHeight = 1650; const collageCanvas = document.createElement('canvas'); collageCanvas.width = collageWidth; collageCanvas.height = collageHeight; const collageContext = collageCanvas.getContext('2d'); collageContext.fillStyle = 'white'; collageContext.fillRect(0, 0, collageWidth, collageHeight); const quadrantWidth = collageWidth / 2; const quadrantHeight = collageHeight / 2; for (let i = 0; i < imagesGroup.length; i++) { const imageData = imagesGroup[i]; const imageEl = new Image(); await new Promise((resolve, reject) => { imageEl.onload = resolve; imageEl.onerror = reject; imageEl.src = imageData.dataUrl; }); const row = Math.floor(i / 2); const col = i % 2; const dx = col * quadrantWidth; const dy = row * quadrantHeight; const aspectRatio = imageEl.width / imageEl.height; let drawWidth = quadrantWidth; let drawHeight = quadrantHeight; if (quadrantWidth / quadrantHeight > aspectRatio) { drawWidth = quadrantHeight * aspectRatio; } else { drawHeight = quadrantWidth / aspectRatio; } const offsetX = dx + (quadrantWidth - drawWidth) / 2; const offsetY = dy + (quadrantHeight - drawHeight) / 2; collageContext.drawImage(imageEl, offsetX, offsetY, drawWidth, drawHeight); } const pageNumberMatch = imagesGroup[0].name.match(/pagina_(\d+)/); const collageName = pageNumberMatch ? `collage_pag_${pageNumberMatch[1]}.png` : `collage_${Date.now()}.png`; return { name: collageName, dataUrl: collageCanvas.toDataURL('image/png') };
-        }
-
-        function showImage(index) {
-            // (Función sin cambios, omitida por brevedad)
-            if (!processedImages || processedImages.length === 0 || index < 0 || index >= processedImages.length) { imageContainer.style.display = 'none'; return; } const imageData = processedImages[index]; currentImage.src = imageData.dataUrl; currentImage.alt = imageData.name || `Imagen ${index + 1}`; currentImageIndex.textContent = index + 1; totalImages.textContent = processedImages.length; prevButton.disabled = (index === 0); nextButton.disabled = (index === processedImages.length - 1); imageContainer.style.display = 'block';
-        }
-
-        prevButton.addEventListener('click', () => { if (currentIndex > 0) { currentIndex--; showImage(currentIndex); } });
-        nextButton.addEventListener('click', () => { if (currentIndex < processedImages.length - 1) { currentIndex++; showImage(currentIndex); } });
-
-        function showToast(message) {
-            // (Función sin cambios, omitida por brevedad)
-             const toast = document.createElement('div'); toast.className = 'toast-notification'; toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`; document.body.appendChild(toast); setTimeout(() => { toast.classList.add('show'); }, 10); setTimeout(() => { toast.classList.remove('show'); toast.addEventListener('transitionend', () => { if (toast.parentNode) { document.body.removeChild(toast); } }); setTimeout(() => { if (toast.parentNode) { document.body.removeChild(toast); } }, 600); }, 2000);
-        }
-
-        currentImage.addEventListener('click', async () => {
-            // (Función sin cambios, omitida por brevedad)
-            if (!processedImages || processedImages.length === 0 || !navigator.clipboard || !navigator.clipboard.write) { console.warn("Clipboard API not available or no image."); return; } try { const dataUrl = processedImages[currentIndex].dataUrl; const blob = await (await fetch(dataUrl)).blob(); let clipboardItemInput; if (ClipboardItem && blob.type === 'image/png') { clipboardItemInput = { [blob.type]: blob }; } else { console.warn("ClipboardItem PNG might not be supported, using blob type:", blob.type); clipboardItemInput = { [blob.type || 'application/octet-stream']: blob }; } const clipboardItem = new ClipboardItem(clipboardItemInput); await navigator.clipboard.write([clipboardItem]); console.log('Imagen copiada.'); showToast('¡Imagen copiada!'); if (currentIndex < processedImages.length - 1) { currentIndex++; showImage(currentIndex); } } catch (error) { console.error('Error al copiar imagen:', error); showToast('Error al copiar imagen.'); }
-        });
-
-        async function downloadAllImages() {
-            // (Función sin cambios, omitida por brevedad)
-            if (!processedImages || processedImages.length === 0) return; const zip = new JSZip(); processedImages.forEach((image) => { const base64Data = image.dataUrl.split(',')[1]; let safeFileName = (image.name || `imagen_${Date.now()}.png`).replace(/[^a-z0-9_.\-]/gi, '_'); zip.file(safeFileName, base64Data, { base64: true }); }); output.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando ZIP...'; try { const content = await zip.generateAsync({ type: 'blob' }); const link = document.createElement('a'); link.href = URL.createObjectURL(content); link.download = 'imagenes_extraidas.zip'; link.click(); URL.revokeObjectURL(link.href); output.innerHTML = '<i class="fas fa-check-circle"></i> ZIP generado.'; } catch (error) { output.innerHTML = '<i class="fas fa-times-circle"></i> Error generando ZIP.'; console.error("Error generando ZIP:", error); }
-        }
+        const fileInput = document.getElementById('fileInput'); const dropZone = document.getElementById('dropZone'); const processButton = document.getElementById('processButton'); const output = document.getElementById('output'); const suggestion = document.getElementById('suggestion'); const stats = document.getElementById('stats'); const processedStat = document.getElementById('processedStat'); const blankStat = document.getElementById('blankStat'); const imageContainer = document.getElementById('imageContainer'); const currentImage = document.getElementById('currentImage'); const downloadAllButton = document.getElementById('downloadAll'); const currentImageIndex = document.getElementById('currentImageIndex'); const totalImages = document.getElementById('totalImages'); const marginRange = document.getElementById('marginRange'); const rangeValueSpan = document.getElementById('rangeValue'); const prevButton = document.getElementById('prevButton'); const nextButton = document.getElementById('nextButton'); let singlePageImages = []; let processedImages = []; let currentIndex = 0; let currentPdfDocument = null;
+        marginRange.addEventListener('input', () => { rangeValueSpan.textContent = marginRange.value; }); dropZone.addEventListener('click', () => fileInput.click()); dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); }); dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('dragover'); }); dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); const files = e.dataTransfer.files; if (files.length) { fileInput.files = files; handleFileSelection(); } }); fileInput.addEventListener('change', handleFileSelection); processButton.addEventListener('click', () => { if (currentPdfDocument) { processPDF(currentPdfDocument); } else { suggestion.innerHTML = '<i class="fas fa-exclamation-circle"></i> Primero carga un archivo PDF.'; suggestion.style.display = 'block'; } });
+        async function handleFileSelection() { const file = fileInput.files[0]; output.innerHTML = ''; output.style.display = 'none'; stats.style.display = 'none'; imageContainer.style.display = 'none'; downloadAllButton.style.display = 'none'; singlePageImages = []; processedImages = []; currentIndex = 0; currentPdfDocument = null; if (!file || file.type !== 'application/pdf') { suggestion.innerHTML = '<i class="fas fa-exclamation-circle"></i> Sube un PDF válido.'; suggestion.style.display = 'block'; return; } suggestion.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analizando archivo...'; suggestion.style.display = 'block'; try { const arrayBuffer = await file.arrayBuffer(); currentPdfDocument = await pdfjsLib.getDocument(arrayBuffer).promise; suggestion.innerHTML = `<i class="fas fa-check-circle"></i> PDF cargado (${currentPdfDocument.numPages} pág). Listo para procesar.`; } catch (error) { suggestion.innerHTML = '<i class="fas fa-times-circle"></i> Error al cargar PDF.'; console.error("Error cargar PDF:", error); currentPdfDocument = null; } }
+        async function processPDF(pdf) { output.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando PDF...'; output.style.display = 'block'; imageContainer.style.display = 'none'; stats.style.display = 'none'; singlePageImages = []; processedImages = []; currentIndex = 0; downloadAllButton.style.display = 'none'; try { const numPages = pdf.numPages; let processedPages = 0; let blankPages = 0; const pagesMode = parseInt(document.querySelector('input[name="pagesMode"]:checked').value, 10); for (let i = 1; i <= numPages; i++) { output.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Procesando pág ${i} de ${numPages}...`; const isBlank = await processPage(pdf, i); if (isBlank) { blankPages++; } else { processedPages++; } } if (pagesMode === 1) { processedImages = singlePageImages; } else if (pagesMode === 4 && singlePageImages.length > 0) { let index = 0; while (index < singlePageImages.length) { const group = singlePageImages.slice(index, index + 4); if (group.length === 4) { const collage = await createCollageOfFour(group); processedImages.push(collage); index += 4; } else { processedImages.push(...group); break; } } } else { processedImages = singlePageImages; } processedStat.textContent = processedPages; blankStat.textContent = blankPages; stats.style.display = 'flex'; output.innerHTML = '<i class="fas fa-check-circle"></i> Proceso completado.'; if (processedImages.length > 0) { currentIndex = 0; totalImages.textContent = processedImages.length; showImage(currentIndex); imageContainer.style.display = 'block'; downloadAllButton.style.display = 'inline-flex'; } else { imageContainer.style.display = 'none'; downloadAllButton.style.display = 'none'; output.innerHTML += '<br>No se extrajeron imágenes con contenido.'; } } catch (error) { output.innerHTML = `<i class="fas fa-times-circle"></i> Error procesando: ${error.message}`; console.error('Error procesando PDF:', error); } }
+        async function processPage(pdf, pageNumber) { const page = await pdf.getPage(pageNumber); const scale = 3; const viewport = page.getViewport({ scale }); const canvas = document.createElement('canvas'); const context = canvas.getContext('2d'); canvas.height = viewport.height; canvas.width = viewport.width; await page.render({ canvasContext: context, viewport: viewport }).promise; const imageData = context.getImageData(0, 0, canvas.width, canvas.height); if (isPageBlank(imageData)) { return true; } const bounds = findContentBounds(imageData); if (bounds.width <= 0 || bounds.height <= 0) { console.warn(`Pág ${pageNumber}: Contenido inválido tras recorte. Omitiendo.`); return true; } const croppedCanvas = document.createElement('canvas'); croppedCanvas.width = bounds.width; croppedCanvas.height = bounds.height; const croppedContext = croppedCanvas.getContext('2d'); croppedContext.drawImage(canvas, bounds.left, bounds.top, bounds.width, bounds.height, 0, 0, bounds.width, bounds.height); const dataUrl = croppedCanvas.toDataURL('image/png'); singlePageImages.push({ name: `pagina_${pageNumber}.png`, dataUrl: dataUrl }); return false; }
+        function isPageBlank(imageData) { const { data, width, height } = imageData; const threshold = 245; const sampleSize = 100; let whitePixels = 0; for (let i = 0; i < sampleSize; i++) { const randomX = Math.floor(Math.random() * width); const randomY = Math.floor(Math.random() * height); const index = (randomY * width + randomX) * 4; if (data[index] > threshold && data[index + 1] > threshold && data[index + 2] > threshold) { whitePixels++; } } return (whitePixels / sampleSize) > 0.98; }
+        function findContentBounds(imageData) { const { data, width, height } = imageData; let initialMargin; try { initialMargin = parseInt(marginRange.value, 10); if (isNaN(initialMargin)) throw new Error("Invalid margin"); } catch (e) { console.warn("Using default margin:", e); initialMargin = 150; } let minX = width, minY = height, maxX = 0, maxY = 0; const threshold = 200; const extraMargin = 5; const safeMarginX = Math.min(initialMargin, Math.floor(width / 2) - 1); const safeMarginY = Math.min(initialMargin, Math.floor(height / 2) - 1); for (let y = safeMarginY; y < height - safeMarginY; y++) { for (let x = safeMarginX; x < width - safeMarginX; x++) { const i = (y * width + x) * 4; if (data[i] < threshold || data[i + 1] < threshold || data[i + 2] < threshold) { minX = Math.min(minX, x); minY = Math.min(minY, y); maxX = Math.max(maxX, x); maxY = Math.max(maxY, y); } } } if (maxX < minX || maxY < minY) { console.warn("No content found within margins."); return { left: safeMarginX, top: safeMarginY, width: Math.max(0, width - 2 * safeMarginX), height: Math.max(0, height - 2 * safeMarginY) }; } const left = Math.max(safeMarginX, minX - extraMargin); const top = Math.max(safeMarginY, minY - extraMargin); const right = Math.min(width - safeMarginX - 1, maxX + extraMargin); const bottom = Math.min(height - safeMarginY - 1, maxY + extraMargin); return { left: left, top: top, width: Math.max(0, right - left + 1), height: Math.max(0, bottom - top + 1) }; }
+        async function createCollageOfFour(imagesGroup) { const collageWidth = 1275; const collageHeight = 1650; const collageCanvas = document.createElement('canvas'); collageCanvas.width = collageWidth; collageCanvas.height = collageHeight; const collageContext = collageCanvas.getContext('2d'); collageContext.fillStyle = 'white'; collageContext.fillRect(0, 0, collageWidth, collageHeight); const quadrantWidth = collageWidth / 2; const quadrantHeight = collageHeight / 2; for (let i = 0; i < imagesGroup.length; i++) { const imageData = imagesGroup[i]; const imageEl = new Image(); await new Promise((resolve, reject) => { imageEl.onload = resolve; imageEl.onerror = reject; imageEl.src = imageData.dataUrl; }); const row = Math.floor(i / 2); const col = i % 2; const dx = col * quadrantWidth; const dy = row * quadrantHeight; const aspectRatio = imageEl.width / imageEl.height; let drawWidth = quadrantWidth; let drawHeight = quadrantHeight; if (quadrantWidth / quadrantHeight > aspectRatio) { drawWidth = quadrantHeight * aspectRatio; } else { drawHeight = quadrantWidth / aspectRatio; } const offsetX = dx + (quadrantWidth - drawWidth) / 2; const offsetY = dy + (quadrantHeight - drawHeight) / 2; collageContext.drawImage(imageEl, offsetX, offsetY, drawWidth, drawHeight); } const pageNumberMatch = imagesGroup[0].name.match(/pagina_(\d+)/); const collageName = pageNumberMatch ? `collage_pag_${pageNumberMatch[1]}.png` : `collage_${Date.now()}.png`; return { name: collageName, dataUrl: collageCanvas.toDataURL('image/png') }; }
+        function showImage(index) { if (!processedImages || processedImages.length === 0 || index < 0 || index >= processedImages.length) { imageContainer.style.display = 'none'; return; } const imageData = processedImages[index]; currentImage.src = imageData.dataUrl; currentImage.alt = imageData.name || `Imagen ${index + 1}`; currentImageIndex.textContent = index + 1; totalImages.textContent = processedImages.length; prevButton.disabled = (index === 0); nextButton.disabled = (index === processedImages.length - 1); imageContainer.style.display = 'block'; }
+        prevButton.addEventListener('click', () => { if (currentIndex > 0) { currentIndex--; showImage(currentIndex); } }); nextButton.addEventListener('click', () => { if (currentIndex < processedImages.length - 1) { currentIndex++; showImage(currentIndex); } });
+        function showToast(message) { const toast = document.createElement('div'); toast.className = 'toast-notification'; toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`; document.body.appendChild(toast); setTimeout(() => { toast.classList.add('show'); }, 10); setTimeout(() => { toast.classList.remove('show'); toast.addEventListener('transitionend', () => { if (toast.parentNode) { document.body.removeChild(toast); } }); setTimeout(() => { if (toast.parentNode) { document.body.removeChild(toast); } }, 600); }, 2000); }
+        currentImage.addEventListener('click', async () => { if (!processedImages || processedImages.length === 0 || !navigator.clipboard || !navigator.clipboard.write) { console.warn("Clipboard API not available or no image."); return; } try { const dataUrl = processedImages[currentIndex].dataUrl; const blob = await (await fetch(dataUrl)).blob(); let clipboardItemInput; if (ClipboardItem && blob.type === 'image/png') { clipboardItemInput = { [blob.type]: blob }; } else { console.warn("ClipboardItem PNG might not be supported, using blob type:", blob.type); clipboardItemInput = { [blob.type || 'application/octet-stream']: blob }; } const clipboardItem = new ClipboardItem(clipboardItemInput); await navigator.clipboard.write([clipboardItem]); console.log('Imagen copiada.'); showToast('¡Imagen copiada!'); if (currentIndex < processedImages.length - 1) { currentIndex++; showImage(currentIndex); } } catch (error) { console.error('Error al copiar imagen:', error); showToast('Error al copiar imagen.'); } });
+        async function downloadAllImages() { if (!processedImages || processedImages.length === 0) return; const zip = new JSZip(); processedImages.forEach((image) => { const base64Data = image.dataUrl.split(',')[1]; let safeFileName = (image.name || `imagen_${Date.now()}.png`).replace(/[^a-z0-9_.\-]/gi, '_'); zip.file(safeFileName, base64Data, { base64: true }); }); output.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando ZIP...'; try { const content = await zip.generateAsync({ type: 'blob' }); const link = document.createElement('a'); link.href = URL.createObjectURL(content); link.download = 'imagenes_extraidas.zip'; link.click(); URL.revokeObjectURL(link.href); output.innerHTML = '<i class="fas fa-check-circle"></i> ZIP generado.'; } catch (error) { output.innerHTML = '<i class="fas fa-times-circle"></i> Error generando ZIP.'; console.error("Error generando ZIP:", error); } }
         downloadAllButton.addEventListener('click', downloadAllImages);
 
     </script>
