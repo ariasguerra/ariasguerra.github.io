@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrenamiento Interactivo: Actuación Riesgo UA (Inst. 005)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos generales y específicos (similares a versiones anteriores) */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+        #app-container {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.06), 0 6px 10px -4px rgba(0, 0, 0, 0.05);
+        }
+        h1, h2, h3, h4 {
+             color: #212529;
+        }
+        h2.text-blue-700 {
+            color: #0056b3; /* Azul principal */
+        }
+        .module-content { display: none; position: relative; }
+        .step-content, .scenario-content { display: none; }
+        .step-content.active, .scenario-content.active { display: block; }
+
+        .feedback { display: none; margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 0.5rem; font-size: 0.9rem; border-width: 1px; }
+        .feedback.correct { background-color: #e6f4ea; border-color: #28a745; color: #155724; }
+        .feedback.incorrect { background-color: #f8d7da; border-color: #dc3545; color: #721c24; }
+
+        .option-button {
+            display: block; width: 100%; text-align: left; margin-top: 0.75rem; padding: 0.875rem 1.25rem;
+            border: 1px solid #ced4da; border-radius: 0.5rem; background-color: #ffffff;
+            color: #495057; font-weight: 500;
+            transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s; cursor: pointer;
+        }
+        .option-button:hover:not(:disabled) {
+            background-color: #f8f9fa; border-color: #adb5bd;
+        }
+         .option-button:disabled { cursor: not-allowed; opacity: 0.75; }
+        .option-button.selected {
+             border-color: #007bff; background-color: #e7f3ff;
+             font-weight: 600; color: #004085;
+             box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+         .option-button.correct-answer {
+             border-color: #28a745; background-color: #d4edda; color: #155724;
+         }
+         .option-button.incorrect-answer {
+             border-color: #dc3545; background-color: #f8d7da; color: #721c24;
+         }
+
+         /* Estilo para las fichas del menú principal */
+         .menu-card {
+             display: flex; flex-direction: column; align-items: center;
+             padding: 1.5rem; margin-bottom: 1rem; border: 1px solid #dee2e6;
+             border-radius: 0.75rem; background-color: #ffffff;
+             text-align: center; cursor: pointer;
+             transition: background-color 0.2s, box-shadow 0.3s, transform 0.2s; height: 100%;
+             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+         }
+         .menu-card:hover {
+             background-color: #f8f9fa;
+             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+             transform: translateY(-3px);
+         }
+         .menu-card-icon {
+             font-size: 2.5rem; margin-bottom: 1rem; color: #0056b3;
+             background-color: #e7f3ff; padding: 0.75rem; border-radius: 50%;
+             width: 60px; height: 60px; display: inline-flex; align-items: center; justify-content: center;
+         }
+         .menu-card-icon svg { width: 100%; height: 100%; }
+         .menu-card-title {
+             font-weight: 600; color: #343a40; font-size: 1rem; margin-bottom: 0.25rem;
+         }
+         .menu-card-subtitle { font-size: 0.875rem; color: #6c757d; }
+
+         /* Ajuste para listas dentro de pasos */
+         .step-content ul { padding-left: 1.5rem; margin-top: 0.5rem; }
+         .step-content ul li { margin-bottom: 0.4rem; line-height: 1.5; }
+
+         /* Botones de navegación */
+         .nav-button {
+             font-weight: 600; padding: 0.6rem 1.5rem; border-radius: 0.5rem; transition: background-color 0.2s, transform 0.1s;
+             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+         }
+         .nav-button:hover { transform: scale(1.03); box-shadow: 0 2px 4px rgba(0,0,0,0.07); }
+         .nav-button.primary { background-color: #007bff; color: white; }
+         .nav-button.primary:hover { background-color: #0056b3; }
+         .nav-button.secondary { background-color: #6c757d; color: white; }
+         .nav-button.secondary:hover { background-color: #5a6268; }
+         .nav-button.success { background-color: #28a745; color: white; }
+         .nav-button.success:hover { background-color: #218838; }
+
+         /* Botón Volver al Menú */
+        .back-to-menu-btn {
+            position: absolute; top: 1.5rem; right: 1.5rem;
+            background-color: #e9ecef; color: #495057;
+            font-size: 0.8rem; font-weight: 500; padding: 0.3rem 0.8rem; border-radius: 9999px;
+            transition: background-color 0.2s, color 0.2s; z-index: 10; border: 1px solid #dee2e6;
+        }
+        .back-to-menu-btn:hover { background-color: #dee2e6; color: #343a40; }
+
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+
+    <div id="app-container" class="max-w-5xl mx-auto bg-white rounded-lg shadow-xl p-6 md:p-10">
+
+        <div id="main-menu" class="text-center">
+            <h1 class="text-2xl md:text-3xl font-bold mb-4">Centro de Entrenamiento Interactivo</h1>
+            <h2 class="text-xl md:text-2xl font-semibold text-blue-700 mb-8">Actuación Riesgo UA (Inst. 005/2024)</h2>
+            <p class="text-gray-600 mb-8">Selecciona la fase de actuación que deseas practicar:</p>
+            <div id="menu-cards-container" class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-6"> </div>
+        </div>
+
+        <div id="active-module" class="module-content">
+             <button onclick="goToMainMenu()" class="back-to-menu-btn">
+                &larr; Volver al Menú
+            </button>
+            <h1 id="module-title" class="text-2xl md:text-3xl font-bold mb-1 pt-8 md:pt-0"></h1>
+            <h2 id="module-subtitle" class="text-lg md:text-xl font-semibold text-blue-700 mb-6"></h2>
+
+            <div id="protocolo" style="display: none;">
+                <h3 class="text-xl font-semibold mb-4 border-b pb-2">Lineamientos Clave</h3>
+                <div id="protocol-steps-container"></div>
+                <div id="verification-question" style="display: none;" class="mt-6 p-5 border rounded-lg bg-blue-50">
+                     <h4 class="font-bold text-lg mb-3 text-blue-800">¡Verifica tu Comprensión!</h4>
+                     <p id="verification-question-text" class="mb-4 text-gray-700 font-medium"></p>
+                     <div id="verification-options-container"></div>
+                     <div id="verification-feedback" class="feedback"></div>
+                     <div class="mt-6 text-center">
+                        <button id="start-scenarios-btn" onclick="startScenarios()" style="display:none;" class="nav-button success">
+                            Iniciar Escenarios Simulados
+                        </button>
+                     </div>
+                </div>
+            </div>
+
+            <div id="escenarios" style="display: none;">
+                <h3 class="text-xl font-semibold mb-4 border-b pb-2">Escenarios Simulados</h3>
+                <div id="scenarios-container"></div>
+            </div>
+
+            <div id="resumen" style="display: none;" class="p-6 border rounded-lg bg-blue-50 text-center">
+                <h3 class="text-xl font-semibold text-blue-700 mb-4">Resumen del Módulo</h3>
+                 <div id="summary-icon" class="flex justify-center space-x-4 my-5 text-4xl text-green-600">
+                    <span>&#127941;</span>
+                 </div>
+                <p class="text-gray-800 mb-4 font-semibold text-lg">¡Felicidades por completar el módulo!</p>
+                <p class="font-medium mb-3 text-gray-700">Puntos Clave Recordados:</p>
+                <ul id="summary-points" class="list-disc list-inside text-gray-600 space-y-1 mb-8 text-left inline-block"></ul>
+                 <div class="flex justify-center space-x-4">
+                    <button onclick="restartCurrentModule()" class="nav-button secondary">
+                        Reiniciar Módulo
+                    </button>
+                     <button onclick="goToMainMenu()" class="nav-button primary">
+                        Menú Principal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Iconos SVG ---
+        const svgIcons = {
+            antes: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`, // Reloj/Planificación
+            durante: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>`, // Acción/Reacción
+            despues: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-9M10.125 2.25h.375a9 9 0 0 1 9 9v.375M10.125 2.25A3.375 3.375 0 0 1 13.5 5.625v1.5c0 .621.504 1.125 1.125 1.125h1.5a3.375 3.375 0 0 1 3.375 3.375M9 15l2.25 2.25L15 12" /></svg>`, // Checklist/Evaluación
+            drone: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L6 12Zm0 0h7.5" /></svg>`, // Icono Drone
+        };
+
+        // --- Definición de Datos de los Módulos (Basado en Instructivo 005) ---
+        const modulesData = [
+            {
+                id: 'antes_incidente',
+                title: 'Actuación ANTES del Incidente',
+                menuIcon: svgIcons.antes,
+                subtitle: 'Prevención y Preparación Riesgo UA',
+                protocolSteps: [
+                    { title: 'Paso 1: Apreciación y Planificación', icon: '📊', color: 'text-blue-600', points: ['Mantener actualizada apreciación de situación (riesgos UA).', 'Determinar puntos altos seguros para vigilancia aérea e incluirlos en Plan Defensa (actualización permanente).', 'Socializar Plan Defensa y realizar simulacros periódicos (con soportes).'] },
+                    { title: 'Paso 2: Instrucción y Capacitación', icon: '👨‍🏫', color: 'text-green-600', points: ['Impartir instrucción sobre medidas autoprotección (riesgos UA).', 'Instruir en uso sistemas contramedidas, inhibidores, detectores (si se tienen).', 'Instruir sobre porte elementos servicio.'] },
+                    { title: 'Paso 3: Preparación Física y Comunicaciones', icon: '📍', color: 'text-orange-600', points: ['Identificar y socializar puntos seguros en la unidad (protección ante ataque).', 'Establecer Idioma Operacional Comunicaciones (IOC - santo y seña) para interacción ante riesgo UA.', 'Fortalecer red de apoyo y comunicaciones (obtener info sobrevuelos).'] },
+                    { title: 'Paso 4: Infraestructura y Recursos', icon: '🧱', color: 'text-purple-600', points: ['Verificar mantenimiento infraestructura.', 'Implementar/adecuar/reforzar barreras estructurales (muros, mallas, bunker, garitas, zanjas, iluminación).', 'Georreferenciar sitios aledaños (orientar apoyo FFMM/Aviación).', 'Presentar proyectos para adquirir elementos (contramedidas, detectores, iluminación, binoculares, visión nocturna, radios, alarmas).'] }
+                ],
+                 verificationQuestion: {
+                    text: '¿Qué debe incluirse obligatoriamente en el Plan Defensa de la unidad en relación al riesgo UA?',
+                    options: [ { text: 'El horario de los simulacros.', correct: false }, { text: 'Los puntos altos más seguros para la vigilancia del espacio aéreo.', correct: true }, { text: 'La lista de pilotos de drones de la zona.', correct: false } ],
+                    feedbackCorrect: '¡Correcto! El instructivo indica determinar e incluir los puntos altos seguros para vigilancia aérea en el Plan Defensa.',
+                    feedbackIncorrect: 'Incorrecto. Revisa el instructivo. La inclusión de puntos altos seguros en el Plan Defensa es un lineamiento clave.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Falta de Simulacro', icon: '🏃‍♂️', color: 'text-red-600', text: 'El Plan Defensa de la estación contempla acciones ante ataques con UA, pero nunca se ha realizado un simulacro para verificar los tiempos de reacción y el conocimiento del personal sobre los puntos seguros. ¿Se está cumpliendo el instructivo?', options: [ { id: 'a', text: '(a) Sí, con tener el plan escrito es suficiente.' }, { id: 'b', text: '(b) No, el instructivo exige socializar el plan y realizar simulacros periódicos.' }, { id: 'c', text: '(c) Solo es necesario si hay una amenaza confirmada.' }, { id: 'd', text: '(d) El simulacro es opcional.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto. La planificación sin práctica es insuficiente.", 'b': "¡Correcto! El Instructivo 005 indica socializar el plan y realizar simulacros periódicamente, dejando soportes.", 'c': "Incorrecto. Los simulacros son parte de la preparación preventiva.", 'd': "Incorrecto. El instructivo lo establece como una acción a realizar." } },
+                     { id: 2, title: 'Escenario 2: Sin IOC Definido', icon: '🗣️', color: 'text-yellow-600', text: 'En una unidad se detecta un sobrevuelo sospechoso de UA. El personal intenta comunicarse pero no hay un código o señal clara (IOC) establecida para alertar sobre este riesgo específico. ¿Qué lineamiento previo se omitió?', options: [ { id: 'a', text: '(a) La georreferenciación de sitios aledaños.' }, { id: 'b', text: '(b) La instrucción en uso de inhibidores.' }, { id: 'c', text: '(c) El establecimiento de un Idioma Operacional de Comunicaciones (IOC) específico para riesgo UA.' }, { id: 'd', text: '(d) La verificación de la infraestructura.' } ], correctAnswer: 'c', feedback: { 'a': "Incorrecto.", 'b': "Incorrecto.", 'c': "¡Correcto! El Instructivo 005 indica establecer un IOC (santo y seña) para una apropiada interacción frente a riesgos UA.", 'd': "Incorrecto." } }
+                ],
+                 summaryPoints: [ 'Mantener <strong>apreciación de situación</strong> actualizada.', 'Incluir <strong>puntos altos seguros</strong> en Plan Defensa y realizar <strong>simulacros</strong>.', '<strong>Instruir</strong> al personal (autoprotección, contramedidas si hay).', 'Identificar <strong>puntos seguros</strong> y establecer <strong>IOC</strong>.', 'Fortalecer <strong>red de apoyo</strong> y comunicaciones.', 'Verificar/mejorar <strong>infraestructura</strong> y gestionar <strong>recursos tecnológicos</strong>.' ]
+            },
+            {
+                id: 'durante_incidente',
+                title: 'Actuación DURANTE el Incidente',
+                menuIcon: svgIcons.durante,
+                subtitle: 'Respuesta ante Avistamiento/Ataque UA',
+                protocolSteps: [
+                    { title: 'Paso 1: Alerta Inmediata', icon: '🚨', color: 'text-red-600', points: ['Quien observe UA: Informar INMEDIATAMENTE a seguridad instalaciones.', 'Activar sistema alarma y IOC (sirena, humo, voces, etc.).'] },
+                    { title: 'Paso 2: Informe y Coordinación Superior', icon: '📞', color: 'text-blue-600', points: ['Informar inmediatamente situación a director/jefe/comandante.', 'Evaluar necesidad y coordinar apoyo (Aviación Policial, grupos operativos, FFMM, etc.).'] },
+                    { title: 'Paso 3: Reacción y Protección', icon: '🛡️', color: 'text-green-600', points: ['Reaccionar según funciones del Plan Defensa.', 'Permanecer en puntos seguros previamente identificados.', 'Esperar instrucciones del comandante.', 'Mantener comunicación entre actores involucrados.'] },
+                    { title: 'Paso 4: Seguimiento y Contramedidas', icon: '👀', color: 'text-orange-600', points: ['Quien identifique UA: Mantenerla a la vista.', 'Informar posición aproximada en tiempo real a seguridad.', 'Permitir activación plan defensa o sistema contramedidas (si hay).', 'Mantener medios comunicación disponibles.'] },
+                    { title: 'Paso 5: Acción Disuasiva/Obscurecimiento (si aplica)', icon: '💨', color: 'text-purple-600', points: ['Si se identifica amenaza: Jefe seguridad/responsable activa granada de humo (limitar visibilidad UA, dar tiempo resguardo).', '(En bases de patrulla: Activación por personal profesional).'] },
+                    { title: 'Paso 6: Manejo de UA Precipitada', icon: '💥', color: 'text-yellow-600', points: ['Si UA/componentes caen (con/sin afectación): ACORDONAR lugar.', 'Evitar acercamiento/manipulación.', 'Esperar experto antiexplosivos.', 'Verificado sin riesgo: Registro fílmico/fotográfico.', 'Recolectar como EMP/EF.'] }
+                ],
+                 verificationQuestion: {
+                    text: 'Si un policía observa una UA sospechosa sobrevolando la estación, ¿cuál es su primera acción inmediata?',
+                    options: [ { text: 'Intentar derribarla.', correct: false }, { text: 'Informar inmediatamente al personal de seguridad de instalaciones.', correct: true }, { text: 'Tomarle una foto como evidencia.', correct: false } ],
+                    feedbackCorrect: '¡Correcto! El primer paso crucial es informar a seguridad para activar las alertas y el plan defensa.',
+                    feedbackIncorrect: 'Incorrecto. Revisa el instructivo. La acción primordial es informar a seguridad para una respuesta coordinada.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Granada de Humo', icon: '💨', color: 'text-purple-600', text: 'Se identifica una UA que parece estar fijando un objetivo en el patio principal de la estación. El Jefe de Seguridad tiene granadas de humo disponibles. ¿Cuál es el propósito de activarla según el instructivo?', options: [ { id: 'a', text: '(a) Marcar la posición de la UA para un contraataque.' }, { id: 'b', text: '(b) Crear una distracción visual general.' }, { id: 'c', text: '(c) Limitar la visibilidad de la UA respecto a la instalación y dar tiempo al personal para resguardarse.' }, { id: 'd', text: '(d) Intentar dañar los sensores de la UA con el humo.' } ], correctAnswer: 'c', feedback: { 'a': "Incorrecto.", 'b': "Incorrecto. El objetivo es más específico.", 'c': "¡Correcto! El Instructivo 005 indica que el humo busca limitar la visibilidad de la UA y ganar tiempo para que el personal se proteja.", 'd': "Incorrecto. No se espera dañar la UA, sino dificultar su operación." } },
+                     { id: 2, title: 'Escenario 2: UA Caída', icon: '💥', color: 'text-yellow-600', text: 'Una UA hostil es neutralizada y cae dentro del perímetro de la unidad. Algunos fragmentos parecen tener cables. ¿Qué debe hacer el personal que llega al punto de impacto?', options: [ { id: 'a', text: '(a) Recoger rápidamente los fragmentos como evidencia.' }, { id: 'b', text: '(b) Acordonar el lugar, evitar que alguien se acerque o manipule los restos y esperar al experto antiexplosivos.' }, { id: 'c', text: '(c) Tomar fotos inmediatamente y luego recoger los restos.' }, { id: 'd', text: '(d) Intentar desarmar los componentes para ver si tenían explosivos.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto. La manipulación es peligrosa.", 'b': "¡Correcto! El Instructivo 005 es claro: ante una UA precipitada, se debe acordonar, evitar manipulación y esperar al experto antiexplosivos antes de cualquier otra acción.", 'c': "Incorrecto. La seguridad prima sobre el registro inicial; este se hace después de verificar que no hay riesgo.", 'd': "¡Muy Incorrecto! Nunca manipular posibles artefactos explosivos." } }
+                ],
+                 summaryPoints: [ '<strong>Informar inmediatamente</strong> avistamiento UA a seguridad.', 'Activar <strong>alarma y IOC</strong>.', 'Informar a <strong>mando superior</strong> y coordinar apoyo si es necesario.', 'Reaccionar según <strong>Plan Defensa</strong> y buscar <strong>puntos seguros</strong>.', 'Mantener <strong>UA a la vista</strong> e informar posición.', 'Usar <strong>humo</strong> para limitar visibilidad si aplica.', 'Ante UA caída: <strong>Acordonar, no manipular, esperar experto</strong>, luego registrar y recolectar EMP/EF.' ]
+            },
+             {
+                id: 'despues_incidente',
+                title: 'Actuación DESPUÉS del Incidente',
+                menuIcon: svgIcons.despues,
+                subtitle: 'Evaluación y Acciones Posteriores Riesgo UA',
+                protocolSteps: [
+                    { title: 'Paso 1: Manejo Evidencia', icon: '⚖️', color: 'text-blue-600', points: ['Dejar a disposición de autoridad (policía o judicial) los EMP/EF recolectados.'] },
+                    { title: 'Paso 2: Evaluación Daños y Mejoras', icon: '📝', color: 'text-green-600', points: ['Verificar activos vitales para evaluar daños.', 'Identificar acciones de mejora.', 'Informar mediante comunicado oficial a director/jefe/comandante.'] },
+                    { title: 'Paso 3: Acciones Legales y DDHH', icon: '🏛️', color: 'text-orange-600', points: ['Presentar denuncias pertinentes ante autoridad competente.', 'Remitir copia actuaciones a Comisionado DDHH PN (para posible acceso a instancias internacionales).', 'Informar acciones adelantadas al superior jerárquico.'] }
+                ],
+                 verificationQuestion: {
+                    text: 'Después de un incidente con una UA y una vez asegurada la evidencia (EMP/EF), ¿a quién se debe informar sobre los daños y acciones de mejora?',
+                    options: [ { text: 'Solo al personal de logística.', correct: false }, { text: 'A la prensa local.', correct: false }, { text: 'Al director, jefe o comandante de la unidad mediante comunicado oficial.', correct: true } ],
+                    feedbackCorrect: '¡Correcto! El instructivo indica informar oficialmente al mando superior correspondiente sobre la evaluación de daños y mejoras.',
+                    feedbackIncorrect: 'Incorrecto. Revisa el instructivo. El conducto regular exige informar al mando de la unidad.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Denuncia', icon: '✍️', color: 'text-orange-600', text: 'Tras un ataque frustrado con UA donde se recolectaron restos del artefacto, ¿qué acción legal menciona el instructivo que se debe realizar?', options: [ { id: 'a', text: '(a) Publicar las fotos en redes sociales para alertar.' }, { id: 'b', text: '(b) Guardar la evidencia en la unidad por si se necesita después.' }, { id: 'c', text: '(c) Presentar las denuncias correspondientes ante la autoridad competente.' }, { id: 'd', text: '(d) Desechar la evidencia si no hubo daños.' } ], correctAnswer: 'c', feedback: { 'a': "Incorrecto.", 'b': "Incorrecto. La evidencia debe seguir el proceso judicial.", 'c': "¡Correcto! El Instructivo 005 indica presentar las denuncias a que haya lugar ante la autoridad competente.", 'd': "Incorrecto. La evidencia es crucial para la investigación." } }
+                ],
+                 summaryPoints: [ 'Dejar <strong>EMP/EF a disposición</strong> autoridad competente.', '<strong>Verificar activos</strong>, evaluar daños e identificar <strong>acciones de mejora</strong>.', 'Informar evaluación al <strong>mando superior</strong>.', 'Presentar <strong>denuncias</strong> pertinentes.', 'Remitir copia actuaciones a <strong>Comisionado DDHH</strong>.' ]
+            }
+        ];
+
+        // --- Lógica de la Aplicación (sin cambios funcionales) ---
+        let currentModuleId = null;
+        let currentStep = 1;
+        let currentScenario = 1;
+        let currentModuleData = {};
+
+        function showElement(id) { const el = document.getElementById(id); if (el) el.style.display = 'block'; }
+        function hideElement(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
+        function clearContainer(containerId) { const container = document.getElementById(containerId); if (container) container.innerHTML = ''; }
+
+        function initializeMainMenu() {
+            const menuContainer = document.getElementById('menu-cards-container');
+            clearContainer('menu-cards-container');
+            modulesData.forEach(module => {
+                const card = document.createElement('div');
+                card.className = 'menu-card';
+                card.onclick = () => loadModule(module.id);
+                card.innerHTML = `
+                    <div class="menu-card-icon">${module.menuIcon || '❓'}</div>
+                    <h3 class="menu-card-title">${module.title}</h3>
+                    <p class="menu-card-subtitle">${module.subtitle}</p>
+                `;
+                menuContainer.appendChild(card);
+            });
+            showElement('main-menu');
+            hideElement('active-module');
+        }
+
+        function loadModule(moduleId) {
+            currentModuleId = moduleId;
+            currentModuleData = modulesData.find(m => m.id === moduleId);
+            if (!currentModuleData) return;
+
+            hideElement('main-menu');
+            showElement('active-module');
+            hideElement('protocolo');
+            hideElement('escenarios');
+            hideElement('resumen');
+            hideElement('verification-question');
+
+            document.getElementById('module-title').textContent = currentModuleData.title;
+            document.getElementById('module-subtitle').textContent = currentModuleData.subtitle;
+
+            buildProtocolSection();
+            buildScenariosSection();
+            buildSummarySection();
+
+            showElement('protocolo');
+            currentStep = 1;
+            setActiveStep(currentStep);
+        }
+
+        function buildProtocolSection() {
+            const stepsContainer = document.getElementById('protocol-steps-container');
+            clearContainer('protocol-steps-container');
+            const totalSteps = currentModuleData.protocolSteps.length;
+
+            currentModuleData.protocolSteps.forEach((step, index) => {
+                const stepNumber = index + 1;
+                const stepDiv = document.createElement('div');
+                stepDiv.id = `step-${stepNumber}`;
+                stepDiv.className = 'step-content mb-6 p-5 border rounded-lg bg-gray-50 shadow-sm';
+
+                stepDiv.innerHTML = `
+                    <h4 class="font-semibold text-lg mb-3 text-gray-700 flex items-center">
+                       <span class="text-2xl mr-3 ${step.color || 'text-gray-500'}">${step.icon || ''}</span>
+                       ${step.title}
+                    </h4>
+                    <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+                        ${step.points.map(p => `<li>${p}</li>`).join('')}
+                    </ul>
+                    <div class="mt-6 flex justify-between">
+                        <button onclick="prevStep(${stepNumber - 1})" class="nav-button secondary ${stepNumber === 1 ? 'invisible' : ''}">Anterior</button>
+                        ${stepNumber === totalSteps
+                            ? `<button onclick="showVerificationQuestion()" class="nav-button success">Verificar Comprensión</button>`
+                            : `<button onclick="nextStep(${stepNumber + 1})" class="nav-button primary">Siguiente</button>`
+                        }
+                    </div>
+                `;
+                stepsContainer.appendChild(stepDiv);
+            });
+
+            const vq = currentModuleData.verificationQuestion;
+            document.getElementById('verification-question-text').textContent = vq.text;
+            const vqOptionsContainer = document.getElementById('verification-options-container');
+            clearContainer('verification-options-container');
+            vq.options.forEach(opt => {
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                button.textContent = opt.text;
+                button.onclick = () => checkVerificationAnswer(opt.correct, button);
+                vqOptionsContainer.appendChild(button);
+            });
+            const vqFeedback = document.getElementById('verification-feedback');
+            vqFeedback.style.display = 'none'; vqFeedback.textContent = ''; vqFeedback.className = 'feedback';
+            document.getElementById('start-scenarios-btn').style.display = 'none';
+        }
+
+        function buildScenariosSection() {
+            const scenariosContainer = document.getElementById('scenarios-container');
+            clearContainer('scenarios-container');
+            if (!currentModuleData.scenarios || currentModuleData.scenarios.length === 0) {
+                 scenariosContainer.innerHTML = '<p class="text-gray-500 text-center italic my-6">No hay escenarios de práctica disponibles para este módulo.</p>';
+                 setTimeout(showSummary, 1500);
+                return;
+            }
+            const totalScenarios = currentModuleData.scenarios.length;
+
+            currentModuleData.scenarios.forEach((scenario, index) => {
+                const scenarioNumber = index + 1;
+                const scenarioDiv = document.createElement('div');
+                scenarioDiv.id = `scenario-${scenarioNumber}`;
+                scenarioDiv.className = 'scenario-content p-5 border rounded-lg bg-gray-50 mb-6 shadow-sm';
+
+                scenarioDiv.innerHTML = `
+                    <h4 class="font-semibold text-lg mb-3 text-gray-700 flex items-center">
+                        <span class="text-2xl mr-3 ${scenario.color || 'text-gray-500'}">${scenario.icon || ''}</span>
+                        ${scenario.title}
+                    </h4>
+                    <p class="text-gray-600 mb-4 text-sm">${scenario.text}</p>
+                    <div id="options-scenario-${scenarioNumber}">
+                        ${scenario.options.map(opt => `<button class="option-button" onclick="checkScenarioAnswer(${scenarioNumber}, '${opt.id}', this)">${opt.text}</button>`).join('')}
+                    </div>
+                    <div id="feedback-scenario-${scenarioNumber}" class="feedback"></div>
+                    <div class="mt-6 text-right">
+                        ${scenarioNumber === totalScenarios
+                            ? `<button id="next-scenario-${scenarioNumber}" onclick="showSummary()" style="display:none;" class="nav-button success">Ver Resumen</button>`
+                            : `<button id="next-scenario-${scenarioNumber}" onclick="nextScenario(${scenarioNumber + 1})" style="display:none;" class="nav-button primary">Siguiente Escenario</button>`
+                        }
+                    </div>
+                `;
+                scenariosContainer.appendChild(scenarioDiv);
+                const feedbackEl = document.getElementById(`feedback-scenario-${scenarioNumber}`);
+                feedbackEl.style.display = 'none'; feedbackEl.textContent = ''; feedbackEl.className = 'feedback';
+                const nextButton = document.getElementById(`next-scenario-${scenarioNumber}`);
+                if(nextButton) nextButton.style.display = 'none';
+            });
+        }
+
+        function buildSummarySection() {
+            const summaryPointsList = document.getElementById('summary-points');
+            clearContainer('summary-points');
+             if (!currentModuleData.summaryPoints || currentModuleData.summaryPoints.length === 0) {
+                 summaryPointsList.innerHTML = '<li class="text-gray-500 italic">Resumen no disponible.</li>';
+                 return;
+             }
+            currentModuleData.summaryPoints.forEach(point => {
+                const li = document.createElement('li');
+                li.innerHTML = point;
+                summaryPointsList.appendChild(li);
+            });
+        }
+
+        function setActiveStep(stepNumber) { document.querySelectorAll(`#protocol-steps-container .step-content`).forEach(el => el.classList.remove('active')); const el = document.getElementById(`step-${stepNumber}`); if (el) el.classList.add('active'); }
+        function nextStep(stepNumber) { const totalSteps = currentModuleData.protocolSteps.length; if (stepNumber <= totalSteps) { currentStep = stepNumber; setActiveStep(currentStep); } }
+        function prevStep(stepNumber) { if (stepNumber >= 1) { currentStep = stepNumber; setActiveStep(currentStep); } }
+
+        function showVerificationQuestion() {
+            const totalSteps = currentModuleData.protocolSteps.length;
+            hideElement(`step-${totalSteps}`); showElement('verification-question');
+            const vqOptionsContainer = document.getElementById('verification-options-container');
+            vqOptionsContainer.querySelectorAll('.option-button').forEach(btn => { btn.disabled = false; btn.className = 'option-button'; });
+            hideElement('verification-feedback'); hideElement('start-scenarios-btn');
+        }
+
+        function checkVerificationAnswer(isCorrect, buttonElement) {
+            const feedbackEl = document.getElementById('verification-feedback');
+            const allButtons = document.querySelectorAll('#verification-options-container .option-button');
+            const vq = currentModuleData.verificationQuestion;
+            allButtons.forEach(btn => { btn.disabled = true; btn.classList.remove('selected', 'correct-answer', 'incorrect-answer'); });
+            buttonElement.classList.add('selected');
+            if (isCorrect) {
+                feedbackEl.textContent = vq.feedbackCorrect; feedbackEl.className = 'feedback correct'; showElement('start-scenarios-btn'); buttonElement.classList.add('correct-answer');
+            } else {
+                feedbackEl.textContent = vq.feedbackIncorrect; feedbackEl.className = 'feedback incorrect';
+                allButtons.forEach(btn => { const opt = vq.options.find(o => o.text === btn.textContent); if (opt && opt.correct) btn.classList.add('correct-answer'); });
+                buttonElement.classList.add('incorrect-answer');
+            }
+            feedbackEl.style.display = 'block';
+        }
+
+        function startScenarios() {
+             if (!currentModuleData.scenarios || currentModuleData.scenarios.length === 0) { hideElement('protocolo'); showSummary(); }
+             else { hideElement('protocolo'); showElement('escenarios'); currentScenario = 1; setActiveScenario(currentScenario); }
+        }
+
+        function setActiveScenario(scenarioNumber) {
+            document.querySelectorAll(`#scenarios-container .scenario-content`).forEach(el => el.classList.remove('active'));
+            const el = document.getElementById(`scenario-${scenarioNumber}`);
+            if (el) {
+                el.classList.add('active');
+                el.querySelectorAll('.option-button').forEach(btn => { btn.disabled = false; btn.className = 'option-button'; });
+                const fb = document.getElementById(`feedback-scenario-${scenarioNumber}`); if(fb) fb.style.display = 'none';
+                const nb = document.getElementById(`next-scenario-${scenarioNumber}`); if(nb) nb.style.display = 'none';
+            }
+        }
+
+        function checkScenarioAnswer(scenarioNum, selectedOptionId, buttonElement) {
+            const scenarioData = currentModuleData.scenarios.find(s => s.id === scenarioNum); if (!scenarioData) return;
+            const correctAnswerId = scenarioData.correctAnswer; const feedback = scenarioData.feedback[selectedOptionId];
+            const feedbackEl = document.getElementById(`feedback-scenario-${scenarioNum}`);
+            const nextButton = document.getElementById(`next-scenario-${scenarioNum}`);
+            const allButtons = document.querySelectorAll(`#scenario-${scenarioNum} .option-button`);
+            allButtons.forEach(btn => { btn.disabled = true; btn.classList.remove('selected', 'correct-answer', 'incorrect-answer'); });
+            buttonElement.classList.add('selected'); feedbackEl.textContent = feedback;
+            if (selectedOptionId === correctAnswerId) {
+                feedbackEl.className = 'feedback correct'; buttonElement.classList.add('correct-answer');
+            } else {
+                feedbackEl.className = 'feedback incorrect'; buttonElement.classList.add('incorrect-answer');
+                allButtons.forEach(btn => { const opt = scenarioData.options.find(o => o.id === correctAnswerId); if (opt && btn.textContent === opt.text) btn.classList.add('correct-answer'); });
+            }
+            feedbackEl.style.display = 'block'; if (nextButton) { nextButton.style.display = 'inline-block'; }
+        }
+
+        function nextScenario(scenarioNumber) { const totalScenarios = currentModuleData.scenarios.length; if (scenarioNumber <= totalScenarios) { currentScenario = scenarioNumber; setActiveScenario(currentScenario); } }
+        function showSummary() { hideElement('escenarios'); hideElement('protocolo'); showElement('resumen'); }
+        function restartCurrentModule() { if(currentModuleId) { loadModule(currentModuleId); } }
+        function goToMainMenu() { hideElement('active-module'); showElement('main-menu'); currentModuleId = null; currentModuleData = {}; initializeMainMenu(); }
+
+        document.addEventListener('DOMContentLoaded', initializeMainMenu);
+    </script>
+
+</body>
+</html>
