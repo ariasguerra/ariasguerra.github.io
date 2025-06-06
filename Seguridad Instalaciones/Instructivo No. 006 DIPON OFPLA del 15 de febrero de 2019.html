@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrenamiento Interactivo: Seg. Operacional Instalaciones (Inst. 006)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos generales y específicos (similares a versiones anteriores) */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+        #app-container {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.06), 0 6px 10px -4px rgba(0, 0, 0, 0.05);
+        }
+        h1, h2, h3, h4 {
+             color: #212529;
+        }
+        h2.text-blue-700 {
+            color: #0056b3; /* Azul principal */
+        }
+        .module-content { display: none; position: relative; }
+        .step-content, .scenario-content { display: none; }
+        .step-content.active, .scenario-content.active { display: block; }
+
+        .feedback { display: none; margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 0.5rem; font-size: 0.9rem; border-width: 1px; }
+        .feedback.correct { background-color: #e6f4ea; border-color: #28a745; color: #155724; }
+        .feedback.incorrect { background-color: #f8d7da; border-color: #dc3545; color: #721c24; }
+
+        .option-button {
+            display: block; width: 100%; text-align: left; margin-top: 0.75rem; padding: 0.875rem 1.25rem;
+            border: 1px solid #ced4da; border-radius: 0.5rem; background-color: #ffffff;
+            color: #495057; font-weight: 500;
+            transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s; cursor: pointer;
+        }
+        .option-button:hover:not(:disabled) {
+            background-color: #f8f9fa; border-color: #adb5bd;
+        }
+         .option-button:disabled { cursor: not-allowed; opacity: 0.75; }
+        .option-button.selected {
+             border-color: #007bff; background-color: #e7f3ff;
+             font-weight: 600; color: #004085;
+             box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+         .option-button.correct-answer {
+             border-color: #28a745; background-color: #d4edda; color: #155724;
+         }
+         .option-button.incorrect-answer {
+             border-color: #dc3545; background-color: #f8d7da; color: #721c24;
+         }
+
+         /* Estilo para las fichas del menú principal */
+         .menu-card {
+             display: flex; flex-direction: column; align-items: center;
+             padding: 1.5rem; margin-bottom: 1rem; border: 1px solid #dee2e6;
+             border-radius: 0.75rem; background-color: #ffffff;
+             text-align: center; cursor: pointer;
+             transition: background-color 0.2s, box-shadow 0.3s, transform 0.2s; height: 100%;
+             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+         }
+         .menu-card:hover {
+             background-color: #f8f9fa;
+             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+             transform: translateY(-3px);
+         }
+         .menu-card-icon {
+             font-size: 2.5rem; margin-bottom: 1rem; color: #0056b3;
+             background-color: #e7f3ff; padding: 0.75rem; border-radius: 50%;
+             width: 60px; height: 60px; display: inline-flex; align-items: center; justify-content: center;
+         }
+         .menu-card-icon svg { width: 100%; height: 100%; }
+         .menu-card-title {
+             font-weight: 600; color: #343a40; font-size: 1rem; margin-bottom: 0.25rem;
+         }
+         .menu-card-subtitle { font-size: 0.875rem; color: #6c757d; }
+
+         /* Ajuste para listas dentro de pasos */
+         .step-content ul { padding-left: 1.5rem; margin-top: 0.5rem; }
+         .step-content ul li { margin-bottom: 0.4rem; line-height: 1.5; }
+
+         /* Botones de navegación */
+         .nav-button {
+             font-weight: 600; padding: 0.6rem 1.5rem; border-radius: 0.5rem; transition: background-color 0.2s, transform 0.1s;
+             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+         }
+         .nav-button:hover { transform: scale(1.03); box-shadow: 0 2px 4px rgba(0,0,0,0.07); }
+         .nav-button.primary { background-color: #007bff; color: white; }
+         .nav-button.primary:hover { background-color: #0056b3; }
+         .nav-button.secondary { background-color: #6c757d; color: white; }
+         .nav-button.secondary:hover { background-color: #5a6268; }
+         .nav-button.success { background-color: #28a745; color: white; }
+         .nav-button.success:hover { background-color: #218838; }
+
+         /* Botón Volver al Menú */
+        .back-to-menu-btn {
+            position: absolute; top: 1.5rem; right: 1.5rem;
+            background-color: #e9ecef; color: #495057;
+            font-size: 0.8rem; font-weight: 500; padding: 0.3rem 0.8rem; border-radius: 9999px;
+            transition: background-color 0.2s, color 0.2s; z-index: 10; border: 1px solid #dee2e6;
+        }
+        .back-to-menu-btn:hover { background-color: #dee2e6; color: #343a40; }
+
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+
+    <div id="app-container" class="max-w-5xl mx-auto bg-white rounded-lg shadow-xl p-6 md:p-10">
+
+        <div id="main-menu" class="text-center">
+            <h1 class="text-2xl md:text-3xl font-bold mb-4">Centro de Entrenamiento Interactivo</h1>
+            <h2 class="text-xl md:text-2xl font-semibold text-blue-700 mb-8">Seguridad Operacional Instalaciones (Inst. 006/2019)</h2>
+            <p class="text-gray-600 mb-8">Selecciona el tema que deseas practicar:</p>
+            <div id="menu-cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"> </div>
+        </div>
+
+        <div id="active-module" class="module-content">
+             <button onclick="goToMainMenu()" class="back-to-menu-btn">
+                &larr; Volver al Menú
+            </button>
+            <h1 id="module-title" class="text-2xl md:text-3xl font-bold mb-1 pt-8 md:pt-0"></h1>
+            <h2 id="module-subtitle" class="text-lg md:text-xl font-semibold text-blue-700 mb-6"></h2>
+
+            <div id="protocolo" style="display: none;">
+                <h3 class="text-xl font-semibold mb-4 border-b pb-2">Instrucciones / Recomendaciones Clave</h3>
+                <div id="protocol-steps-container"></div>
+                <div id="verification-question" style="display: none;" class="mt-6 p-5 border rounded-lg bg-blue-50">
+                     <h4 class="font-bold text-lg mb-3 text-blue-800">¡Verifica tu Comprensión!</h4>
+                     <p id="verification-question-text" class="mb-4 text-gray-700 font-medium"></p>
+                     <div id="verification-options-container"></div>
+                     <div id="verification-feedback" class="feedback"></div>
+                     <div class="mt-6 text-center">
+                        <button id="start-scenarios-btn" onclick="startScenarios()" style="display:none;" class="nav-button success">
+                            Iniciar Escenarios Simulados
+                        </button>
+                     </div>
+                </div>
+            </div>
+
+            <div id="escenarios" style="display: none;">
+                <h3 class="text-xl font-semibold mb-4 border-b pb-2">Escenarios Simulados</h3>
+                <div id="scenarios-container"></div>
+            </div>
+
+            <div id="resumen" style="display: none;" class="p-6 border rounded-lg bg-blue-50 text-center">
+                <h3 class="text-xl font-semibold text-blue-700 mb-4">Resumen del Módulo</h3>
+                 <div id="summary-icon" class="flex justify-center space-x-4 my-5 text-4xl text-green-600">
+                    <span>&#127941;</span>
+                 </div>
+                <p class="text-gray-800 mb-4 font-semibold text-lg">¡Felicidades por completar el módulo!</p>
+                <p class="font-medium mb-3 text-gray-700">Puntos Clave Recordados:</p>
+                <ul id="summary-points" class="list-disc list-inside text-gray-600 space-y-1 mb-8 text-left inline-block"></ul>
+                 <div class="flex justify-center space-x-4">
+                    <button onclick="restartCurrentModule()" class="nav-button secondary">
+                        Reiniciar Módulo
+                    </button>
+                     <button onclick="goToMainMenu()" class="nav-button primary">
+                        Menú Principal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Iconos SVG ---
+        const svgIcons = {
+            plan: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>`, // Documento/Plan
+            acceso: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" /></svg>`, // Llave/Acceso
+            vigilancia: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>`, // Ojo
+            visitantes: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-3.741-5.197M4.26 18.72a9.094 9.094 0 0 1 3.741-.479 3 3 0 0 1-3.741-5.197M18 18.72a9.094 9.094 0 0 0-3.741-.479m-11.259 6.675a3 3 0 0 1-3.741-5.197M15 11.25a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>`, // Grupo personas
+            complejo: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6.375m-6.375 3h6.375m-6.375 3h6.375m-6.375 3h6.375M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M11.25 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21" /></svg>`, // Edificio
+            logistica: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0 0 21 18V6a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6v12a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>`, // Caja/Herramientas
+        };
+
+        // --- Definición de Datos de los Módulos (Basado en Instructivo 006) ---
+        const modulesData = [
+            {
+                id: 'planes_documentacion',
+                title: 'Planes y Documentación',
+                menuIcon: svgIcons.plan,
+                subtitle: 'Seguridad Operacional Instalaciones',
+                protocolSteps: [
+                    { title: 'Paso 1: Actualización Plan Defensa', icon: '🛡️', color: 'text-red-600', points: ['Actualizar plan defensa de la unidad.', 'Actualizar plan de apoyo entre unidades.', 'Considerar nuevas modalidades de acción criminal/terrorista.'] },
+                    { title: 'Paso 2: Actualización Memoria Local', icon: '🗺️', color: 'text-blue-600', points: ['Actualizar memoria local y topográfica.', 'Conocer en tiempo real comunidad residente (especialmente inmediaciones instalaciones).'] }
+                ],
+                 verificationQuestion: {
+                    text: '¿Por qué es importante actualizar la memoria local y topográfica?',
+                    options: [ { text: 'Para planificar fiestas locales.', correct: false }, { text: 'Para conocer en tiempo real a la comunidad residente, especialmente cerca a la unidad.', correct: true }, { text: 'Para actualizar los mapas turísticos.', correct: false } ],
+                    feedbackCorrect: '¡Correcto! Conocer el entorno y la comunidad cercana es vital para la seguridad de las instalaciones.',
+                    feedbackIncorrect: 'Incorrecto. Revisa el instructivo. La memoria local ayuda a entender el entorno inmediato de la unidad.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Plan Defensa Desactualizado', icon: '🗓️', color: 'text-red-600', text: 'Se detecta que el Plan Defensa de la estación no ha sido revisado en los últimos 3 años, a pesar de cambios en la dinámica criminal de la zona. ¿Qué indica el Instructivo 006?', options: [ { id: 'a', text: '(a) Que no es necesario actualizarlo si no ha habido incidentes graves.' }, { id: 'b', text: '(b) Que se debe actualizar de cara a las nuevas modalidades de acción criminal y terrorista.' }, { id: 'c', text: '(c) Que solo se actualiza si lo ordena el nivel central.' }, { id: 'd', text: '(d) Que basta con tener un plan, sin importar la fecha.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto. La actualización debe ser proactiva.", 'b': "¡Correcto! El Instructivo 006 exige actualizar el plan defensa considerando las nuevas modalidades criminales.", 'c': "Incorrecto. La responsabilidad de actualización es de la unidad.", 'd': "Incorrecto. Un plan desactualizado pierde efectividad." } }
+                ],
+                 summaryPoints: [ '<strong>Actualizar Plan Defensa</strong> (unidad y apoyo) frente a nuevas modalidades.', '<strong>Actualizar Memoria Local y Topográfica</strong> para conocer entorno y comunidad.' ]
+            },
+            {
+                id: 'control_acceso',
+                title: 'Control Acceso e Identificación',
+                menuIcon: svgIcons.acceso,
+                subtitle: 'Seguridad Operacional Instalaciones',
+                protocolSteps: [
+                    { title: 'Paso 1: Fortalecer Mecanismos', icon: '💪', color: 'text-blue-600', points: ['Fortalecer mecanismos de control e identificación para ingreso personas ajenas.'] },
+                    { title: 'Paso 2: Fases de Seguridad', icon: '1️⃣2️⃣3️⃣', color: 'text-green-600', points: ['Aplicar 3 fases: (1) Identificar, (2) Autentificar, (3) Autorizar.'] },
+                    { title: 'Paso 3: Uso de Tecnología', icon: '💻', color: 'text-orange-600', points: ['Utilizar medios tecnológicos (SIOPER, SICOVI) donde estén disponibles.'] },
+                    { title: 'Paso 4: Verificación Visita', icon: '❓', color: 'text-purple-600', points: ['Verificar motivo de la visita.', 'Confirmar con funcionario/área que autoriza ingreso.'] },
+                    { title: 'Paso 5: Fichas por Piso (Edificios)', icon: '🏷️', color: 'text-red-600', points: ['En unidades/edificios grandes: Establecer fichas de ingreso por piso (con características diferentes).', 'Controlar deambulación de visitantes.'] }
+                ],
+                 verificationQuestion: {
+                    text: '¿Cuáles son las tres fases de seguridad para el control de ingreso mencionadas?',
+                    options: [ { text: 'Revisar, Registrar, Reportar.', correct: false }, { text: 'Identificar, Autentificar, Autorizar.', correct: true }, { text: 'Saludar, Preguntar, Despedir.', correct: false } ],
+                    feedbackCorrect: '¡Correcto! El instructivo especifica claramente las tres fases: Identificar, Autentificar y Autorizar.',
+                    feedbackIncorrect: 'Incorrecto. Revisa el instructivo. Las fases son Identificar, Autentificar, Autorizar.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Visitante sin Confirmación', icon: '🤷‍♂️', color: 'text-yellow-600', text: 'Llega un visitante diciendo que va a la oficina de Talento Humano. El personal de seguridad lo identifica y verifica antecedentes (sin novedad), pero no confirma telefónicamente con Talento Humano si lo esperan o autorizan el ingreso. ¿Qué fase de seguridad se omitió?', options: [ { id: 'a', text: '(a) Identificar.' }, { id: 'b', text: '(b) Autentificar.' }, { id: 'c', text: '(c) Autorizar (la confirmación con el área es parte de la autorización).' }, { id: 'd', text: '(d) Ninguna, con verificar antecedentes es suficiente.' } ], correctAnswer: 'c', feedback: { 'a': "Incorrecto. Se identificó.", 'b': "Incorrecto. Se autentificó (verificó antecedentes).", 'c': "¡Correcto! El instructivo indica verificar motivo y confirmar con el área que autoriza. Omitir la confirmación es fallar en la fase de Autorización.", 'd': "Incorrecto. Verificar antecedentes no es suficiente; se requiere confirmar la autorización." } },
+                     { id: 2, title: 'Escenario 2: Deambulación con Ficha', icon: '🚶‍♀️', color: 'text-red-600', text: 'En un edificio policial con sistema de fichas por piso, un visitante con ficha para el piso 2 es encontrado en el piso 4. ¿Qué medida de control específica del instructivo falló o no se aplicó correctamente?', options: [ { id: 'a', text: '(a) La verificación de antecedentes.' }, { id: 'b', text: '(b) El uso de SICOVI.' }, { id: 'c', text: '(c) El control de deambulación mediante el sistema de fichas por piso.' }, { id: 'd', text: '(d) La actualización del Plan Defensa.' } ], correctAnswer: 'c', feedback: { 'a': "Incorrecto.", 'b': "Incorrecto.", 'c': "¡Correcto! El sistema de fichas por piso busca precisamente controlar la deambulación. Si el visitante está en un piso no autorizado, el control falló.", 'd': "Incorrecto." } }
+                ],
+                 summaryPoints: [ '<strong>Fortalecer control</strong> ingreso personas ajenas.', 'Aplicar 3 fases: <strong>Identificar, Autentificar, Autorizar</strong>.', 'Usar <strong>SIOPER/SICOVI</strong> si están disponibles.', '<strong>Verificar motivo</strong> y <strong>confirmar autorización</strong> con área.', 'Implementar <strong>fichas por piso</strong> en edificios grandes.' ]
+            },
+            {
+                id: 'vigilancia_autoproteccion',
+                title: 'Vigilancia y Autoprotección',
+                menuIcon: svgIcons.vigilancia,
+                subtitle: 'Seguridad Operacional Instalaciones',
+                protocolSteps: [
+                    { title: 'Paso 1: Evitar Rutina y Exceso Confianza', icon: '🔄', color: 'text-red-600', points: ['Recalcar constantemente medidas autoprotección.', 'Evitar rutina o exceso de confianza durante servicio.'] },
+                    { title: 'Paso 2: Monitoreo Comunicaciones', icon: '📡', color: 'text-orange-600', points: ['Adelantar planes monitoreo comunicaciones institucionales.', 'Detectar posibles vulnerabilidades que pongan en riesgo seguridad operacional.'] },
+                    { title: 'Paso 3: Verificación del Entorno', icon: '👀', color: 'text-blue-600', points: ['Verificar PERMANENTEMENTE alrededor de instalaciones.', 'Detectar paquetes, elementos o vehículos abandonados.'] },
+                    { title: 'Paso 4: Actuación Ante Sospechosos', icon: '⚠️', color: 'text-yellow-600', points: ['Impartir instrucción sobre aviso, alerta y actuación ante presencia elementos sospechosos.', 'No manipular, acordonar, solicitar apoyo especializado.'] }
+                ],
+                 verificationQuestion: {
+                    text: '¿Qué se debe hacer si se encuentra un paquete sospechoso abandonado cerca a la instalación?',
+                    options: [ { text: 'Abrirlo para ver qué es.', correct: false }, { text: 'Moverlo a un lugar más seguro.', correct: false }, { text: 'No manipularlo, alertar, acordonar y solicitar apoyo especializado.', correct: true } ],
+                    feedbackCorrect: '¡Correcto! El instructivo es claro: no manipular, avisar/alertar, acordonar y esperar apoyo especializado.',
+                    feedbackIncorrect: 'Incorrecto. La manipulación de elementos sospechosos está prohibida por seguridad. Revisa el instructivo.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Relevo Rutinario', icon: '⏰', color: 'text-red-600', text: 'El relevo de la guardia se realiza todos los días exactamente a las 07:00 hrs, con el personal formando siempre en el mismo lugar frente a la estación. ¿Qué recomendación clave se está ignorando?', options: [ { id: 'a', text: '(a) La de verificar paquetes abandonados.' }, { id: 'b', text: '(b) La de evitar la rutina y el exceso de confianza.' }, { id: 'c', text: '(c) La de monitorear comunicaciones.' }, { id: 'd', text: '(d) La de usar fichas por piso.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto.", 'b': "¡Correcto! Realizar actividades como relevos siempre de la misma forma y en el mismo lugar crea una rutina predecible, lo cual el instructivo pide evitar.", 'c': "Incorrecto.", 'd': "Incorrecto." } },
+                     { id: 2, title: 'Escenario 2: Vehículo Abandonado', icon: '🚗', color: 'text-yellow-600', text: 'Un vehículo desconocido lleva varias horas estacionado justo frente a la entrada principal de la estación, sin ocupantes visibles. ¿Qué acción corresponde según el instructivo?', options: [ { id: 'a', text: '(a) Esperar a que aparezca el dueño.' }, { id: 'b', text: '(b) Considerarlo un elemento sospechoso, verificar placas, no manipularlo directamente, alertar al superior y posiblemente solicitar apoyo especializado para inspección.' }, { id: 'c', text: '(c) Ponerle un comparendo por mal parqueo.' }, { id: 'd', text: '(d) Moverlo con una grúa policial.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto. Un vehículo abandonado frente a una instalación es una señal de alerta.", 'b': "¡Correcto! Se debe tratar como elemento sospechoso: verificar información disponible (placas), evitar manipulación riesgosa, alertar y solicitar apoyo si es necesario.", 'c': "Incorrecto. La prioridad es la seguridad, no la infracción de tránsito en este caso.", 'd': "Incorrecto. Moverlo sin inspección previa puede ser peligroso." } }
+                ],
+                 summaryPoints: [ 'Evitar <strong>rutina y exceso de confianza</strong>.', 'Monitorear <strong>comunicaciones</strong> para detectar vulnerabilidades.', '<strong>Verificar permanentemente</strong> alrededores (paquetes/vehículos abandonados).', 'Actuar con precaución ante <strong>elementos sospechosos</strong> (No manipular, alertar, acordonar, apoyo).' ]
+            },
+             {
+                id: 'visitantes_externos',
+                title: 'Manejo Visitantes y Externos',
+                menuIcon: svgIcons.visitantes,
+                subtitle: 'Seguridad Operacional Instalaciones',
+                protocolSteps: [
+                    { title: 'Paso 1: Coordinación Visitas/Reuniones', icon: '📅', color: 'text-blue-600', points: ['Dependencias internas deben enviar con ANTELACIÓN a seguridad física la relación de personas/vehículos programados.', 'Fin: Controlar autorización ingreso y recorrido de personal ajeno.'] },
+                    { title: 'Paso 2: Estudio Seguridad Externos', icon: '📄', color: 'text-orange-600', points: ['Solicitar estudio de seguridad a empleados de servicios generales, cafetería y particulares que realizan actividades DENTRO de instalaciones.', 'Identificar antecedentes y anticipar riesgos.'] },
+                    { title: 'Paso 3: Control Proveedores/Vendedores', icon: '🚚', color: 'text-green-600', points: ['Controlar ingreso de proveedores, vendedores, comerciantes.', 'Establecer ACOMPAÑAMIENTO por funcionarios de la unidad durante su permanencia.'] },
+                    { title: 'Paso 4: Contacto Seguridad Aledaña', icon: '🤝', color: 'text-purple-600', points: ['Mantener contacto permanente con jefes de seguridad de entidades/empresas aledañas.'] }
+                ],
+                 verificationQuestion: {
+                    text: '¿Se debe realizar estudio de seguridad al personal de aseo (servicios generales) que trabaja dentro de la estación?',
+                    options: [ { text: 'No, solo a los visitantes.', correct: false }, { text: 'Sí, el instructivo lo recomienda para identificar antecedentes y anticipar riesgos.', correct: true }, { text: 'Solo si son nuevos.', correct: false } ],
+                    feedbackCorrect: '¡Correcto! El instructivo indica solicitar estudio de seguridad a empleados de empresas prestadoras de servicios generales y otros particulares que realizan actividades dentro.',
+                    feedbackIncorrect: 'Incorrecto. Revisa el instructivo. Se recomienda estudio de seguridad para personal externo que labora dentro.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Proveedor Solo', icon: '📦', color: 'text-orange-600', text: 'Ingresa un proveedor autorizado a entregar una mercancía en el almacén de la unidad. El personal de seguridad le indica cómo llegar pero no le asigna acompañamiento. ¿Es correcto?', options: [ { id: 'a', text: '(a) Sí, si el proveedor ya conoce la ruta.' }, { id: 'b', text: '(b) No, el instructivo exige establecer acompañamiento por parte de funcionarios de la unidad a proveedores durante su permanencia.' }, { id: 'c', text: '(c) Solo necesita acompañamiento si va a otras áreas además del almacén.' }, { id: 'd', text: '(d) Sí, si el proveedor firma la planilla de ingreso.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto. Conocer la ruta no exime del acompañamiento.", 'b': "¡Correcto! El Instructivo 006 es claro en establecer acompañamiento a proveedores y vendedores.", 'c': "Incorrecto. El acompañamiento es durante su permanencia, independientemente del área específica.", 'd': "Incorrecto. El registro no reemplaza el acompañamiento." } },
+                     { id: 2, title: 'Escenario 2: Visita no Informada', icon: '❓', color: 'text-red-600', text: 'Llega un grupo de 5 personas indicando que tienen una reunión en la oficina jurídica. La oficina de seguridad no recibió ninguna relación previa de esta visita. ¿Qué debe hacer seguridad?', options: [ { id: 'a', text: '(a) Dejarlos ingresar y avisar a jurídica que llegaron.' }, { id: 'b', text: '(b) Negarles el ingreso por no estar en la relación.' }, { id: 'c', text: '(c) Contactar a la oficina jurídica para confirmar la reunión y la autorización de ingreso ANTES de permitirles el paso y realizar el registro.' }, { id: 'd', text: '(d) Permitir el ingreso solo al líder del grupo.' } ], correctAnswer: 'c', feedback: { 'a': "Incorrecto. Permitir ingreso sin confirmación viola el control.", 'b': "Incorrecto. Negar directamente puede ser problemático si fue un error de comunicación; primero se verifica.", 'c': "¡Correcto! El instructivo exige relación previa, pero ante su ausencia, el paso lógico es contactar a la dependencia que supuestamente autoriza para confirmar ANTES de permitir el ingreso.", 'd': "Incorrecto." } }
+                ],
+                 summaryPoints: [ 'Dependencias deben enviar <strong>relación previa</strong> de visitantes/vehículos a seguridad.', 'Solicitar <strong>estudio de seguridad</strong> a personal externo (aseo, cafetería, etc.).', 'Establecer <strong>acompañamiento</strong> a proveedores/vendedores.', 'Mantener <strong>contacto con seguridad</strong> de entidades aledañas.' ]
+            },
+             {
+                id: 'complejos_parqueaderos',
+                title: 'Seguridad Complejos y Parqueaderos',
+                menuIcon: svgIcons.complejo,
+                subtitle: 'Seguridad Operacional Instalaciones',
+                protocolSteps: [
+                    { title: 'Paso 1: Seguridad Conjunta (Complejos)', icon: '🏢', color: 'text-blue-600', points: ['En complejos con >2 unidades: Generar mecanismos CONJUNTOS de seguridad.', 'Basados en CORRESPONSABILIDAD.', 'Procedimientos unificados y organizados.', 'Controles efectivos y sincronizados en accesos (peatonal/vehicular).', 'Respuesta inmediata y coordinada ante crisis.'] },
+                    { title: 'Paso 2: Parqueadero Visitantes', icon: '🅿️', color: 'text-orange-600', points: ['Uso condicionado a DISPONIBILIDAD de lugares.', 'Requiere inspección visual, manual y técnica del vehículo/moto.'] },
+                     { title: 'Paso 3: Estacionamiento Controlado (General)', icon: '🚗', color: 'text-red-600', points: ['Establecer mecanismos para controlar e identificar estacionamiento de vehículos PARTICULARES.', 'Basarse en diagnóstico de seguridad de la jurisdicción.'] }
+                ],
+                 verificationQuestion: {
+                    text: 'En un complejo policial con varias unidades, ¿cómo debe gestionarse la seguridad de los accesos?',
+                    options: [ { text: 'Cada unidad controla su propia puerta.', correct: false }, { text: 'Mediante mecanismos conjuntos, unificados y sincronizados, basados en corresponsabilidad.', correct: true }, { text: 'La unidad más grande se encarga de todo.', correct: false } ],
+                    feedbackCorrect: '¡Correcto! El instructivo enfatiza la necesidad de mecanismos conjuntos, unificados y corresponsables en complejos policiales.',
+                    feedbackIncorrect: 'Incorrecto. Revisa el instructivo. La seguridad en complejos debe ser conjunta y coordinada, no individual.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Parqueadero Lleno', icon: '🅿️', color: 'text-orange-600', text: 'Llega un visitante en vehículo particular, pero el área designada para parqueo de visitantes está completamente llena. ¿Qué indica el instructivo?', options: [ { id: 'a', text: '(a) Que debe permitírsele parquear en la zona de funcionarios.' }, { id: 'b', text: '(b) Que el uso del parqueadero para visitantes está condicionado a la disponibilidad, por lo que no podría parquear dentro si no hay cupo.' }, { id: 'c', text: '(c) Que debe esperar afuera hasta que se desocupe un lugar.' }, { id: 'd', text: '(d) Que puede parquear en cualquier lugar mientras no obstruya.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto. Las zonas deben respetarse.", 'b': "¡Correcto! El Instructivo 006 indica que el uso de parqueaderos para visitantes está condicionado a la disponibilidad.", 'c': "Incorrecto. No se le puede obligar a esperar afuera indefinidamente.", 'd': "Incorrecto. No puede parquear en cualquier lugar." } }
+                ],
+                 summaryPoints: [ 'En complejos: <strong>Seguridad conjunta</strong>, corresponsable, unificada y sincronizada.', 'Parqueadero visitantes: Condicionado a <strong>disponibilidad</strong> e <strong>inspección</strong> previa.', 'Controlar e identificar <strong>estacionamiento vehículos particulares</strong> según diagnóstico.' ]
+            },
+            {
+                id: 'logistica_tecnologia',
+                title: 'Recursos Logísticos y Tecnológicos',
+                menuIcon: svgIcons.logistica,
+                subtitle: 'Seguridad Operacional Instalaciones',
+                protocolSteps: [
+                    { title: 'Paso 1: Infraestructura y Componentes', icon: '🏗️', color: 'text-blue-600', points: ['Propender por instalaciones con componentes de seguridad para ingreso (vallas, detectores, cámaras, etc.).', 'Considerar disponibilidad presupuestal (Nación u otras fuentes).', 'Incluir en estudios/diseños de instalaciones proyectadas.'] },
+                    { title: 'Paso 2: Elementos de Apoyo', icon: '🚧', color: 'text-green-600', points: ['Utilizar elementos para disminuir riesgo: vallas, maletines señalización, hitos, estoperoles, detectores metales, cámaras.'] },
+                    { title: 'Paso 3: Planificación Recursos', icon: '💰', color: 'text-orange-600', points: ['Unidades deben programar (mediano/largo plazo) mecanismos seguridad requeridos.', 'Solicitarlos para justificar petición recursos (MinHacienda u otros).', 'Tener en cuenta directrices austeridad en el gasto.'] },
+                    { title: 'Paso 4: Mantenimiento Equipos', icon: '🔧', color: 'text-purple-600', points: ['Revisar elementos tecnológicos fuera de servicio.', 'Repararlos (mantenimiento) con recursos asignados.', 'Propender por que equipos técnicos/tecnológicos estén en perfectas condiciones de uso.'] }
+                ],
+                 verificationQuestion: {
+                    text: '¿Qué deben hacer las unidades con los equipos tecnológicos de seguridad que están fuera de servicio?',
+                    options: [ { text: 'Darlos de baja inmediatamente.', correct: false }, { text: 'Revisarlos y repararlos (mantenimiento) con los recursos asignados para ello.', correct: true }, { text: 'Esperar a que lleguen equipos nuevos.', correct: false } ],
+                    feedbackCorrect: '¡Correcto! El instructivo indica revisar, reparar y realizar mantenimiento a los equipos fuera de servicio con los recursos disponibles.',
+                    feedbackIncorrect: 'Incorrecto. Revisa el instructivo. Se debe intentar reparar y mantener los equipos existentes.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Falta Detector Metales', icon: '🚶‍♂️', color: 'text-orange-600', text: 'La estación no cuenta con un detector de metales portátil (Garrett) funcional para el control de acceso peatonal. ¿Qué debería hacer el mando de la unidad a mediano plazo según el instructivo?', options: [ { id: 'a', text: '(a) Asumir que no es necesario.' }, { id: 'b', text: '(b) Programar la necesidad de este mecanismo de seguridad y solicitar recursos para adquirirlo o repararlo.' }, { id: 'c', text: '(c) Solicitar uno prestado a otra unidad indefinidamente.' }, { id: 'd', text: '(d) Comprar uno con dinero personal de los funcionarios.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto. Es un elemento útil mencionado.", 'b': "¡Correcto! El Instructivo 006 indica que las unidades deben programar los mecanismos que requieren y solicitar recursos, justificando la petición.", 'c': "Incorrecto. Los préstamos son temporales, se debe buscar una solución permanente.", 'd': "Incorrecto." } }
+                ],
+                 summaryPoints: [ 'Propender por <strong>infraestructura con componentes de seguridad</strong>.', 'Utilizar <strong>elementos de apoyo</strong> (vallas, detectores, cámaras).', '<strong>Programar necesidades</strong> a mediano/largo plazo y solicitar recursos.', 'Realizar <strong>mantenimiento y reparación</strong> a equipos tecnológicos existentes.' ]
+            }
+        ];
+
+        // --- Lógica de la Aplicación (sin cambios funcionales) ---
+        let currentModuleId = null;
+        let currentStep = 1;
+        let currentScenario = 1;
+        let currentModuleData = {};
+
+        function showElement(id) { const el = document.getElementById(id); if (el) el.style.display = 'block'; }
+        function hideElement(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
+        function clearContainer(containerId) { const container = document.getElementById(containerId); if (container) container.innerHTML = ''; }
+
+        function initializeMainMenu() {
+            const menuContainer = document.getElementById('menu-cards-container');
+            clearContainer('menu-cards-container');
+            modulesData.forEach(module => {
+                const card = document.createElement('div');
+                card.className = 'menu-card';
+                card.onclick = () => loadModule(module.id);
+                card.innerHTML = `
+                    <div class="menu-card-icon">${module.menuIcon || '❓'}</div>
+                    <h3 class="menu-card-title">${module.title}</h3>
+                    <p class="menu-card-subtitle">${module.subtitle}</p>
+                `;
+                menuContainer.appendChild(card);
+            });
+            showElement('main-menu');
+            hideElement('active-module');
+        }
+
+        function loadModule(moduleId) {
+            currentModuleId = moduleId;
+            currentModuleData = modulesData.find(m => m.id === moduleId);
+            if (!currentModuleData) return;
+
+            hideElement('main-menu');
+            showElement('active-module');
+            hideElement('protocolo');
+            hideElement('escenarios');
+            hideElement('resumen');
+            hideElement('verification-question');
+
+            document.getElementById('module-title').textContent = currentModuleData.title;
+            document.getElementById('module-subtitle').textContent = currentModuleData.subtitle;
+
+            buildProtocolSection();
+            buildScenariosSection();
+            buildSummarySection();
+
+            showElement('protocolo');
+            currentStep = 1;
+            setActiveStep(currentStep);
+        }
+
+        function buildProtocolSection() {
+            const stepsContainer = document.getElementById('protocol-steps-container');
+            clearContainer('protocol-steps-container');
+            const totalSteps = currentModuleData.protocolSteps.length;
+
+            currentModuleData.protocolSteps.forEach((step, index) => {
+                const stepNumber = index + 1;
+                const stepDiv = document.createElement('div');
+                stepDiv.id = `step-${stepNumber}`;
+                stepDiv.className = 'step-content mb-6 p-5 border rounded-lg bg-gray-50 shadow-sm';
+
+                stepDiv.innerHTML = `
+                    <h4 class="font-semibold text-lg mb-3 text-gray-700 flex items-center">
+                       <span class="text-2xl mr-3 ${step.color || 'text-gray-500'}">${step.icon || ''}</span>
+                       ${step.title}
+                    </h4>
+                    <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+                        ${step.points.map(p => `<li>${p}</li>`).join('')}
+                    </ul>
+                    <div class="mt-6 flex justify-between">
+                        <button onclick="prevStep(${stepNumber - 1})" class="nav-button secondary ${stepNumber === 1 ? 'invisible' : ''}">Anterior</button>
+                        ${stepNumber === totalSteps
+                            ? `<button onclick="showVerificationQuestion()" class="nav-button success">Verificar Comprensión</button>`
+                            : `<button onclick="nextStep(${stepNumber + 1})" class="nav-button primary">Siguiente</button>`
+                        }
+                    </div>
+                `;
+                stepsContainer.appendChild(stepDiv);
+            });
+
+            const vq = currentModuleData.verificationQuestion;
+            document.getElementById('verification-question-text').textContent = vq.text;
+            const vqOptionsContainer = document.getElementById('verification-options-container');
+            clearContainer('verification-options-container');
+            vq.options.forEach(opt => {
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                button.textContent = opt.text;
+                button.onclick = () => checkVerificationAnswer(opt.correct, button);
+                vqOptionsContainer.appendChild(button);
+            });
+            const vqFeedback = document.getElementById('verification-feedback');
+            vqFeedback.style.display = 'none'; vqFeedback.textContent = ''; vqFeedback.className = 'feedback';
+            document.getElementById('start-scenarios-btn').style.display = 'none';
+        }
+
+        function buildScenariosSection() {
+            const scenariosContainer = document.getElementById('scenarios-container');
+            clearContainer('scenarios-container');
+            if (!currentModuleData.scenarios || currentModuleData.scenarios.length === 0) {
+                 scenariosContainer.innerHTML = '<p class="text-gray-500 text-center italic my-6">No hay escenarios de práctica disponibles para este módulo.</p>';
+                 setTimeout(showSummary, 1500);
+                return;
+            }
+            const totalScenarios = currentModuleData.scenarios.length;
+
+            currentModuleData.scenarios.forEach((scenario, index) => {
+                const scenarioNumber = index + 1;
+                const scenarioDiv = document.createElement('div');
+                scenarioDiv.id = `scenario-${scenarioNumber}`;
+                scenarioDiv.className = 'scenario-content p-5 border rounded-lg bg-gray-50 mb-6 shadow-sm';
+
+                scenarioDiv.innerHTML = `
+                    <h4 class="font-semibold text-lg mb-3 text-gray-700 flex items-center">
+                        <span class="text-2xl mr-3 ${scenario.color || 'text-gray-500'}">${scenario.icon || ''}</span>
+                        ${scenario.title}
+                    </h4>
+                    <p class="text-gray-600 mb-4 text-sm">${scenario.text}</p>
+                    <div id="options-scenario-${scenarioNumber}">
+                        ${scenario.options.map(opt => `<button class="option-button" onclick="checkScenarioAnswer(${scenarioNumber}, '${opt.id}', this)">${opt.text}</button>`).join('')}
+                    </div>
+                    <div id="feedback-scenario-${scenarioNumber}" class="feedback"></div>
+                    <div class="mt-6 text-right">
+                        ${scenarioNumber === totalScenarios
+                            ? `<button id="next-scenario-${scenarioNumber}" onclick="showSummary()" style="display:none;" class="nav-button success">Ver Resumen</button>`
+                            : `<button id="next-scenario-${scenarioNumber}" onclick="nextScenario(${scenarioNumber + 1})" style="display:none;" class="nav-button primary">Siguiente Escenario</button>`
+                        }
+                    </div>
+                `;
+                scenariosContainer.appendChild(scenarioDiv);
+                const feedbackEl = document.getElementById(`feedback-scenario-${scenarioNumber}`);
+                feedbackEl.style.display = 'none'; feedbackEl.textContent = ''; feedbackEl.className = 'feedback';
+                const nextButton = document.getElementById(`next-scenario-${scenarioNumber}`);
+                if(nextButton) nextButton.style.display = 'none';
+            });
+        }
+
+        function buildSummarySection() {
+            const summaryPointsList = document.getElementById('summary-points');
+            clearContainer('summary-points');
+             if (!currentModuleData.summaryPoints || currentModuleData.summaryPoints.length === 0) {
+                 summaryPointsList.innerHTML = '<li class="text-gray-500 italic">Resumen no disponible.</li>';
+                 return;
+             }
+            currentModuleData.summaryPoints.forEach(point => {
+                const li = document.createElement('li');
+                li.innerHTML = point;
+                summaryPointsList.appendChild(li);
+            });
+        }
+
+        function setActiveStep(stepNumber) { document.querySelectorAll(`#protocol-steps-container .step-content`).forEach(el => el.classList.remove('active')); const el = document.getElementById(`step-${stepNumber}`); if (el) el.classList.add('active'); }
+        function nextStep(stepNumber) { const totalSteps = currentModuleData.protocolSteps.length; if (stepNumber <= totalSteps) { currentStep = stepNumber; setActiveStep(currentStep); } }
+        function prevStep(stepNumber) { if (stepNumber >= 1) { currentStep = stepNumber; setActiveStep(currentStep); } }
+
+        function showVerificationQuestion() {
+            const totalSteps = currentModuleData.protocolSteps.length;
+            hideElement(`step-${totalSteps}`); showElement('verification-question');
+            const vqOptionsContainer = document.getElementById('verification-options-container');
+            vqOptionsContainer.querySelectorAll('.option-button').forEach(btn => { btn.disabled = false; btn.className = 'option-button'; });
+            hideElement('verification-feedback'); hideElement('start-scenarios-btn');
+        }
+
+        function checkVerificationAnswer(isCorrect, buttonElement) {
+            const feedbackEl = document.getElementById('verification-feedback');
+            const allButtons = document.querySelectorAll('#verification-options-container .option-button');
+            const vq = currentModuleData.verificationQuestion;
+            allButtons.forEach(btn => { btn.disabled = true; btn.classList.remove('selected', 'correct-answer', 'incorrect-answer'); });
+            buttonElement.classList.add('selected');
+            if (isCorrect) {
+                feedbackEl.textContent = vq.feedbackCorrect; feedbackEl.className = 'feedback correct'; showElement('start-scenarios-btn'); buttonElement.classList.add('correct-answer');
+            } else {
+                feedbackEl.textContent = vq.feedbackIncorrect; feedbackEl.className = 'feedback incorrect';
+                allButtons.forEach(btn => { const opt = vq.options.find(o => o.text === btn.textContent); if (opt && opt.correct) btn.classList.add('correct-answer'); });
+                buttonElement.classList.add('incorrect-answer');
+            }
+            feedbackEl.style.display = 'block';
+        }
+
+        function startScenarios() {
+             if (!currentModuleData.scenarios || currentModuleData.scenarios.length === 0) { hideElement('protocolo'); showSummary(); }
+             else { hideElement('protocolo'); showElement('escenarios'); currentScenario = 1; setActiveScenario(currentScenario); }
+        }
+
+        function setActiveScenario(scenarioNumber) {
+            document.querySelectorAll(`#scenarios-container .scenario-content`).forEach(el => el.classList.remove('active'));
+            const el = document.getElementById(`scenario-${scenarioNumber}`);
+            if (el) {
+                el.classList.add('active');
+                el.querySelectorAll('.option-button').forEach(btn => { btn.disabled = false; btn.className = 'option-button'; });
+                const fb = document.getElementById(`feedback-scenario-${scenarioNumber}`); if(fb) fb.style.display = 'none';
+                const nb = document.getElementById(`next-scenario-${scenarioNumber}`); if(nb) nb.style.display = 'none';
+            }
+        }
+
+        function checkScenarioAnswer(scenarioNum, selectedOptionId, buttonElement) {
+            const scenarioData = currentModuleData.scenarios.find(s => s.id === scenarioNum); if (!scenarioData) return;
+            const correctAnswerId = scenarioData.correctAnswer; const feedback = scenarioData.feedback[selectedOptionId];
+            const feedbackEl = document.getElementById(`feedback-scenario-${scenarioNum}`);
+            const nextButton = document.getElementById(`next-scenario-${scenarioNum}`);
+            const allButtons = document.querySelectorAll(`#scenario-${scenarioNum} .option-button`);
+            allButtons.forEach(btn => { btn.disabled = true; btn.classList.remove('selected', 'correct-answer', 'incorrect-answer'); });
+            buttonElement.classList.add('selected'); feedbackEl.textContent = feedback;
+            if (selectedOptionId === correctAnswerId) {
+                feedbackEl.className = 'feedback correct'; buttonElement.classList.add('correct-answer');
+            } else {
+                feedbackEl.className = 'feedback incorrect'; buttonElement.classList.add('incorrect-answer');
+                allButtons.forEach(btn => { const opt = scenarioData.options.find(o => o.id === correctAnswerId); if (opt && btn.textContent === opt.text) btn.classList.add('correct-answer'); });
+            }
+            feedbackEl.style.display = 'block'; if (nextButton) { nextButton.style.display = 'inline-block'; }
+        }
+
+        function nextScenario(scenarioNumber) { const totalScenarios = currentModuleData.scenarios.length; if (scenarioNumber <= totalScenarios) { currentScenario = scenarioNumber; setActiveScenario(currentScenario); } }
+        function showSummary() { hideElement('escenarios'); hideElement('protocolo'); showElement('resumen'); }
+        function restartCurrentModule() { if(currentModuleId) { loadModule(currentModuleId); } }
+        function goToMainMenu() { hideElement('active-module'); showElement('main-menu'); currentModuleId = null; currentModuleData = {}; initializeMainMenu(); }
+
+        document.addEventListener('DOMContentLoaded', initializeMainMenu);
+    </script>
+
+</body>
+</html>

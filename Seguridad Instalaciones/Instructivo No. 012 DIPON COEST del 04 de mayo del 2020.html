@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrenamiento Interactivo: Uso RRSS y Celular (Inst. 012)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos generales y específicos (similares a la versión anterior) */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+        #app-container {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.06), 0 6px 10px -4px rgba(0, 0, 0, 0.05);
+        }
+        h1, h2, h3, h4 {
+             color: #212529;
+        }
+        h2.text-blue-700 {
+            color: #0056b3; /* Azul principal */
+        }
+        .module-content { display: none; position: relative; }
+        .step-content, .scenario-content { display: none; }
+        .step-content.active, .scenario-content.active { display: block; }
+
+        .feedback { display: none; margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 0.5rem; font-size: 0.9rem; border-width: 1px; }
+        .feedback.correct { background-color: #e6f4ea; border-color: #28a745; color: #155724; }
+        .feedback.incorrect { background-color: #f8d7da; border-color: #dc3545; color: #721c24; }
+
+        .option-button {
+            display: block; width: 100%; text-align: left; margin-top: 0.75rem; padding: 0.875rem 1.25rem;
+            border: 1px solid #ced4da; border-radius: 0.5rem; background-color: #ffffff;
+            color: #495057; font-weight: 500;
+            transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s; cursor: pointer;
+        }
+        .option-button:hover:not(:disabled) {
+            background-color: #f8f9fa; border-color: #adb5bd;
+        }
+         .option-button:disabled { cursor: not-allowed; opacity: 0.75; }
+        .option-button.selected {
+             border-color: #007bff; background-color: #e7f3ff;
+             font-weight: 600; color: #004085;
+             box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+         .option-button.correct-answer {
+             border-color: #28a745; background-color: #d4edda; color: #155724;
+         }
+         .option-button.incorrect-answer {
+             border-color: #dc3545; background-color: #f8d7da; color: #721c24;
+         }
+
+         /* Estilo para las fichas del menú principal */
+         .menu-card {
+             display: flex; flex-direction: column; align-items: center;
+             padding: 1.5rem; margin-bottom: 1rem; border: 1px solid #dee2e6;
+             border-radius: 0.75rem; background-color: #ffffff;
+             text-align: center; cursor: pointer;
+             transition: background-color 0.2s, box-shadow 0.3s, transform 0.2s; height: 100%;
+             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+         }
+         .menu-card:hover {
+             background-color: #f8f9fa;
+             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+             transform: translateY(-3px);
+         }
+         .menu-card-icon {
+             font-size: 2.5rem; margin-bottom: 1rem; color: #0056b3;
+             background-color: #e7f3ff; padding: 0.75rem; border-radius: 50%;
+             width: 60px; height: 60px; display: inline-flex; align-items: center; justify-content: center;
+         }
+         .menu-card-icon svg { width: 100%; height: 100%; }
+         .menu-card-title {
+             font-weight: 600; color: #343a40; font-size: 1rem; margin-bottom: 0.25rem;
+         }
+         .menu-card-subtitle { font-size: 0.875rem; color: #6c757d; }
+
+         /* Ajuste para listas dentro de pasos */
+         .step-content ul { padding-left: 1.5rem; margin-top: 0.5rem; }
+         .step-content ul li { margin-bottom: 0.4rem; line-height: 1.5; }
+
+         /* Botones de navegación */
+         .nav-button {
+             font-weight: 600; padding: 0.6rem 1.5rem; border-radius: 0.5rem; transition: background-color 0.2s, transform 0.1s;
+             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+         }
+         .nav-button:hover { transform: scale(1.03); box-shadow: 0 2px 4px rgba(0,0,0,0.07); }
+         .nav-button.primary { background-color: #007bff; color: white; }
+         .nav-button.primary:hover { background-color: #0056b3; }
+         .nav-button.secondary { background-color: #6c757d; color: white; }
+         .nav-button.secondary:hover { background-color: #5a6268; }
+         .nav-button.success { background-color: #28a745; color: white; }
+         .nav-button.success:hover { background-color: #218838; }
+
+         /* Botón Volver al Menú */
+        .back-to-menu-btn {
+            position: absolute; top: 1.5rem; right: 1.5rem;
+            background-color: #e9ecef; color: #495057;
+            font-size: 0.8rem; font-weight: 500; padding: 0.3rem 0.8rem; border-radius: 9999px;
+            transition: background-color 0.2s, color 0.2s; z-index: 10; border: 1px solid #dee2e6;
+        }
+        .back-to-menu-btn:hover { background-color: #dee2e6; color: #343a40; }
+
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+
+    <div id="app-container" class="max-w-5xl mx-auto bg-white rounded-lg shadow-xl p-6 md:p-10">
+
+        <div id="main-menu" class="text-center">
+            <h1 class="text-2xl md:text-3xl font-bold mb-4">Centro de Entrenamiento Interactivo</h1>
+            <h2 class="text-xl md:text-2xl font-semibold text-blue-700 mb-8">Uso de RR.SS. y Celular (Inst. 012/2020)</h2>
+            <p class="text-gray-600 mb-8">Selecciona el tema que deseas practicar:</p>
+            <div id="menu-cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6"> </div>
+        </div>
+
+        <div id="active-module" class="module-content">
+             <button onclick="goToMainMenu()" class="back-to-menu-btn">
+                &larr; Volver al Menú
+            </button>
+            <h1 id="module-title" class="text-2xl md:text-3xl font-bold mb-1 pt-8 md:pt-0"></h1>
+            <h2 id="module-subtitle" class="text-lg md:text-xl font-semibold text-blue-700 mb-6"></h2>
+
+            <div id="protocolo" style="display: none;">
+                <h3 class="text-xl font-semibold mb-4 border-b pb-2">Recomendaciones Clave</h3>
+                <div id="protocol-steps-container"></div>
+                <div id="verification-question" style="display: none;" class="mt-6 p-5 border rounded-lg bg-blue-50">
+                     <h4 class="font-bold text-lg mb-3 text-blue-800">¡Verifica tu Comprensión!</h4>
+                     <p id="verification-question-text" class="mb-4 text-gray-700 font-medium"></p>
+                     <div id="verification-options-container"></div>
+                     <div id="verification-feedback" class="feedback"></div>
+                     <div class="mt-6 text-center">
+                        <button id="start-scenarios-btn" onclick="startScenarios()" style="display:none;" class="nav-button success">
+                            Iniciar Escenarios Simulados
+                        </button>
+                     </div>
+                </div>
+            </div>
+
+            <div id="escenarios" style="display: none;">
+                <h3 class="text-xl font-semibold mb-4 border-b pb-2">Escenarios Simulados</h3>
+                <div id="scenarios-container"></div>
+            </div>
+
+            <div id="resumen" style="display: none;" class="p-6 border rounded-lg bg-blue-50 text-center">
+                <h3 class="text-xl font-semibold text-blue-700 mb-4">Resumen del Módulo</h3>
+                 <div id="summary-icon" class="flex justify-center space-x-4 my-5 text-4xl text-green-600">
+                    <span>&#127941;</span>
+                 </div>
+                <p class="text-gray-800 mb-4 font-semibold text-lg">¡Felicidades por completar el módulo!</p>
+                <p class="font-medium mb-3 text-gray-700">Puntos Clave Recordados:</p>
+                <ul id="summary-points" class="list-disc list-inside text-gray-600 space-y-1 mb-8 text-left inline-block"></ul>
+                 <div class="flex justify-center space-x-4">
+                    <button onclick="restartCurrentModule()" class="nav-button secondary">
+                        Reiniciar Módulo
+                    </button>
+                     <button onclick="goToMainMenu()" class="nav-button primary">
+                        Menú Principal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Iconos SVG ---
+        const svgIcons = {
+            redes_sociales: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" /></svg>`,
+            celular: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" /></svg>`,
+        };
+
+        // --- Definición de Datos de los Módulos (Basado en Instructivo 012) ---
+        const modulesData = [
+            {
+                id: 'redes_sociales',
+                title: 'Uso de Redes Sociales',
+                menuIcon: svgIcons.redes_sociales,
+                subtitle: 'Instructivo 012 - Anexo 1',
+                protocolSteps: [
+                    { title: 'Paso 1: Análisis Previo', icon: '🤔', color: 'text-blue-600', points: ['Antes de crear, compartir, comentar, reaccionar: Analizar y evaluar contenido.', 'Verificar que NO contravenga Constitución, ley, normas, misión institucional.'] },
+                    { title: 'Paso 2: Prohibiciones y Abstenciones', icon: '🚫', color: 'text-red-600', points: ['ABSTENERSE si contenido es político, social, gremial, sindical (no deliberantes).', 'ABSTENERSE si hay señalamientos deshonrosos, calumniosos, degradantes (informar a autoridad si aplica).', 'ABSTENERSE si promueve maltrato (humano, animal), daño ambiental, etc. (informar a autoridad si aplica).', 'NO difundir mensajes que generen pánico, inciten a ilícitos, constriñan.', 'NO difundir información privilegiada, confidencial o reservada.'] },
+                    { title: 'Paso 3: Veracidad y Responsabilidad', icon: '✅', color: 'text-green-600', points: ['Asegurarse que información sea real, veraz, oportuna.', 'Hacerse responsable de sus cuentas personales.', 'Configurar privacidad para evitar involucrar a terceros innecesariamente.'] },
+                    { title: 'Paso 4: Imagen Institucional y Seguridad', icon: '🛡️', color: 'text-orange-600', points: ['Evitar poner en tela de juicio imagen institucional y buen uso del uniforme.', 'ABSTENERSE de publicar portando el uniforme para promocionar bienes/servicios (beneficio propio/terceros).', 'Revisar cuentas que sigue; evitar contactos desconocidos.', 'NO georreferenciar publicaciones (riesgo ubicación).', 'Usar contraseñas seguras y cambiarlas frecuentemente.', 'Evitar clic en enlaces desconocidos (cibercrimen).'] }
+                ],
+                 verificationQuestion: {
+                    text: '¿Puede un policía publicar fotos en sus redes personales portando el uniforme para promocionar un negocio familiar?',
+                    options: [ { text: 'Sí, si es fuera del horario de servicio.', correct: false }, { text: 'No, el Instructivo 012 lo prohíbe expresamente.', correct: true }, { text: 'Sí, si no muestra insignias.', correct: false } ],
+                    feedbackCorrect: '¡Correcto! El Anexo 1, punto 7 del Instructivo 012 prohíbe usar el uniforme en publicaciones para promocionar bienes/servicios con beneficio propio o de terceros.',
+                    feedbackIncorrect: 'Incorrecto. Revisa el Anexo 1, punto 7 del Instructivo 012. El uso del uniforme para promoción personal/comercial está prohibido.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Comentario Político', icon: '💬', color: 'text-red-600', text: 'Un compañero publica en su Facebook personal una fuerte opinión política sobre una decisión gubernamental reciente, identificándose como miembro de la Policía. ¿Es correcta esta acción según el Instructivo 012?', options: [ { id: 'a', text: '(a) Sí, es su opinión personal en su red personal.' }, { id: 'b', text: '(b) No, los miembros de la fuerza pública no son deliberantes y deben abstenerse de emitir opiniones políticas en redes sociales.' }, { id: 'c', text: '(c) Solo si lo hace sin uniforme.' }, { id: 'd', text: '(d) Sí, si su perfil es privado.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto. La condición de servidor público y miembro de la fuerza pública impone restricciones.", 'b': "¡Correcto! El Instructivo 012 (Anexo 1, punto 1b y punto 3) recuerda la prohibición constitucional de deliberar para la fuerza pública, aplicable a redes sociales.", 'c': "Incorrecto. La prohibición de deliberar aplica independientemente del uniforme.", 'd': "Incorrecto. La naturaleza de las redes sociales hace difícil garantizar la privacidad absoluta y la prohibición es general." } },
+                     { id: 2, title: 'Escenario 2: Compartir Alerta No Verificada', icon: '🔄', color: 'text-yellow-600', text: 'Recibe por WhatsApp una cadena que alerta sobre un supuesto plan terrorista inminente en la ciudad, con detalles alarmantes pero sin fuente clara. Decide compartirla en un grupo grande de amigos y familiares "por si acaso". ¿Qué recomendación del Instructivo 012 está omitiendo?', options: [ { id: 'a', text: '(a) La de no usar el uniforme en publicaciones.' }, { id: 'b', text: '(b) La de configurar la privacidad de la cuenta.' }, { id: 'c', text: '(c) La de asegurarse que la información sea real y veraz antes de difundirla, para no generar pánico o desinformación.' }, { id: 'd', text: '(d) La de no georreferenciar.' } ], correctAnswer: 'c', feedback: { 'a': "Incorrecto.", 'b': "Incorrecto.", 'c': "¡Correcto! El Instructivo 012 (Anexo 1, puntos 1e y 2) advierte sobre difundir mensajes que generen pánico y la importancia de verificar que la información sea real y veraz.", 'd': "Incorrecto." } }
+                ],
+                 summaryPoints: [ '<strong>Analizar contenido</strong> antes de interactuar (compartir, comentar, etc.).', '<strong>Abstenerse</strong> de contenido político, deshonroso, ilegal o que genere pánico.', '<strong>No difundir</strong> información reservada/confidencial.', 'Ser <strong>responsable</strong> de sus cuentas y configurar <strong>privacidad</strong>.', 'Prohibido usar <strong>uniforme</strong> para promociones personales/comerciales.', 'Cuidar la <strong>seguridad digital</strong> (contraseñas, enlaces, no georreferenciar).' ]
+            },
+            {
+                id: 'celular_servicio',
+                title: 'Uso Celular en Servicio',
+                menuIcon: svgIcons.celular,
+                subtitle: 'Instructivo 012 - Anexo 2',
+                protocolSteps: [
+                    { title: 'Paso 1: Percepción Pública', icon: '👀', color: 'text-blue-600', points: ['Servicio es público, ininterrumpido y auditado por ciudadanos.', 'Evitar dar impresión equivocada de abandono del servicio por uso del celular.', 'Incluso si se usa para el servicio, la percepción ciudadana puede ser negativa.'] },
+                    { title: 'Paso 2: Atención y Riesgo', icon: '⚠️', color: 'text-red-600', points: ['Estar ATENTO a la prestación del servicio.', 'NO emplear elementos distractores (celular).', 'Distracción afecta deber funcional y pone en RIESGO seguridad personal.'] },
+                    { title: 'Paso 3: Restricción de Uso', icon: '📵', color: 'text-orange-600', points: ['ABSTENERSE de usar teléfono móvil durante prestación del servicio.', 'Excepción: A menos que circunstancias del MISMO servicio lo exijan.', 'Usarlo sin justificación puede llevar a sanción disciplinaria (no dedicar tiempo reglamentario).'] },
+                    { title: 'Paso 4: Uso Justificado y Prudente', icon: '⏱️', color: 'text-green-600', points: ['Si uso es INELUDIBLE y parte de labor policial (crear/compartir contenido servicio): Analizar entorno, generar condiciones seguridad.', 'Manipulación necesaria: Hacerlo en tiempo prudente y regresar atención al servicio.', 'Si demora tiempo importante: Ubicar espacio prudente, informar a jefe inmediato lugar donde realizará labor (por seguridad).'] },
+                    { title: 'Paso 5: Uniformidad y Decoro', icon: '👮', color: 'text-purple-600', points: ['Al usar medios tecnológicos en servicio (acciones de afirmación): Observar Reglamento de Uniformes.', 'Conservar decoro y dignidad de policía.'] }
+                ],
+                 verificationQuestion: {
+                    text: '¿En qué caso SÍ está permitido usar el teléfono celular personal durante el servicio, según el Instructivo 012?',
+                    options: [ { text: 'Para revisar redes sociales personales rápidamente.', correct: false }, { text: 'Solo si las circunstancias del propio servicio policial lo exigen.', correct: true }, { text: 'Siempre que no haya ciudadanos cerca.', correct: false } ],
+                    feedbackCorrect: '¡Correcto! El Anexo 2, punto 3, establece la restricción general, pero permite el uso si las circunstancias del MISMO servicio lo exigen.',
+                    feedbackIncorrect: 'Incorrecto. Revisa el Anexo 2, punto 3. El uso personal está restringido; solo se permite si es exigido por el servicio.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Patrullaje y Redes', icon: '🚶‍♂️', color: 'text-red-600', text: 'Mientras realiza patrullaje a pie por una zona comercial concurrida, un uniformado va revisando constantemente su teléfono celular personal (WhatsApp, Facebook). ¿Es correcta esta conducta?', options: [ { id: 'a', text: '(a) Sí, si lo hace disimuladamente.' }, { id: 'b', text: '(b) No, está empleando un elemento distractor, descuidando la atención al servicio y poniendo en riesgo su seguridad y la percepción pública.' }, { id: 'c', text: '(c) Sí, si no hay ninguna novedad aparente en el sector.' }, { id: 'd', text: '(d) Solo si está esperando una llamada importante.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto. La distracción es el problema, no si es disimulado.", 'b': "¡Correcto! El Instructivo 012 (Anexo 2, puntos 1, 2 y 3) prohíbe el uso como distractor, resalta el riesgo y la mala percepción que genera.", 'c': "Incorrecto. La atención debe ser constante, independientemente de si hay novedades visibles.", 'd': "Incorrecto. Esperar una llamada no justifica el uso constante y la distracción del servicio." } },
+                     { id: 2, title: 'Escenario 2: Reporte por Celular', icon: '📸', color: 'text-green-600', text: 'Atendiendo un accidente de tránsito simple, el uniformado necesita enviar rápidamente una foto de los daños a la central por WhatsApp, ya que el radio presenta interferencia. ¿Cómo debería proceder?', options: [ { id: 'a', text: '(a) No usar el celular bajo ninguna circunstancia.' }, { id: 'b', text: '(b) Usar el celular rápidamente para enviar la foto, asegurando el entorno y regresando la atención al procedimiento inmediatamente.' }, { id: 'c', text: '(c) Esperar a que el radio funcione, sin importar la demora.' }, { id: 'd', text: '(d) Pedirle a un civil que tome la foto y la envíe.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto. El instructivo permite el uso si el servicio lo exige.", 'b': "¡Correcto! El Instructivo 012 (Anexo 2, puntos 3, 4 y 5) permite el uso si es exigido por el servicio, pero pide hacerlo en tiempo prudente, asegurando el entorno y regresando la atención al servicio.", 'c': "Incorrecto. Si el celular es el medio disponible y necesario para el servicio en ese momento, se puede usar con prudencia.", 'd': "Incorrecto. Involucrar a civiles en tareas policiales de reporte no es adecuado." } }
+                ],
+                 summaryPoints: [ 'Evitar dar <strong>impresión de abandono</strong> del servicio por uso del celular.', 'El celular es un <strong>elemento distractor</strong> que afecta atención y seguridad.', '<strong>Abstenerse de usarlo</strong>, salvo que el <strong>servicio lo exija</strong>.', 'Si el uso es necesario: hacerlo en <strong>tiempo prudente</strong>, asegurando entorno e informando si demora.', 'Mantener <strong>decoro y uniformidad</strong> incluso al usar tecnología en servicio.' ]
+            }
+        ];
+
+        // --- Lógica de la Aplicación (sin cambios funcionales) ---
+        let currentModuleId = null;
+        let currentStep = 1;
+        let currentScenario = 1;
+        let currentModuleData = {};
+
+        function showElement(id) { const el = document.getElementById(id); if (el) el.style.display = 'block'; }
+        function hideElement(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
+        function clearContainer(containerId) { const container = document.getElementById(containerId); if (container) container.innerHTML = ''; }
+
+        function initializeMainMenu() {
+            const menuContainer = document.getElementById('menu-cards-container');
+            clearContainer('menu-cards-container');
+            modulesData.forEach(module => {
+                const card = document.createElement('div');
+                card.className = 'menu-card';
+                card.onclick = () => loadModule(module.id);
+                card.innerHTML = `
+                    <div class="menu-card-icon">${module.menuIcon || '❓'}</div>
+                    <h3 class="menu-card-title">${module.title}</h3>
+                    <p class="menu-card-subtitle">${module.subtitle}</p>
+                `;
+                menuContainer.appendChild(card);
+            });
+            showElement('main-menu');
+            hideElement('active-module');
+        }
+
+        function loadModule(moduleId) {
+            currentModuleId = moduleId;
+            currentModuleData = modulesData.find(m => m.id === moduleId);
+            if (!currentModuleData) return;
+
+            hideElement('main-menu');
+            showElement('active-module');
+            hideElement('protocolo');
+            hideElement('escenarios');
+            hideElement('resumen');
+            hideElement('verification-question');
+
+            document.getElementById('module-title').textContent = currentModuleData.title;
+            document.getElementById('module-subtitle').textContent = currentModuleData.subtitle;
+
+            buildProtocolSection();
+            buildScenariosSection();
+            buildSummarySection();
+
+            showElement('protocolo');
+            currentStep = 1;
+            setActiveStep(currentStep);
+        }
+
+        function buildProtocolSection() {
+            const stepsContainer = document.getElementById('protocol-steps-container');
+            clearContainer('protocol-steps-container');
+            const totalSteps = currentModuleData.protocolSteps.length;
+
+            currentModuleData.protocolSteps.forEach((step, index) => {
+                const stepNumber = index + 1;
+                const stepDiv = document.createElement('div');
+                stepDiv.id = `step-${stepNumber}`;
+                stepDiv.className = 'step-content mb-6 p-5 border rounded-lg bg-gray-50 shadow-sm';
+
+                stepDiv.innerHTML = `
+                    <h4 class="font-semibold text-lg mb-3 text-gray-700 flex items-center">
+                       <span class="text-2xl mr-3 ${step.color || 'text-gray-500'}">${step.icon || ''}</span>
+                       ${step.title}
+                    </h4>
+                    <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+                        ${step.points.map(p => `<li>${p}</li>`).join('')}
+                    </ul>
+                    <div class="mt-6 flex justify-between">
+                        <button onclick="prevStep(${stepNumber - 1})" class="nav-button secondary ${stepNumber === 1 ? 'invisible' : ''}">Anterior</button>
+                        ${stepNumber === totalSteps
+                            ? `<button onclick="showVerificationQuestion()" class="nav-button success">Verificar Comprensión</button>`
+                            : `<button onclick="nextStep(${stepNumber + 1})" class="nav-button primary">Siguiente</button>`
+                        }
+                    </div>
+                `;
+                stepsContainer.appendChild(stepDiv);
+            });
+
+            const vq = currentModuleData.verificationQuestion;
+            document.getElementById('verification-question-text').textContent = vq.text;
+            const vqOptionsContainer = document.getElementById('verification-options-container');
+            clearContainer('verification-options-container');
+            vq.options.forEach(opt => {
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                button.textContent = opt.text;
+                button.onclick = () => checkVerificationAnswer(opt.correct, button);
+                vqOptionsContainer.appendChild(button);
+            });
+            const vqFeedback = document.getElementById('verification-feedback');
+            vqFeedback.style.display = 'none'; vqFeedback.textContent = ''; vqFeedback.className = 'feedback';
+            document.getElementById('start-scenarios-btn').style.display = 'none';
+        }
+
+        function buildScenariosSection() {
+            const scenariosContainer = document.getElementById('scenarios-container');
+            clearContainer('scenarios-container');
+            if (!currentModuleData.scenarios || currentModuleData.scenarios.length === 0) {
+                 scenariosContainer.innerHTML = '<p class="text-gray-500 text-center italic my-6">No hay escenarios de práctica disponibles para este módulo.</p>';
+                 setTimeout(showSummary, 1500);
+                return;
+            }
+            const totalScenarios = currentModuleData.scenarios.length;
+
+            currentModuleData.scenarios.forEach((scenario, index) => {
+                const scenarioNumber = index + 1;
+                const scenarioDiv = document.createElement('div');
+                scenarioDiv.id = `scenario-${scenarioNumber}`;
+                scenarioDiv.className = 'scenario-content p-5 border rounded-lg bg-gray-50 mb-6 shadow-sm';
+
+                scenarioDiv.innerHTML = `
+                    <h4 class="font-semibold text-lg mb-3 text-gray-700 flex items-center">
+                        <span class="text-2xl mr-3 ${scenario.color || 'text-gray-500'}">${scenario.icon || ''}</span>
+                        ${scenario.title}
+                    </h4>
+                    <p class="text-gray-600 mb-4 text-sm">${scenario.text}</p>
+                    <div id="options-scenario-${scenarioNumber}">
+                        ${scenario.options.map(opt => `<button class="option-button" onclick="checkScenarioAnswer(${scenarioNumber}, '${opt.id}', this)">${opt.text}</button>`).join('')}
+                    </div>
+                    <div id="feedback-scenario-${scenarioNumber}" class="feedback"></div>
+                    <div class="mt-6 text-right">
+                        ${scenarioNumber === totalScenarios
+                            ? `<button id="next-scenario-${scenarioNumber}" onclick="showSummary()" style="display:none;" class="nav-button success">Ver Resumen</button>`
+                            : `<button id="next-scenario-${scenarioNumber}" onclick="nextScenario(${scenarioNumber + 1})" style="display:none;" class="nav-button primary">Siguiente Escenario</button>`
+                        }
+                    </div>
+                `;
+                scenariosContainer.appendChild(scenarioDiv);
+                const feedbackEl = document.getElementById(`feedback-scenario-${scenarioNumber}`);
+                feedbackEl.style.display = 'none'; feedbackEl.textContent = ''; feedbackEl.className = 'feedback';
+                const nextButton = document.getElementById(`next-scenario-${scenarioNumber}`);
+                if(nextButton) nextButton.style.display = 'none';
+            });
+        }
+
+        function buildSummarySection() {
+            const summaryPointsList = document.getElementById('summary-points');
+            clearContainer('summary-points');
+             if (!currentModuleData.summaryPoints || currentModuleData.summaryPoints.length === 0) {
+                 summaryPointsList.innerHTML = '<li class="text-gray-500 italic">Resumen no disponible.</li>';
+                 return;
+             }
+            currentModuleData.summaryPoints.forEach(point => {
+                const li = document.createElement('li');
+                li.innerHTML = point;
+                summaryPointsList.appendChild(li);
+            });
+        }
+
+        function setActiveStep(stepNumber) { document.querySelectorAll(`#protocol-steps-container .step-content`).forEach(el => el.classList.remove('active')); const el = document.getElementById(`step-${stepNumber}`); if (el) el.classList.add('active'); }
+        function nextStep(stepNumber) { const totalSteps = currentModuleData.protocolSteps.length; if (stepNumber <= totalSteps) { currentStep = stepNumber; setActiveStep(currentStep); } }
+        function prevStep(stepNumber) { if (stepNumber >= 1) { currentStep = stepNumber; setActiveStep(currentStep); } }
+
+        function showVerificationQuestion() {
+            const totalSteps = currentModuleData.protocolSteps.length;
+            hideElement(`step-${totalSteps}`); showElement('verification-question');
+            const vqOptionsContainer = document.getElementById('verification-options-container');
+            vqOptionsContainer.querySelectorAll('.option-button').forEach(btn => { btn.disabled = false; btn.className = 'option-button'; });
+            hideElement('verification-feedback'); hideElement('start-scenarios-btn');
+        }
+
+        function checkVerificationAnswer(isCorrect, buttonElement) {
+            const feedbackEl = document.getElementById('verification-feedback');
+            const allButtons = document.querySelectorAll('#verification-options-container .option-button');
+            const vq = currentModuleData.verificationQuestion;
+            allButtons.forEach(btn => { btn.disabled = true; btn.classList.remove('selected', 'correct-answer', 'incorrect-answer'); });
+            buttonElement.classList.add('selected');
+            if (isCorrect) {
+                feedbackEl.textContent = vq.feedbackCorrect; feedbackEl.className = 'feedback correct'; showElement('start-scenarios-btn'); buttonElement.classList.add('correct-answer');
+            } else {
+                feedbackEl.textContent = vq.feedbackIncorrect; feedbackEl.className = 'feedback incorrect';
+                allButtons.forEach(btn => { const opt = vq.options.find(o => o.text === btn.textContent); if (opt && opt.correct) btn.classList.add('correct-answer'); });
+                buttonElement.classList.add('incorrect-answer');
+            }
+            feedbackEl.style.display = 'block';
+        }
+
+        function startScenarios() {
+             if (!currentModuleData.scenarios || currentModuleData.scenarios.length === 0) { hideElement('protocolo'); showSummary(); }
+             else { hideElement('protocolo'); showElement('escenarios'); currentScenario = 1; setActiveScenario(currentScenario); }
+        }
+
+        function setActiveScenario(scenarioNumber) {
+            document.querySelectorAll(`#scenarios-container .scenario-content`).forEach(el => el.classList.remove('active'));
+            const el = document.getElementById(`scenario-${scenarioNumber}`);
+            if (el) {
+                el.classList.add('active');
+                el.querySelectorAll('.option-button').forEach(btn => { btn.disabled = false; btn.className = 'option-button'; });
+                const fb = document.getElementById(`feedback-scenario-${scenarioNumber}`); if(fb) fb.style.display = 'none';
+                const nb = document.getElementById(`next-scenario-${scenarioNumber}`); if(nb) nb.style.display = 'none';
+            }
+        }
+
+        function checkScenarioAnswer(scenarioNum, selectedOptionId, buttonElement) {
+            const scenarioData = currentModuleData.scenarios.find(s => s.id === scenarioNum); if (!scenarioData) return;
+            const correctAnswerId = scenarioData.correctAnswer; const feedback = scenarioData.feedback[selectedOptionId];
+            const feedbackEl = document.getElementById(`feedback-scenario-${scenarioNum}`);
+            const nextButton = document.getElementById(`next-scenario-${scenarioNum}`);
+            const allButtons = document.querySelectorAll(`#scenario-${scenarioNum} .option-button`);
+            allButtons.forEach(btn => { btn.disabled = true; btn.classList.remove('selected', 'correct-answer', 'incorrect-answer'); });
+            buttonElement.classList.add('selected'); feedbackEl.textContent = feedback;
+            if (selectedOptionId === correctAnswerId) {
+                feedbackEl.className = 'feedback correct'; buttonElement.classList.add('correct-answer');
+            } else {
+                feedbackEl.className = 'feedback incorrect'; buttonElement.classList.add('incorrect-answer');
+                allButtons.forEach(btn => { const opt = scenarioData.options.find(o => o.id === correctAnswerId); if (opt && btn.textContent === opt.text) btn.classList.add('correct-answer'); });
+            }
+            feedbackEl.style.display = 'block'; if (nextButton) { nextButton.style.display = 'inline-block'; }
+        }
+
+        function nextScenario(scenarioNumber) { const totalScenarios = currentModuleData.scenarios.length; if (scenarioNumber <= totalScenarios) { currentScenario = scenarioNumber; setActiveScenario(currentScenario); } }
+        function showSummary() { hideElement('escenarios'); hideElement('protocolo'); showElement('resumen'); }
+        function restartCurrentModule() { if(currentModuleId) { loadModule(currentModuleId); } }
+        function goToMainMenu() { hideElement('active-module'); showElement('main-menu'); currentModuleId = null; currentModuleData = {}; initializeMainMenu(); }
+
+        document.addEventListener('DOMContentLoaded', initializeMainMenu);
+    </script>
+
+</body>
+</html>

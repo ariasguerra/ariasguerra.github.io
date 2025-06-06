@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrenamiento Interactivo: Directiva SIART (006 del 2016)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+        #app-container {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.06), 0 6px 10px -4px rgba(0, 0, 0, 0.05);
+        }
+        h1, h2, h3, h4 {
+             color: #212529;
+        }
+        h2.text-blue-700 {
+            color: #0056b3;
+        }
+        .module-content { display: none; position: relative; }
+        .step-content, .scenario-content { display: none; }
+        .step-content.active, .scenario-content.active { display: block; }
+
+        .feedback { display: none; margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 0.5rem; font-size: 0.9rem; border-width: 1px; }
+        .feedback.correct { background-color: #e6f4ea; border-color: #28a745; color: #155724; }
+        .feedback.incorrect { background-color: #f8d7da; border-color: #dc3545; color: #721c24; }
+
+        .option-button {
+            display: block; width: 100%; text-align: left; margin-top: 0.75rem; padding: 0.875rem 1.25rem;
+            border: 1px solid #ced4da; border-radius: 0.5rem; background-color: #ffffff;
+            color: #495057; font-weight: 500;
+            transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s; cursor: pointer;
+        }
+        .option-button:hover:not(:disabled) {
+            background-color: #f8f9fa; border-color: #adb5bd;
+        }
+         .option-button:disabled { cursor: not-allowed; opacity: 0.75; }
+        .option-button.selected {
+             border-color: #007bff; background-color: #e7f3ff;
+             font-weight: 600; color: #004085;
+             box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+         .option-button.correct-answer {
+             border-color: #28a745; background-color: #d4edda; color: #155724;
+         }
+         .option-button.incorrect-answer {
+             border-color: #dc3545; background-color: #f8d7da; color: #721c24;
+         }
+        .menu-card {
+             display: flex; flex-direction: column; align-items: center;
+             padding: 1.5rem; margin-bottom: 1rem; border: 1px solid #dee2e6;
+             border-radius: 0.75rem; background-color: #ffffff;
+             text-align: center; cursor: pointer;
+             transition: background-color 0.2s, box-shadow 0.3s, transform 0.2s; height: 100%;
+             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+         .menu-card:hover {
+             background-color: #f8f9fa;
+             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+             transform: translateY(-3px);
+         }
+         .menu-card-icon {
+             font-size: 2.5rem; margin-bottom: 1rem; color: #0056b3;
+             background-color: #e7f3ff; padding: 0.75rem; border-radius: 50%;
+             width: 60px; height: 60px; display: inline-flex; align-items: center; justify-content: center;
+         }
+         .menu-card-icon svg { width: 100%; height: 100%; }
+         .menu-card-title {
+             font-weight: 600; color: #343a40; font-size: 1rem; margin-bottom: 0.25rem;
+         }
+         .menu-card-subtitle { font-size: 0.875rem; color: #6c757d; }
+
+        .step-content ul { padding-left: 1.5rem; margin-top: 0.5rem; }
+        .step-content ul li { margin-bottom: 0.4rem; line-height: 1.5; }
+
+        .nav-button {
+             font-weight: 600; padding: 0.6rem 1.5rem; border-radius: 0.5rem; transition: background-color 0.2s, transform 0.1s;
+             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+         .nav-button:hover { transform: scale(1.03); box-shadow: 0 2px 4px rgba(0,0,0,0.07); }
+         .nav-button.primary { background-color: #007bff; color: white; }
+         .nav-button.primary:hover { background-color: #0056b3; }
+         .nav-button.secondary { background-color: #6c757d; color: white; }
+         .nav-button.secondary:hover { background-color: #5a6268; }
+         .nav-button.success { background-color: #28a745; color: white; }
+         .nav-button.success:hover { background-color: #218838; }
+
+        .back-to-menu-btn {
+            position: absolute; top: 1.5rem; right: 1.5rem;
+            background-color: #e9ecef; color: #495057;
+            font-size: 0.8rem; font-weight: 500; padding: 0.3rem 0.8rem; border-radius: 9999px;
+            transition: background-color 0.2s, color 0.2s; z-index: 10; border: 1px solid #dee2e6;
+        }
+        .back-to-menu-btn:hover { background-color: #dee2e6; color: #343a40; }
+        
+        #glosario-list details[open] summary {
+            background-color: #e7f3ff;
+            color: #004085;
+        }
+        #glosario-list details p {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+
+    <div id="app-container" class="max-w-5xl mx-auto bg-white rounded-lg shadow-xl p-6 md:p-10">
+
+        <div id="main-menu" class="text-center">
+            <h1 class="text-2xl md:text-3xl font-bold mb-4">Centro de Entrenamiento Interactivo</h1>
+            <h2 class="text-xl md:text-2xl font-semibold text-blue-700 mb-8">Directiva SIART (006 del 2016)</h2>
+            <p class="text-gray-600 mb-8">Selecciona el módulo que deseas practicar:</p>
+            <div id="menu-cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"> </div>
+        </div>
+
+        <div id="active-module" class="module-content">
+             <button onclick="goToMainMenu()" class="back-to-menu-btn">
+                &larr; Volver al Menú
+            </button>
+            <h1 id="module-title" class="text-2xl md:text-3xl font-bold mb-1 pt-8 md:pt-0"></h1>
+            <h2 id="module-subtitle" class="text-lg md:text-xl font-semibold text-blue-700 mb-6"></h2>
+
+            <div id="protocolo" style="display: none;">
+                <h3 class="text-xl font-semibold mb-4 border-b pb-2">Contenido del Módulo</h3>
+                <div id="protocol-steps-container"></div>
+                <div id="verification-question" style="display: none;" class="mt-6 p-5 border rounded-lg bg-blue-50">
+                     <h4 class="font-bold text-lg mb-3 text-blue-800">¡Verifica tu Comprensión!</h4>
+                     <p id="verification-question-text" class="mb-4 text-gray-700 font-medium"></p>
+                     <div id="verification-options-container"></div>
+                     <div id="verification-feedback" class="feedback"></div>
+                     <div class="mt-6 text-center">
+                        <button id="start-scenarios-btn" onclick="startScenarios()" style="display:none;" class="nav-button success">
+                            Iniciar Escenarios Simulados
+                        </button>
+                     </div>
+                </div>
+            </div>
+            
+             <div id="glosario-module-content" style="display:none;">
+                 <input type="text" id="glosario-search" placeholder="Buscar término..." class="w-full p-2 border border-gray-300 rounded-md mb-6">
+                 <div id="glosario-list" class="space-y-2"></div>
+            </div>
+
+            <div id="escenarios" style="display: none;">
+                <h3 class="text-xl font-semibold mb-4 border-b pb-2">Escenarios Simulados</h3>
+                <div id="scenarios-container"></div>
+            </div>
+
+            <div id="resumen" style="display: none;" class="p-6 border rounded-lg bg-blue-50 text-center">
+                <h3 class="text-xl font-semibold text-blue-700 mb-4">Resumen del Módulo</h3>
+                 <div id="summary-icon" class="flex justify-center space-x-4 my-5 text-4xl text-green-600">
+                    <span>&#127941;</span>
+                 </div>
+                <p class="text-gray-800 mb-4 font-semibold text-lg">¡Felicidades por completar el módulo!</p>
+                <p class="font-medium mb-3 text-gray-700">Puntos Clave Recordados:</p>
+                <ul id="summary-points" class="list-disc list-inside text-gray-600 space-y-1 mb-8 text-left inline-block"></ul>
+                 <div class="flex justify-center space-x-4">
+                    <button onclick="restartCurrentModule()" class="nav-button secondary">
+                        Reiniciar Módulo
+                    </button>
+                     <button onclick="goToMainMenu()" class="nav-button primary">
+                        Menú Principal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const svgIcons = {
+            responsabilidades: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.4-1.5 3.065M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`,
+            operacional: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m15.75 15.75-2.489-2.489m0 0a3.375 3.375 0 1 0-4.773-4.773 3.375 3.375 0 0 0 4.774 4.774ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`,
+            drone: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.174C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.174 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.776 48.776 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" /></svg>`,
+            glossary: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /></svg>`,
+        };
+
+        const glosarioData = [
+            { term: 'SIART', definition: 'Sistema Aéreo Remotamente Tripulado. Se concibe como una aeronave capaz de mantener un vuelo controlado y sostenido, operada por un piloto desde una estación remota.' },
+            { term: 'RPAS', definition: 'Remotely Piloted Aircraft System (Sistema de Aeronave Pilotada a Distancia). Término técnico utilizado por la Aeronáutica Civil, equivalente a SIART.' },
+            { term: 'RAC', definition: 'Reglamentos Aeronáuticos de Colombia. Normativa emitida por la Aeronáutica Civil que rige toda la actividad de aviación en el país.' },
+            { term: 'DIRAN', definition: 'Dirección de Antinarcóticos. Dirección de la Policía Nacional designada como líder y ente verificador de los parámetros para la operación de los SIART.' }
+        ];
+
+        const modulesData = [
+            {
+                id: 'misiones_responsabilidades',
+                title: 'Misiones y Responsabilidades',
+                menuIcon: svgIcons.responsabilidades,
+                subtitle: '¿Quién hace qué con los SIART?',
+                protocolSteps: [
+                    { title: 'Rol Central de la DIRAN', icon: '⭐', color: 'text-yellow-600', points: ['Lidera y verifica la aplicación de todos los parámetros para la operación SIART.', 'Realiza el <strong>censo, registro y revisión</strong> de todos los SIART de la Policía.', '<strong>Autoriza la operación</strong> de los equipos previo cumplimiento de requisitos.', 'Asesora en la <strong>compra y mantenimiento</strong> de los sistemas.', 'Matricula los SIART para generar identidad institucional.'] },
+                    { title: 'Dirección Nacional de Escuelas', icon: '🎓', color: 'text-blue-600', points: ['Elabora el plan de <strong>capacitación</strong> para formar operadores, técnicos e instructores SIART.', 'Realiza la <strong>certificación</strong> de todos los operadores SIART de la Policía Nacional.'] },
+                    { title: 'Oficina de Telemática', icon: '💻', color: 'text-green-600', points: ['Orienta y asesora, en coordinación con DIRAN, en la <strong>compra y mantenimiento</strong> de los SIART.'] },
+                    { title: 'Deber de Todas las Unidades', icon: '📋', color: 'text-red-600', points: ['Deben enviar a la DIRAN la <strong>ficha técnica</strong> y el <strong>inventario</strong> de los SIART que posean.', 'Deben salvaguardar y archivar toda la <strong>documentación</strong> de equipos y operadores.'] }
+                ],
+                verificationQuestion: {
+                    text: '¿Qué dirección es la principal responsable de liderar, verificar y autorizar las operaciones SIART en la Policía Nacional?',
+                    options: [ { text: 'La Dirección de Seguridad Ciudadana.', correct: false }, { text: 'La Dirección de Antinarcóticos (DIRAN).', correct: true }, { text: 'La Oficina de Telemática.', correct: false } ],
+                    feedbackCorrect: '¡Correcto! La directiva asigna a la DIRAN el liderazgo y la verificación de todo lo relacionado con los SIART.',
+                    feedbackIncorrect: 'Incorrecto. Según la directiva, la Dirección de Antinarcóticos (DIRAN) es la líder del proceso.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Adquisición de Equipo', icon: '🛒', color: 'text-blue-600', text: 'Un Departamento de Policía adquiere un nuevo SIART. Según la directiva, ¿cuál es su obligación inmediata?', options: [ { id: 'a', text: 'Operarlo inmediatamente para probarlo.' }, { id: 'b', text: 'Enviar la ficha técnica e información del equipo a la DIRAN para su registro y censo.' }, { id: 'c', text: 'Solicitar capacitación a la Oficina de Telemática.' }], correctAnswer: 'b', feedback: { 'a': "Incorrecto. Antes de operar, debe ser registrado y autorizado por DIRAN.", 'b': "¡Correcto! Todas las unidades tienen la misión particular de enviar la ficha técnica y diligenciar el cuadro de inventario a la DIRAN.", 'c': "Incorrecto. La capacitación es gestionada por la Dirección Nacional de Escuelas." } },
+                     { id: 2, title: 'Escenario 2: Certificación de Piloto', icon: '👨‍✈️', color: 'text-green-600', text: 'Un patrullero afirma ser un piloto de drones muy experimentado por su hobby personal y se ofrece para operar el SIART de la unidad. ¿Puede hacerlo?', options: [ { id: 'a', text: 'Sí, si demuestra su habilidad en un vuelo de prueba.' }, { id: 'b', text: 'No, debe estar certificado por la Escuela de Aviación Policial, según lo supervisa DIRAN.' }, { id: 'c', text: 'Sí, si firma un documento de responsabilidad.' }], correctAnswer: 'b', feedback: { 'a': "Incorrecto. La experiencia personal no reemplaza la certificación oficial.", 'b': "¡Correcto! La directiva es clara en que todos los operadores SIART deben estar certificados por la Escuela de Aviación Policial, y es función de DIRAN supervisar esto.", 'c': "Incorrecto. La certificación es un requisito indispensable, no opcional." } }
+                ],
+                summaryPoints: [ '<strong>DIRAN</strong> centraliza el control: censo, registro, autorización y matrícula de todos los SIART.', 'La <strong>Dirección Nacional de Escuelas</strong> capacita y certifica a los operadores.', 'Todas las unidades deben <strong>reportar su inventario</strong> de SIART a la DIRAN.' ]
+            },
+            {
+                id: 'proceso_operacional',
+                title: 'Proceso Operacional',
+                menuIcon: svgIcons.operacional,
+                subtitle: 'Pasos para volar un SIART de forma segura',
+                protocolSteps: [
+                    { title: 'Planificación y Autorización de Vuelo', icon: '📝', color: 'text-blue-600', points: ['Toda operación debe ser planificada considerando: <strong>condiciones meteorológicas</strong> y <strong>documentación</strong>.', 'La documentación (orden de vuelo, cálculo de riesgo, etc.) debe ser enviada a la DIRAN <strong>24 horas antes</strong> del vuelo para su aprobación.', 'El correo para la coordinación es <strong>diran.coagy-sia@policia.gov.co</strong>.'] },
+                    { title: 'Reporte de Incidentes y Accidentes', icon: '💥', color: 'text-red-600', points: ['Cualquier incidente o accidente con un SIART debe informarse <strong>inmediatamente</strong> a la DIRAN.', 'El reporte debe incluir: <strong>identificación de la aeronave</strong>, personal operador, coordenadas y descripción precisa del hecho.'] },
+                    { title: 'Coordinación General', icon: '📞', color: 'text-green-600', points: ['Las unidades deben mantener un alto nivel de <strong>comunicación y coordinación</strong>.', 'Las operaciones SIART se desarrollan de acuerdo a la misionalidad de la unidad, pero siempre con el <strong>aval y coordinación de la DIRAN</strong>.'] }
+                ],
+                verificationQuestion: {
+                    text: 'En caso de un accidente con un SIART, ¿qué información NO es requerida en el reporte inmediato a la DIRAN?',
+                    options: [ { text: 'Coordenadas del hecho.', correct: false }, { text: 'Identificación de la aeronave.', correct: false }, { text: 'El costo de reparación del equipo.', correct: true } ],
+                    feedbackCorrect: '¡Correcto! El costo de la reparación no forma parte del reporte inmediato, el cual se enfoca en los datos del evento.',
+                    feedbackIncorrect: 'Incorrecto. Revisa la sección "Instrucciones de Coordinación". El reporte debe ser sobre el hecho, no sobre sus consecuencias económicas.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Vuelo Urgente', icon: '🚨', color: 'text-red-600', text: 'Una unidad de policía necesita realizar una vigilancia aérea con un SIART de forma inmediata debido a una situación de orden público imprevista. ¿Qué procedimiento debe seguir?', options: [ { id: 'a', text: 'Despegar inmediatamente y notificar a DIRAN después.' }, { id: 'b', text: 'Contactar a DIRAN por la vía más rápida para coordinar y obtener una autorización verbal o expedita, enviando la documentación tan pronto sea posible.' }, { id: 'c', text: 'Cancelar la operación porque no se pueden cumplir las 24 horas de antelación.' }], correctAnswer: 'b', feedback: { 'a': "Incorrecto. Operar sin autorización de DIRAN va en contra de la directiva.", 'b': "¡Correcto! Aunque la norma pide 24h, la directiva enfatiza la coordinación. En una emergencia, el procedimiento lógico es contactar al ente rector (DIRAN) para una aprobación de emergencia y cumplir la documentación formal a la brevedad.", 'c': "Incorrecto. La directiva busca viabilizar operaciones seguras, no impedirlas. La coordinación es clave." } },
+                     { id: 2, title: 'Escenario 2: Planificación', icon: '🗓️', color: 'text-blue-600', text: 'Un jefe de unidad planea usar un SIART para el monitoreo de un evento público el próximo fin de semana. ¿Cuál es el paso crucial que debe realizar con antelación?', options: [ { id: 'a', text: 'Asegurarse que la batería del SIART esté cargada.' }, { id: 'b', text: 'Diligenciar la documentación de vuelo (orden de vuelo, riesgo) y enviarla a DIRAN con al menos 24 horas de anticipación para su aprobación.' }, { id: 'c', text: 'Informar a la prensa sobre el uso de tecnología avanzada.' }], correctAnswer: 'b', feedback: { 'a': "Importante para la operación, pero no es el paso de coordinación reglamentario.", 'b': "¡Correcto! Es el procedimiento estándar obligatorio para todas las operaciones planificadas, como lo indica la directiva.", 'c': "Incorrecto. Esto no es un requisito de la directiva de operación." } }
+                ],
+                summaryPoints: [ 'Toda operación SIART requiere <strong>planificación y autorización</strong> previa de la DIRAN.', 'La documentación del vuelo debe enviarse <strong>24 horas antes</strong>.', 'Los incidentes/accidentes se reportan de <strong>forma inmediata</strong> a la DIRAN.', 'La <strong>coordinación</strong> con la DIRAN es la clave para todas las operaciones.' ]
+            },
+             {
+                id: 'glosario_terminos',
+                title: 'Glosario de Términos',
+                menuIcon: svgIcons.glossary,
+                subtitle: 'Definiciones Clave de la Directiva',
+                isGlosario: true
+            }
+        ];
+
+        let currentModuleId = null;
+        let currentStep = 1;
+        let currentScenario = 1;
+        let currentModuleData = {};
+
+        function showElement(id) { const el = document.getElementById(id); if (el) el.style.display = 'block'; }
+        function hideElement(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
+        function clearContainer(containerId) { const container = document.getElementById(containerId); if (container) container.innerHTML = ''; }
+
+        function initializeMainMenu() {
+            const menuContainer = document.getElementById('menu-cards-container');
+            clearContainer('menu-cards-container');
+            modulesData.forEach(module => {
+                const card = document.createElement('div');
+                card.className = 'menu-card';
+                card.onclick = () => loadModule(module.id);
+                card.innerHTML = `
+                    <div class="menu-card-icon">${module.menuIcon || '❓'}</div>
+                    <h3 class="menu-card-title">${module.title}</h3>
+                    <p class="menu-card-subtitle">${module.subtitle}</p>
+                `;
+                menuContainer.appendChild(card);
+            });
+        }
+        
+        function renderGlosario(filter = '') {
+            const glosarioList = document.getElementById('glosario-list');
+            glosarioList.innerHTML = '';
+            const filteredData = glosarioData.filter(item => item.term.toLowerCase().includes(filter.toLowerCase()));
+            
+            if (filteredData.length === 0) {
+                 glosarioList.innerHTML = `<p class="text-gray-500">No se encontraron términos.</p>`;
+                 return;
+            }
+
+            filteredData.forEach(item => {
+                const termElement = document.createElement('div');
+                termElement.innerHTML = `
+                    <details class="group border-b">
+                        <summary class="flex items-center justify-between p-4 font-medium cursor-pointer list-none">
+                            <span>${item.term}</span>
+                            <svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </summary>
+                        <p class="px-4 pb-4 text-gray-600">${item.definition}</p>
+                    </details>
+                `;
+                glosarioList.appendChild(termElement);
+            });
+        }
+
+        function loadModule(moduleId) {
+            currentModuleId = moduleId;
+            currentModuleData = modulesData.find(m => m.id === moduleId);
+            if (!currentModuleData) return;
+
+            hideElement('main-menu');
+            showElement('active-module');
+            hideElement('protocolo');
+            hideElement('escenarios');
+            hideElement('resumen');
+            hideElement('verification-question');
+            hideElement('glosario-module-content');
+
+            document.getElementById('module-title').textContent = currentModuleData.title;
+            document.getElementById('module-subtitle').textContent = currentModuleData.subtitle;
+
+            if (currentModuleData.isGlosario) {
+                showElement('glosario-module-content');
+                document.getElementById('glosario-search').addEventListener('input', (e) => renderGlosario(e.target.value));
+                renderGlosario();
+            } else {
+                buildProtocolSection();
+                buildScenariosSection();
+                buildSummarySection();
+                showElement('protocolo');
+                currentStep = 1;
+                setActiveStep(currentStep);
+            }
+        }
+
+        function buildProtocolSection() {
+            const stepsContainer = document.getElementById('protocol-steps-container');
+            clearContainer('protocol-steps-container');
+            const totalSteps = currentModuleData.protocolSteps.length;
+
+            currentModuleData.protocolSteps.forEach((step, index) => {
+                const stepNumber = index + 1;
+                const stepDiv = document.createElement('div');
+                stepDiv.id = `step-${stepNumber}`;
+                stepDiv.className = 'step-content mb-6 p-5 border rounded-lg bg-gray-50 shadow-sm';
+
+                stepDiv.innerHTML = `
+                    <h4 class="font-semibold text-lg mb-3 text-gray-700 flex items-center">
+                       <span class="text-2xl mr-3 ${step.color || 'text-gray-500'}">${step.icon || ''}</span>
+                       ${step.title}
+                    </h4>
+                    <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+                        ${step.points.map(p => `<li>${p}</li>`).join('')}
+                    </ul>
+                    <div class="mt-6 flex justify-between">
+                        <button onclick="prevStep(${stepNumber - 1})" class="nav-button secondary ${stepNumber === 1 ? 'invisible' : ''}">Anterior</button>
+                        ${stepNumber === totalSteps
+                            ? `<button onclick="showVerificationQuestion()" class="nav-button success">Verificar Comprensión</button>`
+                            : `<button onclick="nextStep(${stepNumber + 1})" class="nav-button primary">Siguiente</button>`
+                        }
+                    </div>
+                `;
+                stepsContainer.appendChild(stepDiv);
+            });
+
+            const vq = currentModuleData.verificationQuestion;
+            document.getElementById('verification-question-text').innerHTML = vq.text;
+            const vqOptionsContainer = document.getElementById('verification-options-container');
+            clearContainer('verification-options-container');
+            vq.options.forEach(opt => {
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                button.textContent = opt.text;
+                button.onclick = () => checkVerificationAnswer(opt.correct, button);
+                vqOptionsContainer.appendChild(button);
+            });
+            const vqFeedback = document.getElementById('verification-feedback');
+            vqFeedback.style.display = 'none'; vqFeedback.textContent = ''; vqFeedback.className = 'feedback';
+            document.getElementById('start-scenarios-btn').style.display = 'none';
+        }
+
+        function buildScenariosSection() {
+            const scenariosContainer = document.getElementById('scenarios-container');
+            clearContainer('scenarios-container');
+            if (!currentModuleData.scenarios || currentModuleData.scenarios.length === 0) {
+                 scenariosContainer.innerHTML = '<p class="text-gray-500 text-center italic my-6">No hay escenarios de práctica disponibles para este módulo.</p>';
+                 setTimeout(showSummary, 1500);
+                return;
+            }
+            const totalScenarios = currentModuleData.scenarios.length;
+
+            currentModuleData.scenarios.forEach((scenario, index) => {
+                const scenarioNumber = index + 1;
+                const scenarioDiv = document.createElement('div');
+                scenarioDiv.id = `scenario-${scenarioNumber}`;
+                scenarioDiv.className = 'scenario-content p-5 border rounded-lg bg-gray-50 mb-6 shadow-sm';
+
+                scenarioDiv.innerHTML = `
+                    <h4 class="font-semibold text-lg mb-3 text-gray-700 flex items-center">
+                        <span class="text-2xl mr-3 ${scenario.color || 'text-gray-500'}">${scenario.icon || ''}</span>
+                        ${scenario.title}
+                    </h4>
+                    <p class="text-gray-600 mb-4 text-sm">${scenario.text}</p>
+                    <div id="options-scenario-${scenarioNumber}">
+                        ${scenario.options.map(opt => `<button class="option-button" onclick="checkScenarioAnswer(${scenarioNumber}, '${opt.id}', this)">${opt.text}</button>`).join('')}
+                    </div>
+                    <div id="feedback-scenario-${scenarioNumber}" class="feedback"></div>
+                    <div class="mt-6 text-right">
+                        ${scenarioNumber === totalScenarios
+                            ? `<button id="next-scenario-${scenarioNumber}" onclick="showSummary()" style="display:none;" class="nav-button success">Ver Resumen</button>`
+                            : `<button id="next-scenario-${scenarioNumber}" onclick="nextScenario(${scenarioNumber + 1})" style="display:none;" class="nav-button primary">Siguiente Escenario</button>`
+                        }
+                    </div>
+                `;
+                scenariosContainer.appendChild(scenarioDiv);
+            });
+        }
+
+        function buildSummarySection() {
+            const summaryPointsList = document.getElementById('summary-points');
+            clearContainer('summary-points');
+             if (!currentModuleData.summaryPoints || currentModuleData.summaryPoints.length === 0) {
+                 summaryPointsList.innerHTML = '<li class="text-gray-500 italic">Resumen no disponible.</li>';
+                 return;
+             }
+            currentModuleData.summaryPoints.forEach(point => {
+                const li = document.createElement('li');
+                li.innerHTML = point;
+                summaryPointsList.appendChild(li);
+            });
+        }
+
+        function setActiveStep(stepNumber) { document.querySelectorAll(`#protocol-steps-container .step-content`).forEach(el => el.classList.remove('active')); const el = document.getElementById(`step-${stepNumber}`); if (el) el.classList.add('active'); }
+        function nextStep(stepNumber) { const totalSteps = currentModuleData.protocolSteps.length; if (stepNumber <= totalSteps) { currentStep = stepNumber; setActiveStep(currentStep); } }
+        function prevStep(stepNumber) { if (stepNumber >= 1) { currentStep = stepNumber; setActiveStep(currentStep); } }
+
+        function showVerificationQuestion() {
+            const totalSteps = currentModuleData.protocolSteps.length;
+            hideElement(`step-${totalSteps}`); showElement('verification-question');
+            const vqOptionsContainer = document.getElementById('verification-options-container');
+            vqOptionsContainer.querySelectorAll('.option-button').forEach(btn => { btn.disabled = false; btn.className = 'option-button'; });
+            hideElement('verification-feedback'); hideElement('start-scenarios-btn');
+        }
+
+        function checkVerificationAnswer(isCorrect, buttonElement) {
+            const feedbackEl = document.getElementById('verification-feedback');
+            const allButtons = document.querySelectorAll('#verification-options-container .option-button');
+            const vq = currentModuleData.verificationQuestion;
+            allButtons.forEach(btn => btn.disabled = true);
+            
+            if (isCorrect) {
+                feedbackEl.innerHTML = vq.feedbackCorrect;
+                feedbackEl.className = 'feedback correct';
+                buttonElement.className = 'option-button correct-answer';
+                showElement('start-scenarios-btn');
+            } else {
+                feedbackEl.innerHTML = vq.feedbackIncorrect;
+                feedbackEl.className = 'feedback incorrect';
+                buttonElement.className = 'option-button incorrect-answer';
+                const correctButton = Array.from(allButtons).find(btn => vq.options.find(opt => opt.text === btn.textContent).correct);
+                if (correctButton) correctButton.className = 'option-button correct-answer';
+            }
+            feedbackEl.style.display = 'block';
+        }
+
+        function startScenarios() {
+             if (!currentModuleData.scenarios || currentModuleData.scenarios.length === 0) { hideElement('protocolo'); showSummary(); }
+             else { hideElement('protocolo'); showElement('escenarios'); currentScenario = 1; setActiveScenario(currentScenario); }
+        }
+
+        function setActiveScenario(scenarioNumber) {
+            document.querySelectorAll(`#scenarios-container .scenario-content`).forEach(el => el.classList.remove('active'));
+            const el = document.getElementById(`scenario-${scenarioNumber}`);
+            if (el) el.classList.add('active');
+        }
+
+        function checkScenarioAnswer(scenarioNum, selectedOptionId, buttonElement) {
+            const scenarioData = currentModuleData.scenarios.find(s => s.id === scenarioNum); if (!scenarioData) return;
+            const correctAnswerId = scenarioData.correctAnswer; const feedback = scenarioData.feedback[selectedOptionId];
+            const feedbackEl = document.getElementById(`feedback-scenario-${scenarioNum}`);
+            const nextButton = document.getElementById(`next-scenario-${scenarioNum}`);
+            const allButtons = document.querySelectorAll(`#options-scenario-${scenarioNum} .option-button`);
+            
+            allButtons.forEach(btn => { btn.disabled = true; });
+
+            feedbackEl.innerHTML = feedback;
+            if (selectedOptionId === correctAnswerId) {
+                feedbackEl.className = 'feedback correct';
+                buttonElement.className = 'option-button correct-answer';
+            } else {
+                feedbackEl.className = 'feedback incorrect';
+                buttonElement.className = 'option-button incorrect-answer';
+                const correctButton = Array.from(allButtons).find(btn => scenarioData.options.find(opt => opt.id === correctAnswerId).text === btn.textContent);
+                if (correctButton) correctButton.className = 'option-button correct-answer';
+            }
+            feedbackEl.style.display = 'block';
+            if (nextButton) nextButton.style.display = 'inline-block';
+        }
+
+        function nextScenario(scenarioNumber) { const totalScenarios = currentModuleData.scenarios.length; if (scenarioNumber <= totalScenarios) { currentScenario = scenarioNumber; setActiveScenario(currentScenario); } }
+        function showSummary() { hideElement('escenarios'); hideElement('protocolo'); hideElement('glosario-module-content'); showElement('resumen'); }
+        function restartCurrentModule() { if(currentModuleId) { loadModule(currentModuleId); } }
+        function goToMainMenu() { 
+            hideElement('active-module'); 
+            showElement('main-menu'); 
+            currentModuleId = null; 
+            currentModuleData = {};
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+             initializeMainMenu();
+             goToMainMenu();
+        });
+    </script>
+</body>
+</html>

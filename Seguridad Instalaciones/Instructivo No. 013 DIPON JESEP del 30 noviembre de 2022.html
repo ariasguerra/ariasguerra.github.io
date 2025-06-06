@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrenamiento Interactivo: Seguridad Operacional (Inst. 013)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos generales y específicos para un look más profesional */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa; /* Un gris muy claro diferente */
+        }
+        #app-container {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.06), 0 6px 10px -4px rgba(0, 0, 0, 0.05); /* Sombra ajustada */
+        }
+        h1, h2, h3, h4 {
+             color: #212529; /* Un negro más suave */
+        }
+        h2.text-blue-700 {
+            color: #0056b3; /* Un azul diferente */
+        }
+        .module-content { display: none; position: relative; }
+        .step-content, .scenario-content { display: none; }
+        .step-content.active, .scenario-content.active { display: block; }
+
+        .feedback { display: none; margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 0.5rem; font-size: 0.9rem; border-width: 1px; }
+        .feedback.correct { background-color: #e6f4ea; border-color: #28a745; color: #155724; } /* Verdes más suaves */
+        .feedback.incorrect { background-color: #f8d7da; border-color: #dc3545; color: #721c24; } /* Rojos más suaves */
+
+        .option-button {
+            display: block; width: 100%; text-align: left; margin-top: 0.75rem; padding: 0.875rem 1.25rem;
+            border: 1px solid #ced4da; /* Gris más claro */ border-radius: 0.5rem; background-color: #ffffff;
+            color: #495057; /* Gris oscuro */ font-weight: 500;
+            transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s; cursor: pointer;
+        }
+        .option-button:hover:not(:disabled) {
+            background-color: #f8f9fa; border-color: #adb5bd;
+        }
+         .option-button:disabled { cursor: not-allowed; opacity: 0.75; }
+        .option-button.selected {
+             border-color: #007bff; background-color: #e7f3ff; /* Azul claro */
+             font-weight: 600; color: #004085; /* Azul oscuro */
+             box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+         .option-button.correct-answer {
+             border-color: #28a745; background-color: #d4edda; color: #155724;
+         }
+         .option-button.incorrect-answer {
+             border-color: #dc3545; background-color: #f8d7da; color: #721c24;
+         }
+
+         /* Estilo para las fichas del menú principal */
+         .menu-card {
+             display: flex; flex-direction: column; align-items: center;
+             padding: 1.5rem; margin-bottom: 1rem; border: 1px solid #dee2e6;
+             border-radius: 0.75rem; background-color: #ffffff;
+             text-align: center; cursor: pointer;
+             transition: background-color 0.2s, box-shadow 0.3s, transform 0.2s; height: 100%;
+             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+         }
+         .menu-card:hover {
+             background-color: #f8f9fa;
+             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+             transform: translateY(-3px);
+         }
+         .menu-card-icon {
+             font-size: 2.5rem; margin-bottom: 1rem; color: #0056b3; /* Azul principal */
+             background-color: #e7f3ff; /* Azul muy claro */ padding: 0.75rem; border-radius: 50%;
+             width: 60px; height: 60px; display: inline-flex; align-items: center; justify-content: center;
+         }
+         .menu-card-icon svg { width: 100%; height: 100%; }
+         .menu-card-title {
+             font-weight: 600; color: #343a40; /* Gris más oscuro */ font-size: 1rem; margin-bottom: 0.25rem;
+         }
+         .menu-card-subtitle { font-size: 0.875rem; color: #6c757d; /* Gris medio */ }
+
+         /* Ajuste para listas dentro de pasos */
+         .step-content ul { padding-left: 1.5rem; margin-top: 0.5rem; }
+         .step-content ul li { margin-bottom: 0.4rem; line-height: 1.5; }
+
+         /* Botones de navegación */
+         .nav-button {
+             font-weight: 600; padding: 0.6rem 1.5rem; border-radius: 0.5rem; transition: background-color 0.2s, transform 0.1s;
+             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+         }
+         .nav-button:hover { transform: scale(1.03); box-shadow: 0 2px 4px rgba(0,0,0,0.07); }
+         .nav-button.primary { background-color: #007bff; color: white; } /* Azul Bootstrap */
+         .nav-button.primary:hover { background-color: #0056b3; }
+         .nav-button.secondary { background-color: #6c757d; color: white; } /* Gris Bootstrap */
+         .nav-button.secondary:hover { background-color: #5a6268; }
+         .nav-button.success { background-color: #28a745; color: white; } /* Verde Bootstrap */
+         .nav-button.success:hover { background-color: #218838; }
+
+         /* Botón Volver al Menú */
+        .back-to-menu-btn {
+            position: absolute; top: 1.5rem; right: 1.5rem;
+            background-color: #e9ecef; color: #495057;
+            font-size: 0.8rem; font-weight: 500; padding: 0.3rem 0.8rem; border-radius: 9999px;
+            transition: background-color 0.2s, color 0.2s; z-index: 10; border: 1px solid #dee2e6;
+        }
+        .back-to-menu-btn:hover { background-color: #dee2e6; color: #343a40; }
+
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+
+    <div id="app-container" class="max-w-5xl mx-auto bg-white rounded-lg shadow-xl p-6 md:p-10">
+
+        <div id="main-menu" class="text-center">
+            <h1 class="text-2xl md:text-3xl font-bold mb-4">Centro de Entrenamiento Interactivo</h1>
+            <h2 class="text-xl md:text-2xl font-semibold text-blue-700 mb-8">Seguridad Operacional (Inst. 013/2022)</h2>
+            <p class="text-gray-600 mb-8">Selecciona el tema que deseas practicar:</p>
+            <div id="menu-cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                </div>
+        </div>
+
+        <div id="active-module" class="module-content">
+             <button onclick="goToMainMenu()" class="back-to-menu-btn">
+                &larr; Volver al Menú
+            </button>
+            <h1 id="module-title" class="text-2xl md:text-3xl font-bold mb-1 pt-8 md:pt-0"></h1>
+            <h2 id="module-subtitle" class="text-lg md:text-xl font-semibold text-blue-700 mb-6"></h2>
+
+            <div id="protocolo" style="display: none;">
+                <h3 class="text-xl font-semibold mb-4 border-b pb-2">Instrucciones Clave</h3>
+                <div id="protocol-steps-container"></div>
+                <div id="verification-question" style="display: none;" class="mt-6 p-5 border rounded-lg bg-blue-50">
+                     <h4 class="font-bold text-lg mb-3 text-blue-800">¡Verifica tu Comprensión!</h4>
+                     <p id="verification-question-text" class="mb-4 text-gray-700 font-medium"></p>
+                     <div id="verification-options-container"></div>
+                     <div id="verification-feedback" class="feedback"></div>
+                     <div class="mt-6 text-center">
+                        <button id="start-scenarios-btn" onclick="startScenarios()" style="display:none;" class="nav-button success">
+                            Iniciar Escenarios Simulados
+                        </button>
+                     </div>
+                </div>
+            </div>
+
+            <div id="escenarios" style="display: none;">
+                <h3 class="text-xl font-semibold mb-4 border-b pb-2">Escenarios Simulados</h3>
+                <div id="scenarios-container"></div>
+            </div>
+
+            <div id="resumen" style="display: none;" class="p-6 border rounded-lg bg-blue-50 text-center">
+                <h3 class="text-xl font-semibold text-blue-700 mb-4">Resumen del Módulo</h3>
+                 <div id="summary-icon" class="flex justify-center space-x-4 my-5 text-4xl text-green-600">
+                    <span>&#127941;</span>
+                 </div>
+                <p class="text-gray-800 mb-4 font-semibold text-lg">¡Felicidades por completar el módulo!</p>
+                <p class="font-medium mb-3 text-gray-700">Puntos Clave Recordados:</p>
+                <ul id="summary-points" class="list-disc list-inside text-gray-600 space-y-1 mb-8 text-left inline-block"></ul>
+                 <div class="flex justify-center space-x-4">
+                    <button onclick="restartCurrentModule()" class="nav-button secondary">
+                        Reiniciar Módulo
+                    </button>
+                     <button onclick="goToMainMenu()" class="nav-button primary">
+                        Menú Principal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Iconos SVG ---
+        const svgIcons = {
+            planificacion: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503-6.998 4.875-2.178a.75.75 0 0 0-.918-1.184l-5.5 2.444a.75.75 0 0 0-.404.643v10.602a.75.75 0 0 0 .918 1.184l5.5-2.444a.75.75 0 0 0 .404-.642V10.5a.75.75 0 0 0-.918-1.184l-4.875 2.178Z" /></svg>`, // Mapa
+            desplazamiento: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0c-.563.058-.987.538-.987 1.106v.958m12.026 0h-2.25m0-3.182.08-.056a48.554 48.554 0 0 1 10.026 0 .08.056m-12.026 0h-2.25" /></svg>`, // Vehículo
+            autoproteccion: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>`, // Escudo
+            comunicaciones: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.056 3 11.625 7.03 20.25 12 20.25Zm0 0V12m0 8.25V12M12 12v-3.75M12 12V3.75m0 8.25v-3.75M3 11.625v-3.75m18 3.75v-3.75m-15 3.75H3m18 0h-3.75M3 11.625c0-4.556 4.03-8.25 9-8.25v3.75c-2.89 0-5.384 1.667-6.68 4.125H3Zm18 0c0-4.556-4.03-8.25-9-8.25v3.75c2.89 0 5.384 1.667 6.68 4.125h3.75Z" /></svg>`, // Comunicaciones/Antena
+        };
+
+        // --- Definición de Datos de los Módulos (Basado en Instructivo 013) ---
+        const modulesData = [
+            {
+                id: 'planificacion',
+                title: 'Planificación Desplazamientos',
+                menuIcon: svgIcons.planificacion,
+                subtitle: 'Valoración Previa y Documentación',
+                protocolSteps: [
+                    { title: 'Paso 1: Contextualización y Valoración', icon: '🗺️', color: 'text-blue-600', points: ['Articular modalidades/especialidades para análisis integral.', 'Contexto: Geografía, topografía, vías, actores criminales, delitos, antecedentes acciones armadas, alertas inteligencia.', 'Valorar objetivamente necesidad de desplazamiento terrestre (admin./operativo).'] },
+                    { title: 'Paso 2: Documentación y Seguridad Información', icon: '📄', color: 'text-green-600', points: ['Expedir acto administrativo que motiva desplazamiento (orden servicio/marcha/operaciones, etc.).', 'Garantizar que contenido cumpla políticas seguridad información (minimizar riesgos filtración).'] },
+                    { title: 'Paso 3: Difusión Alertas y Evaluación', icon: '🚨', color: 'text-red-600', points: ['Generar difusión alertas inteligencia al personal.', 'Implementar mecanismos seguimiento para evaluar acciones tomadas.', 'Anticipar materialización riesgos.'] },
+                    { title: 'Paso 4: Valoración del Mando', icon: '🧑‍✈️', color: 'text-purple-600', points: ['Comandantes deben valorar previamente necesidad de ordenar/autorizar desplazamientos en zonas de alteración orden público.', 'Disponer medidas seguridad descritas en el instructivo.'] }
+                ],
+                 verificationQuestion: {
+                    text: 'Antes de un desplazamiento, ¿qué aspecto fundamental se debe valorar según el Instructivo 013?',
+                    options: [ { text: 'La disponibilidad de vehículos únicamente.', correct: false }, { text: 'La necesidad objetiva del desplazamiento, considerando contexto, riesgos y alertas.', correct: true }, { text: 'La hora de salida preferida por el personal.', correct: false } ],
+                    feedbackCorrect: '¡Correcto! El instructivo enfatiza valorar objetivamente la necesidad del desplazamiento basada en un análisis integral del contexto y los riesgos.',
+                    feedbackIncorrect: 'Incorrecto. Si bien los vehículos son importantes, la valoración de la necesidad y el riesgo es el primer paso clave según el instructivo.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Desplazamiento Administrativo', icon: '🚗', color: 'text-yellow-600', text: 'Se requiere enviar un documento administrativo urgente a una estación ubicada en zona rural con antecedentes de hostigamientos. ¿Cuál sería la primera acción a considerar según el instructivo?', options: [ { id: 'a', text: '(a) Enviar al funcionario inmediatamente en una motocicleta para agilizar.' }, { id: 'b', text: '(b) Valorar objetivamente la necesidad del desplazamiento físico vs. alternativas (ej. correo electrónico seguro, SIART si aplica), considerando alertas y riesgos.' }, { id: 'c', text: '(c) Expedir la orden de marcha sin análisis adicional por ser trámite administrativo.' }, { id: 'd', text: '(d) Preguntar al funcionario si se siente seguro para ir.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto. La urgencia no debe primar sobre la valoración de seguridad.", 'b': "¡Correcto! El instructivo pide valorar objetivamente la necesidad del desplazamiento terrestre, considerando el contexto, riesgos y alertas, antes de ordenarlo.", 'c': "Incorrecto. La documentación es necesaria, pero posterior a la valoración.", 'd': "Incorrecto. La percepción del funcionario es importante, pero la valoración objetiva del riesgo por parte del mando es el primer paso." } },
+                ],
+                 summaryPoints: [ '<strong>Articular capacidades</strong> para análisis integral del contexto.', 'Valorar <strong>objetivamente la necesidad</strong> del desplazamiento.', 'Expedir <strong>acto administrativo</strong> y cuidar <strong>seguridad de la información</strong>.', 'Difundir <strong>alertas de inteligencia</strong> y evaluar acciones.', 'El <strong>mando valora</strong> necesidad en zonas de riesgo.' ]
+            },
+            {
+                id: 'durante_desplazamiento',
+                title: 'Seguridad Durante Desplazamiento',
+                menuIcon: svgIcons.desplazamiento,
+                subtitle: 'Vehículos, Rutas y Tácticas',
+                protocolSteps: [
+                    { title: 'Paso 1: Vehículos y Medios', icon: '🚙', color: 'text-blue-600', points: ['Evaluar viabilidad vehículo uniformado/no uniformado según riesgo.', 'Verificar estado mecánico óptimo.', 'Usar SIART (drones) si hay disponibilidad para revistas aéreas (especialmente rural/riesgo).'] },
+                    { title: 'Paso 2: Rutas y Horarios', icon: '🔄', color: 'text-green-600', points: ['Alternar rutas y horarios (evitar rutina).', 'Basarse en apreciaciones, alertas, análisis geográfico (evaluar tramos criticidad).'] },
+                    { title: 'Paso 3: Disciplina Táctica', icon: '👀', color: 'text-orange-600', points: ['Personal concentrado en seguridad y observación del entorno.', 'Asignar roles de seguridad durante desplazamiento.', 'Aplicar técnicas patrullaje rural a pie si aplica (Guía 2CD-GU-0002).'] },
+                    { title: 'Paso 4: Apoyo y Coordinación', icon: '🤝', color: 'text-purple-600', points: ['Coordinar acompañamiento seguridad grupos operativos si es necesario.', 'Desplegar anillos seguridad con FF.MM. si nivel riesgo lo amerita.', 'Contacto constante con unidades emergencia (hospitales, bomberos, etc.).'] }
+                ],
+                 verificationQuestion: {
+                    text: '¿Por qué es importante alternar rutas y horarios de desplazamiento según el Instructivo 013?',
+                    options: [ { text: 'Para conocer mejor la jurisdicción.', correct: false }, { text: 'Para evitar la rutina y dificultar la observación criminal o emboscadas.', correct: true }, { text: 'Para ahorrar combustible.', correct: false } ],
+                    feedbackCorrect: '¡Correcto! El instructivo lo indica explícitamente para evitar la rutina y prevenir acciones como observación criminal o emboscadas.',
+                    feedbackIncorrect: 'Incorrecto. Si bien conocer la jurisdicción es bueno, el objetivo principal de alternar rutas según el instructivo es la seguridad operacional.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Ruta Habitual', icon: '🛣️', color: 'text-red-600', text: 'Una patrulla debe realizar un desplazamiento diario a la misma hora por una vía rural conocida por presencia de GAO. El comandante de patrulla decide usar siempre la misma ruta por ser la más corta. ¿Es correcta esta decisión?', options: [ { id: 'a', text: '(a) Sí, si es la ruta más rápida.' }, { id: 'b', text: '(b) No, el instructivo exige alternar rutas y horarios para evitar la rutina, especialmente en zonas de riesgo.' }, { id: 'c', text: '(c) Sí, si la patrulla está bien armada.' }, { id: 'd', text: '(d) Solo si no hay alertas de inteligencia recientes.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto. La rapidez no debe primar sobre la seguridad y la prevención de rutinas.", 'b': "¡Correcto! El Instructivo 013 es claro en la necesidad de alternar rutas y horarios para evitar la rutina, lo cual es crítico en zonas de riesgo.", 'c': "Incorrecto. El armamento no elimina el riesgo de emboscada facilitada por la rutina.", 'd': "Incorrecto. Aunque las alertas son importantes, la alternancia de rutas es una medida preventiva constante." } },
+                     { id: 2, title: 'Escenario 2: Falta Disciplina Táctica', icon: '📱', color: 'text-yellow-600', text: 'Durante un desplazamiento en vehículo policial por zona urbana, observa que el copiloto va distraído usando su teléfono personal y el conductor no parece estar atento a los espejos laterales. ¿Qué principio del instructivo se está incumpliendo?', options: [ { id: 'a', text: '(a) La alternancia de rutas.' }, { id: 'b', text: '(b) La verificación mecánica del vehículo.' }, { id: 'c', text: '(c) La disciplina táctica durante el desplazamiento (concentración, observación, roles).' }, { id: 'd', text: '(d) La coordinación con FF.MM.' } ], correctAnswer: 'c', feedback: { 'a': "Incorrecto.", 'b': "Incorrecto.", 'c': "¡Correcto! El Instructivo 013 exige disciplina táctica: personal concentrado en seguridad y observación. El uso del celular (también mencionado aparte) y la falta de atención violan este principio.", 'd': "Incorrecto." } }
+                ],
+                 summaryPoints: [ 'Evaluar uso de <strong>vehículo uniformado/no uniformado</strong> y verificar <strong>estado mecánico</strong>.', 'Usar <strong>SIART (drones)</strong> si es viable y necesario.', '<strong>Alternar rutas y horarios</strong> para evitar rutina.', 'Mantener <strong>disciplina táctica</strong> (concentración, observación, roles).', 'Coordinar <strong>acompañamiento y anillos de seguridad</strong> si el riesgo lo amerita.' ]
+            },
+            {
+                id: 'autoproteccion',
+                title: 'Autoprotección Personal',
+                menuIcon: svgIcons.autoproteccion,
+                subtitle: 'Medidas Preventivas Individuales',
+                protocolSteps: [
+                    { title: 'Paso 1: Identificación y Vestimenta', icon: '👕', color: 'text-blue-600', points: ['NO portar/llevar uniformes, prendas, documentos o elementos identificativos como policía en situaciones administrativas/fuera de servicio.'] },
+                    { title: 'Paso 2: Elementos de Protección (EPP)', icon: '🛡️', color: 'text-green-600', points: ['Verificar uso de EPP (chaleco, casco balístico, equipo moto, etc.) de acuerdo al servicio.'] },
+                    { title: 'Paso 3: Manejo de Sospechosos', icon: '📦', color: 'text-orange-600', points: ['Instruir sobre aviso, alerta y actuación ante paquetes/elementos/vehículos abandonados.', 'Evitar manipulación; acordonar y solicitar apoyo especializado.'] },
+                    { title: 'Paso 4: Actuación Táctica Básica', icon: '🚶‍♂️↔️🚶‍♀️', color: 'text-purple-600', points: ['Mantener medidas autoprotección en atención motivos policía.', 'Ser precavido, manejar distancia considerable (reacción).', 'Aplicar Sistema Táctico Básico (contacto y cubrimiento).'] },
+                    { title: 'Paso 5: Reacción ante Ataque', icon: '💥', color: 'text-red-600', points: ['En caso de hostigamiento/ataque: Buscar protección.', 'Aplicar plan defensa unidad.', 'Identificar origen amenaza.', 'Generar respuesta inmediata para contrarrestar.'] }
+                ],
+                 verificationQuestion: {
+                    text: '¿Qué recomienda el Instructivo 013 sobre portar prendas que identifiquen como policía fuera del servicio?',
+                    options: [ { text: 'Portarlas siempre con orgullo.', correct: false }, { text: 'No portarlas para prevenir actos contra la vida/integridad.', correct: true }, { text: 'Solo portar la gorra.', correct: false } ],
+                    feedbackCorrect: '¡Correcto! El instructivo es claro en evitar portar elementos identificativos fuera de servicio para prevenir riesgos.',
+                    feedbackIncorrect: 'Incorrecto. Revisa el instructivo. La recomendación es no portar elementos identificativos fuera de servicio por seguridad.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Paquete Abandonado', icon: '🎒', color: 'text-orange-600', text: 'Durante un patrullaje, encuentra un morral abandonado cerca a la entrada de la estación. ¿Cuál es la acción inicial correcta según el instructivo?', options: [ { id: 'a', text: '(a) Abrir el morral cuidadosamente para verificar contenido.' }, { id: 'b', text: '(b) Levantar el morral y llevarlo a la oficina de objetos perdidos.' }, { id: 'c', text: '(c) No manipularlo, acordonar el área y solicitar apoyo de la especialidad encargada (antedex/guías caninos).' }, { id: 'd', text: '(d) Preguntar a los transeúntes si es de alguien.' } ], correctAnswer: 'c', feedback: { 'a': "¡Muy Incorrecto! Nunca manipular un elemento sospechoso.", 'b': "Incorrecto. La manipulación es riesgosa.", 'c': "¡Correcto! El Instructivo 013 indica evitar manipulación, acordonar y solicitar apoyo especializado ante elementos sospechosos/abandonados.", 'd': "Incorrecto. Preguntar puede alertar a un posible actor criminal o no ser efectivo; la prioridad es la seguridad." } },
+                     { id: 2, title: 'Escenario 2: Atención Motivo Policía', icon: '🗣️', color: 'text-purple-600', text: 'Al atender un caso de riña en vía pública, uno de los involucrados se muestra muy alterado y se acerca demasiado a usted mientras le grita. ¿Qué principio de autoprotección del instructivo debe aplicar?', options: [ { id: 'a', text: '(a) Acercarse más para demostrar autoridad.' }, { id: 'b', text: '(b) Ignorar la cercanía y seguir hablando.' }, { id: 'c', text: '(c) Mantener una distancia considerable que permita reaccionar (Sistema Táctico Básico) y aplicar técnicas de verbalización.' }, { id: 'd', text: '(d) Usar la fuerza física inmediatamente.' } ], correctAnswer: 'c', feedback: { 'a': "Incorrecto. Acercarse más aumenta el riesgo.", 'b': "Incorrecto. Ignorar la distancia de seguridad es riesgoso.", 'c': "¡Correcto! El Instructivo 013 menciona mantener distancia considerable para reaccionar y aplicar el Sistema Táctico Básico en la atención de motivos de policía.", 'd': "Incorrecto. El uso de la fuerza debe ser el último recurso y seguir los principios de necesidad, proporcionalidad, etc." } }
+                ],
+                 summaryPoints: [ '<strong>No portar prendas identificativas</strong> fuera de servicio.', 'Verificar uso de <strong>EPP</strong> según servicio.', 'Actuar con precaución ante <strong>elementos sospechosos</strong> (no manipular, acordonar, solicitar apoyo).', 'Aplicar <strong>Sistema Táctico Básico</strong> (distancia, contacto/cubrimiento) al atender motivos.', 'Saber cómo <strong>reaccionar ante ataques</strong> (protegerse, aplicar plan defensa, responder).' ]
+            },
+             {
+                id: 'comunicaciones_info',
+                title: 'Manejo Información y Comms',
+                menuIcon: svgIcons.comunicaciones,
+                subtitle: 'Seguridad Operacional',
+                protocolSteps: [
+                    { title: 'Paso 1: Seguridad de la Información en Documentos', icon: '🔒', color: 'text-red-600', points: ['Garantizar que actos administrativos (órdenes servicio/marcha/operaciones) cumplan políticas seguridad información.', 'Minimizar riesgo de filtración de detalles de desplazamientos/operativos.'] },
+                    { title: 'Paso 2: Comunicaciones Efectivas', icon: '📡', color: 'text-blue-600', points: ['Establecer componente comunicaciones (radio, móvil, satelital) efectivo.', 'Permitir seguimiento en tiempo real del desplazamiento.'] },
+                    { title: 'Paso 3: Uso Restringido de Celular', icon: '📵', color: 'text-orange-600', points: ['Evitar uso del teléfono celular DURANTE la prestación del servicio.', 'Observar lo dispuesto en el instructivo 012 del 04/05/2020 (o norma vigente).'] },
+                    { title: 'Paso 4: Socialización y Concientización', icon: '📢', color: 'text-green-600', points: ['Comandantes deben socializar e interiorizar temas de interés, medidas autoprotección, capacidad amenaza (explosivos, etc.).', 'Dejar evidencia de consignas impartidas.', 'Generar disciplina en actuaciones para salvaguardar vida e integridad.'] }
+                ],
+                 verificationQuestion: {
+                    text: '¿Permite el Instructivo 013 el uso libre del celular personal durante la prestación del servicio?',
+                    options: [ { text: 'Sí, si es para llamadas importantes.', correct: false }, { text: 'No, recomienda evitarlo y observar instructivos específicos sobre el tema.', correct: true }, { text: 'Sí, no hay restricciones mencionadas.', correct: false } ],
+                    feedbackCorrect: '¡Correcto! El instructivo indica explícitamente "Evitar el uso del teléfono celular durante la prestación del servicio" y remite a otras normas.',
+                    feedbackIncorrect: 'Incorrecto. Revisa el instructivo. Se recomienda evitar el uso del celular en servicio.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Orden de Servicio Detallada', icon: '📝', color: 'text-red-600', text: 'Se elabora una orden de servicio para un patrullaje en zona rural, detallando la ruta exacta, horarios de paso por puntos específicos y nombres de todos los integrantes. Se imprime y se entrega físicamente a la patrulla. ¿Qué riesgo de seguridad de la información podría existir?', options: [ { id: 'a', text: '(a) Ninguno, la información es necesaria para la patrulla.' }, { id: 'b', text: '(b) El papel podría mojarse si llueve.' }, { id: 'c', text: '(c) La pérdida o sustracción del documento físico podría exponer detalles críticos del operativo a actores criminales.' }, { id: 'd', text: '(d) El riesgo de que la impresora se quede sin tinta.' } ], correctAnswer: 'c', feedback: { 'a': "Incorrecto. Si bien la información es necesaria, su manejo físico detallado implica riesgos.", 'b': "Incorrecto.", 'c': "¡Correcto! El Instructivo 013 pide cumplir políticas de seguridad de la información en los actos administrativos. Un documento físico con tantos detalles es vulnerable a pérdida o filtración, comprometiendo la seguridad operacional.", 'd': "Incorrecto." } },
+                     { id: 2, title: 'Escenario 2: Falla de Radio', icon: '📻', color: 'text-yellow-600', text: 'Una patrulla se desplaza por una zona rural con señal de celular intermitente. El radio de comunicaciones principal presenta fallas. ¿Qué aspecto de la seguridad operacional se ve comprometido?', options: [ { id: 'a', text: '(a) La disciplina táctica.' }, { id: 'b', text: '(b) La efectividad del componente de comunicaciones para seguimiento y solicitud de apoyo.' }, { id: 'c', text: '(c) La alternancia de rutas.' }, { id: 'd', text: '(d) El uso de EPP.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto.", 'b': "¡Correcto! El Instructivo 013 resalta la necesidad de un componente de comunicaciones efectivo para seguimiento en tiempo real. Una falla compromete esta capacidad.", 'c': "Incorrecto.", 'd': "Incorrecto." } }
+                ],
+                 summaryPoints: [ 'Asegurar <strong>confidencialidad</strong> en documentos operativos (órdenes).', 'Establecer <strong>comunicaciones efectivas</strong> para seguimiento y apoyo.', '<strong>Evitar uso de celular personal</strong> durante el servicio.', '<strong>Socializar y concientizar</strong> constantemente sobre riesgos y medidas.' ]
+            }
+        ];
+
+        // --- Lógica de la Aplicación (sin cambios funcionales) ---
+        let currentModuleId = null;
+        let currentStep = 1;
+        let currentScenario = 1;
+        let currentModuleData = {};
+
+        // Funciones auxiliares (sin cambios)
+        function showElement(id) { const el = document.getElementById(id); if (el) el.style.display = 'block'; }
+        function hideElement(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
+        function clearContainer(containerId) { const container = document.getElementById(containerId); if (container) container.innerHTML = ''; }
+
+        // Inicialización del Menú Principal (Adaptada a Cards)
+        function initializeMainMenu() {
+            const menuContainer = document.getElementById('menu-cards-container');
+            clearContainer('menu-cards-container');
+            modulesData.forEach(module => {
+                const card = document.createElement('div');
+                card.className = 'menu-card';
+                card.onclick = () => loadModule(module.id);
+                card.innerHTML = `
+                    <div class="menu-card-icon">${module.menuIcon || '❓'}</div>
+                    <h3 class="menu-card-title">${module.title}</h3>
+                    <p class="menu-card-subtitle">${module.subtitle}</p>
+                `;
+                menuContainer.appendChild(card);
+            });
+            showElement('main-menu');
+            hideElement('active-module');
+        }
+
+        // Cargar un Módulo (Adaptada para resetear botón volver)
+        function loadModule(moduleId) {
+            currentModuleId = moduleId;
+            currentModuleData = modulesData.find(m => m.id === moduleId);
+            if (!currentModuleData) return;
+
+            hideElement('main-menu');
+            showElement('active-module');
+            hideElement('protocolo');
+            hideElement('escenarios');
+            hideElement('resumen');
+            hideElement('verification-question');
+
+            document.getElementById('module-title').textContent = currentModuleData.title; // Usar título corto si se definió para card, o el largo
+            document.getElementById('module-subtitle').textContent = currentModuleData.subtitle;
+
+            buildProtocolSection();
+            buildScenariosSection();
+            buildSummarySection();
+
+            showElement('protocolo');
+            currentStep = 1;
+            setActiveStep(currentStep);
+        }
+
+        // Construir Sección de Protocolo (Adaptada para botones nav)
+        function buildProtocolSection() {
+            const stepsContainer = document.getElementById('protocol-steps-container');
+            clearContainer('protocol-steps-container');
+            const totalSteps = currentModuleData.protocolSteps.length;
+
+            currentModuleData.protocolSteps.forEach((step, index) => {
+                const stepNumber = index + 1;
+                const stepDiv = document.createElement('div');
+                stepDiv.id = `step-${stepNumber}`;
+                stepDiv.className = 'step-content mb-6 p-5 border rounded-lg bg-gray-50 shadow-sm';
+
+                stepDiv.innerHTML = `
+                    <h4 class="font-semibold text-lg mb-3 text-gray-700 flex items-center">
+                       <span class="text-2xl mr-3 ${step.color || 'text-gray-500'}">${step.icon || ''}</span>
+                       ${step.title}
+                    </h4>
+                    <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+                        ${step.points.map(p => `<li>${p}</li>`).join('')}
+                    </ul>
+                    <div class="mt-6 flex justify-between">
+                        <button onclick="prevStep(${stepNumber - 1})" class="nav-button secondary ${stepNumber === 1 ? 'invisible' : ''}">Anterior</button>
+                        ${stepNumber === totalSteps
+                            ? `<button onclick="showVerificationQuestion()" class="nav-button success">Verificar Comprensión</button>`
+                            : `<button onclick="nextStep(${stepNumber + 1})" class="nav-button primary">Siguiente</button>`
+                        }
+                    </div>
+                `;
+                stepsContainer.appendChild(stepDiv);
+            });
+
+            // Construir pregunta de verificación
+            const vq = currentModuleData.verificationQuestion;
+            document.getElementById('verification-question-text').textContent = vq.text;
+            const vqOptionsContainer = document.getElementById('verification-options-container');
+            clearContainer('verification-options-container');
+            vq.options.forEach(opt => {
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                button.textContent = opt.text;
+                button.onclick = () => checkVerificationAnswer(opt.correct, button);
+                vqOptionsContainer.appendChild(button);
+            });
+            const vqFeedback = document.getElementById('verification-feedback');
+            vqFeedback.style.display = 'none'; vqFeedback.textContent = ''; vqFeedback.className = 'feedback';
+            document.getElementById('start-scenarios-btn').style.display = 'none';
+        }
+
+        // Construir Sección de Escenarios (Adaptada para botones nav)
+        function buildScenariosSection() {
+            const scenariosContainer = document.getElementById('scenarios-container');
+            clearContainer('scenarios-container');
+            if (!currentModuleData.scenarios || currentModuleData.scenarios.length === 0) {
+                 scenariosContainer.innerHTML = '<p class="text-gray-500 text-center italic my-6">No hay escenarios de práctica disponibles para este módulo.</p>';
+                 setTimeout(showSummary, 1500);
+                return;
+            }
+            const totalScenarios = currentModuleData.scenarios.length;
+
+            currentModuleData.scenarios.forEach((scenario, index) => {
+                const scenarioNumber = index + 1;
+                const scenarioDiv = document.createElement('div');
+                scenarioDiv.id = `scenario-${scenarioNumber}`;
+                scenarioDiv.className = 'scenario-content p-5 border rounded-lg bg-gray-50 mb-6 shadow-sm';
+
+                scenarioDiv.innerHTML = `
+                    <h4 class="font-semibold text-lg mb-3 text-gray-700 flex items-center">
+                        <span class="text-2xl mr-3 ${scenario.color || 'text-gray-500'}">${scenario.icon || ''}</span>
+                        ${scenario.title}
+                    </h4>
+                    <p class="text-gray-600 mb-4 text-sm">${scenario.text}</p>
+                    <div id="options-scenario-${scenarioNumber}">
+                        ${scenario.options.map(opt => `<button class="option-button" onclick="checkScenarioAnswer(${scenarioNumber}, '${opt.id}', this)">${opt.text}</button>`).join('')}
+                    </div>
+                    <div id="feedback-scenario-${scenarioNumber}" class="feedback"></div>
+                    <div class="mt-6 text-right">
+                        ${scenarioNumber === totalScenarios
+                            ? `<button id="next-scenario-${scenarioNumber}" onclick="showSummary()" style="display:none;" class="nav-button success">Ver Resumen</button>`
+                            : `<button id="next-scenario-${scenarioNumber}" onclick="nextScenario(${scenarioNumber + 1})" style="display:none;" class="nav-button primary">Siguiente Escenario</button>`
+                        }
+                    </div>
+                `;
+                scenariosContainer.appendChild(scenarioDiv);
+                const feedbackEl = document.getElementById(`feedback-scenario-${scenarioNumber}`);
+                feedbackEl.style.display = 'none'; feedbackEl.textContent = ''; feedbackEl.className = 'feedback';
+                const nextButton = document.getElementById(`next-scenario-${scenarioNumber}`);
+                if(nextButton) nextButton.style.display = 'none';
+            });
+        }
+
+        // Construir Sección de Resumen (sin cambios estructurales)
+        function buildSummarySection() {
+            const summaryPointsList = document.getElementById('summary-points');
+            clearContainer('summary-points');
+             if (!currentModuleData.summaryPoints || currentModuleData.summaryPoints.length === 0) {
+                 summaryPointsList.innerHTML = '<li class="text-gray-500 italic">Resumen no disponible.</li>';
+                 return;
+             }
+            currentModuleData.summaryPoints.forEach(point => {
+                const li = document.createElement('li');
+                li.innerHTML = point;
+                summaryPointsList.appendChild(li);
+            });
+        }
+
+        // --- Funciones de Navegación y Lógica (sin cambios funcionales) ---
+        function setActiveStep(stepNumber) { document.querySelectorAll(`#protocol-steps-container .step-content`).forEach(el => el.classList.remove('active')); const el = document.getElementById(`step-${stepNumber}`); if (el) el.classList.add('active'); }
+        function nextStep(stepNumber) { const totalSteps = currentModuleData.protocolSteps.length; if (stepNumber <= totalSteps) { currentStep = stepNumber; setActiveStep(currentStep); } }
+        function prevStep(stepNumber) { if (stepNumber >= 1) { currentStep = stepNumber; setActiveStep(currentStep); } }
+
+        function showVerificationQuestion() {
+            const totalSteps = currentModuleData.protocolSteps.length;
+            hideElement(`step-${totalSteps}`); showElement('verification-question');
+            const vqOptionsContainer = document.getElementById('verification-options-container');
+            vqOptionsContainer.querySelectorAll('.option-button').forEach(btn => { btn.disabled = false; btn.className = 'option-button'; });
+            hideElement('verification-feedback'); hideElement('start-scenarios-btn');
+        }
+
+        function checkVerificationAnswer(isCorrect, buttonElement) {
+            const feedbackEl = document.getElementById('verification-feedback');
+            const allButtons = document.querySelectorAll('#verification-options-container .option-button');
+            const vq = currentModuleData.verificationQuestion;
+            allButtons.forEach(btn => { btn.disabled = true; btn.classList.remove('selected', 'correct-answer', 'incorrect-answer'); });
+            buttonElement.classList.add('selected');
+            if (isCorrect) {
+                feedbackEl.textContent = vq.feedbackCorrect; feedbackEl.className = 'feedback correct'; showElement('start-scenarios-btn'); buttonElement.classList.add('correct-answer');
+            } else {
+                feedbackEl.textContent = vq.feedbackIncorrect; feedbackEl.className = 'feedback incorrect';
+                allButtons.forEach(btn => { const opt = vq.options.find(o => o.text === btn.textContent); if (opt && opt.correct) btn.classList.add('correct-answer'); });
+                buttonElement.classList.add('incorrect-answer');
+            }
+            feedbackEl.style.display = 'block';
+        }
+
+        function startScenarios() {
+             if (!currentModuleData.scenarios || currentModuleData.scenarios.length === 0) { hideElement('protocolo'); showSummary(); }
+             else { hideElement('protocolo'); showElement('escenarios'); currentScenario = 1; setActiveScenario(currentScenario); }
+        }
+
+        function setActiveScenario(scenarioNumber) {
+            document.querySelectorAll(`#scenarios-container .scenario-content`).forEach(el => el.classList.remove('active'));
+            const el = document.getElementById(`scenario-${scenarioNumber}`);
+            if (el) {
+                el.classList.add('active');
+                el.querySelectorAll('.option-button').forEach(btn => { btn.disabled = false; btn.className = 'option-button'; });
+                const fb = document.getElementById(`feedback-scenario-${scenarioNumber}`); if(fb) fb.style.display = 'none';
+                const nb = document.getElementById(`next-scenario-${scenarioNumber}`); if(nb) nb.style.display = 'none';
+            }
+        }
+
+        function checkScenarioAnswer(scenarioNum, selectedOptionId, buttonElement) {
+            const scenarioData = currentModuleData.scenarios.find(s => s.id === scenarioNum); if (!scenarioData) return;
+            const correctAnswerId = scenarioData.correctAnswer; const feedback = scenarioData.feedback[selectedOptionId];
+            const feedbackEl = document.getElementById(`feedback-scenario-${scenarioNum}`);
+            const nextButton = document.getElementById(`next-scenario-${scenarioNum}`);
+            const allButtons = document.querySelectorAll(`#scenario-${scenarioNum} .option-button`);
+            allButtons.forEach(btn => { btn.disabled = true; btn.classList.remove('selected', 'correct-answer', 'incorrect-answer'); });
+            buttonElement.classList.add('selected'); feedbackEl.textContent = feedback;
+            if (selectedOptionId === correctAnswerId) {
+                feedbackEl.className = 'feedback correct'; buttonElement.classList.add('correct-answer');
+            } else {
+                feedbackEl.className = 'feedback incorrect'; buttonElement.classList.add('incorrect-answer');
+                allButtons.forEach(btn => { const opt = scenarioData.options.find(o => o.id === correctAnswerId); if (opt && btn.textContent === opt.text) btn.classList.add('correct-answer'); });
+            }
+            feedbackEl.style.display = 'block'; if (nextButton) { nextButton.style.display = 'inline-block'; }
+        }
+
+        function nextScenario(scenarioNumber) { const totalScenarios = currentModuleData.scenarios.length; if (scenarioNumber <= totalScenarios) { currentScenario = scenarioNumber; setActiveScenario(currentScenario); } }
+        function showSummary() { hideElement('escenarios'); hideElement('protocolo'); showElement('resumen'); }
+        function restartCurrentModule() { if(currentModuleId) { loadModule(currentModuleId); } }
+        function goToMainMenu() { hideElement('active-module'); showElement('main-menu'); currentModuleId = null; currentModuleData = {}; initializeMainMenu(); }
+
+        // Inicializar al cargar la página
+        document.addEventListener('DOMContentLoaded', initializeMainMenu);
+    </script>
+
+</body>
+</html>

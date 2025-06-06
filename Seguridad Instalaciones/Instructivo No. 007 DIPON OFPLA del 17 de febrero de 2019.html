@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrenamiento Interactivo: Seguridad Operacional Servicio (Inst. 007)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos generales y específicos (similares a versiones anteriores) */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+        #app-container {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.06), 0 6px 10px -4px rgba(0, 0, 0, 0.05);
+        }
+        h1, h2, h3, h4 {
+             color: #212529;
+        }
+        h2.text-blue-700 {
+            color: #0056b3; /* Azul principal */
+        }
+        .module-content { display: none; position: relative; }
+        .step-content, .scenario-content { display: none; }
+        .step-content.active, .scenario-content.active { display: block; }
+
+        .feedback { display: none; margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 0.5rem; font-size: 0.9rem; border-width: 1px; }
+        .feedback.correct { background-color: #e6f4ea; border-color: #28a745; color: #155724; }
+        .feedback.incorrect { background-color: #f8d7da; border-color: #dc3545; color: #721c24; }
+
+        .option-button {
+            display: block; width: 100%; text-align: left; margin-top: 0.75rem; padding: 0.875rem 1.25rem;
+            border: 1px solid #ced4da; border-radius: 0.5rem; background-color: #ffffff;
+            color: #495057; font-weight: 500;
+            transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s; cursor: pointer;
+        }
+        .option-button:hover:not(:disabled) {
+            background-color: #f8f9fa; border-color: #adb5bd;
+        }
+         .option-button:disabled { cursor: not-allowed; opacity: 0.75; }
+        .option-button.selected {
+             border-color: #007bff; background-color: #e7f3ff;
+             font-weight: 600; color: #004085;
+             box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+         .option-button.correct-answer {
+             border-color: #28a745; background-color: #d4edda; color: #155724;
+         }
+         .option-button.incorrect-answer {
+             border-color: #dc3545; background-color: #f8d7da; color: #721c24;
+         }
+
+         /* Estilo para las fichas del menú principal */
+         .menu-card {
+             display: flex; flex-direction: column; align-items: center;
+             padding: 1.5rem; margin-bottom: 1rem; border: 1px solid #dee2e6;
+             border-radius: 0.75rem; background-color: #ffffff;
+             text-align: center; cursor: pointer;
+             transition: background-color 0.2s, box-shadow 0.3s, transform 0.2s; height: 100%;
+             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+         }
+         .menu-card:hover {
+             background-color: #f8f9fa;
+             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+             transform: translateY(-3px);
+         }
+         .menu-card-icon {
+             font-size: 2.5rem; margin-bottom: 1rem; color: #0056b3;
+             background-color: #e7f3ff; padding: 0.75rem; border-radius: 50%;
+             width: 60px; height: 60px; display: inline-flex; align-items: center; justify-content: center;
+         }
+         .menu-card-icon svg { width: 100%; height: 100%; }
+         .menu-card-title {
+             font-weight: 600; color: #343a40; font-size: 1rem; margin-bottom: 0.25rem;
+         }
+         .menu-card-subtitle { font-size: 0.875rem; color: #6c757d; }
+
+         /* Ajuste para listas dentro de pasos */
+         .step-content ul { padding-left: 1.5rem; margin-top: 0.5rem; }
+         .step-content ul li { margin-bottom: 0.4rem; line-height: 1.5; }
+
+         /* Botones de navegación */
+         .nav-button {
+             font-weight: 600; padding: 0.6rem 1.5rem; border-radius: 0.5rem; transition: background-color 0.2s, transform 0.1s;
+             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+         }
+         .nav-button:hover { transform: scale(1.03); box-shadow: 0 2px 4px rgba(0,0,0,0.07); }
+         .nav-button.primary { background-color: #007bff; color: white; }
+         .nav-button.primary:hover { background-color: #0056b3; }
+         .nav-button.secondary { background-color: #6c757d; color: white; }
+         .nav-button.secondary:hover { background-color: #5a6268; }
+         .nav-button.success { background-color: #28a745; color: white; }
+         .nav-button.success:hover { background-color: #218838; }
+
+         /* Botón Volver al Menú */
+        .back-to-menu-btn {
+            position: absolute; top: 1.5rem; right: 1.5rem;
+            background-color: #e9ecef; color: #495057;
+            font-size: 0.8rem; font-weight: 500; padding: 0.3rem 0.8rem; border-radius: 9999px;
+            transition: background-color 0.2s, color 0.2s; z-index: 10; border: 1px solid #dee2e6;
+        }
+        .back-to-menu-btn:hover { background-color: #dee2e6; color: #343a40; }
+
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+
+    <div id="app-container" class="max-w-5xl mx-auto bg-white rounded-lg shadow-xl p-6 md:p-10">
+
+        <div id="main-menu" class="text-center">
+            <h1 class="text-2xl md:text-3xl font-bold mb-4">Centro de Entrenamiento Interactivo</h1>
+            <h2 class="text-xl md:text-2xl font-semibold text-blue-700 mb-8">Seguridad Operacional Servicio (Inst. 007/2019)</h2>
+            <p class="text-gray-600 mb-8">Selecciona el tema que deseas practicar:</p>
+            <div id="menu-cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"> </div>
+        </div>
+
+        <div id="active-module" class="module-content">
+             <button onclick="goToMainMenu()" class="back-to-menu-btn">
+                &larr; Volver al Menú
+            </button>
+            <h1 id="module-title" class="text-2xl md:text-3xl font-bold mb-1 pt-8 md:pt-0"></h1>
+            <h2 id="module-subtitle" class="text-lg md:text-xl font-semibold text-blue-700 mb-6"></h2>
+
+            <div id="protocolo" style="display: none;">
+                <h3 class="text-xl font-semibold mb-4 border-b pb-2">Instrucciones / Recomendaciones Clave</h3>
+                <div id="protocol-steps-container"></div>
+                <div id="verification-question" style="display: none;" class="mt-6 p-5 border rounded-lg bg-blue-50">
+                     <h4 class="font-bold text-lg mb-3 text-blue-800">¡Verifica tu Comprensión!</h4>
+                     <p id="verification-question-text" class="mb-4 text-gray-700 font-medium"></p>
+                     <div id="verification-options-container"></div>
+                     <div id="verification-feedback" class="feedback"></div>
+                     <div class="mt-6 text-center">
+                        <button id="start-scenarios-btn" onclick="startScenarios()" style="display:none;" class="nav-button success">
+                            Iniciar Escenarios Simulados
+                        </button>
+                     </div>
+                </div>
+            </div>
+
+            <div id="escenarios" style="display: none;">
+                <h3 class="text-xl font-semibold mb-4 border-b pb-2">Escenarios Simulados</h3>
+                <div id="scenarios-container"></div>
+            </div>
+
+            <div id="resumen" style="display: none;" class="p-6 border rounded-lg bg-blue-50 text-center">
+                <h3 class="text-xl font-semibold text-blue-700 mb-4">Resumen del Módulo</h3>
+                 <div id="summary-icon" class="flex justify-center space-x-4 my-5 text-4xl text-green-600">
+                    <span>&#127941;</span>
+                 </div>
+                <p class="text-gray-800 mb-4 font-semibold text-lg">¡Felicidades por completar el módulo!</p>
+                <p class="font-medium mb-3 text-gray-700">Puntos Clave Recordados:</p>
+                <ul id="summary-points" class="list-disc list-inside text-gray-600 space-y-1 mb-8 text-left inline-block"></ul>
+                 <div class="flex justify-center space-x-4">
+                    <button onclick="restartCurrentModule()" class="nav-button secondary">
+                        Reiniciar Módulo
+                    </button>
+                     <button onclick="goToMainMenu()" class="nav-button primary">
+                        Menú Principal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Iconos SVG ---
+        const svgIcons = {
+            prevencion: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-3.741-5.197m-15 6.197a3 3 0 0 1-3.741-5.197 9.094 9.094 0 0 1 3.741-.479m11.259 6.675 2.25-2.25m-13.5-2.25L3 18.75m10.5-11.25a7.5 7.5 0 0 0-15 0m15 0a7.5 7.5 0 1 1-15 0m15 0H3m15 0h-2.25m-10.5 0H3" /></svg>`, // Comunidad/Acercamiento
+            control: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>`, // Señal de control/alerta
+            inteligencia: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>`, // Lupa
+            coordinacion: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-3.741-5.197M4.26 18.72a9.094 9.094 0 0 1 3.741-.479 3 3 0 0 1-3.741-5.197M18 18.72a9.094 9.094 0 0 0-3.741-.479m-11.259 6.675a3 3 0 0 1-3.741-5.197M15 11.25a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>`, // Grupos/Coordinación
+        };
+
+        // --- Definición de Datos de los Módulos (Basado en Instructivo 007) ---
+        const modulesData = [
+            {
+                id: 'prevencion_disuasion',
+                title: 'Prevención y Disuasión',
+                menuIcon: svgIcons.prevencion,
+                subtitle: 'Seguridad Operacional Servicio',
+                protocolSteps: [
+                    { title: 'Paso 1: Acercamiento Comunitario', icon: '👥', color: 'text-blue-600', points: ['Incrementar acciones policiales de acercamiento a la comunidad (MNVCC).', 'Generar y visibilizar corresponsabilidad social en seguridad.', 'Fomentar colaboración ciudadana con autoridades.'] },
+                    { title: 'Paso 2: Seguridad Instalaciones', icon: '🛡️', color: 'text-green-600', points: ['Fortalecer controles de acceso (peatonal/vehicular).', 'Actitud adecuada y disposición del personal (especialmente seguridad instalaciones).', 'Activar planes seguridad operacional (personal/física) en municipios de riesgo.'] },
+                    { title: 'Paso 3: Patrullaje y Presencia', icon: '🚶‍♂️', color: 'text-orange-600', points: ['Cumplir permanentemente procedimiento patrullaje rural a pie (1CS-PR-0004).', 'Presentar informes especiales (alcantarillados, etc.) para anticipar riesgos.'] },
+                    { title: 'Paso 4: Contacto y Apoyo', icon: '🤝', color: 'text-purple-600', points: ['Mantener contacto continuo con unidades apoyo/emergencia (hospitales, bomberos, defensa civil, FFMM).', 'Prever reacción oportuna ante eventualidades.'] }
+                ],
+                 verificationQuestion: {
+                    text: '¿Qué se busca al generar y visibilizar la corresponsabilidad social en seguridad?',
+                    options: [ { text: 'Reducir el trabajo policial.', correct: false }, { text: 'Fomentar la colaboración ciudadana con las autoridades.', correct: true }, { text: 'Obtener recursos económicos de la comunidad.', correct: false } ],
+                    feedbackCorrect: '¡Correcto! El instructivo menciona la corresponsabilidad como un medio para fomentar la colaboración ciudadana.',
+                    feedbackIncorrect: 'Incorrecto. Revisa la sección de Prevención. La corresponsabilidad busca la colaboración activa de la comunidad.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Falta de Control Acceso', icon: '🚪', color: 'text-red-600', text: 'En una estación ubicada en un municipio de riesgo alto, se observa que el control de acceso vehicular es muy laxo y no se revisan adecuadamente los baúles de los carros particulares que ingresan. ¿Qué instrucción se está incumpliendo?', options: [ { id: 'a', text: '(a) La de acercamiento comunitario.' }, { id: 'b', text: '(b) La de fortalecer los controles de acceso vehicular y activar planes de seguridad operacional en zonas de riesgo.' }, { id: 'c', text: '(c) La de mantener contacto con unidades de apoyo.' }, { id: 'd', text: '(d) La de cumplir el procedimiento de patrullaje rural.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto.", 'b': "¡Correcto! El Instructivo 007 pide fortalecer controles de acceso y activar planes de seguridad en zonas de riesgo.", 'c': "Incorrecto.", 'd': "Incorrecto." } },
+                     { id: 2, title: 'Escenario 2: Alcantarilla Sospechosa', icon: '🕳️', color: 'text-orange-600', text: 'Durante un patrullaje, se detecta que la tapa de una alcantarilla grande frente a la estación ha sido removida recientemente y vuelta a colocar de forma irregular. ¿Qué acción preventiva sugiere el instructivo?', options: [ { id: 'a', text: '(a) Ignorarlo, probablemente fue mantenimiento.' }, { id: 'b', text: '(b) Colocar bien la tapa y continuar.' }, { id: 'c', text: '(c) Presentar un informe de policía especial a las autoridades locales para revisar esa vulnerabilidad (factor de oportunidad para acciones terroristas).' }, { id: 'd', text: '(d) Incrementar el patrullaje por esa zona.' } ], correctAnswer: 'c', feedback: { 'a': "Incorrecto. Es una señal de alerta que requiere acción.", 'b': "Incorrecto. No se debe manipular sin verificar el riesgo.", 'c': "¡Correcto! El Instructivo 007 menciona presentar informes especiales sobre aspectos de la jurisdicción (alcantarillados, etc.) que puedan ser factor de oportunidad para anticipar acciones.", 'd': "Incorrecto. Si bien patrullar es bueno, el informe a la autoridad competente es la acción específica sugerida para este tipo de hallazgo." } }
+                ],
+                 summaryPoints: [ 'Incrementar <strong>acercamiento comunitario</strong> (MNVCC).', 'Fortalecer <strong>controles de acceso</strong> a instalaciones.', 'Fomentar <strong>corresponsabilidad ciudadana</strong>.', 'Mantener <strong>actitud adecuada</strong> y disposición en servicio.', 'Activar <strong>planes de seguridad</strong> en zonas de riesgo.', 'Cumplir procedimiento <strong>patrullaje rural</strong>.', 'Mantener <strong>contacto con unidades de apoyo</strong>/emergencia.' ]
+            },
+            {
+                id: 'control_seguridad',
+                title: 'Control Policial y Seguridad Física',
+                menuIcon: svgIcons.control,
+                subtitle: 'Seguridad Operacional Servicio',
+                protocolSteps: [
+                    { title: 'Paso 1: Identificación y Suplantación', icon: '🎭', color: 'text-red-600', points: ['Incrementar y fortalecer mecanismos control.', 'Focalizar en identificación de posibles SUPLANTACIONES (FFMM, Policía, otros organismos Estado).'] },
+                    { title: 'Paso 2: Control Territorial', icon: '📍', color: 'text-blue-600', points: ['Identificar modus operandi y zonas afectación criminal/terrorista.', 'Incrementar control tráfico explosivos (puestos control, normativa).', 'Realizar registro/verificación antecedentes constante (alrededores instalaciones, puentes, etc.).'] },
+                    { title: 'Paso 3: Corresponsabilidad Comercio', icon: '🏪', color: 'text-green-600', points: ['Generar corresponsabilidad con propietarios comercio aledaño a instalaciones.', 'Fortalecer seguridad operacional (redunda en personal, unidad y comunidad).'] }
+                ],
+                 verificationQuestion: {
+                    text: '¿Qué tipo de control se debe incrementar para prevenir el ingreso de personas no autorizadas a instalaciones o eventos?',
+                    options: [ { text: 'Control de precios en comercios aledaños.', correct: false }, { text: 'Control para identificar posibles suplantaciones de autoridad.', correct: true }, { text: 'Control de horarios de los policías.', correct: false } ],
+                    feedbackCorrect: '¡Correcto! El instructivo enfatiza fortalecer los controles para identificar posibles suplantaciones de personal de FFMM, Policía u otros organismos.',
+                    feedbackIncorrect: 'Incorrecto. Revisa la sección de Control. La identificación de suplantaciones es un punto clave.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Puesto de Control Explosivos', icon: '🧨', color: 'text-red-600', text: 'Se ordena instalar un puesto de control en una vía principal para prevenir el tráfico de explosivos. ¿Qué normativa, además de los procedimientos policiales, debería tener en cuenta el personal del puesto?', options: [ { id: 'a', text: '(a) Únicamente el Código Nacional de Tránsito.' }, { id: 'b', text: '(b) La normatividad sobre fabricación, comercialización y transporte de explosivos (Decreto 334/02, Decreto 2535/93, Res. 081/02 Indumil, NTC-3966, etc.).' }, { id: 'c', text: '(c) Solo el Código Penal.' }, { id: 'd', text: '(d) El Reglamento del Servicio de Policía exclusivamente.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto. El Código de Tránsito es relevante, pero no específico para explosivos.", 'b': "¡Correcto! El Instructivo 007 menciona explícitamente la necesidad de soportar los controles de explosivos en la normatividad legal vigente sobre el tema.", 'c': "Incorrecto. El Código Penal aplica si se comete un delito, pero la normativa específica rige el control previo.", 'd': "Incorrecto. El Reglamento de Servicio es importante, pero se debe complementar con la normativa específica." } },
+                     { id: 2, title: 'Escenario 2: Persona Observando', icon: '👀', color: 'text-orange-600', text: 'Se detecta a una persona tomando fotos de manera disimulada hacia la garita principal de la estación. ¿Qué acción de control inmediato sugiere el instructivo?', options: [ { id: 'a', text: '(a) Ignorarlo, tomar fotos es legal.' }, { id: 'b', text: '(b) Salir a preguntarle directamente por qué toma fotos.' }, { id: 'c', text: '(c) Realizar acciones policiales de registro y verificación de antecedentes a esa persona por encontrarse en los alrededores de la instalación en actitud sospechosa.' }, { id: 'd', text: '(d) Tomarle una foto de vuelta.' } ], correctAnswer: 'c', feedback: { 'a': "Incorrecto. La observación sospechosa a instalaciones requiere acción.", 'b': "Incorrecto. El abordaje debe ser táctico y siguiendo procedimientos.", 'c': "¡Correcto! El Instructivo 007 indica realizar acciones constantes de registro y verificación de antecedentes a personas en los alrededores de las instalaciones.", 'd': "Incorrecto. Esa no es una acción de control policial estándar." } }
+                ],
+                 summaryPoints: [ 'Fortalecer control para identificar <strong>suplantaciones</strong>.', 'Identificar <strong>modus operandi</strong> y zonas de afectación criminal.', 'Incrementar control <strong>tráfico de explosivos</strong> (puestos, normativa).', 'Realizar <strong>registro y verificación</strong> constante en alrededores instalaciones.', 'Generar <strong>corresponsabilidad con comercio</strong> aledaño.' ]
+            },
+            {
+                id: 'inteligencia_investigacion',
+                title: 'Inteligencia e Inv. Criminal',
+                menuIcon: svgIcons.inteligencia,
+                subtitle: 'Apoyo a Seguridad Operacional',
+                protocolSteps: [
+                    { title: 'Paso 1: Planeación Investigativa', icon: '🗺️', color: 'text-blue-600', points: ['Considerar principios: Georeferenciación delito, análisis estadístico, identificación actores.', 'Capacitar investigadores en análisis información (fenómenos crónicos/repetitivos).'] },
+                    { title: 'Paso 2: Judicialización', icon: '⚖️', color: 'text-green-600', points: ['Desplegar actos urgentes para judicializar responsables.', 'Coordinar con Fiscalía apertura noticias criminales (actos criminales/terroristas).', 'Priorizar identificación autores y generar órdenes captura.'] },
+                    { title: 'Paso 3: Inteligencia y Prevención', icon: '🧠', color: 'text-orange-600', points: ['Convocar CI2T (regional/local) para tomar decisiones (prevenir/neutralizar actos terroristas, identificar RAT).', 'Difundir campaña "Los más buscados" (cabecillas, RAT).', 'Fortalecer difusión pago recompensas (participación ciudadana).'] }
+                ],
+                 verificationQuestion: {
+                    text: '¿Cuál es uno de los objetivos de convocar el Centro Integrado Contra el Terrorismo (CI2T) según el instructivo?',
+                    options: [ { text: 'Realizar patrullajes conjuntos.', correct: false }, { text: 'Tomar decisiones para prevenir/neutralizar actos terroristas e identificar Redes de Apoyo al Terrorismo (RAT).', correct: true }, { text: 'Gestionar recursos logísticos.', correct: false } ],
+                    feedbackCorrect: '¡Correcto! El instructivo menciona explícitamente la convocatoria del CI2T para tomar decisiones preventivas/neutralizadoras e identificar las RAT.',
+                    feedbackIncorrect: 'Incorrecto. Revisa la sección de Inteligencia. El CI2T tiene un enfoque estratégico y de toma de decisiones contra el terrorismo.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Información Ciudadana', icon: '🗣️', color: 'text-green-600', text: 'Un ciudadano se acerca y brinda información sobre la posible ubicación de un cabecilla incluido en la campaña "Los más buscados". ¿Qué mecanismo mencionado en el instructivo se podría activar para incentivar esta colaboración?', options: [ { id: 'a', text: '(a) Ofrecerle un cargo en la Policía.' }, { id: 'b', text: '(b) La difusión del pago de recompensas.' }, { id: 'c', text: '(c) Incluirlo en la Red de Apoyo.' }, { id: 'd', text: '(d) Convocar al CI2T.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto.", 'b': "¡Correcto! El Instructivo 007 menciona fortalecer la difusión del pago de recompensas para permitir la activa participación ciudadana.", 'c': "Incorrecto. La Red de Apoyo es diferente al pago de recompensas.", 'd': "Incorrecto. El CI2T es para toma de decisiones, no para gestionar recompensas directamente." } }
+                ],
+                 summaryPoints: [ 'Planear investigación (<strong>georeferenciación, estadística, actores</strong>).', 'Capacitar en <strong>análisis de información</strong>.', 'Coordinar con <strong>Fiscalía</strong> para judicialización.', 'Convocar <strong>CI2T</strong> para prevenir/neutralizar terrorismo e identificar RAT.', 'Difundir campaña <strong>"Los más buscados"</strong>.', 'Fortalecer difusión <strong>pago de recompensas</strong>.' ]
+            },
+             {
+                id: 'coordinacion_interinstitucional',
+                title: 'Coordinación Interinstitucional',
+                menuIcon: svgIcons.coordinacion,
+                subtitle: 'Seguridad Operacional Servicio',
+                protocolSteps: [
+                    { title: 'Paso 1: Medidas Preventivas/Restrictivas', icon: '🚫', color: 'text-red-600', points: ['Coordinar con autoridades correspondientes expedición actos administrativos.', 'Medidas posibles: Prohibición porte armas, parrillero moto, cierre vías, control escombros, ley seca, toque queda, control horarios establecimientos.', 'Objetivo: Fortalecer acción policial y mitigar riesgos.'] },
+                    { title: 'Paso 2: Coordinación Operacional FFMM', icon: '🤝', color: 'text-blue-600', points: ['Fortalecer coordinación operacional con Fuerzas Militares de la jurisdicción.', 'Generar y desplegar estrategias articuladas.', 'Cobertura zonas atención: corredores viales (1rios/2rios), oleoductos, subestaciones eléctricas, plan energético vial.'] }
+                ],
+                 verificationQuestion: {
+                    text: '¿Con quién se debe coordinar la expedición de medidas como la ley seca o el toque de queda para fortalecer la seguridad?',
+                    options: [ { text: 'Con la Fiscalía General.', correct: false }, { text: 'Con las Fuerzas Militares únicamente.', correct: false }, { text: 'Con las autoridades correspondientes (Alcaldías, Gobernaciones, etc.).', correct: true } ],
+                    feedbackCorrect: '¡Correcto! El instructivo indica coordinar con las "autoridades correspondientes", que típicamente son las autoridades político-administrativas locales/regionales.',
+                    feedbackIncorrect: 'Incorrecto. Revisa la sección de Coordinación Interinstitucional. Estas medidas suelen ser competencia de autoridades administrativas.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Protección Oleoducto', icon: '⛽', color: 'text-blue-600', text: 'Se recibe información de inteligencia sobre un posible plan para atentar contra un tramo del oleoducto que pasa por la jurisdicción. ¿Qué acción de coordinación interinstitucional es prioritaria según el instructivo?', options: [ { id: 'a', text: '(a) Solicitar cierre de vías a la alcaldía.' }, { id: 'b', text: '(b) Fortalecer la coordinación operacional con las Fuerzas Militares para generar estrategias articuladas de cobertura en esa zona.' }, { id: 'c', text: '(c) Pedir apoyo a los bomberos.' }, { id: 'd', text: '(d) Convocar al CI2T.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto. El cierre de vías puede ser una medida, pero no la prioritaria para proteger infraestructura crítica.", 'b': "¡Correcto! El Instructivo 007 menciona específicamente fortalecer la coordinación con FFMM para cobertura de oleoductos y otros puntos estratégicos.", 'c': "Incorrecto. Bomberos son para emergencias, no prevención de ataques.", 'd': "Incorrecto. El CI2T es más estratégico; la coordinación operacional con FFMM es la acción táctica directa." } }
+                ],
+                 summaryPoints: [ 'Coordinar con <strong>autoridades administrativas</strong> medidas preventivas/restrictivas (ley seca, toque queda, etc.).', 'Fortalecer <strong>coordinación operacional con FFMM</strong>.', 'Generar <strong>estrategias articuladas</strong> con FFMM para cobertura zonas/puntos críticos (vías, oleoductos, etc.).' ]
+            }
+        ];
+
+        // --- Lógica de la Aplicación (sin cambios funcionales) ---
+        let currentModuleId = null;
+        let currentStep = 1;
+        let currentScenario = 1;
+        let currentModuleData = {};
+
+        function showElement(id) { const el = document.getElementById(id); if (el) el.style.display = 'block'; }
+        function hideElement(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
+        function clearContainer(containerId) { const container = document.getElementById(containerId); if (container) container.innerHTML = ''; }
+
+        function initializeMainMenu() {
+            const menuContainer = document.getElementById('menu-cards-container');
+            clearContainer('menu-cards-container');
+            modulesData.forEach(module => {
+                const card = document.createElement('div');
+                card.className = 'menu-card';
+                card.onclick = () => loadModule(module.id);
+                card.innerHTML = `
+                    <div class="menu-card-icon">${module.menuIcon || '❓'}</div>
+                    <h3 class="menu-card-title">${module.title}</h3>
+                    <p class="menu-card-subtitle">${module.subtitle}</p>
+                `;
+                menuContainer.appendChild(card);
+            });
+            showElement('main-menu');
+            hideElement('active-module');
+        }
+
+        function loadModule(moduleId) {
+            currentModuleId = moduleId;
+            currentModuleData = modulesData.find(m => m.id === moduleId);
+            if (!currentModuleData) return;
+
+            hideElement('main-menu');
+            showElement('active-module');
+            hideElement('protocolo');
+            hideElement('escenarios');
+            hideElement('resumen');
+            hideElement('verification-question');
+
+            document.getElementById('module-title').textContent = currentModuleData.title;
+            document.getElementById('module-subtitle').textContent = currentModuleData.subtitle;
+
+            buildProtocolSection();
+            buildScenariosSection();
+            buildSummarySection();
+
+            showElement('protocolo');
+            currentStep = 1;
+            setActiveStep(currentStep);
+        }
+
+        function buildProtocolSection() {
+            const stepsContainer = document.getElementById('protocol-steps-container');
+            clearContainer('protocol-steps-container');
+            const totalSteps = currentModuleData.protocolSteps.length;
+
+            currentModuleData.protocolSteps.forEach((step, index) => {
+                const stepNumber = index + 1;
+                const stepDiv = document.createElement('div');
+                stepDiv.id = `step-${stepNumber}`;
+                stepDiv.className = 'step-content mb-6 p-5 border rounded-lg bg-gray-50 shadow-sm';
+
+                stepDiv.innerHTML = `
+                    <h4 class="font-semibold text-lg mb-3 text-gray-700 flex items-center">
+                       <span class="text-2xl mr-3 ${step.color || 'text-gray-500'}">${step.icon || ''}</span>
+                       ${step.title}
+                    </h4>
+                    <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+                        ${step.points.map(p => `<li>${p}</li>`).join('')}
+                    </ul>
+                    <div class="mt-6 flex justify-between">
+                        <button onclick="prevStep(${stepNumber - 1})" class="nav-button secondary ${stepNumber === 1 ? 'invisible' : ''}">Anterior</button>
+                        ${stepNumber === totalSteps
+                            ? `<button onclick="showVerificationQuestion()" class="nav-button success">Verificar Comprensión</button>`
+                            : `<button onclick="nextStep(${stepNumber + 1})" class="nav-button primary">Siguiente</button>`
+                        }
+                    </div>
+                `;
+                stepsContainer.appendChild(stepDiv);
+            });
+
+            const vq = currentModuleData.verificationQuestion;
+            document.getElementById('verification-question-text').textContent = vq.text;
+            const vqOptionsContainer = document.getElementById('verification-options-container');
+            clearContainer('verification-options-container');
+            vq.options.forEach(opt => {
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                button.textContent = opt.text;
+                button.onclick = () => checkVerificationAnswer(opt.correct, button);
+                vqOptionsContainer.appendChild(button);
+            });
+            const vqFeedback = document.getElementById('verification-feedback');
+            vqFeedback.style.display = 'none'; vqFeedback.textContent = ''; vqFeedback.className = 'feedback';
+            document.getElementById('start-scenarios-btn').style.display = 'none';
+        }
+
+        function buildScenariosSection() {
+            const scenariosContainer = document.getElementById('scenarios-container');
+            clearContainer('scenarios-container');
+            if (!currentModuleData.scenarios || currentModuleData.scenarios.length === 0) {
+                 scenariosContainer.innerHTML = '<p class="text-gray-500 text-center italic my-6">No hay escenarios de práctica disponibles para este módulo.</p>';
+                 setTimeout(showSummary, 1500);
+                return;
+            }
+            const totalScenarios = currentModuleData.scenarios.length;
+
+            currentModuleData.scenarios.forEach((scenario, index) => {
+                const scenarioNumber = index + 1;
+                const scenarioDiv = document.createElement('div');
+                scenarioDiv.id = `scenario-${scenarioNumber}`;
+                scenarioDiv.className = 'scenario-content p-5 border rounded-lg bg-gray-50 mb-6 shadow-sm';
+
+                scenarioDiv.innerHTML = `
+                    <h4 class="font-semibold text-lg mb-3 text-gray-700 flex items-center">
+                        <span class="text-2xl mr-3 ${scenario.color || 'text-gray-500'}">${scenario.icon || ''}</span>
+                        ${scenario.title}
+                    </h4>
+                    <p class="text-gray-600 mb-4 text-sm">${scenario.text}</p>
+                    <div id="options-scenario-${scenarioNumber}">
+                        ${scenario.options.map(opt => `<button class="option-button" onclick="checkScenarioAnswer(${scenarioNumber}, '${opt.id}', this)">${opt.text}</button>`).join('')}
+                    </div>
+                    <div id="feedback-scenario-${scenarioNumber}" class="feedback"></div>
+                    <div class="mt-6 text-right">
+                        ${scenarioNumber === totalScenarios
+                            ? `<button id="next-scenario-${scenarioNumber}" onclick="showSummary()" style="display:none;" class="nav-button success">Ver Resumen</button>`
+                            : `<button id="next-scenario-${scenarioNumber}" onclick="nextScenario(${scenarioNumber + 1})" style="display:none;" class="nav-button primary">Siguiente Escenario</button>`
+                        }
+                    </div>
+                `;
+                scenariosContainer.appendChild(scenarioDiv);
+                const feedbackEl = document.getElementById(`feedback-scenario-${scenarioNumber}`);
+                feedbackEl.style.display = 'none'; feedbackEl.textContent = ''; feedbackEl.className = 'feedback';
+                const nextButton = document.getElementById(`next-scenario-${scenarioNumber}`);
+                if(nextButton) nextButton.style.display = 'none';
+            });
+        }
+
+        function buildSummarySection() {
+            const summaryPointsList = document.getElementById('summary-points');
+            clearContainer('summary-points');
+             if (!currentModuleData.summaryPoints || currentModuleData.summaryPoints.length === 0) {
+                 summaryPointsList.innerHTML = '<li class="text-gray-500 italic">Resumen no disponible.</li>';
+                 return;
+             }
+            currentModuleData.summaryPoints.forEach(point => {
+                const li = document.createElement('li');
+                li.innerHTML = point;
+                summaryPointsList.appendChild(li);
+            });
+        }
+
+        function setActiveStep(stepNumber) { document.querySelectorAll(`#protocol-steps-container .step-content`).forEach(el => el.classList.remove('active')); const el = document.getElementById(`step-${stepNumber}`); if (el) el.classList.add('active'); }
+        function nextStep(stepNumber) { const totalSteps = currentModuleData.protocolSteps.length; if (stepNumber <= totalSteps) { currentStep = stepNumber; setActiveStep(currentStep); } }
+        function prevStep(stepNumber) { if (stepNumber >= 1) { currentStep = stepNumber; setActiveStep(currentStep); } }
+
+        function showVerificationQuestion() {
+            const totalSteps = currentModuleData.protocolSteps.length;
+            hideElement(`step-${totalSteps}`); showElement('verification-question');
+            const vqOptionsContainer = document.getElementById('verification-options-container');
+            vqOptionsContainer.querySelectorAll('.option-button').forEach(btn => { btn.disabled = false; btn.className = 'option-button'; });
+            hideElement('verification-feedback'); hideElement('start-scenarios-btn');
+        }
+
+        function checkVerificationAnswer(isCorrect, buttonElement) {
+            const feedbackEl = document.getElementById('verification-feedback');
+            const allButtons = document.querySelectorAll('#verification-options-container .option-button');
+            const vq = currentModuleData.verificationQuestion;
+            allButtons.forEach(btn => { btn.disabled = true; btn.classList.remove('selected', 'correct-answer', 'incorrect-answer'); });
+            buttonElement.classList.add('selected');
+            if (isCorrect) {
+                feedbackEl.textContent = vq.feedbackCorrect; feedbackEl.className = 'feedback correct'; showElement('start-scenarios-btn'); buttonElement.classList.add('correct-answer');
+            } else {
+                feedbackEl.textContent = vq.feedbackIncorrect; feedbackEl.className = 'feedback incorrect';
+                allButtons.forEach(btn => { const opt = vq.options.find(o => o.text === btn.textContent); if (opt && opt.correct) btn.classList.add('correct-answer'); });
+                buttonElement.classList.add('incorrect-answer');
+            }
+            feedbackEl.style.display = 'block';
+        }
+
+        function startScenarios() {
+             if (!currentModuleData.scenarios || currentModuleData.scenarios.length === 0) { hideElement('protocolo'); showSummary(); }
+             else { hideElement('protocolo'); showElement('escenarios'); currentScenario = 1; setActiveScenario(currentScenario); }
+        }
+
+        function setActiveScenario(scenarioNumber) {
+            document.querySelectorAll(`#scenarios-container .scenario-content`).forEach(el => el.classList.remove('active'));
+            const el = document.getElementById(`scenario-${scenarioNumber}`);
+            if (el) {
+                el.classList.add('active');
+                el.querySelectorAll('.option-button').forEach(btn => { btn.disabled = false; btn.className = 'option-button'; });
+                const fb = document.getElementById(`feedback-scenario-${scenarioNumber}`); if(fb) fb.style.display = 'none';
+                const nb = document.getElementById(`next-scenario-${scenarioNumber}`); if(nb) nb.style.display = 'none';
+            }
+        }
+
+        function checkScenarioAnswer(scenarioNum, selectedOptionId, buttonElement) {
+            const scenarioData = currentModuleData.scenarios.find(s => s.id === scenarioNum); if (!scenarioData) return;
+            const correctAnswerId = scenarioData.correctAnswer; const feedback = scenarioData.feedback[selectedOptionId];
+            const feedbackEl = document.getElementById(`feedback-scenario-${scenarioNum}`);
+            const nextButton = document.getElementById(`next-scenario-${scenarioNum}`);
+            const allButtons = document.querySelectorAll(`#scenario-${scenarioNum} .option-button`);
+            allButtons.forEach(btn => { btn.disabled = true; btn.classList.remove('selected', 'correct-answer', 'incorrect-answer'); });
+            buttonElement.classList.add('selected'); feedbackEl.textContent = feedback;
+            if (selectedOptionId === correctAnswerId) {
+                feedbackEl.className = 'feedback correct'; buttonElement.classList.add('correct-answer');
+            } else {
+                feedbackEl.className = 'feedback incorrect'; buttonElement.classList.add('incorrect-answer');
+                allButtons.forEach(btn => { const opt = scenarioData.options.find(o => o.id === correctAnswerId); if (opt && btn.textContent === opt.text) btn.classList.add('correct-answer'); });
+            }
+            feedbackEl.style.display = 'block'; if (nextButton) { nextButton.style.display = 'inline-block'; }
+        }
+
+        function nextScenario(scenarioNumber) { const totalScenarios = currentModuleData.scenarios.length; if (scenarioNumber <= totalScenarios) { currentScenario = scenarioNumber; setActiveScenario(currentScenario); } }
+        function showSummary() { hideElement('escenarios'); hideElement('protocolo'); showElement('resumen'); }
+        function restartCurrentModule() { if(currentModuleId) { loadModule(currentModuleId); } }
+        function goToMainMenu() { hideElement('active-module'); showElement('main-menu'); currentModuleId = null; currentModuleData = {}; initializeMainMenu(); }
+
+        document.addEventListener('DOMContentLoaded', initializeMainMenu);
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrenamiento Interactivo: Reglamento Guarnición (Res. 0242)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos generales y específicos (similares a versiones anteriores) */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+        #app-container {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.06), 0 6px 10px -4px rgba(0, 0, 0, 0.05);
+        }
+        h1, h2, h3, h4 {
+             color: #212529;
+        }
+        h2.text-blue-700 {
+            color: #0056b3; /* Azul principal */
+        }
+        .module-content { display: none; position: relative; }
+        .step-content, .scenario-content { display: none; }
+        .step-content.active, .scenario-content.active { display: block; }
+
+        .feedback { display: none; margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 0.5rem; font-size: 0.9rem; border-width: 1px; }
+        .feedback.correct { background-color: #e6f4ea; border-color: #28a745; color: #155724; }
+        .feedback.incorrect { background-color: #f8d7da; border-color: #dc3545; color: #721c24; }
+
+        .option-button {
+            display: block; width: 100%; text-align: left; margin-top: 0.75rem; padding: 0.875rem 1.25rem;
+            border: 1px solid #ced4da; border-radius: 0.5rem; background-color: #ffffff;
+            color: #495057; font-weight: 500;
+            transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s; cursor: pointer;
+        }
+        .option-button:hover:not(:disabled) {
+            background-color: #f8f9fa; border-color: #adb5bd;
+        }
+         .option-button:disabled { cursor: not-allowed; opacity: 0.75; }
+        .option-button.selected {
+             border-color: #007bff; background-color: #e7f3ff;
+             font-weight: 600; color: #004085;
+             box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+         .option-button.correct-answer {
+             border-color: #28a745; background-color: #d4edda; color: #155724;
+         }
+         .option-button.incorrect-answer {
+             border-color: #dc3545; background-color: #f8d7da; color: #721c24;
+         }
+
+         /* Estilo para las fichas del menú principal */
+         .menu-card {
+             display: flex; flex-direction: column; align-items: center;
+             padding: 1.5rem; margin-bottom: 1rem; border: 1px solid #dee2e6;
+             border-radius: 0.75rem; background-color: #ffffff;
+             text-align: center; cursor: pointer;
+             transition: background-color 0.2s, box-shadow 0.3s, transform 0.2s; height: 100%;
+             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+         }
+         .menu-card:hover {
+             background-color: #f8f9fa;
+             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+             transform: translateY(-3px);
+         }
+         .menu-card-icon {
+             font-size: 2.5rem; margin-bottom: 1rem; color: #0056b3;
+             background-color: #e7f3ff; padding: 0.75rem; border-radius: 50%;
+             width: 60px; height: 60px; display: inline-flex; align-items: center; justify-content: center;
+         }
+         .menu-card-icon svg { width: 100%; height: 100%; }
+         .menu-card-title {
+             font-weight: 600; color: #343a40; font-size: 1rem; margin-bottom: 0.25rem;
+         }
+         .menu-card-subtitle { font-size: 0.875rem; color: #6c757d; }
+
+         /* Ajuste para listas dentro de pasos */
+         .step-content ul { padding-left: 1.5rem; margin-top: 0.5rem; }
+         .step-content ul li { margin-bottom: 0.4rem; line-height: 1.5; }
+
+         /* Botones de navegación */
+         .nav-button {
+             font-weight: 600; padding: 0.6rem 1.5rem; border-radius: 0.5rem; transition: background-color 0.2s, transform 0.1s;
+             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+         }
+         .nav-button:hover { transform: scale(1.03); box-shadow: 0 2px 4px rgba(0,0,0,0.07); }
+         .nav-button.primary { background-color: #007bff; color: white; }
+         .nav-button.primary:hover { background-color: #0056b3; }
+         .nav-button.secondary { background-color: #6c757d; color: white; }
+         .nav-button.secondary:hover { background-color: #5a6268; }
+         .nav-button.success { background-color: #28a745; color: white; }
+         .nav-button.success:hover { background-color: #218838; }
+
+         /* Botón Volver al Menú */
+        .back-to-menu-btn {
+            position: absolute; top: 1.5rem; right: 1.5rem;
+            background-color: #e9ecef; color: #495057;
+            font-size: 0.8rem; font-weight: 500; padding: 0.3rem 0.8rem; border-radius: 9999px;
+            transition: background-color 0.2s, color 0.2s; z-index: 10; border: 1px solid #dee2e6;
+        }
+        .back-to-menu-btn:hover { background-color: #dee2e6; color: #343a40; }
+
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+
+    <div id="app-container" class="max-w-5xl mx-auto bg-white rounded-lg shadow-xl p-6 md:p-10">
+
+        <div id="main-menu" class="text-center">
+            <h1 class="text-2xl md:text-3xl font-bold mb-4">Centro de Entrenamiento Interactivo</h1>
+            <h2 class="text-xl md:text-2xl font-semibold text-blue-700 mb-8">Reglamento Guarnición y Control (Res. 0242/2023)</h2>
+            <p class="text-gray-600 mb-8">Selecciona el tema que deseas practicar:</p>
+            <div id="menu-cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"> </div>
+        </div>
+
+        <div id="active-module" class="module-content">
+             <button onclick="goToMainMenu()" class="back-to-menu-btn">
+                &larr; Volver al Menú
+            </button>
+            <h1 id="module-title" class="text-2xl md:text-3xl font-bold mb-1 pt-8 md:pt-0"></h1>
+            <h2 id="module-subtitle" class="text-lg md:text-xl font-semibold text-blue-700 mb-6"></h2>
+
+            <div id="protocolo" style="display: none;">
+                <h3 class="text-xl font-semibold mb-4 border-b pb-2">Funciones y Parámetros Clave</h3>
+                <div id="protocol-steps-container"></div>
+                <div id="verification-question" style="display: none;" class="mt-6 p-5 border rounded-lg bg-blue-50">
+                     <h4 class="font-bold text-lg mb-3 text-blue-800">¡Verifica tu Comprensión!</h4>
+                     <p id="verification-question-text" class="mb-4 text-gray-700 font-medium"></p>
+                     <div id="verification-options-container"></div>
+                     <div id="verification-feedback" class="feedback"></div>
+                     <div class="mt-6 text-center">
+                        <button id="start-scenarios-btn" onclick="startScenarios()" style="display:none;" class="nav-button success">
+                            Iniciar Escenarios Simulados
+                        </button>
+                     </div>
+                </div>
+            </div>
+
+            <div id="escenarios" style="display: none;">
+                <h3 class="text-xl font-semibold mb-4 border-b pb-2">Escenarios Simulados</h3>
+                <div id="scenarios-container"></div>
+            </div>
+
+            <div id="resumen" style="display: none;" class="p-6 border rounded-lg bg-blue-50 text-center">
+                <h3 class="text-xl font-semibold text-blue-700 mb-4">Resumen del Módulo</h3>
+                 <div id="summary-icon" class="flex justify-center space-x-4 my-5 text-4xl text-green-600">
+                    <span>&#127941;</span>
+                 </div>
+                <p class="text-gray-800 mb-4 font-semibold text-lg">¡Felicidades por completar el módulo!</p>
+                <p class="font-medium mb-3 text-gray-700">Puntos Clave Recordados:</p>
+                <ul id="summary-points" class="list-disc list-inside text-gray-600 space-y-1 mb-8 text-left inline-block"></ul>
+                 <div class="flex justify-center space-x-4">
+                    <button onclick="restartCurrentModule()" class="nav-button secondary">
+                        Reiniciar Módulo
+                    </button>
+                     <button onclick="goToMainMenu()" class="nav-button primary">
+                        Menú Principal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Iconos SVG ---
+        const svgIcons = {
+            supervision: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l-4.995-4.995a2.652 2.652 0 0 1 0-3.751l3.75-3.75a2.652 2.652 0 0 1 3.751 0l4.995 4.995M11.42 15.17 14.25 18l1.406-1.406" /></svg>`, // Lupa/Ojo
+            servicio_interno: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>`, // Casa/Edificio
+            guardia: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z" /></svg>`, // Garita/Puesto
+            vigilancia: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>`, // Escudo/Vigilancia
+            alistamiento: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" /></svg>`, // Lista/Alistamiento
+            regimen: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>`, // Documento/Reglamento
+        };
+
+        // --- Definición de Datos de los Módulos (Basado en Res. 0242) ---
+        const modulesData = [
+            {
+                id: 'supervision_general',
+                title: 'Supervisión General',
+                menuIcon: svgIcons.supervision,
+                subtitle: 'Oficiales de Inspección y Guarnición',
+                protocolSteps: [
+                    { title: 'Oficial General de Semana (Art. 24)', icon: '⭐', color: 'text-yellow-600', points: ['Nombrado entre Generales en Bogotá (semanal).', 'Verifica novedades CEPOL (orden público nacional).', 'Puede dirigirse a zonas de alteración orden público.', 'Preside relación general DIPON (jueves).', 'Visita policías heridos/enfermos (HOCEN).', 'Asiste a actividades delegadas por DG/SUDİR.'] },
+                    { title: 'Oficial de Inspección (Art. 25)', icon: '🔍', color: 'text-blue-600', points: ['Servicio en Direcciones (Mayor/TC), 24h.', 'Verifica seguridad personal e instalaciones.', 'Revista unidades y servicios en jurisdicción.', 'Registra actividades/novedades en libro.', 'Informa sucesos extraordinarios y novedades al relevo.', 'Verifica capacidad reacción (plan defensa).', 'Usa brazalete OI.'] },
+                    { title: 'Oficial de Guarnición (Art. 26)', icon: '🛡️', color: 'text-green-600', points: ['Servicio en MEC/DEPOL (Capitán/Of. Superior), 24h.', 'Revista unidades (seguridad instalaciones).', 'Supervisa servicio vigilancia (patrullas).', 'Ejerce control comportamiento personal en servicio.', 'Cumple consignas, atiende consultas, asesora casos importantes.', 'Aplica medios para encauzar disciplina.', 'Descanso mínimo 6h (puede ser interrumpido).', 'Usa brazalete OG.'] },
+                    { title: 'Oficial de Guarnición MEBOG (Art. 27)', icon: '🚨', color: 'text-red-600', points: ['Específico para MEBOG (Mayor/TC), 24h.', 'Funciones similares a Oficial Inspección (verificar seguridad, revistas, registro, informar, verificar reacción).', 'Usa brazalete OG.'] }
+                ],
+                verificationQuestion: {
+                    text: '¿Qué servicio de supervisión tiene como función específica visitar a los policías heridos en el Hospital Central?',
+                    options: [ { text: 'Oficial de Inspección.', correct: false }, { text: 'Oficial de Guarnición.', correct: false }, { text: 'Oficial General de Semana.', correct: true } ],
+                    feedbackCorrect: '¡Correcto! El Artículo 24 asigna esta función específica al Oficial General de Semana.',
+                    feedbackIncorrect: 'Incorrecto. Revisa las funciones del Artículo 24. Es el Oficial General de Semana.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Novedad en Servicio', icon: '🌙', color: 'text-blue-600', text: 'Un Oficial de Guarnición, durante su ronda nocturna, detecta que una patrulla de vigilancia no está cumpliendo con el recorrido asignado. ¿Cuál es su función principal en este caso?', options: [ { id: 'a', text: '(a) Ignorar la situación si no hay llamadas pendientes.' }, { id: 'b', text: '(b) Supervisar la prestación del servicio, verificar el cumplimiento y tomar medidas para corregir (ej. recordar consignas, informar novedad al superior).' }, { id: 'c', text: '(c) Unirse a la patrulla para acompañarlos.' }, { id: 'd', text: '(d) Relevar a la patrulla inmediatamente.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto. La supervisión implica verificar cumplimiento.", 'b': "¡Correcto! El Art. 26 indica que supervisa la prestación del servicio, verifica cumplimiento y ejerce control, informando si es necesario.", 'c': "Incorrecto. Su función es supervisar, no necesariamente unirse.", 'd': "Incorrecto. El relevo no es su función directa en este caso." } },
+                     { id: 2, title: 'Escenario 2: Verificación Plan Defensa', icon: '🔥', color: 'text-red-600', text: 'Un Oficial de Inspección llega a una estación de policía. ¿Qué aspecto clave relacionado con la seguridad de la instalación debe verificar según sus funciones?', options: [ { id: 'a', text: '(a) El menú del día en la cafetería.' }, { id: 'b', text: '(b) La capacidad de reacción de la unidad según su plan de defensa.' }, { id: 'c', text: '(c) Las calificaciones del último examen físico del personal.' }, { id: 'd', text: '(d) El inventario de papelería.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto.", 'b': "¡Correcto! El Art. 25 (numeral 8) y Art. 27 (numeral 8) indican que el Oficial de Inspección/Guarnición MEBOG verifica la capacidad de reacción según el plan de defensa.", 'c': "Incorrecto.", 'd': "Incorrecto." } }
+                ],
+                 summaryPoints: [ '<strong>Of. Gral. Semana:</strong> Nivel nacional (Bogotá), representa DG/SUDİR, atiende orden público.', '<strong>Of. Inspección:</strong> Nivel Dirección, verifica seguridad, revista unidades, informa novedades.', '<strong>Of. Guarnición:</strong> Nivel MEC/DEPOL, supervisa vigilancia, controla comportamiento, aplica disciplina.', 'Todos registran en <strong>libros</strong> y verifican <strong>planes de defensa</strong>.' ]
+            },
+            {
+                id: 'servicio_interno',
+                title: 'Servicio Interno Unidad',
+                menuIcon: svgIcons.servicio_interno,
+                subtitle: 'Oficiales y Suboficiales de Servicio',
+                protocolSteps: [
+                    { title: 'Oficial de Semana (Art. 28)', icon: '📅', color: 'text-blue-600', points: ['En dependencias que lo requieran (Capitán/Mayor).', 'Supervisa cumplimiento régimen interno.', 'Verifica parte personal, aseo instalaciones, cumplimiento actividades.', 'Controla formaciones, informa novedades, supervisa apoyos.', 'Relevo semanal por Subjefe/Subdirector.'] },
+                    { title: 'Oficial de Servicio (Art. 29)', icon: '👮', color: 'text-green-600', points: ['Controla régimen interno y servicios (DIRS, OFAS, MEC, DEPOL, ESCUE).', 'Oficial Subalterno (o N. Ejecutivo/Suboficial si no hay).', 'Horario: 07-18h y 00-07h (o relevo).', 'Supervisa servicios, preside relevo guardia, revista armamento/presentación.', 'Registra en libro OS.', 'Mantiene copia plan defensa, lidera simulacros.', 'Revista centinelas, recibe/transmite santo y seña.', 'Verifica novedades servicios internos, personal no autorizado, cumplimiento horarios.', 'Informa a superior, atiende consultas/reclamos.', 'Lidera activación plan defensa.', 'Supervisa mantenimiento/aseo.', 'Exige uso adecuado uniforme.', 'Pernocta en unidad.', 'Usa brazalete OS.'] },
+                    { title: 'Mando Ejecutivo / Suboficial de Servicio (Art. 30)', icon: '🎖️', color: 'text-orange-600', points: ['Acompaña guarnición y control (Intendente+ / Suboficial).', 'Horario: 07-00h y 06h-relevo.', 'Hace cumplir régimen interno, supervisa uniformes.', 'Registra en libro SS.', 'Revista centinelas, verifica horarios, izada/arriada pabellón.', 'Revisa libros Cte Guardia.', 'Informa a superior.', 'Mantiene copia plan defensa.', 'Vela por mantenimiento/aseo.', 'Asume funciones OS durante descanso de este.', 'Pernocta en unidad.', 'Usa brazalete SS.'] }
+                ],
+                 verificationQuestion: {
+                    text: '¿Quién es el responsable principal de liderar la activación del plan de defensa de una instalación en caso de atentado?',
+                    options: [ { text: 'El Comandante de Guardia.', correct: false }, { text: 'El Oficial de Servicio.', correct: true }, { text: 'El Mando Ejecutivo / Suboficial de Servicio.', correct: false } ],
+                    feedbackCorrect: '¡Correcto! El Artículo 29, numeral 13, asigna explícitamente al Oficial de Servicio la función de liderar la activación del plan de defensa.',
+                    feedbackIncorrect: 'Incorrecto. Revisa el Artículo 29, numeral 13. El liderazgo recae en el Oficial de Servicio.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Falta Santo y Seña', icon: '🔑', color: 'text-red-600', text: 'El Oficial de Servicio recibe el santo y seña, pero olvida transmitirlo al Comandante de Guardia y a los centinelas. ¿Qué función importante está omitiendo?', options: [ { id: 'a', text: '(a) Supervisar el aseo.' }, { id: 'b', text: '(b) Presidir el relevo de la guardia.' }, { id: 'c', text: '(c) Recibir el santo y seña y transmitirlo al personal encargado de seguridad.' }, { id: 'd', text: '(d) Verificar el parte de personal.' } ], correctAnswer: 'c', feedback: { 'a': "Incorrecto.", 'b': "Incorrecto.", 'c': "¡Correcto! El Art. 29, numeral 6, indica que el Oficial de Servicio recibe y transmite el santo y seña al personal de seguridad.", 'd': "Incorrecto." } },
+                     { id: 2, title: 'Escenario 2: Descanso OS', icon: '😴', color: 'text-orange-600', text: 'El Oficial de Servicio pasa a su descanso nocturno reglamentario. ¿Quién asume sus funciones durante ese periodo?', options: [ { id: 'a', text: '(a) Nadie, la unidad queda sin oficial a cargo.' }, { id: 'b', text: '(b) El Comandante de Guardia.' }, { id: 'c', text: '(c) El Mando Ejecutivo o Suboficial de Servicio.' }, { id: 'd', text: '(d) El Oficial de Guarnición.' } ], correctAnswer: 'c', feedback: { 'a': "Incorrecto.", 'b': "Incorrecto.", 'c': "¡Correcto! El Art. 30, numeral 11, establece que el Mando Ejecutivo o Suboficial de Servicio asume las funciones del Oficial de Servicio durante su ausencia/descanso.", 'd': "Incorrecto. El Oficial de Guarnición tiene otras funciones de supervisión externa." } }
+                ],
+                 summaryPoints: [ '<strong>Of. Semana:</strong> Supervisa régimen interno compañía/dependencia.', '<strong>Of. Servicio:</strong> Controla régimen interno y servicios unidad, lidera plan defensa, recibe/transmite santo y seña, pernocta.', '<strong>Mando Ejecutivo/Subof. Servicio:</strong> Apoya al OS, hace cumplir régimen, asume funciones OS en su descanso, pernocta.' ]
+            },
+            {
+                id: 'guardia_prevencion',
+                title: 'Guardia Prevención y Seguridad',
+                menuIcon: svgIcons.guardia,
+                subtitle: 'Comandante, Relevante y Centinela',
+                protocolSteps: [
+                    { title: 'Comandante de Guardia (Art. 31)', icon: '👨‍✈️', color: 'text-blue-600', points: ['Superior inmediato guardia (Subintendente a Intendente / Suboficial), 8h.', 'Despliega y controla Dispositivo Protección Física.', 'Supervisa cumplimiento funciones, protocolos, medidas.', 'Controla actividades detección, acceso, seguridad interna/perimetral.', 'Garantiza control y prestación servicio seguridad.', 'Despliega acciones tratamiento ante afectaciones.', 'Apoya proyección/actualización Plan Defensa.', 'Ordena izar/arriar pabellones.', 'Instruye personal, imparte órdenes/consignas.', 'Mantiene disciplina, orden, aseo guardia.', 'Revisa armamento/munición centinelas al relevo.', 'Usa brazalete CG.'] },
+                    { title: 'Relevante de Guardia (Art. 32)', icon: '🔄', color: 'text-green-600', points: ['Superior inmediato centinelas (Suboficial / N. Ejecutivo), 8h.', 'Efectúa relevos, transmite consignas.', 'Atiende visitantes, recibe/entrega armamento (informa a CG).', 'Colabora con CG en servicio y supervisión.', 'Inspecciona instalaciones (personal laborando fuera horario).', 'Informa novedades a CG/OS/SS.', 'Elabora turnos servicio/franquicia.', 'Identifica vulnerabilidades, genera recomendaciones.', 'Verifica/controla actividades dispositivo protección.', 'Garantiza cumplimiento protocolos/funciones.', 'Puede cubrir funciones CG si no hay personal.', 'Usa brazalete RG.'] },
+                    { title: 'Centinela (Art. 33)', icon: '🧍‍♂️', color: 'text-orange-600', points: ['Servicio por Patrullero/Agente/Auxiliar.', 'Ejecuta protocolos seguridad y medidas protección.', 'Permanece en lugar facción sin ausentarse.', 'Cumple consignas/responsabilidades.', 'Activa alarma ante amenaza/ataque.', 'Atiende público cortésmente, acompaña si es asignado.', 'Controla/evita estacionamiento indebido.', 'Responde por armamento/equipos asignados.', 'Mantiene orden/aseo guardia.', 'Mantiene disciplina comunicaciones.', 'Informa incidentes/vulnerabilidades/fallas.', 'Ejecuta acciones respuesta Plan Defensa.'] }
+                ],
+                 verificationQuestion: {
+                    text: '¿Quién es el responsable de efectuar los relevos de los centinelas y transmitirles las consignas?',
+                    options: [ { text: 'El Oficial de Servicio.', correct: false }, { text: 'El Comandante de Guardia.', correct: false }, { text: 'El Relevante de Guardia.', correct: true } ],
+                    feedbackCorrect: '¡Correcto! El Artículo 32 asigna explícitamente esta función al Relevante de Guardia.',
+                    feedbackIncorrect: 'Incorrecto. Revisa el Artículo 32. Es función del Relevante de Guardia.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Centinela Ausente', icon: '❓', color: 'text-red-600', text: 'El Relevante de Guardia, durante su ronda, encuentra un puesto de centinela vacío. ¿Cuál es su responsabilidad inmediata?', options: [ { id: 'a', text: '(a) Cubrir el puesto él mismo hasta que regrese el centinela.' }, { id: 'b', text: '(b) Informar inmediatamente al Comandante de Guardia y/o Oficial de Servicio y tomar medidas para cubrir el puesto y averiguar la novedad.' }, { id: 'c', text: '(c) Anotar la novedad en el libro y esperar al siguiente relevo.' }, { id: 'd', text: '(d) Llamar al centinela a su celular personal.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto. Su función es supervisar y relevar, no cubrir puestos directamente salvo emergencia mayor.", 'b': "¡Correcto! La ausencia de un centinela es una novedad grave de seguridad que debe informarse inmediatamente al superior (CG/OS) para tomar acciones correctivas y de cobertura.", 'c': "Incorrecto. La novedad requiere acción inmediata, no solo registro.", 'd': "Incorrecto. La prioridad es informar al mando y asegurar el puesto." } },
+                     { id: 2, title: 'Escenario 2: Falla Protocolo Acceso', icon: '🚶‍♀️', color: 'text-yellow-600', text: 'El Comandante de Guardia observa que un centinela permite el ingreso de un visitante sin verificar adecuadamente su autorización con la dependencia correspondiente. ¿Qué debe hacer el Comandante de Guardia?', options: [ { id: 'a', text: '(a) Dejar que el Relevante se encargue.' }, { id: 'b', text: '(b) Corregir inmediatamente al centinela, asegurarse que se aplique el protocolo correcto y registrar la novedad si es necesario.' }, { id: 'c', text: '(c) Esperar a que termine el turno para hablar con el centinela.' }, { id: 'd', text: '(d) Anotar mentalmente para la evaluación de desempeño.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto. El CG es el superior inmediato y responsable directo de la guardia.", 'b': "¡Correcto! El Art. 31 indica que el Comandante de Guardia supervisa el cumplimiento de funciones y protocolos, y controla las actividades de acceso. Debe corregir las fallas.", 'c': "Incorrecto. La corrección debe ser oportuna.", 'd': "Incorrecto. Requiere acción inmediata, no solo anotación mental." } }
+                ],
+                 summaryPoints: [ '<strong>Cte Guardia:</strong> Superior inmediato guardia, controla dispositivo protección, supervisa personal, activa plan defensa.', '<strong>Relevante Guardia:</strong> Superior inmediato centinelas, efectúa relevos, transmite consignas, atiende visitantes.', '<strong>Centinela:</strong> Ejecuta protocolos, permanece en facción, cumple consignas, activa alarma, informa novedades.' ]
+            },
+            {
+                id: 'seguridad_vigilancia_control',
+                title: 'Seguridad, Vigilancia y Control Esp.',
+                menuIcon: svgIcons.vigilancia,
+                subtitle: 'Jefe Seguridad, Of. Vigilancia, Pol. Control',
+                protocolSteps: [
+                    { title: 'Jefe Oficina de Seguridad (Art. 34)', icon: '🔐', color: 'text-blue-600', points: ['Supervisa aplicación sistema seguridad física (activa, pasiva, humana).', 'Presenta relación personal para servicios seguridad.', 'Supervisa/asesora Cte. en políticas seguridad preventiva.', 'Presenta/actualiza Plan Defensa.', 'Capacita/instruye personal seguridad.', 'Verifica guías caninos.', 'Supervisa control ingreso personas/vehículos.', 'Informa novedades seguridad preventiva.', 'Realiza pruebas vulnerabilidad.'] },
+                    { title: 'Oficial de Vigilancia (Art. 35)', icon: '🚓', color: 'text-green-600', points: ['Supervisa/controla personal vigilancia (turnos).', 'Nombrado permanente por orden interna (Of. Subalterno).', 'Participa ejecución/evaluación estrategias.', 'Forma personal antes del servicio (verifica novedades, imparte instrucción).', 'Elabora minuta vigilancia.', 'Verifica entrega/recepción armamento dotación.', 'Controla presentación personal uniformados en vía.', 'Primer apoyo en casos Policía jurisdicción.', 'Administra recurso humano/logístico vigilancia.', 'Hace seguimiento atención casos despachados.', 'Incentiva personal.', 'Diseña/ejecuta planes operativos.', 'Verifica uso adecuado uniforme/elementos.'] },
+                    { title: 'Policía de Control (Art. 36)', icon: '🚓', color: 'text-orange-600', points: ['Servicio en MEC para ejercer control sobre unidades.', 'Nombrado orden día (07-00h).', 'Acompañado tripulante/conductor.', 'Realiza recorridos (inspeccionar, vigilar, fiscalizar comportamiento/presentación).', 'Vigila conducta (rendimiento, ética, disciplina, eficacia).', 'Evalúa oportuna atención requerimientos CAD/SIES.', 'Hace presencia en novedades donde haya policías involucrados (accidentes, riñas, delitos) e informa.', 'Uniforme No. 4, brazalete PC, casco blanco.'] }
+                ],
+                 verificationQuestion: {
+                    text: '¿Quién es el responsable de realizar pruebas de vulnerabilidad a las instalaciones policiales?',
+                    options: [ { text: 'El Oficial de Servicio.', correct: false }, { text: 'El Jefe de la Oficina de Seguridad.', correct: true }, { text: 'El Policía de Control.', correct: false } ],
+                    feedbackCorrect: '¡Correcto! El Artículo 34, numeral 12, asigna esta función al Jefe de la Oficina de Seguridad.',
+                    feedbackIncorrect: 'Incorrecto. Revisa el Artículo 34. Las pruebas de vulnerabilidad son función del Jefe de Seguridad.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Uniforme Incorrecto', icon: '👕', color: 'text-orange-600', text: 'El Policía de Control, durante su recorrido, observa a una patrulla de vigilancia con uno de sus integrantes portando incorrectamente el uniforme (gorra no reglamentaria). ¿Qué debe hacer?', options: [ { id: 'a', text: '(a) Ignorarlo si están ocupados en un procedimiento.' }, { id: 'b', text: '(b) Tomar una foto y reportarlo al final del turno.' }, { id: 'c', text: '(c) Abordar a la patrulla (si es seguro), señalar la novedad, exigir la corrección y registrar el hecho para informar al comando.' }, { id: 'd', text: '(d) Llamar al Oficial de Vigilancia para que él los corrija.' } ], correctAnswer: 'c', feedback: { 'a': "Incorrecto. El control aplica aún en servicio.", 'b': "Incorrecto. La corrección debe ser en el momento si es posible.", 'c': "¡Correcto! El Art. 36 indica que el Policía de Control fiscaliza el comportamiento y presentación personal. Debe actuar para corregir y reportar.", 'd': "Incorrecto. El Policía de Control tiene la autoridad para ejercer el control directamente." } },
+                     { id: 2, title: 'Escenario 2: Falta Instrucción', icon: '👨‍🏫', color: 'text-green-600', text: 'Se evidencia que el personal de vigilancia de una estación no tiene claras las últimas directrices sobre cómo atender un nuevo tipo de modalidad delictiva en la zona. ¿Quién debería encargarse de impartir esta instrucción antes de salir al servicio?', options: [ { text: 'El Comandante de Guardia.', correct: false }, { text: 'El Oficial de Vigilancia.', correct: true }, { text: 'El Policía de Control.', correct: false }, { text: 'El Jefe de Seguridad.', correct: false } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto.", 'b': "¡Correcto! El Art. 35, numeral 2, establece que el Oficial de Vigilancia forma al personal antes de salir al servicio e imparte instrucciones sobre temas de actualidad y estrategias.", 'c': "Incorrecto.", 'd': "Incorrecto." } }
+                ],
+                 summaryPoints: [ '<strong>Jefe Seguridad:</strong> Supervisa sistema seguridad física, Plan Defensa, capacita guardia, pruebas vulnerabilidad.', '<strong>Of. Vigilancia:</strong> Supervisa personal vigilancia, forma antes servicio, elabora minuta, apoya casos, ejecuta planes.', '<strong>Policía Control:</strong> Fiscaliza comportamiento/presentación en vía, evalúa atención CAD, interviene en novedades con policías.' ]
+            },
+            {
+                id: 'alistamiento_alarmas',
+                title: 'Alistamiento y Alarmas',
+                menuIcon: svgIcons.alistamiento,
+                subtitle: 'Capítulos VI y VII',
+                protocolSteps: [
+                    { title: 'Alistamiento (Art. 65-67)', icon: '🚦', color: 'text-orange-600', points: ['Definición: Grado de disponibilidad del personal en instalaciones.', 'Disposición: Facultad DG, Directores, Comandantes (MEC/DEPOL).', 'Grados: 1° (100% disponible en unidad), 2° (50% disponible), 3° (25% disponible).', 'Restricciones: En 1° grado, todo el personal pernocta. En 2° y 3°, personal que descansa no sale guarnición y debe estar ubicable.', 'Prohibido ingerir bebidas embriagantes en cualquier grado.'] },
+                    { title: 'Alarmas (Art. 68-71)', icon: '🚨', color: 'text-red-600', points: ['Definición: Señal para preparar personal ante hechos bélicos, humanos o naturales.', 'Finalidad: Comunicar agresión/riesgo, poner planes en práctica, instruir/verificar disponibilidad, evaluar capacidad reacción.', 'Clases: Entrenamiento/verificación, Ataque a instalación, Siniestro.', 'Prácticas: Mínimo 1 vez trimestral (día/noche, diferentes circunstancias).', 'Medios: Audibles o visuales (reglamentados por Cte. unidad).', 'Personal debe conocer sistemas y significados.'] }
+                ],
+                 verificationQuestion: {
+                    text: 'En un alistamiento de SEGUNDO grado, ¿qué porcentaje del personal debe permanecer disponible en las instalaciones?',
+                    options: [ { text: '100%', correct: false }, { text: '50%', correct: true }, { text: '25%', correct: false } ],
+                    feedbackCorrect: '¡Correcto! El Artículo 66 define el segundo grado como el 50% del personal disponible en la unidad.',
+                    feedbackIncorrect: 'Incorrecto. Revisa el Artículo 66. El segundo grado corresponde al 50%.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Alistamiento y Licor', icon: '🍺', color: 'text-red-600', text: 'Se decreta alistamiento de Tercer Grado. Un funcionario que está descansando en su residencia decide tomarse unas cervezas argumentando que solo el 25% está en la unidad. ¿Es correcta su acción?', options: [ { id: 'a', text: '(a) Sí, porque está en su tiempo de descanso.' }, { id: 'b', text: '(b) No, el reglamento prohíbe ingerir bebidas embriagantes en CUALQUIER grado de alistamiento.' }, { id: 'c', text: '(c) Solo si no excede el límite de alcoholemia.' }, { id: 'd', text: '(d) Sí, porque es tercer grado y es poco probable que lo llamen.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto. El estado de alistamiento impone restricciones.", 'b': "¡Correcto! El parágrafo del Art. 67 prohíbe ingerir bebidas embriagantes en NINGUNO de los grados de alistamiento.", 'c': "Incorrecto.", 'd': "Incorrecto. La probabilidad no justifica incumplir la norma." } },
+                     { id: 2, title: 'Escenario 2: Alarma Desconocida', icon: '❓', color: 'text-yellow-600', text: 'Suena una alarma en la estación con un toque de sirena intermitente corto, pero el personal no reacciona porque no saben qué significa. ¿Qué falló en la preparación?', options: [ { id: 'a', text: '(a) El sistema de sonido de la alarma.' }, { id: 'b', text: '(b) La instrucción y revisión permanente para que el personal conozca los sistemas y significados de las alarmas.' }, { id: 'c', text: '(c) El grado de alistamiento.' }, { id: 'd', text: '(d) La actualización del Plan Defensa.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto. La alarma sonó, el problema fue el reconocimiento.", 'b': "¡Correcto! El Art. 70 (parágrafo) y Art. 71 indican que los planes y significados de las alarmas deben ser objeto de instrucción y revisión permanente para que el personal las reconozca.", 'c': "Incorrecto.", 'd': "Incorrecto." } }
+                ],
+                 summaryPoints: [ '<strong>Alistamiento:</strong> Disponibilidad personal en unidad (1°, 2°, 3° grado).', 'Restricciones alistamiento: <strong>Pernocta</strong> (1°), <strong>no salir guarnición</strong> (2°, 3°), <strong>prohibido licor</strong> (todos).', '<strong>Alarmas:</strong> Señal para preparar personal (entrenamiento, ataque, siniestro).', 'Realizar <strong>prácticas de alarma</strong> trimestrales.', 'Personal debe <strong>conocer significado</strong> alarmas.' ]
+            },
+            {
+                id: 'regimen_salidas',
+                title: 'Régimen Interno y Salidas',
+                menuIcon: svgIcons.regimen,
+                subtitle: 'Capítulo IX',
+                protocolSteps: [
+                    { title: 'Régimen Interno (Art. 73)', icon: '📜', color: 'text-blue-600', points: ['Directores/Jefes/Comandantes establecen por acto administrativo el Régimen Interno.', 'Señala: servicios, funciones, obligaciones, horarios, uniformes, medidas seguridad, etc.', 'Acorde a normatividad y Reglamento Guarnición.'] },
+                    { title: 'Informe Salida Guarnición (Art. 74)', icon: '✈️', color: 'text-orange-600', points: ['Personal en situación administrativa (vacaciones fuera país, licencias, permisos, franquicias).', 'Debe solicitar salida guarnición por medio establecido.', 'Tramitar oportunamente ante Director/Jefe/Comandante.', 'Autorización depende de necesidades servicio.', 'Residentes fuera guarnición: Solicitan permiso una sola vez (queda en orden día).'] }
+                ],
+                 verificationQuestion: {
+                    text: 'Un policía reside permanentemente en un municipio diferente al de su unidad. ¿Cómo debe gestionar su salida de la guarnición para ir a su residencia?',
+                    options: [ { text: 'Debe pedir permiso cada vez que sale de turno.', correct: false }, { text: 'No necesita permiso por ser su residencia.', correct: false }, { text: 'Debe solicitar permiso por una sola vez, y la autorización queda en la orden del día.', correct: true } ],
+                    feedbackCorrect: '¡Correcto! El Artículo 74 establece este procedimiento para quienes residen fuera de la guarnición.',
+                    feedbackIncorrect: 'Incorrecto. Revisa el Artículo 74. Hay un procedimiento específico para residentes fuera de la guarnición.'
+                },
+                scenarios: [
+                     { id: 1, title: 'Escenario 1: Salida sin Permiso', icon: '🚫', color: 'text-red-600', text: 'Un uniformado entra a disfrutar su turno de franquicia y decide viajar a otra ciudad (fuera de su guarnición) sin haber solicitado ni obtenido el permiso correspondiente. ¿Está actuando correctamente?', options: [ { id: 'a', text: '(a) Sí, porque está en franquicia.' }, { id: 'b', text: '(b) No, el Art. 74 exige solicitar y obtener autorización para salir de la guarnición, incluso en franquicia.' }, { id: 'c', text: '(c) Solo necesita permiso si sale del país.' }, { id: 'd', text: '(d) Sí, si informa a un compañero.' } ], correctAnswer: 'b', feedback: { 'a': "Incorrecto. La franquicia no exime de solicitar permiso para salir de guarnición.", 'b': "¡Correcto! El Art. 74 indica que previo a la salida de la guarnición en situaciones como franquicia, se debe solicitar y tramitar la autorización.", 'c': "Incorrecto. El permiso aplica para salir de la guarnición, no solo del país (aunque para vacaciones fuera del país también aplica).", 'd': "Incorrecto. Informar a un compañero no reemplaza la autorización formal." } }
+                ],
+                 summaryPoints: [ 'Cada unidad establece su <strong>Régimen Interno</strong> por acto administrativo.', 'Régimen define: servicios, funciones, horarios, uniformes, etc.', 'Se requiere <strong>solicitar y obtener autorización</strong> para salir de la guarnición en vacaciones (fuera país), licencias, permisos, franquicias.', 'Residentes fuera guarnición solicitan <strong>permiso una sola vez</strong>.' ]
+            }
+        ];
+
+        // --- Lógica de la Aplicación (sin cambios funcionales) ---
+        let currentModuleId = null;
+        let currentStep = 1;
+        let currentScenario = 1;
+        let currentModuleData = {};
+
+        function showElement(id) { const el = document.getElementById(id); if (el) el.style.display = 'block'; }
+        function hideElement(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
+        function clearContainer(containerId) { const container = document.getElementById(containerId); if (container) container.innerHTML = ''; }
+
+        function initializeMainMenu() {
+            const menuContainer = document.getElementById('menu-cards-container');
+            clearContainer('menu-cards-container');
+            modulesData.forEach(module => {
+                const card = document.createElement('div');
+                card.className = 'menu-card';
+                card.onclick = () => loadModule(module.id);
+                card.innerHTML = `
+                    <div class="menu-card-icon">${module.menuIcon || '❓'}</div>
+                    <h3 class="menu-card-title">${module.title}</h3>
+                    <p class="menu-card-subtitle">${module.subtitle}</p>
+                `;
+                menuContainer.appendChild(card);
+            });
+            showElement('main-menu');
+            hideElement('active-module');
+        }
+
+        function loadModule(moduleId) {
+            currentModuleId = moduleId;
+            currentModuleData = modulesData.find(m => m.id === moduleId);
+            if (!currentModuleData) return;
+
+            hideElement('main-menu');
+            showElement('active-module');
+            hideElement('protocolo');
+            hideElement('escenarios');
+            hideElement('resumen');
+            hideElement('verification-question');
+
+            document.getElementById('module-title').textContent = currentModuleData.title;
+            document.getElementById('module-subtitle').textContent = currentModuleData.subtitle;
+
+            buildProtocolSection();
+            buildScenariosSection();
+            buildSummarySection();
+
+            showElement('protocolo');
+            currentStep = 1;
+            setActiveStep(currentStep);
+        }
+
+        function buildProtocolSection() {
+            const stepsContainer = document.getElementById('protocol-steps-container');
+            clearContainer('protocol-steps-container');
+            const totalSteps = currentModuleData.protocolSteps.length;
+
+            currentModuleData.protocolSteps.forEach((step, index) => {
+                const stepNumber = index + 1;
+                const stepDiv = document.createElement('div');
+                stepDiv.id = `step-${stepNumber}`;
+                stepDiv.className = 'step-content mb-6 p-5 border rounded-lg bg-gray-50 shadow-sm';
+
+                stepDiv.innerHTML = `
+                    <h4 class="font-semibold text-lg mb-3 text-gray-700 flex items-center">
+                       <span class="text-2xl mr-3 ${step.color || 'text-gray-500'}">${step.icon || ''}</span>
+                       ${step.title}
+                    </h4>
+                    <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+                        ${step.points.map(p => `<li>${p}</li>`).join('')}
+                    </ul>
+                    <div class="mt-6 flex justify-between">
+                        <button onclick="prevStep(${stepNumber - 1})" class="nav-button secondary ${stepNumber === 1 ? 'invisible' : ''}">Anterior</button>
+                        ${stepNumber === totalSteps
+                            ? `<button onclick="showVerificationQuestion()" class="nav-button success">Verificar Comprensión</button>`
+                            : `<button onclick="nextStep(${stepNumber + 1})" class="nav-button primary">Siguiente</button>`
+                        }
+                    </div>
+                `;
+                stepsContainer.appendChild(stepDiv);
+            });
+
+            const vq = currentModuleData.verificationQuestion;
+            document.getElementById('verification-question-text').textContent = vq.text;
+            const vqOptionsContainer = document.getElementById('verification-options-container');
+            clearContainer('verification-options-container');
+            vq.options.forEach(opt => {
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                button.textContent = opt.text;
+                button.onclick = () => checkVerificationAnswer(opt.correct, button);
+                vqOptionsContainer.appendChild(button);
+            });
+            const vqFeedback = document.getElementById('verification-feedback');
+            vqFeedback.style.display = 'none'; vqFeedback.textContent = ''; vqFeedback.className = 'feedback';
+            document.getElementById('start-scenarios-btn').style.display = 'none';
+        }
+
+        function buildScenariosSection() {
+            const scenariosContainer = document.getElementById('scenarios-container');
+            clearContainer('scenarios-container');
+            if (!currentModuleData.scenarios || currentModuleData.scenarios.length === 0) {
+                 scenariosContainer.innerHTML = '<p class="text-gray-500 text-center italic my-6">No hay escenarios de práctica disponibles para este módulo.</p>';
+                 setTimeout(showSummary, 1500);
+                return;
+            }
+            const totalScenarios = currentModuleData.scenarios.length;
+
+            currentModuleData.scenarios.forEach((scenario, index) => {
+                const scenarioNumber = index + 1;
+                const scenarioDiv = document.createElement('div');
+                scenarioDiv.id = `scenario-${scenarioNumber}`;
+                scenarioDiv.className = 'scenario-content p-5 border rounded-lg bg-gray-50 mb-6 shadow-sm';
+
+                scenarioDiv.innerHTML = `
+                    <h4 class="font-semibold text-lg mb-3 text-gray-700 flex items-center">
+                        <span class="text-2xl mr-3 ${scenario.color || 'text-gray-500'}">${scenario.icon || ''}</span>
+                        ${scenario.title}
+                    </h4>
+                    <p class="text-gray-600 mb-4 text-sm">${scenario.text}</p>
+                    <div id="options-scenario-${scenarioNumber}">
+                        ${scenario.options.map(opt => `<button class="option-button" onclick="checkScenarioAnswer(${scenarioNumber}, '${opt.id}', this)">${opt.text}</button>`).join('')}
+                    </div>
+                    <div id="feedback-scenario-${scenarioNumber}" class="feedback"></div>
+                    <div class="mt-6 text-right">
+                        ${scenarioNumber === totalScenarios
+                            ? `<button id="next-scenario-${scenarioNumber}" onclick="showSummary()" style="display:none;" class="nav-button success">Ver Resumen</button>`
+                            : `<button id="next-scenario-${scenarioNumber}" onclick="nextScenario(${scenarioNumber + 1})" style="display:none;" class="nav-button primary">Siguiente Escenario</button>`
+                        }
+                    </div>
+                `;
+                scenariosContainer.appendChild(scenarioDiv);
+                const feedbackEl = document.getElementById(`feedback-scenario-${scenarioNumber}`);
+                feedbackEl.style.display = 'none'; feedbackEl.textContent = ''; feedbackEl.className = 'feedback';
+                const nextButton = document.getElementById(`next-scenario-${scenarioNumber}`);
+                if(nextButton) nextButton.style.display = 'none';
+            });
+        }
+
+        function buildSummarySection() {
+            const summaryPointsList = document.getElementById('summary-points');
+            clearContainer('summary-points');
+             if (!currentModuleData.summaryPoints || currentModuleData.summaryPoints.length === 0) {
+                 summaryPointsList.innerHTML = '<li class="text-gray-500 italic">Resumen no disponible.</li>';
+                 return;
+             }
+            currentModuleData.summaryPoints.forEach(point => {
+                const li = document.createElement('li');
+                li.innerHTML = point;
+                summaryPointsList.appendChild(li);
+            });
+        }
+
+        function setActiveStep(stepNumber) { document.querySelectorAll(`#protocol-steps-container .step-content`).forEach(el => el.classList.remove('active')); const el = document.getElementById(`step-${stepNumber}`); if (el) el.classList.add('active'); }
+        function nextStep(stepNumber) { const totalSteps = currentModuleData.protocolSteps.length; if (stepNumber <= totalSteps) { currentStep = stepNumber; setActiveStep(currentStep); } }
+        function prevStep(stepNumber) { if (stepNumber >= 1) { currentStep = stepNumber; setActiveStep(currentStep); } }
+
+        function showVerificationQuestion() {
+            const totalSteps = currentModuleData.protocolSteps.length;
+            hideElement(`step-${totalSteps}`); showElement('verification-question');
+            const vqOptionsContainer = document.getElementById('verification-options-container');
+            vqOptionsContainer.querySelectorAll('.option-button').forEach(btn => { btn.disabled = false; btn.className = 'option-button'; });
+            hideElement('verification-feedback'); hideElement('start-scenarios-btn');
+        }
+
+        function checkVerificationAnswer(isCorrect, buttonElement) {
+            const feedbackEl = document.getElementById('verification-feedback');
+            const allButtons = document.querySelectorAll('#verification-options-container .option-button');
+            const vq = currentModuleData.verificationQuestion;
+            allButtons.forEach(btn => { btn.disabled = true; btn.classList.remove('selected', 'correct-answer', 'incorrect-answer'); });
+            buttonElement.classList.add('selected');
+            if (isCorrect) {
+                feedbackEl.textContent = vq.feedbackCorrect; feedbackEl.className = 'feedback correct'; showElement('start-scenarios-btn'); buttonElement.classList.add('correct-answer');
+            } else {
+                feedbackEl.textContent = vq.feedbackIncorrect; feedbackEl.className = 'feedback incorrect';
+                allButtons.forEach(btn => { const opt = vq.options.find(o => o.text === btn.textContent); if (opt && opt.correct) btn.classList.add('correct-answer'); });
+                buttonElement.classList.add('incorrect-answer');
+            }
+            feedbackEl.style.display = 'block';
+        }
+
+        function startScenarios() {
+             if (!currentModuleData.scenarios || currentModuleData.scenarios.length === 0) { hideElement('protocolo'); showSummary(); }
+             else { hideElement('protocolo'); showElement('escenarios'); currentScenario = 1; setActiveScenario(currentScenario); }
+        }
+
+        function setActiveScenario(scenarioNumber) {
+            document.querySelectorAll(`#scenarios-container .scenario-content`).forEach(el => el.classList.remove('active'));
+            const el = document.getElementById(`scenario-${scenarioNumber}`);
+            if (el) {
+                el.classList.add('active');
+                el.querySelectorAll('.option-button').forEach(btn => { btn.disabled = false; btn.className = 'option-button'; });
+                const fb = document.getElementById(`feedback-scenario-${scenarioNumber}`); if(fb) fb.style.display = 'none';
+                const nb = document.getElementById(`next-scenario-${scenarioNumber}`); if(nb) nb.style.display = 'none';
+            }
+        }
+
+        function checkScenarioAnswer(scenarioNum, selectedOptionId, buttonElement) {
+            const scenarioData = currentModuleData.scenarios.find(s => s.id === scenarioNum); if (!scenarioData) return;
+            const correctAnswerId = scenarioData.correctAnswer; const feedback = scenarioData.feedback[selectedOptionId];
+            const feedbackEl = document.getElementById(`feedback-scenario-${scenarioNum}`);
+            const nextButton = document.getElementById(`next-scenario-${scenarioNum}`);
+            const allButtons = document.querySelectorAll(`#scenario-${scenarioNum} .option-button`);
+            allButtons.forEach(btn => { btn.disabled = true; btn.classList.remove('selected', 'correct-answer', 'incorrect-answer'); });
+            buttonElement.classList.add('selected'); feedbackEl.textContent = feedback;
+            if (selectedOptionId === correctAnswerId) {
+                feedbackEl.className = 'feedback correct'; buttonElement.classList.add('correct-answer');
+            } else {
+                feedbackEl.className = 'feedback incorrect'; buttonElement.classList.add('incorrect-answer');
+                allButtons.forEach(btn => { const opt = scenarioData.options.find(o => o.id === correctAnswerId); if (opt && btn.textContent === opt.text) btn.classList.add('correct-answer'); });
+            }
+            feedbackEl.style.display = 'block'; if (nextButton) { nextButton.style.display = 'inline-block'; }
+        }
+
+        function nextScenario(scenarioNumber) { const totalScenarios = currentModuleData.scenarios.length; if (scenarioNumber <= totalScenarios) { currentScenario = scenarioNumber; setActiveScenario(currentScenario); } }
+        function showSummary() { hideElement('escenarios'); hideElement('protocolo'); showElement('resumen'); }
+        function restartCurrentModule() { if(currentModuleId) { loadModule(currentModuleId); } }
+        function goToMainMenu() { hideElement('active-module'); showElement('main-menu'); currentModuleId = null; currentModuleData = {}; initializeMainMenu(); }
+
+        document.addEventListener('DOMContentLoaded', initializeMainMenu);
+    </script>
+
+</body>
+</html>
