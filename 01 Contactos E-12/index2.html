@@ -1,430 +1,960 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Informe Policial</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Custom styles for better aesthetics and responsiveness */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5;
-            color: #333;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        }
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #e0e0e0;
-            padding-bottom: 8px;
-        }
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #555;
-        }
-        .input-group select,
-        .input-group input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-sizing: border-box;
-            margin-bottom: 10px;
-            font-size: 1rem;
-        }
-        .btn {
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        .btn-primary {
-            background-color: #3498db;
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: #2980b9;
-            transform: translateY(-1px);
-        }
-        .btn-secondary {
-            background-color: #95a5a6;
-            color: white;
-        }
-        .btn-secondary:hover {
-            background-color: #7f8c8d;
-            transform: translateY(-1px);
-        }
-        .btn-danger {
-            background-color: #e74c3c;
-            color: white;
-        }
-        .btn-danger:hover {
-            background-color: #c0392b;
-            transform: translateY(-1px);
-        }
-        .btn-success {
-            background-color: #2ecc71;
-            color: white;
-        }
-        .btn-success:hover {
-            background-color: #27ae60;
-            transform: translateY(-1px);
-        }
-        .report-output {
-            white-space: pre-wrap; /* Preserves whitespace and line breaks */
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            padding: 20px;
-            border-radius: 8px;
-            min-height: 300px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            overflow-x: auto;
-        }
-        .personnel-table th, .personnel-table td {
-            padding: 8px 12px;
-            border: 1px solid #e0e0e0;
-            text-align: left;
-        }
-        .personnel-table th {
-            background-color: #f2f2f2;
-            font-weight: 600;
-        }
-        .message-box {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: #4CAF50;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            display: none; /* Hidden by default */
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-        }
-        .message-box.error {
-            background-color: #f44336;
-        }
-        .team-item {
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 12px;
-            background-color: #fefefe;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-        .team-name-input {
-            border: none;
-            outline: none;
-            background: transparent;
-            padding: 4px;
-            border-bottom: 1px dashed #ccc;
-        }
-        .team-name-input:focus {
-            border-bottom: 1px solid #3498db;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Informe de Policía</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+        .subsection-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #374151;
+            margin-top: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        .input-field {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .btn-primary {
+            background-color: #2563eb;
+            color: #ffffff;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-1px);
+        }
+        .btn-secondary {
+            background-color: #6b7280;
+            color: #ffffff;
+        }
+        .btn-secondary:hover {
+            background-color: #4b5563;
+            transform: translateY(-1px);
+        }
+        .btn-danger {
+            background-color: #ef4444;
+            color: #ffffff;
+        }
+        .btn-danger:hover {
+            background-color: #dc2626;
+            transform: translateY(-1px);
+        }
+        .btn-success {
+            background-color: #22c55e;
+            color: #ffffff;
+        }
+        .btn-success:hover {
+            background-color: #16a34a;
+            transform: translateY(-1px);
+        }
+        .card {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .report-output {
+            white-space: pre-wrap; /* Preserves whitespace and line breaks */
+            word-wrap: break-word; /* Breaks long words */
+            background-color: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            min-height: 200px;
+            font-family: monospace;
+            line-height: 1.5;
+            color: #374151;
+        }
+        .personnel-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed #e5e7eb;
+        }
+        .personnel-list-item:last-child {
+            border-bottom: none;
+        }
+    </style>
 </head>
 <body class="p-4">
-    <div class="container">
-        <h1 class="text-3xl font-extrabold text-center text-blue-700 mb-8">Generador de Informe Policial</h1>
+    <div class="container">
+        <h1 class="text-3xl font-extrabold text-center text-gray-800 mb-8">Generador de Informe Policial</h1>
 
-        <!-- Message Box for notifications -->
-        <div id="messageBox" class="message-box"></div>
+        <!-- Sección de Configuración -->
+        <div class="mb-8 p-6 bg-blue-50 rounded-lg shadow-inner">
+            <h2 class="section-title text-blue-800">Configuración del Informe</h2>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Columna de Configuración -->
-            <div class="config-column">
-                <h2 class="section-title">Configuración del Informe</h2>
+            <!-- Comandante -->
+            <div class="mb-4">
+                <label for="commanderRank" class="block text-gray-700 font-medium mb-2">Grado del Comandante:</label>
+                <input type="text" id="commanderRank" class="input-field" value="MY." onchange="saveData()">
+            </div>
+            <div class="mb-4">
+                <label for="commanderName" class="block text-gray-700 font-medium mb-2">Nombre del Comandante:</label>
+                <input type="text" id="commanderName" class="input-field" value="Buitrago Valderrama Diego Alejandro" onchange="saveData()">
+            </div>
 
-                <!-- Sección de Servicios de Importancia -->
-                <div class="mb-6 p-4 border rounded-lg shadow-sm bg-gray-50">
-                    <h3 class="font-bold text-lg mb-3 text-gray-700">Servicios de Importancia</h3>
-                    <div id="importanceServicesList" class="mb-3">
-                        <!-- Items will be dynamically loaded here -->
-                    </div>
-                    <div class="flex gap-2">
-                        <input type="text" id="newImportanceService" placeholder="Nuevo servicio de importancia" class="flex-grow p-2 border rounded-md">
-                        <button id="addImportanceServiceBtn" class="btn btn-primary px-4 py-2">Agregar</button>
-                    </div>
-                </div>
+            <!-- Servicios de Importancia -->
+            <div class="mb-6">
+                <h3 class="subsection-title">Servicios de Importancia <span class="text-sm text-gray-500">(uno por línea)</span></h3>
+                <textarea id="importantServices" class="input-field min-h-[150px]" onchange="saveData()"></textarea>
+            </div>
 
-                <!-- Sección de Gestión de Personal -->
-                <div class="mb-6 p-4 border rounded-lg shadow-sm bg-gray-50">
-                    <h3 class="font-bold text-lg mb-3 text-gray-700">Gestión de Personal</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                        <input type="text" id="personnelGrade" placeholder="Grado (Ej: SI, PT, PP)" class="p-2 border rounded-md">
-                        <input type="text" id="personnelName" placeholder="Nombre (Ej: Martin, Daniela)" class="p-2 border rounded-md">
-                    </div>
-                    <div class="flex gap-2">
-                        <button id="addPersonnelBtn" class="btn btn-success flex-grow">Agregar Personal</button>
-                        <button id="updatePersonnelBtn" class="btn btn-primary flex-grow hidden">Actualizar Personal</button>
-                        <button id="cancelEditPersonnelBtn" class="btn btn-secondary flex-grow hidden">Cancelar Edición</button>
-                    </div>
-                    <div class="mt-4 max-h-60 overflow-y-auto">
-                        <table class="w-full personnel-table border-collapse">
-                            <thead>
-                                <tr>
-                                    <th>Grado</th>
-                                    <th>Nombre</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="personnelTableBody">
-                                <!-- Personnel will be dynamically loaded here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <!-- Gestión de Personal -->
+            <div class="mb-6">
+                <h3 class="subsection-title">Gestión de Personal</h3>
+                <div id="personnelListContainer" class="bg-white p-4 rounded-lg border border-gray-200 mb-4 max-h-60 overflow-y-auto">
+                    <!-- Personnel items will be rendered here -->
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                    <input type="text" id="newPersonnelGrade" class="input-field flex-grow" placeholder="Grado (ej. PT, SI)" aria-label="Nuevo Grado de Personal">
+                    <input type="text" id="newPersonnelName" class="input-field flex-grow" placeholder="Nombre (ej. Martin, Daniela)" aria-label="Nuevo Nombre de Personal">
+                    <button onclick="addPersonnel()" class="btn btn-success">Añadir Personal</button>
+                </div>
+            </div>
+        </div>
 
-                <!-- Asignación de Personal a CAI y Roles -->
-                <div class="mb-6 p-4 border rounded-lg shadow-sm bg-gray-50">
-                    <h3 class="font-bold text-lg mb-3 text-gray-700">Asignación de Personal y Equipos</h3>
+        <!-- Sección de Equipos y Grupos -->
+        <div class="mb-8 p-6 bg-green-50 rounded-lg shadow-inner">
+            <h2 class="section-title text-green-800">Asignación de Equipos y Grupos</h2>
 
-                    <!-- CAI - MODELO -->
-                    <div class="mb-4">
-                        <h4 class="font-semibold text-md mb-2 text-gray-600">CAI - MODELO</h4>
-                        <div id="caiModeloTeams">
-                            <!-- Teams will be dynamically loaded here -->
-                        </div>
-                        <button class="btn btn-secondary mt-2" onclick="addTeam('caiModelo')">Añadir Equipo</button>
-                    </div>
+            <!-- CAI Sections -->
+            <div id="caiSectionsContainer">
+                <!-- CAI sections will be rendered here -->
+            </div>
+            <button onclick="addCaiSection()" class="btn btn-primary mt-4">Añadir Sección CAI</button>
 
-                    <!-- CAI - ALCAZARES -->
-                    <div class="mb-4">
-                        <h4 class="font-semibold text-md mb-2 text-gray-600">CAI - ALCAZARES</h4>
-                        <div id="caiAlcazaresTeams">
-                            <!-- Teams will be dynamically loaded here -->
-                        </div>
-                        <button class="btn btn-secondary mt-2" onclick="addTeam('caiAlcazares')">Añadir Equipo</button>
-                    </div>
+            <!-- Other Groups -->
+            <div class="mt-8">
+                <h3 class="subsection-title">Otros Grupos</h3>
+                <div id="otherGroupsContainer">
+                    <!-- Other groups will be rendered here -->
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4 mt-4">
+                    <input type="text" id="newGroupName" class="input-field flex-grow" placeholder="Nombre del nuevo grupo" aria-label="Nombre del nuevo grupo">
+                    <button onclick="addOtherGroup()" class="btn btn-primary">Añadir Otro Grupo</button>
+                </div>
+            </div>
+        </div>
 
-                    <!-- CAI - POLO CLUB -->
-                    <div class="mb-4">
-                        <h4 class="font-semibold text-md mb-2 text-gray-600">CAI - POLO CLUB</h4>
-                        <div id="caiPoloClubTeams">
-                            <!-- Teams will be dynamically loaded here -->
-                        </div>
-                        <button class="btn btn-secondary mt-2" onclick="addTeam('caiPoloClub')">Añadir Equipo</button>
-                    </div>
+        <!-- Botón de Generar Informe -->
+        <div class="text-center mb-8">
+            <button onclick="generateReport()" class="btn btn-primary text-xl px-8 py-4">Generar Informe</button>
+        </div>
 
-                    <!-- CAI - RIONEGRO -->
-                    <div class="mb-4">
-                        <h4 class="font-semibold text-md mb-2 text-gray-600">CAI - RIONEGRO</h4>
-                        <div id="caiRionegroTeams">
-                            <!-- Teams will be dynamically loaded here -->
-                        </div>
-                        <button class="btn btn-secondary mt-2" onclick="addTeam('caiRionegro')">Añadir Equipo</button>
-                    </div>
+        <!-- Área de Salida del Informe -->
+        <div class="p-6 bg-gray-100 rounded-lg shadow-inner">
+            <h2 class="section-title text-gray-800">Informe Generado</h2>
+            <pre id="reportOutput" class="report-output"></pre>
+        </div>
+    </div>
 
-                    <!-- CAI - 7 DE AGOSTO -->
-                    <div class="mb-4">
-                        <h4 class="font-semibold text-md mb-2 text-gray-600">CAI - 7 DE AGOSTO</h4>
-                        <div id="cai7AgostoTeams">
-                            <!-- Teams will be dynamically loaded here -->
-                        </div>
-                        <button class="btn btn-secondary mt-2" onclick="addTeam('cai7Agosto')">Añadir Equipo</button>
-                    </div>
+    <script>
+        // Función para generar un ID único
+        function generateUniqueId() {
+            return 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        }
 
-                    <!-- Roles Específicos (Fixed roles) -->
-                    <div class="mb-4">
-                        <h4 class="font-semibold text-md mb-2 text-gray-600">Roles Específicos</h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="input-group">
-                                <label for="jefeVigilancia">Jefe de Vigilancia:</label>
-                                <select id="jefeVigilancia" class="personnel-select" data-role="fixed"></select>
-                            </div>
-                            <div class="input-group">
-                                <label for="jefeInformacion">Jefe de Información E-12 y Centinelas:</label>
-                                <select id="jefeInformacion" class="personnel-select" data-role="fixed"></select>
-                            </div>
-                            <div class="input-group">
-                                <label for="custodioE12Si">Custodio E-12 SI:</label>
-                                <select id="custodioE12Si" class="personnel-select" data-role="fixed"></select>
-                            </div>
-                            <div class="input-group">
-                                <label for="custodioE12Pt1">Custodio E-12 PT 1:</label>
-                                <select id="custodioE12Pt1" class="personnel-select" data-role="fixed"></select>
-                            </div>
-                            <div class="input-group">
-                                <label for="custodioE12Pt2">Custodio E-12 PT 2:</label>
-                                <select id="custodioE12Pt2" class="personnel-select" data-role="fixed"></select>
-                            </div>
-                            <div class="input-group">
-                                <label for="custodioE12Pt3">Custodio E-12 PT 3:</label>
-                                <select id="custodioE12Pt3" class="personnel-select" data-role="fixed"></select>
-                            </div>
-                            <div class="input-group">
-                                <label for="caiAlcazaresInfo">Info CAI - ALCÁZARES:</label>
-                                <select id="caiAlcazaresInfo" class="personnel-select" data-role="fixed"></select>
-                            </div>
-                            <div class="input-group">
-                                <label for="caiModeloInfo">Info CAI - MODELO:</label>
-                                <select id="caiModeloInfo" class="personnel-select" data-role="fixed"></select>
-                            </div>
-                            <div class="input-group">
-                                <label for="caiPoloClubInfo">Info CAI - POLO CLUB:</label>
-                                <select id="caiPoloClubInfo" class="personnel-select" data-role="fixed"></select>
-                            </div>
-                            <div class="input-group">
-                                <label for="caiRionegroInfo">Info CAI - RIONEGRO:</label>
-                                <select id="caiRionegroInfo" class="personnel-select" data-role="fixed"></select>
-                            </div>
-                            <div class="input-group">
-                                <label for="cai7AgostoInfo">Info CAI - 7 DE AGOSTO:</label>
-                                <select id="cai7AgostoInfo" class="personnel-select" data-role="fixed"></select>
-                            </div>
-                        </div>
-                    </div>
+        // Datos iniciales por defecto
+        const defaultData = {
+            commanderName: "Buitrago Valderrama Diego Alejandro",
+            commanderRank: "MY.",
+            importantServices: [
+                "Puntos criticos",
+                "Sector comercio",
+                "Sector bancario",
+                "Sector residencial",
+                "Carrilera",
+                "Zona Tolerancia",
+                "Universidades",
+                "Talleres 7 Agosto",
+                "Puentes de la 92",
+                "Av. Caracas",
+                "Calle 63",
+                "Carrera 30",
+                "Calle 80"
+            ],
+            personnel: [
+                { id: generateUniqueId(), grade: "PT", name: "Martin", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Daniela", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Rosario", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Karol", assigned: false },
+                { id: generateUniqueId(), grade: "SI", name: "Chacon", assigned: false },
+                { id: generateUniqueId(), grade: "SI", name: "Manrique", assigned: false },
+                { id: generateUniqueId(), grade: "SI", name: "Diaz", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Ospino", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Solano", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Hernandez", assigned: false },
+                { id: generateUniqueId(), grade: "SI", name: "Pineda", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Escobar", assigned: false },
+                { id: generateUniqueId(), grade: "SI", name: "Corredor", assigned: false },
+                { id: generateUniqueId(), grade: "PP", name: "Maria", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Castillo", assigned: false },
+                { id: generateUniqueId(), grade: "PP", name: "Juana", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Jurado", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "González Marrugo", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Chavarria", assigned: false },
+                { id: generateUniqueId(), grade: "PP", name: "Sofia", assigned: false },
+                { id: generateUniqueId(), grade: "SI", name: "Gomez Lozano", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Montenegro", assigned: false },
+                { id: generateUniqueId(), grade: "IJ", name: "Manuel Antonio Arias Guerra", assigned: false },
+                { id: generateUniqueId(), grade: "SI", name: "Nieto", assigned: false },
+                { id: generateUniqueId(), grade: "SI", name: "Ávila", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Higuita", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Ballesteros", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "González", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Marquez", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Gomez Muñoz", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Nayerli", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Sierra", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Garzon Garcia", assigned: false },
+                { id: generateUniqueId(), grade: "SI", name: "Olivero", assigned: false },
+                { id: generateUniqueId(), grade: "SI", name: "Marmol", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Sanche", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Velázquez", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Trujillo", assigned: false },
+                { id: generateUniqueId(), grade: "SI", name: "Gonzalez", assigned: false }
+            ],
+            caiSections: [
+                {
+                    id: generateUniqueId(), name: "CAI - MODELO",
+                    teams: [
+                        { id: generateUniqueId(), name: "11-13", members: [] },
+                        { id: generateUniqueId(), name: "12/14", members: [] },
+                        { id: generateUniqueId(), name: "15/16", members: [] }
+                    ]
+                },
+                {
+                    id: generateUniqueId(), name: "CAI - ALCAZARES",
+                    teams: [
+                        { id: generateUniqueId(), name: "1", members: [] },
+                        { id: generateUniqueId(), name: "2", members: [] }
+                    ]
+                },
+                {
+                    id: generateUniqueId(), name: "CAI - POLO CLUB",
+                    teams: [
+                        { id: generateUniqueId(), name: "6-7", members: [] },
+                        { id: generateUniqueId(), name: "8", members: [] }
+                    ]
+                },
+                {
+                    id: generateUniqueId(), name: "CAI - RIONEGRO",
+                    teams: [
+                        { id: generateUniqueId(), name: "9", members: [] },
+                        { id: generateUniqueId(), name: "10", members: [] }
+                    ]
+                },
+                {
+                    id: generateUniqueId(), name: "CAI - 7 DE AGOSTO",
+                    teams: [
+                        { id: generateUniqueId(), name: "3", members: [] },
+                        { id: generateUniqueId(), name: "4 5", members: [] }
+                    ]
+                }
+            ],
+            otherGroups: [
+                { id: generateUniqueId(), name: "Jefe de Vigilancia", members: [] },
+                { id: generateUniqueId(), name: "Jefe de información E-12 y Centinelas", members: [] },
+                { id: generateUniqueId(), name: "Custodio E-12", members: [] },
+                { id: generateUniqueId(), name: "CAI- ALCÁZARES (Información)", members: [] },
+                { id: generateUniqueId(), name: "CAI - MODELO (Información)", members: [] },
+                { id: generateUniqueId(), name: "CAI - POLO CLUB (Información)", members: [] },
+                { id: generateUniqueId(), name: "CAI - RIONEGRO (Información)", members: [] },
+                { id: generateUniqueId(), name: "CAI 7 DE AGOSTO (Información)", members: [] },
+                { id: generateUniqueId(), name: "Vacaciones", members: [] },
+                { id: generateUniqueId(), name: "Excusado", members: [] },
+                { id: generateUniqueId(), name: "Calamidad", members: [] }
+            ]
+        };
 
-                    <!-- Novedades (Fixed roles) -->
-                    <div class="mb-4">
-                        <h4 class="font-semibold text-md mb-2 text-gray-600">Novedades</h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="input-group">
-                                <label for="novedadVacaciones1">Vacaciones 1:</label>
-                                <select id="novedadVacaciones1" class="personnel-select" data-role="fixed"></select>
-                            </div>
-                            <div class="input-group">
-                                <label for="novedadVacaciones2">Vacaciones 2:</label>
-                                <select id="novedadVacaciones2" class="personnel-select" data-role="fixed"></select>
-                            </div>
-                            <div class="input-group">
-                                <label for="novedadVacaciones3">Vacaciones 3:</label>
-                                <select id="novedadVacaciones3" class="personnel-select" data-role="fixed"></select>
-                            </div>
-                            <div class="input-group">
-                                <label for="novedadVacaciones4">Vacaciones 4:</label>
-                                <select id="novedadVacaciones4" class="personnel-select" data-role="fixed"></select>
-                            </div>
-                            <div class="input-group">
-                                <label for="novedadExcusado">Excusado:</label>
-                                <select id="novedadExcusado" class="personnel-select" data-role="fixed"></select>
-                            </div>
-                            <div class="input-group">
-                                <label for="novedadCalamidad">Calamidad:</label>
-                                <select id="novedadCalamidad" class="personnel-select" data-role="fixed"></select>
-                            </div>
-                        </div>
-                    </div>
+        let appData = {};
 
-                    <div class="flex justify-center gap-4 mt-6">
-                        <button id="generateReportBtn" class="btn btn-primary px-6 py-3 text-lg">Generar Informe</button>
-                        <button id="saveDataBtn" class="btn btn-secondary px-6 py-3 text-lg">Guardar Datos</button>
-                        <button id="loadDataBtn" class="btn btn-secondary px-6 py-3 text-lg">Cargar Datos</button>
-                    </div>
-                </div>
-            </div>
+        // Función para cargar datos desde localStorage
+        function loadData() {
+            const storedData = localStorage.getItem('policeReportData');
+            if (storedData) {
+                appData = JSON.parse(storedData);
+                // Ensure default structure is maintained for new properties
+                appData.personnel = appData.personnel || defaultData.personnel;
+                appData.caiSections = appData.caiSections || defaultData.caiSections;
+                appData.otherGroups = appData.otherGroups || defaultData.otherGroups;
+                appData.importantServices = appData.importantServices || defaultData.importantServices;
+                appData.commanderName = appData.commanderName || defaultData.commanderName;
+                appData.commanderRank = appData.commanderRank || defaultData.commanderRank;
 
-            <!-- Columna de Previsualización del Informe -->
-            <div class="report-column">
-                <h2 class="section-title">Previsualización del Informe</h2>
-                <div id="reportOutput" class="report-output">
-                    <!-- Report will be generated here -->
-                </div>
-                <button id="copyReportBtn" class="btn btn-success w-full mt-4 py-3 text-lg">Copiar Informe</button>
-            </div>
-        </div>
-    </div>
+                // Re-assign initial personnel to match default structure if they were not assigned
+                defaultData.personnel.forEach(defaultP => {
+                    const found = appData.personnel.find(p => p.grade === defaultP.grade && p.name === defaultP.name);
+                    if (!found) {
+                        appData.personnel.push({ ...defaultP, assigned: false });
+                    }
+                });
 
-    <script>
-        // Global variables to store application data
-        let personnel = []; // Stores all personnel with their grade, name, and assignment status
-        let importanceServices = []; // Stores the list of importance services
-        let teams = { // Stores work teams organized by CAI
-            caiModelo: [],
-            caiAlcazares: [],
-            caiPoloClub: [],
-            caiRionegro: [],
-            cai7Agosto: []
-        };
-        let fixedAssignments = {}; // Stores assignments for fixed roles (Jefe de Vigilancia, Novedades, etc.)
+                // Set initial assignments based on default data if appData is empty
+                if (appData.caiSections.every(s => s.teams.every(t => t.members.length === 0)) &&
+                    appData.otherGroups.every(g => g.members.length === 0)) {
+                    // If no assignments loaded, apply default ones
+                    assignDefaultPersonnel();
+                } else {
+                    // If data loaded, ensure assigned status is correct
+                    updatePersonnelAssignedStatus();
+                }
 
-        // DOM Elements
-        const personnelTableBody = document.getElementById('personnelTableBody');
-        const personnelGradeInput = document.getElementById('personnelGrade');
-        const personnelNameInput = document.getElementById('personnelName');
-        const addPersonnelBtn = document.getElementById('addPersonnelBtn');
-        const updatePersonnelBtn = document.getElementById('updatePersonnelBtn');
-        const cancelEditPersonnelBtn = document.getElementById('cancelEditPersonnelBtn');
+            } else {
+                appData = JSON.parse(JSON.stringify(defaultData)); // Deep copy default data
+                assignDefaultPersonnel(); // Assign default personnel to their initial places
+            }
+            renderUI();
+        }
 
-        const newImportanceServiceInput = document.getElementById('newImportanceService');
-        const addImportanceServiceBtn = document.getElementById('addImportanceServiceBtn');
-        const importanceServicesListDiv = document.getElementById('importanceServicesList');
+        // Function to assign default personnel to their initial places
+        function assignDefaultPersonnel() {
+            // Reset all personnel to unassigned first
+            appData.personnel.forEach(p => p.assigned = false);
 
-        const generateReportBtn = document.getElementById('generateReportBtn');
-        const reportOutputDiv = document.getElementById('reportOutput');
-        const copyReportBtn = document.getElementById('copyReportBtn');
-        const saveDataBtn = document.getElementById('saveDataBtn');
-        const loadDataBtn = document.getElementById('loadDataBtn');
-        const messageBox = document.getElementById('messageBox');
+            // Assign personnel to CAI teams
+            defaultData.caiSections.forEach(defaultCai => {
+                const currentCai = appData.caiSections.find(c => c.name === defaultCai.name);
+                if (currentCai) {
+                    defaultCai.teams.forEach(defaultTeam => {
+                        const currentTeam = currentCai.teams.find(t => t.name === defaultTeam.name);
+                        if (currentTeam) {
+                            currentTeam.members = defaultTeam.members.map(memberId => {
+                                const person = appData.personnel.find(p => p.grade.toLowerCase() === memberId.split('_')[0] && p.name.toLowerCase() === memberId.split('_').slice(1).join('_').toLowerCase());
+                                if (person) {
+                                    person.assigned = true;
+                                    return person.id;
+                                }
+                                return null;
+                            }).filter(Boolean); // Filter out nulls if personnel not found
+                        }
+                    });
+                }
+            });
 
-        let editingPersonnelId = null; // To keep track of the personnel being edited
+            // Assign personnel to other groups
+            defaultData.otherGroups.forEach(defaultGroup => {
+                const currentGroup = appData.otherGroups.find(g => g.name === defaultGroup.name);
+                if (currentGroup) {
+                    currentGroup.members = defaultGroup.members.map(memberId => {
+                        const person = appData.personnel.find(p => p.grade.toLowerCase() === memberId.split('_')[0] && p.name.toLowerCase() === memberId.split('_').slice(1).join('_').toLowerCase());
+                        if (person) {
+                            person.assigned = true;
+                            return person.id;
+                        }
+                        return null;
+                    }).filter(Boolean);
+                }
+            });
+        }
 
-        // --- Utility Functions ---
-        /**
-        * Generates a unique ID.
-        * @returns {string} A unique ID.
-        */
-        function generateUniqueId() {
-            return '_' + Math.random().toString(36).substr(2, 9);
-        }
 
-        /**
-        * Displays a message box with a given message and type (success/error).
-        * @param {string} message - The message to display.
-        * @param {string} type - 'success' or 'error'.
-        */
-        function showMessage(message, type = 'success') {
-            messageBox.textContent = message;
-            messageBox.className = 'message-box'; // Reset classes
-            messageBox.classList.add(type);
-            messageBox.style.display = 'block';
-            messageBox.style.opacity = '1';
+        // Función para guardar datos en localStorage
+        function saveData() {
+            localStorage.setItem('policeReportData', JSON.stringify(appData));
+            renderUI(); // Re-render UI after saving to update available personnel
+        }
 
-            setTimeout(() => {
-                messageBox.style.opacity = '0';
-                setTimeout(() => {
-                    messageBox.style.display = 'none';
-                }, 500); // Wait for fade out
-            }, 3000); // Display for 3 seconds
-        }
+        // Función para obtener el saludo según la hora
+        function getGreeting() {
+            const hour = new Date().getHours();
+            if (hour >= 5 && hour < 12) {
+                return "buenos días";
+            } else if (hour >= 12 && hour < 19) {
+                return "buenas tardes";
+            } else {
+                return "buenas noches";
+            }
+        }
 
-        // --- Local Storage Management ---
-        /**
-        * Saves current application data to local storage.
-        */
-        function saveToLocalStorage() {
-            try {
-                localStorage.setItem('personnelData', JSON.stringify(personnel));
-                localStorage.setItem('importanceServicesData', JSON.stringify(importanceServices));
-                localStorage.setItem('teamsData', JSON.stringify(teams));
-                localStorage.setItem('fixedAssignmentsData', JSON.stringify(fixedAssignments));
-                showMessage('Datos guardados exitosamente.', 'success');
-            } catch (e) {
-                console.error("Error al guardar en el almacenamiento local:", e);
-                showMessage('Error al guardar los datos.', 'error');
-            }
-        }
+        // --- Gestión de Personal ---
+        function renderPersonnelList() {
+            const container = document.getElementById('personnelListContainer');
+            container.innerHTML = '';
+            appData.personnel.forEach(person => {
+                const div = document.createElement('div');
+                div.className = 'personnel-list-item';
+                div.innerHTML = `
+                    <span class="text-gray-800">${person.grade} ${person.name}</span>
+                    <div class="flex gap-2">
+                        <button onclick="editPersonnel('${person.id}')" class="text-blue-600 hover:text-blue-800 text-sm">Editar</button>
+                        <button onclick="deletePersonnel('${person.id}')" class="text-red-600 hover:text-red-800 text-sm">Eliminar</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
 
-        /**
-        * Loads application
+        function addPersonnel() {
+            const gradeInput = document.getElementById('newPersonnelGrade');
+            const nameInput = document.getElementById('newPersonnelName');
+            const grade = gradeInput.value.trim();
+            const name = nameInput.value.trim();
+
+            if (grade && name) {
+                appData.personnel.push({ id: generateUniqueId(), grade: grade, name: name, assigned: false });
+                gradeInput.value = '';
+                nameInput.value = '';
+                saveData();
+            }
+        }
+
+        function editPersonnel(id) {
+            const person = appData.personnel.find(p => p.id === id);
+            if (person) {
+                const newGrade = prompt(`Editar grado para ${person.name}:`, person.grade);
+                const newName = prompt(`Editar nombre para ${person.grade} ${person.name}:`, person.name);
+                if (newGrade !== null && newName !== null) {
+                    person.grade = newGrade.trim();
+                    person.name = newName.trim();
+                    saveData();
+                }
+            }
+        }
+
+        function deletePersonnel(id) {
+            if (confirm('¿Estás seguro de que quieres eliminar a este miembro del personal? Esto lo desasignará de todos los equipos.')) {
+                appData.personnel = appData.personnel.filter(p => p.id !== id);
+                // Remove from all assignments
+                appData.caiSections.forEach(cai => {
+                    cai.teams.forEach(team => {
+                        team.members = team.members.filter(memberId => memberId !== id);
+                    });
+                });
+                appData.otherGroups.forEach(group => {
+                    group.members = group.members.filter(memberId => memberId !== id);
+                });
+                saveData();
+            }
+        }
+
+        // --- Renderizado de Selectores de Personal ---
+        function getAvailablePersonnel() {
+            return appData.personnel.filter(p => !p.assigned);
+        }
+
+        function createPersonnelSelect(selectedPersonId = null, onChangeCallback) {
+            const select = document.createElement('select');
+            select.className = 'input-field w-full';
+            select.innerHTML = '<option value="">-- Seleccionar Personal --</option>';
+
+            const available = getAvailablePersonnel();
+            const assignedPerson = selectedPersonId ? appData.personnel.find(p => p.id === selectedPersonId) : null;
+
+            // Add currently assigned person to options even if they are marked as assigned
+            if (assignedPerson) {
+                const option = document.createElement('option');
+                option.value = assignedPerson.id;
+                option.textContent = `${assignedPerson.grade} ${assignedPerson.name}`;
+                option.selected = true;
+                select.appendChild(option);
+            }
+
+            available.forEach(person => {
+                if (person.id !== selectedPersonId) { // Avoid duplicating if already added as assigned
+                    const option = document.createElement('option');
+                    option.value = person.id;
+                    option.textContent = `${person.grade} ${person.name}`;
+                    select.appendChild(option);
+                }
+            });
+
+            select.onchange = onChangeCallback;
+            return select;
+        }
+
+        // --- Actualizar estado de 'assigned' para el personal ---
+        function updatePersonnelAssignedStatus() {
+            appData.personnel.forEach(p => p.assigned = false); // Reset all
+
+            // Mark personnel assigned in CAI teams
+            appData.caiSections.forEach(cai => {
+                cai.teams.forEach(team => {
+                    team.members.forEach(memberId => {
+                        const person = appData.personnel.find(p => p.id === memberId);
+                        if (person) person.assigned = true;
+                    });
+                });
+            });
+
+            // Mark personnel assigned in other groups
+            appData.otherGroups.forEach(group => {
+                group.members.forEach(memberId => {
+                    const person = appData.personnel.find(p => p.id === memberId);
+                    if (person) person.assigned = true;
+                });
+            });
+        }
+
+
+        // --- Renderizado de CAI Sections ---
+        function renderCaiSections() {
+            const container = document.getElementById('caiSectionsContainer');
+            container.innerHTML = '';
+
+            appData.caiSections.forEach(cai => {
+                const caiDiv = document.createElement('div');
+                caiDiv.id = `cai-${cai.id}`;
+                caiDiv.className = 'card mb-6';
+                caiDiv.innerHTML = `
+                    <div class="flex justify-between items-center mb-4">
+                        <input type="text" value="${cai.name}" class="subsection-title input-field flex-grow mr-2" onchange="updateCaiName('${cai.id}', this.value)">
+                        <button onclick="deleteCaiSection('${cai.id}')" class="btn btn-danger btn-sm">Eliminar CAI</button>
+                    </div>
+                    <div id="cai-teams-${cai.id}">
+                        <!-- Teams will be rendered here -->
+                    </div>
+                    <button onclick="addCaiTeam('${cai.id}')" class="btn btn-secondary mt-4">Añadir Equipo a ${cai.name}</button>
+                `;
+                container.appendChild(caiDiv);
+                renderCaiTeams(cai.id);
+            });
+        }
+
+        function updateCaiName(caiId, newName) {
+            const cai = appData.caiSections.find(c => c.id === caiId);
+            if (cai) {
+                cai.name = newName.trim();
+                saveData();
+            }
+        }
+
+        function addCaiSection() {
+            const newCaiName = prompt('Ingrese el nombre de la nueva sección CAI (ej. CAI - NUEVO):');
+            if (newCaiName) {
+                appData.caiSections.push({
+                    id: generateUniqueId(),
+                    name: newCaiName.trim(),
+                    teams: []
+                });
+                saveData();
+            }
+        }
+
+        function deleteCaiSection(caiId) {
+            if (confirm('¿Estás seguro de que quieres eliminar esta sección CAI y todos sus equipos?')) {
+                appData.caiSections = appData.caiSections.filter(c => c.id !== caiId);
+                saveData();
+            }
+        }
+
+        // --- Renderizado de Equipos de CAI ---
+        function renderCaiTeams(caiId) {
+            const cai = appData.caiSections.find(c => c.id === caiId);
+            if (!cai) return;
+
+            const container = document.getElementById(`cai-teams-${cai.id}`);
+            container.innerHTML = '';
+
+            cai.teams.forEach((team, teamIndex) => {
+                const teamDiv = document.createElement('div');
+                teamDiv.className = 'card bg-white p-4 mb-3';
+                teamDiv.innerHTML = `
+                    <div class="flex justify-between items-center mb-3">
+                        <input type="text" value="${team.name}" class="font-semibold input-field flex-grow mr-2" onchange="updateCaiTeamName('${cai.id}', '${team.id}', this.value)">
+                        <button onclick="deleteCaiTeam('${cai.id}', '${team.id}')" class="btn btn-danger btn-sm">Eliminar Equipo</button>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <div id="cai-${cai.id}-team-${team.id}-member1" class="flex-1"></div>
+                        <div id="cai-${cai.id}-team-${team.id}-member2" class="flex-1"></div>
+                    </div>
+                `;
+                container.appendChild(teamDiv);
+
+                // Render member selects
+                const member1Container = document.getElementById(`cai-${cai.id}-team-${team.id}-member1`);
+                const member2Container = document.getElementById(`cai-${cai.id}-team-${team.id}-member2`);
+
+                member1Container.appendChild(createPersonnelSelect(team.members[0], (event) => {
+                    updateCaiTeamMember(cai.id, team.id, 0, event.target.value);
+                }));
+                member2Container.appendChild(createPersonnelSelect(team.members[1], (event) => {
+                    updateCaiTeamMember(cai.id, team.id, 1, event.target.value);
+                }));
+            });
+        }
+
+        function updateCaiTeamName(caiId, teamId, newName) {
+            const cai = appData.caiSections.find(c => c.id === caiId);
+            if (cai) {
+                const team = cai.teams.find(t => t.id === teamId);
+                if (team) {
+                    team.name = newName.trim();
+                    saveData();
+                }
+            }
+        }
+
+        function updateCaiTeamMember(caiId, teamId, memberIndex, personId) {
+            const cai = appData.caiSections.find(c => c.id === caiId);
+            if (cai) {
+                const team = cai.teams.find(t => t.id === teamId);
+                if (team) {
+                    // Check for duplicate assignment within the same team
+                    if (team.members.includes(personId) && personId !== "") {
+                        // If the selected person is already in the other slot of this team
+                        // and it's not the "empty" option, prevent assignment
+                        const currentOtherMemberId = team.members[1 - memberIndex];
+                        if (currentOtherMemberId === personId) {
+                            // Reset the select to its previous value
+                            renderUI(); // Re-render to revert the selection
+                            return;
+                        }
+                    }
+
+                    // Before updating, unassign the old member if any
+                    const oldMemberId = team.members[memberIndex];
+                    if (oldMemberId) {
+                        const oldPerson = appData.personnel.find(p => p.id === oldMemberId);
+                        if (oldPerson) oldPerson.assigned = false;
+                    }
+
+                    // Assign the new member
+                    team.members[memberIndex] = personId;
+                    if (personId) {
+                        const newPerson = appData.personnel.find(p => p.id === personId);
+                        if (newPerson) newPerson.assigned = true;
+                    }
+                    saveData();
+                }
+            }
+        }
+
+
+        function addCaiTeam(caiId) {
+            const cai = appData.caiSections.find(c => c.id === caiId);
+            if (cai) {
+                const newTeamName = prompt('Ingrese el nombre del nuevo equipo (ej. 17-18):');
+                if (newTeamName) {
+                    cai.teams.push({ id: generateUniqueId(), name: newTeamName.trim(), members: [] });
+                    saveData();
+                }
+            }
+        }
+
+        function deleteCaiTeam(caiId, teamId) {
+            if (confirm('¿Estás seguro de que quieres eliminar este equipo?')) {
+                const cai = appData.caiSections.find(c => c.id === caiId);
+                if (cai) {
+                    const team = cai.teams.find(t => t.id === teamId);
+                    if (team) {
+                        // Unassign members before deleting the team
+                        team.members.forEach(memberId => {
+                            const person = appData.personnel.find(p => p.id === memberId);
+                            if (person) person.assigned = false;
+                        });
+                    }
+                    cai.teams = cai.teams.filter(t => t.id !== teamId);
+                    saveData();
+                }
+            }
+        }
+
+        // --- Renderizado de Otros Grupos ---
+        function renderOtherGroups() {
+            const container = document.getElementById('otherGroupsContainer');
+            container.innerHTML = '';
+
+            appData.otherGroups.forEach(group => {
+                const groupDiv = document.createElement('div');
+                groupDiv.id = `group-${group.id}`;
+                groupDiv.className = 'card mb-6';
+                groupDiv.innerHTML = `
+                    <div class="flex justify-between items-center mb-4">
+                        <input type="text" value="${group.name}" class="subsection-title input-field flex-grow mr-2" onchange="updateOtherGroupName('${group.id}', this.value)">
+                        <button onclick="deleteOtherGroup('${group.id}')" class="btn btn-danger btn-sm">Eliminar Grupo</button>
+                    </div>
+                    <div id="group-members-${group.id}" class="mb-3">
+                        <!-- Members will be rendered here -->
+                    </div>
+                    <button onclick="addMemberToOtherGroup('${group.id}')" class="btn btn-secondary btn-sm">Añadir Miembro</button>
+                `;
+                container.appendChild(groupDiv);
+                renderOtherGroupMembers(group.id);
+            });
+        }
+
+        function updateOtherGroupName(groupId, newName) {
+            const group = appData.otherGroups.find(g => g.id === groupId);
+            if (group) {
+                group.name = newName.trim();
+                saveData();
+            }
+        }
+
+        function addOtherGroup() {
+            const newGroupNameInput = document.getElementById('newGroupName');
+            const newGroupName = newGroupNameInput.value.trim();
+            if (newGroupName) {
+                appData.otherGroups.push({
+                    id: generateUniqueId(),
+                    name: newGroupName,
+                    members: []
+                });
+                newGroupNameInput.value = '';
+                saveData();
+            }
+        }
+
+        function deleteOtherGroup(groupId) {
+            if (confirm('¿Estás seguro de que quieres eliminar este grupo?')) {
+                const group = appData.otherGroups.find(g => g.id === groupId);
+                if (group) {
+                    // Unassign members before deleting the group
+                    group.members.forEach(memberId => {
+                        const person = appData.personnel.find(p => p.id === memberId);
+                        if (person) person.assigned = false;
+                    });
+                }
+                appData.otherGroups = appData.otherGroups.filter(g => g.id !== groupId);
+                saveData();
+            }
+        }
+
+        function renderOtherGroupMembers(groupId) {
+            const group = appData.otherGroups.find(g => g.id === groupId);
+            if (!group) return;
+
+            const container = document.getElementById(`group-members-${group.id}`);
+            container.innerHTML = '';
+
+            group.members.forEach((memberId, index) => {
+                const memberDiv = document.createElement('div');
+                memberDiv.className = 'flex items-center gap-2 mb-2';
+                const select = createPersonnelSelect(memberId, (event) => {
+                    updateOtherGroupMember(group.id, index, event.target.value);
+                });
+                memberDiv.appendChild(select);
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn btn-danger btn-sm';
+                deleteBtn.textContent = 'X';
+                deleteBtn.onclick = () => deleteMemberFromOtherGroup(group.id, index);
+                memberDiv.appendChild(deleteBtn);
+
+                container.appendChild(memberDiv);
+            });
+        }
+
+        function addMemberToOtherGroup(groupId) {
+            const group = appData.otherGroups.find(g => g.id === groupId);
+            if (group) {
+                group.members.push(''); // Add an empty slot for a new member
+                saveData();
+            }
+        }
+
+        function updateOtherGroupMember(groupId, memberIndex, personId) {
+            const group = appData.otherGroups.find(g => g.id === groupId);
+            if (group) {
+                // Unassign the old member if any
+                const oldMemberId = group.members[memberIndex];
+                if (oldMemberId) {
+                    const oldPerson = appData.personnel.find(p => p.id === oldMemberId);
+                    if (oldPerson) oldPerson.assigned = false;
+                }
+
+                // Assign the new member
+                group.members[memberIndex] = personId;
+                if (personId) {
+                    const newPerson = appData.personnel.find(p => p.id === personId);
+                    if (newPerson) newPerson.assigned = true;
+                }
+                saveData();
+            }
+        }
+
+        function deleteMemberFromOtherGroup(groupId, memberIndex) {
+            const group = appData.otherGroups.find(g => g.id === groupId);
+            if (group) {
+                const memberId = group.members[memberIndex];
+                if (memberId) {
+                    const person = appData.personnel.find(p => p.id === memberId);
+                    if (person) person.assigned = false;
+                }
+                group.members.splice(memberIndex, 1);
+                saveData();
+            }
+        }
+
+        // --- Renderizado General de la UI ---
+        function renderUI() {
+            // Update input fields
+            document.getElementById('commanderRank').value = appData.commanderRank;
+            document.getElementById('commanderName').value = appData.commanderName;
+            document.getElementById('importantServices').value = appData.importantServices.join('\n');
+
+            updatePersonnelAssignedStatus(); // Ensure assigned status is correct before rendering selects
+            renderPersonnelList();
+            renderCaiSections();
+            renderOtherGroups();
+        }
+
+        // --- Generar Informe ---
+        function generateReport() {
+            const greeting = getGreeting();
+            const commanderRank = document.getElementById('commanderRank').value.trim();
+            const commanderName = document.getElementById('commanderName').value.trim();
+            const importantServicesText = document.getElementById('importantServices').value.trim();
+            const importantServices = importantServicesText.split('\n').filter(line => line.trim() !== '');
+
+            let report = `Dios y Patria mi Mayor ${greeting}, respetuosamente me permito reportar el personal para el segundo turno, así:\n\n`;
+
+            // Parte de Zonas de Atención
+            const totalZones = appData.caiSections.reduce((acc, cai) => acc + cai.teams.length, 0);
+            report += `*Parte =(0-6-21)*\n\n`;
+            report += `Total: *(${totalZones})* Zonas de Atención asignados al Nuevo Modelo de Servicio de Policía en la Estación Barrios Unidos, así:\n\n`;
+
+            appData.caiSections.forEach(cai => {
+                report += `*${cai.name.toUpperCase()}*\n`;
+                cai.teams.forEach(team => {
+                    const members = team.members.map(memberId => {
+                        const person = appData.personnel.find(p => p.id === memberId);
+                        return person ? `${person.grade} ${person.name}` : 'Personal no asignado';
+                    }).join(' / ');
+                    report += `🚔 ${team.name} ${members}\n`;
+                });
+                report += '\n'; // Add a newline after each CAI section
+            });
+
+            // Jefe de Vigilancia
+            const jefeVigilanciaGroup = appData.otherGroups.find(g => g.name === "Jefe de Vigilancia");
+            if (jefeVigilanciaGroup && jefeVigilanciaGroup.members.length > 0) {
+                const jefe = appData.personnel.find(p => p.id === jefeVigilanciaGroup.members[0]);
+                if (jefe) {
+                    report += `*Zona T*\n\n`;
+                    report += `*Jefe de Vigilancia*\n`;
+                    report += `${jefe.grade} ${jefe.name}\n\n`;
+                }
+            }
+
+            // Servicios de Importancia
+            if (importantServices.length > 0) {
+                report += `*Servicios de Importancia*\n\n`;
+                importantServices.forEach(service => {
+                    report += `📌${service}\n`;
+                });
+                report += '\n';
+            }
+
+            // Jefe de información E-12 y Centinelas
+            const jefeInfoGroup = appData.otherGroups.find(g => g.name === "Jefe de información E-12 y Centinelas");
+            if (jefeInfoGroup && jefeInfoGroup.members.length > 0) {
+                report += `*Jefe de información E-12 y Centinelas*\n\n`;
+                jefeInfoGroup.members.forEach(memberId => {
+                    const person = appData.personnel.find(p => p.id === memberId);
+                    if (person) {
+                        report += `👮🏻‍♂️${person.grade}. ${person.name}\n`;
+                    }
+                });
+                report += '\n';
+            }
+
+            // Custodio E-12
+            const custodioE12Group = appData.otherGroups.find(g => g.name === "Custodio E-12");
+            if (custodioE12Group && custodioE12Group.members.length > 0) {
+                report += `*Custodio E-12*\n\n`;
+                report += `Parte: (0-1-3)\n\n`; // This part is fixed in the example
+                custodioE12Group.members.forEach(memberId => {
+                    const person = appData.personnel.find(p => p.id === memberId);
+                    if (person) {
+                        report += `${person.grade}. ${person.name}\n`;
+                    }
+                });
+                report += '\n';
+            }
+
+            // Información de CAI (individual)
+            const caiInfoGroups = appData.otherGroups.filter(g => g.name.includes("(Información)"));
+            if (caiInfoGroups.length > 0) {
+                report += `*Información de CAI*\n\n`;
+                caiInfoGroups.forEach(group => {
+                    if (group.members.length > 0) {
+                        const person = appData.personnel.find(p => p.id === group.members[0]); // Assuming one person per CAI info
+                        if (person) {
+                            report += `*${group.name.replace(' (Información)', '')}*\n`;
+                            report += `👮🏻‍♂️ ${person.grade}. ${person.name}\n\n`;
+                        }
+                    }
+                });
+            }
+
+            // Novedades
+            const novedadesGroups = appData.otherGroups.filter(g => ["Vacaciones", "Excusado", "Calamidad"].includes(g.name));
+            const customNovedadesGroups = appData.otherGroups.filter(g => !["Jefe de Vigilancia", "Jefe de información E-12 y Centinelas", "Custodio E-12", "Vacaciones", "Excusado", "Calamidad"].includes(g.name) && !g.name.includes("(Información)"));
+
+            if (novedadesGroups.length > 0 || customNovedadesGroups.length > 0) {
+                report += `*📌NOVEDADES*\n\n`;
+                novedadesGroups.concat(customNovedadesGroups).forEach(group => {
+                    if (group.members.length > 0) {
+                        report += `*${group.name}*\n\n`;
+                        group.members.forEach(memberId => {
+                            const person = appData.personnel.find(p => p.id === memberId);
+                            if (person) {
+                                report += `${person.grade} ${person.name}\n`;
+                            }
+                        });
+                        report += '\n';
+                    }
+                });
+            }
+
+            report += `${commanderRank} ${commanderName}\n`;
+            report += `*Comandante Estación de Policía Barrios Unidos*\n`;
+
+            document.getElementById('reportOutput').textContent = report;
+        }
+
+        // Inicializar la aplicación al cargar la página
+        window.onload = loadData;
+    </script>
+</body>
+</html>
 
