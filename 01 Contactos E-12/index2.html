@@ -3,13 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Informe de Policía</title>
+    <title>Generador de Informe Policial</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome CDN para íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
+        /* Estilos base para el cuerpo y contenedor principal */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f0f2f5;
+            margin: 0;
+            padding: 1rem; /* Padding general para el cuerpo en móviles */
         }
         .container {
             max-width: 1000px;
@@ -19,6 +24,7 @@
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
+        /* Títulos de sección y subsección */
         .section-title {
             font-size: 1.5rem;
             font-weight: bold;
@@ -34,6 +40,7 @@
             margin-top: 1rem;
             margin-bottom: 0.75rem;
         }
+        /* Campos de entrada y áreas de texto */
         .input-field {
             border: 1px solid #d1d5db;
             border-radius: 8px;
@@ -48,6 +55,7 @@
             border-color: #2563eb;
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
         }
+        /* Estilos para botones con íconos */
         .btn {
             padding: 0.75rem 1.25rem;
             border-radius: 8px;
@@ -58,7 +66,10 @@
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
+            min-width: 44px; /* Asegura un buen tamaño de toque para móviles */
+            min-height: 44px; /* Asegura un buen tamaño de toque para móviles */
         }
+        /* Variantes de color para botones */
         .btn-primary {
             background-color: #2563eb;
             color: #ffffff;
@@ -91,6 +102,7 @@
             background-color: #16a34a;
             transform: translateY(-1px);
         }
+        /* Estilos para tarjetas de contenido */
         .card {
             background-color: #f9fafb;
             border: 1px solid #e5e7eb;
@@ -98,9 +110,10 @@
             padding: 1rem;
             margin-bottom: 1rem;
         }
+        /* Estilos para la salida del informe */
         .report-output {
-            white-space: pre-wrap; /* Preserves whitespace and line breaks */
-            word-wrap: break-word; /* Breaks long words */
+            white-space: pre-wrap; /* Preserva espacios en blanco y saltos de línea */
+            word-wrap: break-word; /* Rompe palabras largas */
             background-color: #f3f4f6;
             border: 1px solid #e5e7eb;
             border-radius: 8px;
@@ -110,6 +123,7 @@
             line-height: 1.5;
             color: #374151;
         }
+        /* Estilos para elementos de lista de personal */
         .personnel-list-item {
             display: flex;
             justify-content: space-between;
@@ -119,6 +133,99 @@
         }
         .personnel-list-item:last-child {
             border-bottom: none;
+        }
+
+        /* --- Estilos para el Modal Personalizado --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            width: 90%; /* Ancho responsivo para móviles */
+            max-width: 500px;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+        .modal-title {
+            font-size: 1.75rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .modal-message {
+            font-size: 1rem;
+            color: #4b5563;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .modal-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        /* Estilos para el mensaje de copiado */
+        .copy-feedback {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 1001;
+        }
+        .copy-feedback.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Responsive adjustments */
+        @media (min-width: 640px) { /* sm breakpoint */
+            body {
+                padding: 2rem;
+            }
+            .btn {
+                padding: 0.75rem 1.25rem; /* Restore larger padding for desktop */
+            }
+            .flex-col-sm-row {
+                flex-direction: row;
+            }
         }
     </style>
 </head>
@@ -150,12 +257,12 @@
             <div class="mb-6">
                 <h3 class="subsection-title">Gestión de Personal</h3>
                 <div id="personnelListContainer" class="bg-white p-4 rounded-lg border border-gray-200 mb-4 max-h-60 overflow-y-auto">
-                    <!-- Personnel items will be rendered here -->
+                    <!-- Los elementos del personal se renderizarán aquí -->
                 </div>
                 <div class="flex flex-col sm:flex-row gap-4 mb-4">
                     <input type="text" id="newPersonnelGrade" class="input-field flex-grow" placeholder="Grado (ej. PT, SI)" aria-label="Nuevo Grado de Personal">
                     <input type="text" id="newPersonnelName" class="input-field flex-grow" placeholder="Nombre (ej. Martin, Daniela)" aria-label="Nuevo Nombre de Personal">
-                    <button onclick="addPersonnel()" class="btn btn-success">Añadir Personal</button>
+                    <button onclick="addPersonnel()" class="btn btn-success"><i class="fas fa-plus"></i></button>
                 </div>
             </div>
         </div>
@@ -164,21 +271,21 @@
         <div class="mb-8 p-6 bg-green-50 rounded-lg shadow-inner">
             <h2 class="section-title text-green-800">Asignación de Equipos y Grupos</h2>
 
-            <!-- CAI Sections -->
+            <!-- Secciones CAI -->
             <div id="caiSectionsContainer">
-                <!-- CAI sections will be rendered here -->
+                <!-- Las secciones CAI se renderizarán aquí -->
             </div>
-            <button onclick="addCaiSection()" class="btn btn-primary mt-4">Añadir Sección CAI</button>
+            <button onclick="addCaiSection()" class="btn btn-primary mt-4"><i class="fas fa-plus"></i></button>
 
-            <!-- Other Groups -->
+            <!-- Otros Grupos -->
             <div class="mt-8">
                 <h3 class="subsection-title">Otros Grupos</h3>
                 <div id="otherGroupsContainer">
-                    <!-- Other groups will be rendered here -->
+                    <!-- Otros grupos se renderizarán aquí -->
                 </div>
                 <div class="flex flex-col sm:flex-row gap-4 mt-4">
                     <input type="text" id="newGroupName" class="input-field flex-grow" placeholder="Nombre del nuevo grupo" aria-label="Nombre del nuevo grupo">
-                    <button onclick="addOtherGroup()" class="btn btn-primary">Añadir Otro Grupo</button>
+                    <button onclick="addOtherGroup()" class="btn btn-primary"><i class="fas fa-plus"></i></button>
                 </div>
             </div>
         </div>
@@ -189,13 +296,36 @@
         </div>
 
         <!-- Área de Salida del Informe -->
-        <div class="p-6 bg-gray-100 rounded-lg shadow-inner">
+        <div class="p-6 bg-gray-100 rounded-lg shadow-inner relative">
             <h2 class="section-title text-gray-800">Informe Generado</h2>
+            <button onclick="copyReport()" class="absolute top-4 right-4 btn btn-secondary p-2 text-lg" title="Copiar informe">
+                <i class="fas fa-copy"></i>
+            </button>
             <pre id="reportOutput" class="report-output"></pre>
         </div>
     </div>
 
+    <!-- Modal Overlay -->
+    <div id="customModalOverlay" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modalTitle" class="modal-title"></h3>
+            <p id="modalMessage" class="modal-message"></p>
+            <input type="text" id="modalInput" class="modal-input hidden">
+            <div class="modal-buttons">
+                <button id="modalConfirmBtn" class="btn btn-primary hidden">Aceptar</button>
+                <button id="modalCancelBtn" class="btn btn-secondary hidden">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback de copiado -->
+    <div id="copyFeedback" class="copy-feedback">
+        ¡Copiado!
+    </div>
+
     <script>
+        let scrollPosition = 0; // Variable para almacenar la posición de desplazamiento
+
         // Función para generar un ID único
         function generateUniqueId() {
             return 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
@@ -316,12 +446,78 @@
 
         let appData = {};
 
+        // --- Funciones para el Modal Personalizado ---
+        const modalOverlay = document.getElementById('customModalOverlay');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalInput = document.getElementById('modalInput');
+        const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+
+        let modalCallback = null;
+
+        function showModal(title, message, type, defaultValue = '', callback) {
+            scrollPosition = window.scrollY; // Guarda la posición de desplazamiento actual
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            modalCallback = callback;
+
+            modalInput.classList.add('hidden');
+            modalConfirmBtn.classList.add('hidden');
+            modalCancelBtn.classList.add('hidden');
+
+            if (type === 'prompt') {
+                modalInput.value = defaultValue;
+                modalInput.classList.remove('hidden');
+                modalConfirmBtn.textContent = 'Aceptar';
+                modalConfirmBtn.classList.remove('hidden');
+            } else if (type === 'confirm') {
+                modalConfirmBtn.textContent = 'Sí';
+                modalConfirmBtn.classList.remove('hidden');
+                modalCancelBtn.textContent = 'No';
+                modalCancelBtn.classList.remove('hidden');
+            }
+
+            modalOverlay.classList.add('active');
+            // Deshabilita el desplazamiento del cuerpo mientras el modal está activo
+            document.body.style.overflow = 'hidden';
+            if (type === 'prompt') {
+                modalInput.focus();
+            }
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+            document.body.style.overflow = ''; // Restaura el desplazamiento del cuerpo
+            window.scrollTo(0, scrollPosition); // Vuelve a la posición de desplazamiento guardada
+        }
+
+        modalConfirmBtn.onclick = () => {
+            closeModal();
+            if (modalCallback) {
+                if (!modalInput.classList.contains('hidden')) {
+                    modalCallback(modalInput.value);
+                } else {
+                    modalCallback(true);
+                }
+            }
+        };
+
+        modalCancelBtn.onclick = () => {
+            closeModal();
+            if (modalCallback) {
+                modalCallback(false);
+            }
+        };
+
+        // --- Fin de funciones del Modal Personalizado ---
+
         // Función para cargar datos desde localStorage
         function loadData() {
             const storedData = localStorage.getItem('policeReportData');
             if (storedData) {
                 appData = JSON.parse(storedData);
-                // Ensure default structure is maintained for new properties
+                // Asegura que la estructura por defecto se mantenga para nuevas propiedades
                 appData.personnel = appData.personnel || defaultData.personnel;
                 appData.caiSections = appData.caiSections || defaultData.caiSections;
                 appData.otherGroups = appData.otherGroups || defaultData.otherGroups;
@@ -329,7 +525,7 @@
                 appData.commanderName = appData.commanderName || defaultData.commanderName;
                 appData.commanderRank = appData.commanderRank || defaultData.commanderRank;
 
-                // Re-assign initial personnel to match default structure if they were not assigned
+                // Re-asigna el personal inicial para que coincida con la estructura por defecto si no estaban asignados
                 defaultData.personnel.forEach(defaultP => {
                     const found = appData.personnel.find(p => p.grade === defaultP.grade && p.name === defaultP.name);
                     if (!found) {
@@ -337,69 +533,98 @@
                     }
                 });
 
-                // Set initial assignments based on default data if appData is empty
+                // Si no hay asignaciones cargadas, aplica las predeterminadas
                 if (appData.caiSections.every(s => s.teams.every(t => t.members.length === 0)) &&
-                    appData.otherGroups.every(g => g.members.length === 0)) {
-                    // If no assignments loaded, apply default ones
+                    appData.otherGroups.every(g => g.members.every(m => m === ''))) { // Check for empty strings in members
                     assignDefaultPersonnel();
                 } else {
-                    // If data loaded, ensure assigned status is correct
+                    // Si los datos se cargaron, asegura que el estado de asignado sea correcto
                     updatePersonnelAssignedStatus();
                 }
 
             } else {
-                appData = JSON.parse(JSON.stringify(defaultData)); // Deep copy default data
-                assignDefaultPersonnel(); // Assign default personnel to their initial places
+                appData = JSON.parse(JSON.stringify(defaultData)); // Copia profunda de los datos por defecto
+                assignDefaultPersonnel(); // Asigna el personal por defecto a sus lugares iniciales
             }
             renderUI();
         }
 
-        // Function to assign default personnel to their initial places
+        // Función para asignar el personal por defecto a sus lugares iniciales
         function assignDefaultPersonnel() {
-            // Reset all personnel to unassigned first
+            // Reinicia todo el personal a no asignado primero
             appData.personnel.forEach(p => p.assigned = false);
 
-            // Assign personnel to CAI teams
-            defaultData.caiSections.forEach(defaultCai => {
-                const currentCai = appData.caiSections.find(c => c.name === defaultCai.name);
-                if (currentCai) {
-                    defaultCai.teams.forEach(defaultTeam => {
-                        const currentTeam = currentCai.teams.find(t => t.name === defaultTeam.name);
-                        if (currentTeam) {
-                            currentTeam.members = defaultTeam.members.map(memberId => {
-                                const person = appData.personnel.find(p => p.grade.toLowerCase() === memberId.split('_')[0] && p.name.toLowerCase() === memberId.split('_').slice(1).join('_').toLowerCase());
-                                if (person) {
-                                    person.assigned = true;
-                                    return person.id;
-                                }
-                                return null;
-                            }).filter(Boolean); // Filter out nulls if personnel not found
-                        }
-                    });
+            // Asigna el personal a los equipos CAI (basado en nombres para coincidir)
+            const defaultCaiAssignments = [
+                { caiName: "CAI - MODELO", teamName: "11-13", members: ["PT_Martin", "PT_Daniela"] },
+                { caiName: "CAI - MODELO", teamName: "12/14", members: ["PT_Rosario", "PT_Karol"] },
+                { caiName: "CAI - MODELO", teamName: "15/16", members: ["SI_Chacon", "SI_Manrique"] },
+                { caiName: "CAI - ALCAZARES", teamName: "1", members: ["SI_Diaz", "PT_Ospino"] },
+                { caiName: "CAI - ALCAZARES", teamName: "2", members: ["PT_Solano", "PT_Hernandez"] },
+                { caiName: "CAI - POLO CLUB", teamName: "6-7", members: ["SI_Pineda", "PT_Escobar"] },
+                { caiName: "CAI - POLO CLUB", teamName: "8", members: ["SI_Corredor", "PP_Maria"] },
+                { caiName: "CAI - RIONEGRO", teamName: "9", members: ["PT_Castillo", "PP_Juana"] },
+                { caiName: "CAI - RIONEGRO", teamName: "10", members: ["PT_Jurado", "PT_González Marrugo"] },
+                { caiName: "CAI - 7 DE AGOSTO", teamName: "3", members: ["PT_Chavarria", "PP_Sofia"] },
+                { caiName: "CAI - 7 DE AGOSTO", teamName: "4 5", members: ["SI_Gomez Lozano", "PT_Montenegro"] }
+            ];
+
+            defaultCaiAssignments.forEach(assignment => {
+                const cai = appData.caiSections.find(c => c.name === assignment.caiName);
+                if (cai) {
+                    const team = cai.teams.find(t => t.name === assignment.teamName);
+                    if (team) {
+                        team.members = assignment.members.map(memberString => {
+                            const [grade, ...nameParts] = memberString.split('_');
+                            const name = nameParts.join(' ');
+                            const person = appData.personnel.find(p => p.grade === grade && p.name === name);
+                            if (person) {
+                                person.assigned = true;
+                                return person.id;
+                            }
+                            return ''; // Return empty string if not found
+                        }).filter(Boolean); // Filter out any nulls/empty strings
+                    }
                 }
             });
 
-            // Assign personnel to other groups
-            defaultData.otherGroups.forEach(defaultGroup => {
-                const currentGroup = appData.otherGroups.find(g => g.name === defaultGroup.name);
-                if (currentGroup) {
-                    currentGroup.members = defaultGroup.members.map(memberId => {
-                        const person = appData.personnel.find(p => p.grade.toLowerCase() === memberId.split('_')[0] && p.name.toLowerCase() === memberId.split('_').slice(1).join('_').toLowerCase());
+            // Asigna el personal a otros grupos (basado en nombres para coincidir)
+            const defaultOtherGroupAssignments = [
+                { groupName: "Jefe de Vigilancia", members: ["IJ_Manuel Antonio Arias Guerra"] },
+                { groupName: "Jefe de información E-12 y Centinelas", members: ["SI_Nieto"] },
+                { groupName: "Custodio E-12", members: ["SI_Ávila", "PT_Higuita", "PT_Ballesteros", "PT_González"] },
+                { groupName: "CAI- ALCÁZARES (Información)", members: ["PT_Marquez"] },
+                { groupName: "CAI - MODELO (Información)", members: ["PT_Gomez Muñoz"] },
+                { groupName: "CAI - POLO CLUB (Información)", members: ["PT_Nayerli"] },
+                { groupName: "CAI - RIONEGRO (Información)", members: ["PT_Sierra"] },
+                { groupName: "CAI 7 DE AGOSTO (Información)", members: ["PT_Garzon Garcia"] },
+                { groupName: "Vacaciones", members: ["SI_Olivero", "SI_Marmol", "PT_Sanche", "PT_Velázquez"] },
+                { groupName: "Excusado", members: ["PT_Trujillo"] },
+                { groupName: "Calamidad", members: ["SI_Gonzalez"] }
+            ];
+
+            defaultOtherGroupAssignments.forEach(assignment => {
+                const group = appData.otherGroups.find(g => g.name === assignment.groupName);
+                if (group) {
+                    group.members = assignment.members.map(memberString => {
+                        const [grade, ...nameParts] = memberString.split('_');
+                        const name = nameParts.join(' ');
+                        const person = appData.personnel.find(p => p.grade === grade && p.name === name);
                         if (person) {
                             person.assigned = true;
                             return person.id;
                         }
-                        return null;
-                    }).filter(Boolean);
+                        return ''; // Return empty string if not found
+                    }).filter(Boolean); // Filter out any nulls/empty strings
                 }
             });
+            updatePersonnelAssignedStatus(); // Re-run to ensure all assigned statuses are correct after default assignment
         }
-
 
         // Función para guardar datos en localStorage
         function saveData() {
             localStorage.setItem('policeReportData', JSON.stringify(appData));
-            renderUI(); // Re-render UI after saving to update available personnel
+            renderUI(); // Re-renderiza la UI después de guardar para actualizar el personal disponible
         }
 
         // Función para obtener el saludo según la hora
@@ -424,8 +649,8 @@
                 div.innerHTML = `
                     <span class="text-gray-800">${person.grade} ${person.name}</span>
                     <div class="flex gap-2">
-                        <button onclick="editPersonnel('${person.id}')" class="text-blue-600 hover:text-blue-800 text-sm">Editar</button>
-                        <button onclick="deletePersonnel('${person.id}')" class="text-red-600 hover:text-red-800 text-sm">Eliminar</button>
+                        <button onclick="editPersonnel('${person.id}')" class="text-blue-600 hover:text-blue-800 text-sm p-1 rounded-full"><i class="fas fa-edit"></i></button>
+                        <button onclick="deletePersonnel('${person.id}')" class="text-red-600 hover:text-red-800 text-sm p-1 rounded-full"><i class="fas fa-trash"></i></button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -449,30 +674,36 @@
         function editPersonnel(id) {
             const person = appData.personnel.find(p => p.id === id);
             if (person) {
-                const newGrade = prompt(`Editar grado para ${person.name}:`, person.grade);
-                const newName = prompt(`Editar nombre para ${person.grade} ${person.name}:`, person.name);
-                if (newGrade !== null && newName !== null) {
-                    person.grade = newGrade.trim();
-                    person.name = newName.trim();
-                    saveData();
-                }
+                showModal('Editar Grado', `Editar grado para ${person.name}:`, 'prompt', person.grade, (newGrade) => {
+                    if (newGrade !== null) {
+                        showModal('Editar Nombre', `Editar nombre para ${person.grade} ${person.name}:`, 'prompt', person.name, (newName) => {
+                            if (newName !== null) {
+                                person.grade = newGrade.trim();
+                                person.name = newName.trim();
+                                saveData();
+                            }
+                        });
+                    }
+                });
             }
         }
 
         function deletePersonnel(id) {
-            if (confirm('¿Estás seguro de que quieres eliminar a este miembro del personal? Esto lo desasignará de todos los equipos.')) {
-                appData.personnel = appData.personnel.filter(p => p.id !== id);
-                // Remove from all assignments
-                appData.caiSections.forEach(cai => {
-                    cai.teams.forEach(team => {
-                        team.members = team.members.filter(memberId => memberId !== id);
+            showModal('Eliminar Personal', '¿Estás seguro de que quieres eliminar a este miembro del personal? Esto lo desasignará de todos los equipos.', 'confirm', '', (confirmed) => {
+                if (confirmed) {
+                    appData.personnel = appData.personnel.filter(p => p.id !== id);
+                    // Eliminar de todas las asignaciones
+                    appData.caiSections.forEach(cai => {
+                        cai.teams.forEach(team => {
+                            team.members = team.members.filter(memberId => memberId !== id);
+                        });
                     });
-                });
-                appData.otherGroups.forEach(group => {
-                    group.members = group.members.filter(memberId => memberId !== id);
-                });
-                saveData();
-            }
+                    appData.otherGroups.forEach(group => {
+                        group.members = group.members.filter(memberId => memberId !== id);
+                    });
+                    saveData();
+                }
+            });
         }
 
         // --- Renderizado de Selectores de Personal ---
@@ -480,7 +711,7 @@
             return appData.personnel.filter(p => !p.assigned);
         }
 
-        function createPersonnelSelect(selectedPersonId = null, onChangeCallback) {
+        function createPersonnelSelect(selectedPersonId = '', onChangeCallback) {
             const select = document.createElement('select');
             select.className = 'input-field w-full';
             select.innerHTML = '<option value="">-- Seleccionar Personal --</option>';
@@ -488,7 +719,7 @@
             const available = getAvailablePersonnel();
             const assignedPerson = selectedPersonId ? appData.personnel.find(p => p.id === selectedPersonId) : null;
 
-            // Add currently assigned person to options even if they are marked as assigned
+            // Añade a la persona actualmente asignada a las opciones, incluso si está marcada como asignada
             if (assignedPerson) {
                 const option = document.createElement('option');
                 option.value = assignedPerson.id;
@@ -497,8 +728,9 @@
                 select.appendChild(option);
             }
 
+            // Añade el resto del personal disponible
             available.forEach(person => {
-                if (person.id !== selectedPersonId) { // Avoid duplicating if already added as assigned
+                if (person.id !== selectedPersonId) { // Evita duplicar si ya se añadió como asignado
                     const option = document.createElement('option');
                     option.value = person.id;
                     option.textContent = `${person.grade} ${person.name}`;
@@ -512,9 +744,9 @@
 
         // --- Actualizar estado de 'assigned' para el personal ---
         function updatePersonnelAssignedStatus() {
-            appData.personnel.forEach(p => p.assigned = false); // Reset all
+            appData.personnel.forEach(p => p.assigned = false); // Reinicia todos
 
-            // Mark personnel assigned in CAI teams
+            // Marca el personal asignado en los equipos CAI
             appData.caiSections.forEach(cai => {
                 cai.teams.forEach(team => {
                     team.members.forEach(memberId => {
@@ -524,7 +756,7 @@
                 });
             });
 
-            // Mark personnel assigned in other groups
+            // Marca el personal asignado en otros grupos
             appData.otherGroups.forEach(group => {
                 group.members.forEach(memberId => {
                     const person = appData.personnel.find(p => p.id === memberId);
@@ -534,7 +766,7 @@
         }
 
 
-        // --- Renderizado de CAI Sections ---
+        // --- Renderizado de Secciones CAI ---
         function renderCaiSections() {
             const container = document.getElementById('caiSectionsContainer');
             container.innerHTML = '';
@@ -544,14 +776,14 @@
                 caiDiv.id = `cai-${cai.id}`;
                 caiDiv.className = 'card mb-6';
                 caiDiv.innerHTML = `
-                    <div class="flex justify-between items-center mb-4">
-                        <input type="text" value="${cai.name}" class="subsection-title input-field flex-grow mr-2" onchange="updateCaiName('${cai.id}', this.value)">
-                        <button onclick="deleteCaiSection('${cai.id}')" class="btn btn-danger btn-sm">Eliminar CAI</button>
+                    <div class="flex flex-col sm:flex-row justify-between items-center mb-4">
+                        <input type="text" value="${cai.name}" class="subsection-title input-field flex-grow mr-2 mb-2 sm:mb-0" onchange="updateCaiName('${cai.id}', this.value)">
+                        <button onclick="deleteCaiSection('${cai.id}')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
                     </div>
                     <div id="cai-teams-${cai.id}">
-                        <!-- Teams will be rendered here -->
+                        <!-- Los equipos se renderizarán aquí -->
                     </div>
-                    <button onclick="addCaiTeam('${cai.id}')" class="btn btn-secondary mt-4">Añadir Equipo a ${cai.name}</button>
+                    <button onclick="addCaiTeam('${cai.id}')" class="btn btn-secondary mt-4"><i class="fas fa-plus"></i></button>
                 `;
                 container.appendChild(caiDiv);
                 renderCaiTeams(cai.id);
@@ -567,22 +799,35 @@
         }
 
         function addCaiSection() {
-            const newCaiName = prompt('Ingrese el nombre de la nueva sección CAI (ej. CAI - NUEVO):');
-            if (newCaiName) {
-                appData.caiSections.push({
-                    id: generateUniqueId(),
-                    name: newCaiName.trim(),
-                    teams: []
-                });
-                saveData();
-            }
+            showModal('Añadir Sección CAI', 'Ingrese el nombre de la nueva sección CAI (ej. CAI - NUEVO):', 'prompt', '', (newCaiName) => {
+                if (newCaiName) {
+                    appData.caiSections.push({
+                        id: generateUniqueId(),
+                        name: newCaiName.trim(),
+                        teams: []
+                    });
+                    saveData();
+                }
+            });
         }
 
         function deleteCaiSection(caiId) {
-            if (confirm('¿Estás seguro de que quieres eliminar esta sección CAI y todos sus equipos?')) {
-                appData.caiSections = appData.caiSections.filter(c => c.id !== caiId);
-                saveData();
-            }
+            showModal('Eliminar Sección CAI', '¿Estás seguro de que quieres eliminar esta sección CAI y todos sus equipos?', 'confirm', '', (confirmed) => {
+                if (confirmed) {
+                    const cai = appData.caiSections.find(c => c.id === caiId);
+                    if (cai) {
+                        // Desasigna a los miembros antes de eliminar la sección CAI
+                        cai.teams.forEach(team => {
+                            team.members.forEach(memberId => {
+                                const person = appData.personnel.find(p => p.id === memberId);
+                                if (person) person.assigned = false;
+                            });
+                        });
+                    }
+                    appData.caiSections = appData.caiSections.filter(c => c.id !== caiId);
+                    saveData();
+                }
+            });
         }
 
         // --- Renderizado de Equipos de CAI ---
@@ -597,9 +842,9 @@
                 const teamDiv = document.createElement('div');
                 teamDiv.className = 'card bg-white p-4 mb-3';
                 teamDiv.innerHTML = `
-                    <div class="flex justify-between items-center mb-3">
-                        <input type="text" value="${team.name}" class="font-semibold input-field flex-grow mr-2" onchange="updateCaiTeamName('${cai.id}', '${team.id}', this.value)">
-                        <button onclick="deleteCaiTeam('${cai.id}', '${team.id}')" class="btn btn-danger btn-sm">Eliminar Equipo</button>
+                    <div class="flex flex-col sm:flex-row justify-between items-center mb-3">
+                        <input type="text" value="${team.name}" class="font-semibold input-field flex-grow mr-2 mb-2 sm:mb-0" onchange="updateCaiTeamName('${cai.id}', '${team.id}', this.value)">
+                        <button onclick="deleteCaiTeam('${cai.id}', '${team.id}')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-2">
                         <div id="cai-${cai.id}-team-${team.id}-member1" class="flex-1"></div>
@@ -608,7 +853,7 @@
                 `;
                 container.appendChild(teamDiv);
 
-                // Render member selects
+                // Renderiza los selectores de miembros
                 const member1Container = document.getElementById(`cai-${cai.id}-team-${team.id}-member1`);
                 const member2Container = document.getElementById(`cai-${cai.id}-team-${team.id}-member2`);
 
@@ -637,26 +882,23 @@
             if (cai) {
                 const team = cai.teams.find(t => t.id === teamId);
                 if (team) {
-                    // Check for duplicate assignment within the same team
-                    if (team.members.includes(personId) && personId !== "") {
-                        // If the selected person is already in the other slot of this team
-                        // and it's not the "empty" option, prevent assignment
-                        const currentOtherMemberId = team.members[1 - memberIndex];
-                        if (currentOtherMemberId === personId) {
-                            // Reset the select to its previous value
-                            renderUI(); // Re-render to revert the selection
-                            return;
-                        }
+                    // Verifica si hay una asignación duplicada dentro del mismo equipo
+                    if (personId && team.members.includes(personId) && team.members[1 - memberIndex] === personId) {
+                        // Si la persona seleccionada ya está en la otra ranura de este equipo,
+                        // y no es la opción "vacía", evita la asignación.
+                        // No es necesario un alert, simplemente no se actualiza y se re-renderiza.
+                        renderUI(); // Re-renderiza para revertir la selección visualmente
+                        return;
                     }
 
-                    // Before updating, unassign the old member if any
+                    // Antes de actualizar, desasigna al miembro anterior si existe
                     const oldMemberId = team.members[memberIndex];
                     if (oldMemberId) {
                         const oldPerson = appData.personnel.find(p => p.id === oldMemberId);
                         if (oldPerson) oldPerson.assigned = false;
                     }
 
-                    // Assign the new member
+                    // Asigna al nuevo miembro
                     team.members[memberIndex] = personId;
                     if (personId) {
                         const newPerson = appData.personnel.find(p => p.id === personId);
@@ -671,30 +913,33 @@
         function addCaiTeam(caiId) {
             const cai = appData.caiSections.find(c => c.id === caiId);
             if (cai) {
-                const newTeamName = prompt('Ingrese el nombre del nuevo equipo (ej. 17-18):');
-                if (newTeamName) {
-                    cai.teams.push({ id: generateUniqueId(), name: newTeamName.trim(), members: [] });
-                    saveData();
-                }
+                showModal('Añadir Equipo', 'Ingrese el nombre del nuevo equipo (ej. 17-18):', 'prompt', '', (newTeamName) => {
+                    if (newTeamName) {
+                        cai.teams.push({ id: generateUniqueId(), name: newTeamName.trim(), members: [] });
+                        saveData();
+                    }
+                });
             }
         }
 
         function deleteCaiTeam(caiId, teamId) {
-            if (confirm('¿Estás seguro de que quieres eliminar este equipo?')) {
-                const cai = appData.caiSections.find(c => c.id === caiId);
-                if (cai) {
-                    const team = cai.teams.find(t => t.id === teamId);
-                    if (team) {
-                        // Unassign members before deleting the team
-                        team.members.forEach(memberId => {
-                            const person = appData.personnel.find(p => p.id === memberId);
-                            if (person) person.assigned = false;
-                        });
+            showModal('Eliminar Equipo', '¿Estás seguro de que quieres eliminar este equipo?', 'confirm', '', (confirmed) => {
+                if (confirmed) {
+                    const cai = appData.caiSections.find(c => c.id === caiId);
+                    if (cai) {
+                        const team = cai.teams.find(t => t.id === teamId);
+                        if (team) {
+                            // Desasigna a los miembros antes de eliminar el equipo
+                            team.members.forEach(memberId => {
+                                const person = appData.personnel.find(p => p.id === memberId);
+                                if (person) person.assigned = false;
+                            });
+                        }
+                        cai.teams = cai.teams.filter(t => t.id !== teamId);
+                        saveData();
                     }
-                    cai.teams = cai.teams.filter(t => t.id !== teamId);
-                    saveData();
                 }
-            }
+            });
         }
 
         // --- Renderizado de Otros Grupos ---
@@ -707,14 +952,14 @@
                 groupDiv.id = `group-${group.id}`;
                 groupDiv.className = 'card mb-6';
                 groupDiv.innerHTML = `
-                    <div class="flex justify-between items-center mb-4">
-                        <input type="text" value="${group.name}" class="subsection-title input-field flex-grow mr-2" onchange="updateOtherGroupName('${group.id}', this.value)">
-                        <button onclick="deleteOtherGroup('${group.id}')" class="btn btn-danger btn-sm">Eliminar Grupo</button>
+                    <div class="flex flex-col sm:flex-row justify-between items-center mb-4">
+                        <input type="text" value="${group.name}" class="subsection-title input-field flex-grow mr-2 mb-2 sm:mb-0" onchange="updateOtherGroupName('${group.id}', this.value)">
+                        <button onclick="deleteOtherGroup('${group.id}')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
                     </div>
                     <div id="group-members-${group.id}" class="mb-3">
-                        <!-- Members will be rendered here -->
+                        <!-- Los miembros se renderizarán aquí -->
                     </div>
-                    <button onclick="addMemberToOtherGroup('${group.id}')" class="btn btn-secondary btn-sm">Añadir Miembro</button>
+                    <button onclick="addMemberToOtherGroup('${group.id}')" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i></button>
                 `;
                 container.appendChild(groupDiv);
                 renderOtherGroupMembers(group.id);
@@ -744,18 +989,20 @@
         }
 
         function deleteOtherGroup(groupId) {
-            if (confirm('¿Estás seguro de que quieres eliminar este grupo?')) {
-                const group = appData.otherGroups.find(g => g.id === groupId);
-                if (group) {
-                    // Unassign members before deleting the group
-                    group.members.forEach(memberId => {
-                        const person = appData.personnel.find(p => p.id === memberId);
-                        if (person) person.assigned = false;
-                    });
+            showModal('Eliminar Grupo', '¿Estás seguro de que quieres eliminar este grupo?', 'confirm', '', (confirmed) => {
+                if (confirmed) {
+                    const group = appData.otherGroups.find(g => g.id === groupId);
+                    if (group) {
+                        // Desasigna a los miembros antes de eliminar el grupo
+                        group.members.forEach(memberId => {
+                            const person = appData.personnel.find(p => p.id === memberId);
+                            if (person) person.assigned = false;
+                        });
+                    }
+                    appData.otherGroups = appData.otherGroups.filter(g => g.id !== groupId);
+                    saveData();
                 }
-                appData.otherGroups = appData.otherGroups.filter(g => g.id !== groupId);
-                saveData();
-            }
+            });
         }
 
         function renderOtherGroupMembers(groupId) {
@@ -774,8 +1021,8 @@
                 memberDiv.appendChild(select);
 
                 const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'btn btn-danger btn-sm';
-                deleteBtn.textContent = 'X';
+                deleteBtn.className = 'btn btn-danger btn-sm p-2 text-xs rounded-full';
+                deleteBtn.innerHTML = '<i class="fas fa-times"></i>'; // Icono 'X'
                 deleteBtn.onclick = () => deleteMemberFromOtherGroup(group.id, index);
                 memberDiv.appendChild(deleteBtn);
 
@@ -786,7 +1033,7 @@
         function addMemberToOtherGroup(groupId) {
             const group = appData.otherGroups.find(g => g.id === groupId);
             if (group) {
-                group.members.push(''); // Add an empty slot for a new member
+                group.members.push(''); // Añade una ranura vacía para un nuevo miembro
                 saveData();
             }
         }
@@ -794,14 +1041,14 @@
         function updateOtherGroupMember(groupId, memberIndex, personId) {
             const group = appData.otherGroups.find(g => g.id === groupId);
             if (group) {
-                // Unassign the old member if any
+                // Desasigna al miembro anterior si existe
                 const oldMemberId = group.members[memberIndex];
                 if (oldMemberId) {
                     const oldPerson = appData.personnel.find(p => p.id === oldMemberId);
                     if (oldPerson) oldPerson.assigned = false;
                 }
 
-                // Assign the new member
+                // Asigna al nuevo miembro
                 group.members[memberIndex] = personId;
                 if (personId) {
                     const newPerson = appData.personnel.find(p => p.id === personId);
@@ -826,12 +1073,12 @@
 
         // --- Renderizado General de la UI ---
         function renderUI() {
-            // Update input fields
+            // Actualiza los campos de entrada
             document.getElementById('commanderRank').value = appData.commanderRank;
             document.getElementById('commanderName').value = appData.commanderName;
             document.getElementById('importantServices').value = appData.importantServices.join('\n');
 
-            updatePersonnelAssignedStatus(); // Ensure assigned status is correct before rendering selects
+            updatePersonnelAssignedStatus(); // Asegura que el estado de asignado sea correcto antes de renderizar los selectores
             renderPersonnelList();
             renderCaiSections();
             renderOtherGroups();
@@ -861,7 +1108,7 @@
                     }).join(' / ');
                     report += `🚔 ${team.name} ${members}\n`;
                 });
-                report += '\n'; // Add a newline after each CAI section
+                report += '\n'; // Añade un salto de línea después de cada sección CAI
             });
 
             // Jefe de Vigilancia
@@ -901,7 +1148,7 @@
             const custodioE12Group = appData.otherGroups.find(g => g.name === "Custodio E-12");
             if (custodioE12Group && custodioE12Group.members.length > 0) {
                 report += `*Custodio E-12*\n\n`;
-                report += `Parte: (0-1-3)\n\n`; // This part is fixed in the example
+                report += `Parte: (0-1-3)\n\n`; // Esta parte es fija en el ejemplo
                 custodioE12Group.members.forEach(memberId => {
                     const person = appData.personnel.find(p => p.id === memberId);
                     if (person) {
@@ -917,7 +1164,7 @@
                 report += `*Información de CAI*\n\n`;
                 caiInfoGroups.forEach(group => {
                     if (group.members.length > 0) {
-                        const person = appData.personnel.find(p => p.id === group.members[0]); // Assuming one person per CAI info
+                        const person = appData.personnel.find(p => p.id === group.members[0]); // Asumiendo una persona por información de CAI
                         if (person) {
                             report += `*${group.name.replace(' (Información)', '')}*\n`;
                             report += `👮🏻‍♂️ ${person.grade}. ${person.name}\n\n`;
@@ -951,6 +1198,31 @@
 
             document.getElementById('reportOutput').textContent = report;
         }
+
+        // --- Función para copiar el informe ---
+        function copyReport() {
+            const reportText = document.getElementById('reportOutput').textContent;
+            try {
+                const textarea = document.createElement('textarea');
+                textarea.value = reportText;
+                textarea.style.position = 'fixed'; // Evita que el scroll se mueva
+                textarea.style.opacity = 0; // Lo hace invisible
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+
+                const feedback = document.getElementById('copyFeedback');
+                feedback.classList.add('show');
+                setTimeout(() => {
+                    feedback.classList.remove('show');
+                }, 2000); // Oculta el feedback después de 2 segundos
+            } catch (err) {
+                console.error('Error al copiar el informe: ', err);
+                // Aquí podrías mostrar un mensaje de error al usuario si la copia falla
+            }
+        }
+
 
         // Inicializar la aplicación al cargar la página
         window.onload = loadData;
