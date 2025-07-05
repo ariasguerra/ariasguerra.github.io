@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Informe Policial</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for better aesthetics and responsiveness */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 8px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        .input-group select,
+        .input-group input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-1px);
+        }
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+            transform: translateY(-1px);
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #c0392b;
+            transform: translateY(-1px);
+        }
+        .btn-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .btn-success:hover {
+            background-color: #27ae60;
+            transform: translateY(-1px);
+        }
+        .report-output {
+            white-space: pre-wrap; /* Preserves whitespace and line breaks */
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            min-height: 300px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+        .personnel-table th, .personnel-table td {
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            text-align: left;
+        }
+        .personnel-table th {
+            background-color: #f2f2f2;
+            font-weight: 600;
+        }
+        .message-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none; /* Hidden by default */
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .message-box.error {
+            background-color: #f44336;
+        }
+        .team-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            background-color: #fefefe;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .team-name-input {
+            border: none;
+            outline: none;
+            background: transparent;
+            padding: 4px;
+            border-bottom: 1px dashed #ccc;
+        }
+        .team-name-input:focus {
+            border-bottom: 1px solid #3498db;
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div class="container">
+        <h1 class="text-3xl font-extrabold text-center text-blue-700 mb-8">Generador de Informe Policial</h1>
+
+        <!-- Message Box for notifications -->
+        <div id="messageBox" class="message-box"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Columna de Configuración -->
+            <div class="config-column">
+                <h2 class="section-title">Configuración del Informe</h2>
+
+                <!-- Sección de Servicios de Importancia -->
+                <div class="mb-6 p-4 border rounded-lg shadow-sm bg-gray-50">
+                    <h3 class="font-bold text-lg mb-3 text-gray-700">Servicios de Importancia</h3>
+                    <div id="importanceServicesList" class="mb-3">
+                        <!-- Items will be dynamically loaded here -->
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="newImportanceService" placeholder="Nuevo servicio de importancia" class="flex-grow p-2 border rounded-md">
+                        <button id="addImportanceServiceBtn" class="btn btn-primary px-4 py-2">Agregar</button>
+                    </div>
+                </div>
+
+                <!-- Sección de Gestión de Personal -->
+                <div class="mb-6 p-4 border rounded-lg shadow-sm bg-gray-50">
+                    <h3 class="font-bold text-lg mb-3 text-gray-700">Gestión de Personal</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <input type="text" id="personnelGrade" placeholder="Grado (Ej: SI, PT, PP)" class="p-2 border rounded-md">
+                        <input type="text" id="personnelName" placeholder="Nombre (Ej: Martin, Daniela)" class="p-2 border rounded-md">
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="addPersonnelBtn" class="btn btn-success flex-grow">Agregar Personal</button>
+                        <button id="updatePersonnelBtn" class="btn btn-primary flex-grow hidden">Actualizar Personal</button>
+                        <button id="cancelEditPersonnelBtn" class="btn btn-secondary flex-grow hidden">Cancelar Edición</button>
+                    </div>
+                    <div class="mt-4 max-h-60 overflow-y-auto">
+                        <table class="w-full personnel-table border-collapse">
+                            <thead>
+                                <tr>
+                                    <th>Grado</th>
+                                    <th>Nombre</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="personnelTableBody">
+                                <!-- Personnel will be dynamically loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Asignación de Personal a CAI y Roles -->
+                <div class="mb-6 p-4 border rounded-lg shadow-sm bg-gray-50">
+                    <h3 class="font-bold text-lg mb-3 text-gray-700">Asignación de Personal y Equipos</h3>
+
+                    <!-- CAI - MODELO -->
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-md mb-2 text-gray-600">CAI - MODELO</h4>
+                        <div id="caiModeloTeams">
+                            <!-- Teams will be dynamically loaded here -->
+                        </div>
+                        <button class="btn btn-secondary mt-2" onclick="addTeam('caiModelo')">Añadir Equipo</button>
+                    </div>
+
+                    <!-- CAI - ALCAZARES -->
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-md mb-2 text-gray-600">CAI - ALCAZARES</h4>
+                        <div id="caiAlcazaresTeams">
+                            <!-- Teams will be dynamically loaded here -->
+                        </div>
+                        <button class="btn btn-secondary mt-2" onclick="addTeam('caiAlcazares')">Añadir Equipo</button>
+                    </div>
+
+                    <!-- CAI - POLO CLUB -->
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-md mb-2 text-gray-600">CAI - POLO CLUB</h4>
+                        <div id="caiPoloClubTeams">
+                            <!-- Teams will be dynamically loaded here -->
+                        </div>
+                        <button class="btn btn-secondary mt-2" onclick="addTeam('caiPoloClub')">Añadir Equipo</button>
+                    </div>
+
+                    <!-- CAI - RIONEGRO -->
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-md mb-2 text-gray-600">CAI - RIONEGRO</h4>
+                        <div id="caiRionegroTeams">
+                            <!-- Teams will be dynamically loaded here -->
+                        </div>
+                        <button class="btn btn-secondary mt-2" onclick="addTeam('caiRionegro')">Añadir Equipo</button>
+                    </div>
+
+                    <!-- CAI - 7 DE AGOSTO -->
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-md mb-2 text-gray-600">CAI - 7 DE AGOSTO</h4>
+                        <div id="cai7AgostoTeams">
+                            <!-- Teams will be dynamically loaded here -->
+                        </div>
+                        <button class="btn btn-secondary mt-2" onclick="addTeam('cai7Agosto')">Añadir Equipo</button>
+                    </div>
+
+                    <!-- Roles Específicos (Fixed roles) -->
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-md mb-2 text-gray-600">Roles Específicos</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="input-group">
+                                <label for="jefeVigilancia">Jefe de Vigilancia:</label>
+                                <select id="jefeVigilancia" class="personnel-select" data-role="fixed"></select>
+                            </div>
+                            <div class="input-group">
+                                <label for="jefeInformacion">Jefe de Información E-12 y Centinelas:</label>
+                                <select id="jefeInformacion" class="personnel-select" data-role="fixed"></select>
+                            </div>
+                            <div class="input-group">
+                                <label for="custodioE12Si">Custodio E-12 SI:</label>
+                                <select id="custodioE12Si" class="personnel-select" data-role="fixed"></select>
+                            </div>
+                            <div class="input-group">
+                                <label for="custodioE12Pt1">Custodio E-12 PT 1:</label>
+                                <select id="custodioE12Pt1" class="personnel-select" data-role="fixed"></select>
+                            </div>
+                            <div class="input-group">
+                                <label for="custodioE12Pt2">Custodio E-12 PT 2:</label>
+                                <select id="custodioE12Pt2" class="personnel-select" data-role="fixed"></select>
+                            </div>
+                            <div class="input-group">
+                                <label for="custodioE12Pt3">Custodio E-12 PT 3:</label>
+                                <select id="custodioE12Pt3" class="personnel-select" data-role="fixed"></select>
+                            </div>
+                            <div class="input-group">
+                                <label for="caiAlcazaresInfo">Info CAI - ALCÁZARES:</label>
+                                <select id="caiAlcazaresInfo" class="personnel-select" data-role="fixed"></select>
+                            </div>
+                            <div class="input-group">
+                                <label for="caiModeloInfo">Info CAI - MODELO:</label>
+                                <select id="caiModeloInfo" class="personnel-select" data-role="fixed"></select>
+                            </div>
+                            <div class="input-group">
+                                <label for="caiPoloClubInfo">Info CAI - POLO CLUB:</label>
+                                <select id="caiPoloClubInfo" class="personnel-select" data-role="fixed"></select>
+                            </div>
+                            <div class="input-group">
+                                <label for="caiRionegroInfo">Info CAI - RIONEGRO:</label>
+                                <select id="caiRionegroInfo" class="personnel-select" data-role="fixed"></select>
+                            </div>
+                            <div class="input-group">
+                                <label for="cai7AgostoInfo">Info CAI - 7 DE AGOSTO:</label>
+                                <select id="cai7AgostoInfo" class="personnel-select" data-role="fixed"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Novedades (Fixed roles) -->
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-md mb-2 text-gray-600">Novedades</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="input-group">
+                                <label for="novedadVacaciones1">Vacaciones 1:</label>
+                                <select id="novedadVacaciones1" class="personnel-select" data-role="fixed"></select>
+                            </div>
+                            <div class="input-group">
+                                <label for="novedadVacaciones2">Vacaciones 2:</label>
+                                <select id="novedadVacaciones2" class="personnel-select" data-role="fixed"></select>
+                            </div>
+                            <div class="input-group">
+                                <label for="novedadVacaciones3">Vacaciones 3:</label>
+                                <select id="novedadVacaciones3" class="personnel-select" data-role="fixed"></select>
+                            </div>
+                            <div class="input-group">
+                                <label for="novedadVacaciones4">Vacaciones 4:</label>
+                                <select id="novedadVacaciones4" class="personnel-select" data-role="fixed"></select>
+                            </div>
+                            <div class="input-group">
+                                <label for="novedadExcusado">Excusado:</label>
+                                <select id="novedadExcusado" class="personnel-select" data-role="fixed"></select>
+                            </div>
+                            <div class="input-group">
+                                <label for="novedadCalamidad">Calamidad:</label>
+                                <select id="novedadCalamidad" class="personnel-select" data-role="fixed"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-center gap-4 mt-6">
+                        <button id="generateReportBtn" class="btn btn-primary px-6 py-3 text-lg">Generar Informe</button>
+                        <button id="saveDataBtn" class="btn btn-secondary px-6 py-3 text-lg">Guardar Datos</button>
+                        <button id="loadDataBtn" class="btn btn-secondary px-6 py-3 text-lg">Cargar Datos</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna de Previsualización del Informe -->
+            <div class="report-column">
+                <h2 class="section-title">Previsualización del Informe</h2>
+                <div id="reportOutput" class="report-output">
+                    <!-- Report will be generated here -->
+                </div>
+                <button id="copyReportBtn" class="btn btn-success w-full mt-4 py-3 text-lg">Copiar Informe</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables to store application data
+        let personnel = []; // Stores all personnel with their grade, name, and assignment status
+        let importanceServices = []; // Stores the list of importance services
+        let teams = { // Stores work teams organized by CAI
+            caiModelo: [],
+            caiAlcazares: [],
+            caiPoloClub: [],
+            caiRionegro: [],
+            cai7Agosto: []
+        };
+        let fixedAssignments = {}; // Stores assignments for fixed roles (Jefe de Vigilancia, Novedades, etc.)
+
+        // DOM Elements
+        const personnelTableBody = document.getElementById('personnelTableBody');
+        const personnelGradeInput = document.getElementById('personnelGrade');
+        const personnelNameInput = document.getElementById('personnelName');
+        const addPersonnelBtn = document.getElementById('addPersonnelBtn');
+        const updatePersonnelBtn = document.getElementById('updatePersonnelBtn');
+        const cancelEditPersonnelBtn = document.getElementById('cancelEditPersonnelBtn');
+
+        const newImportanceServiceInput = document.getElementById('newImportanceService');
+        const addImportanceServiceBtn = document.getElementById('addImportanceServiceBtn');
+        const importanceServicesListDiv = document.getElementById('importanceServicesList');
+
+        const generateReportBtn = document.getElementById('generateReportBtn');
+        const reportOutputDiv = document.getElementById('reportOutput');
+        const copyReportBtn = document.getElementById('copyReportBtn');
+        const saveDataBtn = document.getElementById('saveDataBtn');
+        const loadDataBtn = document.getElementById('loadDataBtn');
+        const messageBox = document.getElementById('messageBox');
+
+        let editingPersonnelId = null; // To keep track of the personnel being edited
+
+        // --- Utility Functions ---
+        /**
+        * Generates a unique ID.
+        * @returns {string} A unique ID.
+        */
+        function generateUniqueId() {
+            return '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        /**
+        * Displays a message box with a given message and type (success/error).
+        * @param {string} message - The message to display.
+        * @param {string} type - 'success' or 'error'.
+        */
+        function showMessage(message, type = 'success') {
+            messageBox.textContent = message;
+            messageBox.className = 'message-box'; // Reset classes
+            messageBox.classList.add(type);
+            messageBox.style.display = 'block';
+            messageBox.style.opacity = '1';
+
+            setTimeout(() => {
+                messageBox.style.opacity = '0';
+                setTimeout(() => {
+                    messageBox.style.display = 'none';
+                }, 500); // Wait for fade out
+            }, 3000); // Display for 3 seconds
+        }
+
+        // --- Local Storage Management ---
+        /**
+        * Saves current application data to local storage.
+        */
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('personnelData', JSON.stringify(personnel));
+                localStorage.setItem('importanceServicesData', JSON.stringify(importanceServices));
+                localStorage.setItem('teamsData', JSON.stringify(teams));
+                localStorage.setItem('fixedAssignmentsData', JSON.stringify(fixedAssignments));
+                showMessage('Datos guardados exitosamente.', 'success');
+            } catch (e) {
+                console.error("Error al guardar en el almacenamiento local:", e);
+                showMessage('Error al guardar los datos.', 'error');
+            }
+        }
+
+        /**
+        * Loads application
+
