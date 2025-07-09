@@ -8,8 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome CDN para íconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <!-- SheetJS (xlsx) CDN para leer archivos Excel -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         /* Estilos base para el cuerpo y contenedor principal */
         body {
@@ -258,12 +256,6 @@
             <!-- Gestión de Personal -->
             <div class="mb-6">
                 <h3 class="subsection-title">Gestión de Personal</h3>
-                <!-- Nueva sección para cargar desde Excel -->
-                <div class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <label for="excelFileInput" class="block text-gray-700 font-medium mb-2">Cargar Personal desde Excel (.xlsx/.xls):</label>
-                    <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="input-field mb-2">
-                    <button onclick="handleFileUpload()" class="btn btn-primary w-full"><i class="fas fa-file-excel"></i> Cargar Excel</button>
-                </div>
                 <div id="personnelListContainer" class="bg-white p-4 rounded-lg border border-gray-200 mb-4 max-h-60 overflow-y-auto">
                     <!-- Los elementos del personal se renderizarán aquí -->
                 </div>
@@ -339,7 +331,7 @@
             return 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
         }
 
-        // Datos iniciales por defecto (usados para valores por defecto si no hay datos guardados)
+        // Datos iniciales por defecto
         const defaultData = {
             commanderName: "Buitrago Valderrama Diego Alejandro",
             commanderRank: "MY.",
@@ -358,7 +350,50 @@
                 "Carrera 30",
                 "Calle 80"
             ],
-            personnel: [], // Este sí debe iniciar vacío por defecto
+            personnel: [
+                { id: generateUniqueId(), grade: "PT", name: "Martin", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Daniela", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Rosario", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Karol", assigned: false },
+                { id: generateUniqueId(), grade: "SI", name: "Chacon", assigned: false },
+                { id: generateUniqueId(), grade: "SI", name: "Manrique", assigned: false },
+                { id: generateUniqueId(), grade: "SI", name: "Diaz", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Ospino", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Solano", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Hernandez", assigned: false },
+                { id: generateUniqueId(), grade: "SI", name: "Pineda", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Escobar", assigned: false },
+                { id: generateUniqueId(), grade: "SI", name: "Corredor", assigned: false },
+                { id: generateUniqueId(), grade: "PP", name: "Maria", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Castillo", assigned: false },
+                { id: generateUniqueId(), grade: "PP", name: "Juana", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Jurado", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "González Marrugo", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Chavarria", assigned: false },
+                { id: generateUniqueId(), grade: "PP", name: "Sofia", assigned: false },
+                { id: generateUniqueId(), grade: "SI", name: "Gomez Lozano", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Montenegro", assigned: false },
+                { id: generateUniqueId(), grade: "IJ", name: "Manuel Antonio Arias Guerra", assigned: false },
+                { id: generateUniqueId(), grade: "SI", name: "Nieto", assigned: false },
+                { id: generateUniqueId(), grade: "SI", name: "Ávila", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Higuita", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Ballesteros", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "González", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Marquez", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Gomez Muñoz", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Nayerly", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Sierra", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Garzon Garcia", assigned: false },
+                { id: generateUniqueId(), grade: "SI", name: "Olivero", assigned: false },
+                { id: generateUniqueId(), grade: "SI", name: "Marmol", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Sanchez", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Trujillo", assigned: false },
+                { id: generateUniqueId(), grade: "SI", name: "Gonzalez", assigned: false },
+                { id: generateUniqueId(), grade: "PT", name: "Velazquez Bohorquez", assigned: false }
+           
+            
+            
+            ],
             caiSections: [
                 {
                     id: generateUniqueId(), name: "CAI - MODELO",
@@ -398,15 +433,14 @@
                 }
             ],
             otherGroups: [
-                { id: generateUniqueId(), name: "Zona T", members: ["", ""] }, // Nuevo grupo "Zona T" con dos espacios
-                { id: generateUniqueId(), name: "Jefe de Vigilancia", members: [""] }, // Un espacio por defecto
-                { id: generateUniqueId(), name: "Jefe de información E-12 y Centinelas", members: [""] }, // Un espacio por defecto
-                { id: generateUniqueId(), name: "Custodio E-12", members: [""] }, // Un espacio por defecto
-                { id: generateUniqueId(), name: "CAI - ALCÁZARES (Información)", members: [""] }, // Added back
-                { id: generateUniqueId(), name: "CAI - MODELO (Información)", members: [""] }, // Added back
-                { id: generateUniqueId(), name: "CAI - POLO CLUB (Información)", members: [""] }, // Added back
-                { id: generateUniqueId(), name: "CAI - RIONEGRO (Información)", members: [""] }, // Added back
-                { id: generateUniqueId(), name: "CAI 7 DE AGOSTO (Información)", members: [""] }, // Added back
+                { id: generateUniqueId(), name: "Jefe de Vigilancia", members: [] },
+                { id: generateUniqueId(), name: "Jefe de información E-12 y Centinelas", members: [] },
+                { id: generateUniqueId(), name: "Custodio E-12", members: [] },
+                { id: generateUniqueId(), name: "CAI - ALCÁZARES (Información)", members: [] },
+                { id: generateUniqueId(), name: "CAI - MODELO (Información)", members: [] },
+                { id: generateUniqueId(), name: "CAI - POLO CLUB (Información)", members: [] },
+                { id: generateUniqueId(), name: "CAI - RIONEGRO (Información)", members: [] },
+                { id: generateUniqueId(), name: "CAI 7 DE AGOSTO (Información)", members: [] },
                 { id: generateUniqueId(), name: "Vacaciones", members: [] },
                 { id: generateUniqueId(), name: "Excusado", members: [] },
                 { id: generateUniqueId(), name: "Calamidad", members: [] }
@@ -425,14 +459,6 @@
 
         let modalCallback = null;
 
-        /**
-         * Muestra un modal personalizado para confirmación, prompt o alerta.
-         * @param {string} title - Título del modal.
-         * @param {string} message - Mensaje del modal.
-         * @param {'prompt'|'confirm'|'alert'} type - Tipo de modal (prompt, confirm, alert).
-         * @param {string} [defaultValue=''] - Valor por defecto para el input en tipo 'prompt'.
-         * @param {function} [callback] - Función a ejecutar al confirmar (para 'prompt' y 'confirm').
-         */
         function showModal(title, message, type, defaultValue = '', callback) {
             scrollPosition = window.scrollY; // Guarda la posición de desplazamiento actual
             modalTitle.textContent = title;
@@ -453,10 +479,6 @@
                 modalConfirmBtn.classList.remove('hidden');
                 modalCancelBtn.textContent = 'No';
                 modalCancelBtn.classList.remove('hidden');
-            } else if (type === 'alert') { // Nuevo tipo 'alert'
-                modalConfirmBtn.textContent = 'Entendido';
-                modalConfirmBtn.classList.remove('hidden');
-                modalCallback = () => {}; // Para alertas, el callback no necesita hacer nada específico
             }
 
             modalOverlay.classList.add('active');
@@ -495,102 +517,116 @@
 
         // Función para cargar datos desde localStorage
         function loadData() {
-            console.log('loadData: Intentando cargar datos de localStorage...');
             const storedData = localStorage.getItem('policeReportData');
             if (storedData) {
                 appData = JSON.parse(storedData);
-                console.log('loadData: Datos cargados de localStorage (raw):', JSON.parse(JSON.stringify(appData))); // Deep copy for logging
+                // Asegura que la estructura por defecto se mantenga para nuevas propiedades
+                appData.personnel = appData.personnel || defaultData.personnel;
+                appData.caiSections = appData.caiSections || defaultData.caiSections;
+                appData.otherGroups = appData.otherGroups || defaultData.otherGroups;
+                appData.importantServices = appData.importantServices || defaultData.importantServices;
+                appData.commanderName = appData.commanderName || defaultData.commanderName;
+                appData.commanderRank = appData.commanderRank || defaultData.commanderRank;
 
-                // Ensure all top-level properties are present, using defaultData as fallback
-                appData.commanderName = appData.commanderName !== undefined ? appData.commanderName : defaultData.commanderName;
-                appData.commanderRank = appData.commanderRank !== undefined ? appData.commanderRank : defaultData.commanderRank;
-                appData.importantServices = appData.importantServices !== undefined ? appData.importantServices : defaultData.importantServices;
-                
-                // Personnel: always load from localStorage or initialize empty
-                appData.personnel = appData.personnel || []; 
+                // Re-asigna el personal inicial para que coincida con la estructura por defecto si no estaban asignados
+                defaultData.personnel.forEach(defaultP => {
+                    const found = appData.personnel.find(p => p.grade === defaultP.grade && p.name === defaultP.name);
+                    if (!found) {
+                        appData.personnel.push({ ...defaultP, assigned: false });
+                    }
+                });
 
-                // CAI Sections: load from localStorage and merge with default values
-                const mergedCaiSections = JSON.parse(JSON.stringify(defaultData.caiSections)); // Start with default structure
-                if (appData.caiSections) {
-                    appData.caiSections.forEach(savedCai => {
-                        const existingCaiIndex = mergedCaiSections.findIndex(c => c.name === savedCai.name);
-                        if (existingCaiIndex !== -1) {
-                            // If CAI exists in defaults, update its teams with saved ones
-                            savedCai.teams.forEach(savedTeam => {
-                                const existingTeamIndex = mergedCaiSections[existingCaiIndex].teams.findIndex(t => t.name === savedTeam.name);
-                                if (existingTeamIndex !== -1) {
-                                    mergedCaiSections[existingCaiIndex].teams[existingTeamIndex].members = savedTeam.members;
-                                } else {
-                                    mergedCgedCaiSections[existingCaiIndex].teams.push(savedTeam); // Add new teams
-                                }
-                            });
-                        } else {
-                            mergedCaiSections.push(savedCai); // Add new CAI sections
-                        }
-                    });
+                // Si no hay asignaciones cargadas, aplica las predeterminadas
+                if (appData.caiSections.every(s => s.teams.every(t => t.members.length === 0)) &&
+                    appData.otherGroups.every(g => g.members.every(m => m === ''))) { // Check for empty strings in members
+                    assignDefaultPersonnel();
+                } else {
+                    // Si los datos se cargaron, asegura que el estado de asignado sea correcto
+                    updatePersonnelAssignedStatus();
                 }
-                appData.caiSections = mergedCaiSections;
-                
-                // Other Groups: load from localStorage and merge with default values
-                const mergedOtherGroups = JSON.parse(JSON.stringify(defaultData.otherGroups)); // Start with default structure
-                if (appData.otherGroups) {
-                    appData.otherGroups.forEach(savedGroup => {
-                        const existingGroupIndex = mergedOtherGroups.findIndex(g => g.name === savedGroup.name);
-                        if (existingGroupIndex !== -1) {
-                            // If group exists in defaults, update its members with saved ones
-                            mergedOtherGroups[existingGroupIndex].members = savedGroup.members;
-                        } else {
-                            mergedOtherGroups.push(savedGroup); // Add new groups
-                        }
-                    });
-                }
-                appData.otherGroups = mergedOtherGroups;
-
-                console.log('loadData: appData después de la fusión con defaults:', JSON.parse(JSON.stringify(appData))); // Deep copy for logging
-
-                // After loading, update assigned status based on current assignments
-                updatePersonnelAssignedStatus();
 
             } else {
-                console.log('loadData: No se encontraron datos en localStorage. Inicializando con valores por defecto.');
-                // If no saved data, initialize with deep copy of default values
-                appData = {
-                    commanderName: defaultData.commanderName,
-                    commanderRank: defaultData.commanderRank,
-                    importantServices: defaultData.importantServices,
-                    personnel: JSON.parse(JSON.stringify(defaultData.personnel)), // Deep copy empty array
-                    caiSections: JSON.parse(JSON.stringify(defaultData.caiSections)), // Deep copy default CAI structure
-                    otherGroups: JSON.parse(JSON.stringify(defaultData.otherGroups))  // Deep copy default otherGroups structure
-                };
+                appData = JSON.parse(JSON.stringify(defaultData)); // Copia profunda de los datos por defecto
+                assignDefaultPersonnel(); // Asigna el personal por defecto a sus lugares iniciales
             }
             renderUI();
         }
 
         // Función para asignar el personal por defecto a sus lugares iniciales
-        // Esta función ya no se llama automáticamente al cargar, solo si se desea implementarla manualmente.
         function assignDefaultPersonnel() {
-            // This function is kept for reference but is not called on load anymore.
-            // It would manually assign personnel if needed.
-            console.warn('assignDefaultPersonnel: Esta función no se llama automáticamente al cargar. Se usa para asignaciones manuales por defecto si fuera necesario.');
-            
             // Reinicia todo el personal a no asignado primero
             appData.personnel.forEach(p => p.assigned = false);
 
-            // Example default assignments (these would need to be based on actual personnel IDs)
-            // For now, this function is mostly illustrative as Excel import handles initial assignment.
-            
-            updatePersonnelAssignedStatus(); 
+            // Asigna el personal a los equipos CAI (basado en nombres para coincidir)
+            const defaultCaiAssignments = [
+                { caiName: "CAI - MODELO", teamName: "11-13", members: ["PT_Martin", "PT_Daniela"] },
+                { caiName: "CAI - MODELO", teamName: "12-14", members: ["PT_Rosario", "PT_Karol"] },
+                { caiName: "CAI - MODELO", teamName: "15-16", members: ["SI_Chacon", "SI_Manrique"] },
+                { caiName: "CAI - ALCAZARES", teamName: "1", members: ["SI_Diaz", "PT_Ospino"] },
+                { caiName: "CAI - ALCAZARES", teamName: "2", members: ["PT_Solano", "PT_Hernandez"] },
+                { caiName: "CAI - POLO CLUB", teamName: "6-7", members: ["SI_Pineda", "PT_Escobar"] },
+                { caiName: "CAI - POLO CLUB", teamName: "8", members: ["SI_Corredor", "PP_Maria"] },
+                { caiName: "CAI - RIONEGRO", teamName: "9", members: ["PT_Castillo", "PP_Juana"] },
+                { caiName: "CAI - RIONEGRO", teamName: "10", members: ["PT_Jurado", "PT_González Marrugo"] },
+                { caiName: "CAI - 7 DE AGOSTO", teamName: "3", members: ["PT_Chavarria", "PP_Sofia"] },
+                { caiName: "CAI - 7 DE AGOSTO", teamName: "4-5", members: ["SI_Gomez Lozano", "PT_Montenegro"] }
+            ];
+
+            defaultCaiAssignments.forEach(assignment => {
+                const cai = appData.caiSections.find(c => c.name === assignment.caiName);
+                if (cai) {
+                    const team = cai.teams.find(t => t.name === assignment.teamName);
+                    if (team) {
+                        team.members = assignment.members.map(memberString => {
+                            const [grade, ...nameParts] = memberString.split('_');
+                            const name = nameParts.join(' ');
+                            const person = appData.personnel.find(p => p.grade === grade && p.name === name);
+                            if (person) {
+                                person.assigned = true;
+                                return person.id;
+                            }
+                            return ''; // Return empty string if not found
+                        }).filter(Boolean); // Filter out any nulls/empty strings
+                    }
+                }
+            });
+
+            // Asigna el personal a otros grupos (basado en nombres para coincidir)
+            const defaultOtherGroupAssignments = [
+                { groupName: "Jefe de Vigilancia", members: ["IJ_Manuel Antonio Arias Guerra"] },
+                { groupName: "Jefe de información E-12 y Centinelas", members: ["SI_Nieto"] },
+                { groupName: "Custodio E-12", members: ["SI_Ávila", "PT_Higuita", "PT_Ballesteros", "PT_González"] },
+                { groupName: "CAI - ALCÁZARES (Información)", members: ["PT_Marquez"] },
+                { groupName: "CAI - MODELO (Información)", members: ["PT_Gomez Muñoz"] },
+                { groupName: "CAI - POLO CLUB (Información)", members: ["PT_Nayerly"] },
+                { groupName: "CAI - RIONEGRO (Información)", members: ["PT_Sierra"] },
+                { groupName: "CAI 7 DE AGOSTO (Información)", members: ["PT_Garzon Garcia"] },
+                { groupName: "Vacaciones", members: ["SI_Olivero", "SI_Marmol", "PT_Sanche", "PT_Velázquez"] },
+                { groupName: "Excusado", members: ["PT_Trujillo"] },
+                { groupName: "Calamidad", members: ["SI_Gonzalez"] }
+            ];
+
+            defaultOtherGroupAssignments.forEach(assignment => {
+                const group = appData.otherGroups.find(g => g.name === assignment.groupName);
+                if (group) {
+                    group.members = assignment.members.map(memberString => {
+                        const [grade, ...nameParts] = memberString.split('_');
+                        const name = nameParts.join(' ');
+                        const person = appData.personnel.find(p => p.grade === grade && p.name === name);
+                        if (person) {
+                            person.assigned = true;
+                            return person.id;
+                        }
+                        return ''; // Return empty string if not found
+                    }).filter(Boolean); // Filter out any nulls/empty strings
+                }
+            });
+            updatePersonnelAssignedStatus(); // Re-run to ensure all assigned statuses are correct after default assignment
         }
 
         // Función para guardar datos en localStorage
         function saveData() {
-            try {
-                localStorage.setItem('policeReportData', JSON.stringify(appData));
-                console.log('saveData: Datos guardados exitosamente en localStorage.');
-            } catch (e) {
-                console.error('saveData: Error al guardar en localStorage:', e);
-                showModal('Error de Guardado', 'No se pudieron guardar los datos en su navegador. El almacenamiento local podría estar lleno o deshabilitado.', 'alert');
-            }
+            localStorage.setItem('policeReportData', JSON.stringify(appData));
             renderUI(); // Re-renderiza la UI después de guardar para actualizar el personal disponible
         }
 
@@ -607,140 +643,6 @@
         }
 
         // --- Gestión de Personal ---
-
-        /**
-         * Maneja la carga de un archivo Excel para actualizar la lista de personal.
-         * El archivo debe tener columnas llamadas "GR" y "APELLIDOS".
-         */
-        function handleFileUpload() {
-            const fileInput = document.getElementById('excelFileInput');
-            const file = fileInput.files[0];
-
-            if (!file) {
-                showModal('Error', 'Por favor, selecciona un archivo Excel.', 'alert');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-
-                    // Asume que los datos están en la primera hoja
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-
-                    // Convertir la hoja a JSON
-                    // header: 1 para obtener la primera fila como encabezados
-                    const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-                    console.log('handleFileUpload: JSON de Excel crudo:', json);
-
-                    if (json.length < 2) { // Necesita al menos una fila de encabezado y una de datos
-                        showModal('Error', 'El archivo Excel está vacío o no tiene el formato esperado (se espera al menos una fila de encabezado y una de datos).', 'alert');
-                        return;
-                    }
-
-                    const headers = json[0]; // La primera fila son los encabezados
-                    const gradeColIndex = headers.findIndex(h => h && h.toUpperCase() === 'GR');
-                    const nameColIndex = headers.findIndex(h => h && h.toUpperCase() === 'APELLIDOS');
-                    const novedadesColIndex = headers.findIndex(h => h && h.toUpperCase() === 'NOVEDADES'); // Nuevo índice para Novedades
-
-                    if (gradeColIndex === -1 || nameColIndex === -1) {
-                        showModal('Error', 'Las columnas "GR" y "APELLIDOS" no se encontraron en el archivo Excel. Asegúrate de que los encabezados coincidan exactamente.', 'alert');
-                        return;
-                    }
-
-                    const newPersonnel = [];
-                    // Usamos un mapa para almacenar las asignaciones de novedades temporales: { "NombreGrupo": [idPersona1, idPersona2] }
-                    const novedadesAssignmentsTemp = {}; 
-                    let ignoredRowsCount = 0;
-
-                    // Itera desde la segunda fila (índice 1) para los datos
-                    for (let i = 1; i < json.length; i++) {
-                        const row = json[i];
-                        const grade = row[gradeColIndex];
-                        const name = row[nameColIndex];
-                        const novedad = novedadesColIndex !== -1 ? row[novedadesColIndex] : null;
-
-                        if (grade && name) {
-                            const personId = generateUniqueId();
-                            newPersonnel.push({
-                                id: personId,
-                                grade: String(grade).trim(),
-                                name: String(name).trim(),
-                                assigned: false
-                            });
-
-                            // Procesar la columna de Novedades para asignar personal a grupos dinámicamente
-                            if (novedad && String(novedad).trim() !== '') {
-                                const novedadGroupName = String(novedad).trim();
-                                if (!novedadesAssignmentsTemp[novedadGroupName]) {
-                                    novedadesAssignmentsTemp[novedadGroupName] = [];
-                                }
-                                novedadesAssignmentsTemp[novedadGroupName].push(personId);
-                            }
-                        } else {
-                            console.warn('handleFileUpload: Fila ignorada debido a datos faltantes (GR o APELLIDOS):', row);
-                            ignoredRowsCount++;
-                        }
-                    }
-
-                    // --- Limpiar todas las asignaciones existentes antes de aplicar las nuevas del Excel ---
-                    console.log('handleFileUpload: Limpiando asignaciones existentes antes de la nueva carga...');
-                    appData.personnel.forEach(p => p.assigned = false);
-                    appData.caiSections.forEach(cai => cai.teams.forEach(team => team.members = []));
-                    // Para otros grupos, solo limpiamos los miembros, no eliminamos los grupos en sí
-                    appData.otherGroups.forEach(group => group.members = []); 
-
-                    // Actualizar el personal principal
-                    appData.personnel = newPersonnel;
-                    console.log('handleFileUpload: Nuevo personal cargado:', JSON.parse(JSON.stringify(appData.personnel)));
-
-                    // Añadir o actualizar los grupos de Novedades y asignar personal
-                    for (const groupName in novedadesAssignmentsTemp) {
-                        if (novedadesAssignmentsTemp.hasOwnProperty(groupName)) {
-                            let group = appData.otherGroups.find(g => g.name === groupName);
-                            if (!group) {
-                                // Si el grupo no existe, créalo
-                                group = {
-                                    id: generateUniqueId(),
-                                    name: groupName,
-                                    members: []
-                                };
-                                appData.otherGroups.push(group);
-                                console.log(`handleFileUpload: Creado nuevo grupo de Novedades: ${groupName}`);
-                            }
-                            // Asigna los miembros a este grupo
-                            group.members = novedadesAssignmentsTemp[groupName];
-                            console.log(`handleFileUpload: Asignado personal a grupo "${groupName}":`, group.members.length, 'miembros.');
-                        }
-                    }
-
-                    saveData(); // Esto también re-renderiza la UI y guarda en localStorage
-                    console.log('handleFileUpload: appData después de la carga y asignación de novedades:', JSON.parse(JSON.stringify(appData)));
-
-                    let successMessage = `Se cargaron ${newPersonnel.length} miembros del personal desde el Excel.`;
-                    if (Object.keys(novedadesAssignmentsTemp).length > 0) {
-                        successMessage += ` Se asignaron personal a ${Object.keys(novedadesAssignmentsTemp).length} grupos de Novedades.`;
-                    }
-                    if (ignoredRowsCount > 0) {
-                        successMessage += ` Se ignoraron ${ignoredRowsCount} filas debido a datos faltantes.`;
-                        showModal('Advertencia', successMessage, 'alert');
-                    } else {
-                        showModal('Éxito', successMessage, 'alert');
-                    }
-
-                } catch (error) {
-                    console.error('handleFileUpload: Error al procesar el archivo Excel:', error);
-                    showModal('Error', 'Hubo un error al procesar el archivo Excel. Asegúrate de que sea un archivo .xlsx o .xls válido y que las columnas "GR" y "APELLIDOS" existan.', 'alert');
-                } finally {
-                    fileInput.value = ''; // Limpia el input de archivo para la próxima carga
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
         function renderPersonnelList() {
             const container = document.getElementById('personnelListContainer');
             container.innerHTML = '';
@@ -769,8 +671,6 @@
                 gradeInput.value = '';
                 nameInput.value = '';
                 saveData();
-            } else {
-                showModal('Advertencia', 'Por favor, ingresa el grado y el nombre del personal.', 'alert');
             }
         }
 
@@ -778,18 +678,14 @@
             const person = appData.personnel.find(p => p.id === id);
             if (person) {
                 showModal('Editar Grado', `Editar grado para ${person.name}:`, 'prompt', person.grade, (newGrade) => {
-                    if (newGrade !== null && newGrade.trim() !== '') {
+                    if (newGrade !== null) {
                         showModal('Editar Nombre', `Editar nombre para ${person.grade} ${person.name}:`, 'prompt', person.name, (newName) => {
-                            if (newName !== null && newName.trim() !== '') {
+                            if (newName !== null) {
                                 person.grade = newGrade.trim();
                                 person.name = newName.trim();
                                 saveData();
-                            } else if (newName !== null) { // Si el usuario borró el nombre
-                                showModal('Advertencia', 'El nombre no puede estar vacío.', 'alert');
                             }
                         });
-                    } else if (newGrade !== null) { // Si el usuario borró el grado
-                        showModal('Advertencia', 'El grado no puede estar vacío.', 'alert');
                     }
                 });
             }
@@ -815,9 +711,7 @@
 
         // --- Renderizado de Selectores de Personal ---
         function getAvailablePersonnel() {
-            const available = appData.personnel.filter(p => !p.assigned);
-            console.log('getAvailablePersonnel: Personal disponible (assigned: false):', available.map(p => p.name));
-            return available;
+            return appData.personnel.filter(p => !p.assigned);
         }
 
         function createPersonnelSelect(selectedPersonId = '', onChangeCallback) {
@@ -828,7 +722,7 @@
             const available = getAvailablePersonnel();
             const assignedPerson = selectedPersonId ? appData.personnel.find(p => p.id === selectedPersonId) : null;
 
-            // Add the currently assigned person to the options, even if they are marked as assigned
+            // Añade a la persona actualmente asignada a las opciones, incluso si está marcada como asignada
             if (assignedPerson) {
                 const option = document.createElement('option');
                 option.value = assignedPerson.id;
@@ -837,16 +731,15 @@
                 select.appendChild(option);
             }
 
-            // Add the rest of the available personnel
+            // Añade el resto del personal disponible
             available.forEach(person => {
-                if (person.id !== selectedPersonId) { // Avoid duplicating if already added as assigned
+                if (person.id !== selectedPersonId) { // Evita duplicar si ya se añadió como asignado
                     const option = document.createElement('option');
                     option.value = person.id;
                     option.textContent = `${person.grade} ${person.name}`;
                     select.appendChild(option);
                 }
             });
-            console.log(`createPersonnelSelect: Generando selector para selectedPersonId: ${selectedPersonId}. Opciones disponibles:`, Array.from(select.options).map(opt => opt.textContent));
 
             select.onchange = onChangeCallback;
             return select;
@@ -854,10 +747,9 @@
 
         // --- Actualizar estado de 'assigned' para el personal ---
         function updatePersonnelAssignedStatus() {
-            console.log('updatePersonnelAssignedStatus: Reiniciando todos los estados de asignación a false.');
-            appData.personnel.forEach(p => p.assigned = false); // Reset all to false
+            appData.personnel.forEach(p => p.assigned = false); // Reinicia todos
 
-            // Mark assigned personnel in CAI teams
+            // Marca el personal asignado en los equipos CAI
             appData.caiSections.forEach(cai => {
                 cai.teams.forEach(team => {
                     team.members.forEach(memberId => {
@@ -867,14 +759,13 @@
                 });
             });
 
-            // Mark assigned personnel in other groups
+            // Marca el personal asignado en otros grupos
             appData.otherGroups.forEach(group => {
                 group.members.forEach(memberId => {
                     const person = appData.personnel.find(p => p.id === memberId);
                     if (person) person.assigned = true;
                 });
             });
-            console.log('updatePersonnelAssignedStatus: Estado final del personal (assigned):', appData.personnel.map(p => ({ name: p.name, assigned: p.assigned })));
         }
 
 
@@ -887,55 +778,19 @@
                 const caiDiv = document.createElement('div');
                 caiDiv.id = `cai-${cai.id}`;
                 caiDiv.className = 'card mb-6';
-
-                // Header for the collapsible section
-                const headerDiv = document.createElement('div');
-                headerDiv.className = 'flex items-center justify-between cursor-pointer py-2 px-4 bg-blue-100 rounded-t-lg';
-                headerDiv.onclick = () => toggleCaiSection(cai.id);
-                headerDiv.innerHTML = `
-                    <input type="text" value="${cai.name}" class="font-semibold text-blue-800 bg-transparent border-none focus:outline-none flex-grow" onchange="updateCaiName('${cai.id}', this.value)">
-                    <i id="icon-${cai.id}" class="fas fa-chevron-down text-blue-800 transition-transform duration-300"></i>
+                caiDiv.innerHTML = `
+                    <div class="flex flex-col sm:flex-row justify-between items-center mb-4">
+                        <input type="text" value="${cai.name}" class="subsection-title input-field flex-grow mr-2 mb-2 sm:mb-0" onchange="updateCaiName('${cai.id}', this.value)">
+                        <button onclick="deleteCaiSection('${cai.id}')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+                    </div>
+                    <div id="cai-teams-${cai.id}">
+                        <!-- Los equipos se renderizarán aquí -->
+                    </div>
+                    <button onclick="addCaiTeam('${cai.id}')" class="btn btn-secondary mt-4"><i class="fas fa-plus"></i></button>
                 `;
-                caiDiv.appendChild(headerDiv);
-
-                // Content area for teams
-                const contentDiv = document.createElement('div');
-                contentDiv.id = `cai-teams-content-${cai.id}`; // New ID for the collapsible content
-                contentDiv.className = 'p-4 border border-t-0 border-gray-200 rounded-b-lg'; // Initially visible
-
-                // Existing team rendering container
-                const teamsContainer = document.createElement('div');
-                teamsContainer.id = `cai-teams-${cai.id}`;
-                contentDiv.appendChild(teamsContainer);
-
-                // Add team button
-                const addTeamButton = document.createElement('button');
-                addTeamButton.onclick = () => addCaiTeam(cai.id);
-                addTeamButton.className = 'btn btn-secondary mt-4';
-                addTeamButton.innerHTML = '<i class="fas fa-plus"></i>';
-                contentDiv.appendChild(addTeamButton);
-
-                caiDiv.appendChild(contentDiv);
                 container.appendChild(caiDiv);
-
-                renderCaiTeams(cai.id); // Render teams inside the newly created teamsContainer
+                renderCaiTeams(cai.id);
             });
-        }
-
-        /**
-         * Toggles the visibility of a CAI section and rotates its icon.
-         * @param {string} caiId - The ID of the CAI section to toggle.
-         */
-        function toggleCaiSection(caiId) {
-            const content = document.getElementById(`cai-teams-content-${caiId}`);
-            const icon = document.getElementById(`icon-${caiId}`);
-            if (content.style.display === 'none') {
-                content.style.display = 'block';
-                icon.classList.remove('rotate-180'); // Rotate icon back
-            } else {
-                content.style.display = 'none';
-                icon.classList.add('rotate-180'); // Rotate icon
-            }
         }
 
         function updateCaiName(caiId, newName) {
@@ -948,15 +803,13 @@
 
         function addCaiSection() {
             showModal('Añadir Sección CAI', 'Ingrese el nombre de la nueva sección CAI (ej. CAI - NUEVO):', 'prompt', '', (newCaiName) => {
-                if (newCaiName && newCaiName.trim() !== '') {
+                if (newCaiName) {
                     appData.caiSections.push({
                         id: generateUniqueId(),
                         name: newCaiName.trim(),
                         teams: []
                     });
                     saveData();
-                } else if (newCaiName !== null) {
-                    showModal('Advertencia', 'El nombre de la sección CAI no puede estar vacío.', 'alert');
                 }
             });
         }
@@ -991,69 +844,68 @@
             cai.teams.forEach((team, teamIndex) => {
                 const teamDiv = document.createElement('div');
                 teamDiv.className = 'card bg-white p-4 mb-3';
-                let teamMembersHtml = '';
-
-                // Always show two member selectors for CAI teams
-                teamMembersHtml = `
-                    <div class="flex-1">
-                        <label class="block text-gray-700 font-medium mb-1">Miembro 1:</label>
-                        ${createPersonnelSelect(team.members[0], (event) => {
-                            updateCaiTeamMember(cai.id, team.id, 0, event.target.value);
-                        }).outerHTML}
-                    </div>
-                    <div class="flex-1">
-                        <label class="block text-gray-700 font-medium mb-1">Miembro 2:</label>
-                        ${createPersonnelSelect(team.members[1], (event) => {
-                            updateCaiTeamMember(cai.id, team.id, 1, event.target.value);
-                        }).outerHTML}
-                    </div>
-                `;
-                
-
                 teamDiv.innerHTML = `
                     <div class="flex flex-col sm:flex-row justify-between items-center mb-3">
                         <input type="text" value="${team.name}" class="font-semibold input-field flex-grow mr-2 mb-2 sm:mb-0" onchange="updateCaiTeamName('${cai.id}', '${team.id}', this.value)">
                         <button onclick="deleteCaiTeam('${cai.id}', '${team.id}')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-2">
-                        ${teamMembersHtml}
+                        <div id="cai-${cai.id}-team-${team.id}-member1" class="flex-1"></div>
+                        <div id="cai-${cai.id}-team-${team.id}-member2" class="flex-1"></div>
                     </div>
                 `;
                 container.appendChild(teamDiv);
+
+                // Renderiza los selectores de miembros
+                const member1Container = document.getElementById(`cai-${cai.id}-team-${team.id}-member1`);
+                const member2Container = document.getElementById(`cai-${cai.id}-team-${team.id}-member2`);
+
+                member1Container.appendChild(createPersonnelSelect(team.members[0], (event) => {
+                    updateCaiTeamMember(cai.id, team.id, 0, event.target.value);
+                }));
+                member2Container.appendChild(createPersonnelSelect(team.members[1], (event) => {
+                    updateCaiTeamMember(cai.id, team.id, 1, event.target.value);
+                }));
             });
         }
 
-        function updateCaiTeamMember(caiId, teamId, memberIndex, personId) {
-            console.log(`updateCaiTeamMember: CAI ID: ${caiId}, Team ID: ${teamId}, Member Index: ${memberIndex}, New Person ID: ${personId}`);
+        function updateCaiTeamName(caiId, teamId, newName) {
             const cai = appData.caiSections.find(c => c.id === caiId);
             if (cai) {
                 const team = cai.teams.find(t => t.id === teamId);
                 if (team) {
-                    // Check for duplicate assignment within the same team (only if it's not the same index)
-                    if (personId && team.members.includes(personId) && team.members.indexOf(personId) !== memberIndex) {
-                        showModal('Advertencia', 'Este personal ya está asignado a otra posición en este mismo equipo.', 'alert');
-                        renderUI(); // Re-render to revert visual selection
+                    team.name = newName.trim();
+                    saveData();
+                }
+            }
+        }
+
+        function updateCaiTeamMember(caiId, teamId, memberIndex, personId) {
+            const cai = appData.caiSections.find(c => c.id === caiId);
+            if (cai) {
+                const team = cai.teams.find(t => t.id === teamId);
+                if (team) {
+                    // Verifica si hay una asignación duplicada dentro del mismo equipo
+                    if (personId && team.members.includes(personId) && team.members[1 - memberIndex] === personId) {
+                        // Si la persona seleccionada ya está en la otra ranura de este equipo,
+                        // y no es la opción "vacía", evita la asignación.
+                        // No es necesario un alert, simplemente no se actualiza y se re-renderiza.
+                        renderUI(); // Re-renderiza para revertir la selección visualmente
                         return;
                     }
 
-                    // Explicitly unassign the old member if they exist
+                    // Antes de actualizar, desasigna al miembro anterior si existe
                     const oldMemberId = team.members[memberIndex];
-                    if (oldMemberId && oldMemberId !== '') { // Only unassign if there was a person assigned
+                    if (oldMemberId) {
                         const oldPerson = appData.personnel.find(p => p.id === oldMemberId);
-                        if (oldPerson) {
-                            oldPerson.assigned = false;
-                            console.log(`updateCaiTeamMember: Desasignado personal: ${oldPerson.name} (ID: ${oldMemberId})`);
-                        }
+                        if (oldPerson) oldPerson.assigned = false;
                     }
 
-                    // Assign the new member
+                    // Asigna al nuevo miembro
                     team.members[memberIndex] = personId;
-                    if (personId && personId !== '') { // Only assign if a new person is selected
+                    if (personId) {
                         const newPerson = appData.personnel.find(p => p.id === personId);
-                        if (newPerson) {
-                            newPerson.assigned = true;
-                            console.log(`updateCaiTeamMember: Asignado personal: ${newPerson.name} (ID: ${personId})`);
-                        }
+                        if (newPerson) newPerson.assigned = true;
                     }
                     saveData();
                 }
@@ -1065,11 +917,9 @@
             const cai = appData.caiSections.find(c => c.id === caiId);
             if (cai) {
                 showModal('Añadir Equipo', 'Ingrese el nombre del nuevo equipo (ej. 17-18):', 'prompt', '', (newTeamName) => {
-                    if (newTeamName && newTeamName.trim() !== '') {
-                        cai.teams.push({ id: generateUniqueId(), name: newTeamName.trim(), members: ["", ""] }); // Default to two members
+                    if (newTeamName) {
+                        cai.teams.push({ id: generateUniqueId(), name: newTeamName.trim(), members: [] });
                         saveData();
-                    } else if (newTeamName !== null) {
-                        showModal('Advertencia', 'El nombre del equipo no puede estar vacío.', 'alert');
                     }
                 });
             }
@@ -1134,12 +984,10 @@
                 appData.otherGroups.push({
                     id: generateUniqueId(),
                     name: newGroupName,
-                    members: [""] // Nuevo grupo con un campo por defecto
+                    members: []
                 });
                 newGroupNameInput.value = '';
                 saveData();
-            } else {
-                showModal('Advertencia', 'Por favor, ingresa el nombre del nuevo grupo.', 'alert');
             }
         }
 
@@ -1167,7 +1015,6 @@
             const container = document.getElementById(`group-members-${group.id}`);
             container.innerHTML = '';
 
-            // Renderiza los selectores de miembros existentes
             group.members.forEach((memberId, index) => {
                 const memberDiv = document.createElement('div');
                 memberDiv.className = 'flex items-center gap-2 mb-2';
@@ -1195,34 +1042,20 @@
         }
 
         function updateOtherGroupMember(groupId, memberIndex, personId) {
-            console.log(`updateOtherGroupMember: Group ID: ${groupId}, Member Index: ${memberIndex}, New Person ID: ${personId}`);
             const group = appData.otherGroups.find(g => g.id === groupId);
             if (group) {
-                // Check for duplicate assignment within the same group
-                if (personId && group.members.includes(personId) && group.members.some((id, idx) => id === personId && idx !== memberIndex)) {
-                    showModal('Advertencia', 'Este personal ya está asignado a otra posición en este mismo grupo.', 'alert');
-                    renderUI(); // Re-render to revert visual selection
-                    return;
-                }
-
-                // Explicitly unassign the old member if they exist
+                // Desasigna al miembro anterior si existe
                 const oldMemberId = group.members[memberIndex];
-                if (oldMemberId && oldMemberId !== '') { // Only unassign if there was a person assigned
+                if (oldMemberId) {
                     const oldPerson = appData.personnel.find(p => p.id === oldMemberId);
-                    if (oldPerson) {
-                        oldPerson.assigned = false;
-                        console.log(`updateOtherGroupMember: Desasignado personal: ${oldPerson.name} (ID: ${oldMemberId})`);
-                    }
+                    if (oldPerson) oldPerson.assigned = false;
                 }
 
-                // Assign the new member
+                // Asigna al nuevo miembro
                 group.members[memberIndex] = personId;
-                if (personId && personId !== '') { // Only assign if a new person is selected
+                if (personId) {
                     const newPerson = appData.personnel.find(p => p.id === personId);
-                    if (newPerson) {
-                        newPerson.assigned = true;
-                        console.log(`updateOtherGroupMember: Asignado personal: ${newPerson.name} (ID: ${personId})`);
-                    }
+                    if (newPerson) newPerson.assigned = true;
                 }
                 saveData();
             }
@@ -1243,25 +1076,19 @@
 
         // --- Renderizado General de la UI ---
         function renderUI() {
-            console.log('renderUI: Iniciando renderizado de la UI.');
-            // Asegura que el estado de asignado sea correcto antes de renderizar los selectores
-            updatePersonnelAssignedStatus(); 
-
             // Actualiza los campos de entrada
             document.getElementById('commanderRank').value = appData.commanderRank;
             document.getElementById('commanderName').value = appData.commanderName;
             document.getElementById('importantServices').value = appData.importantServices.join('\n');
 
+            updatePersonnelAssignedStatus(); // Asegura que el estado de asignado sea correcto antes de renderizar los selectores
             renderPersonnelList();
             renderCaiSections();
             renderOtherGroups();
-            console.log('renderUI: Renderizado de la UI completado. appData final:', JSON.parse(JSON.stringify(appData)));
         }
 
         // --- Generar Informe ---
         function generateReport() {
-            console.log('generateReport: Iniciando generación del informe. appData actual:', JSON.parse(JSON.stringify(appData)));
-
             const greeting = getGreeting();
             const commanderRank = document.getElementById('commanderRank').value.trim();
             const commanderName = document.getElementById('commanderName').value.trim();
@@ -1287,30 +1114,15 @@
                 report += '\n'; // Añade un salto de línea después de cada sección CAI
             });
 
-            // Zona T
-            const zonaTGroup = appData.otherGroups.find(g => g.name === "Zona T");
-            if (zonaTGroup && zonaTGroup.members.length > 0) {
-                report += `*Zona T*\n\n`;
-                zonaTGroup.members.forEach(memberId => {
-                    const person = appData.personnel.find(p => p.id === memberId);
-                    if (person) {
-                        report += `👮🏻‍♂️ ${person.grade}. ${person.name}\n`;
-                    }
-                });
-                report += '\n';
-            }
-
             // Jefe de Vigilancia
             const jefeVigilanciaGroup = appData.otherGroups.find(g => g.name === "Jefe de Vigilancia");
             if (jefeVigilanciaGroup && jefeVigilanciaGroup.members.length > 0) {
-                report += `*Jefe de Vigilancia*\n`;
-                jefeVigilanciaGroup.members.forEach(memberId => {
-                    const person = appData.personnel.find(p => p.id === memberId);
-                    if (person) {
-                        report += `${person.grade} ${person.name}\n`;
-                    }
-                });
-                report += '\n';
+                const jefe = appData.personnel.find(p => p.id === jefeVigilanciaGroup.members[0]);
+                if (jefe) {
+                    report += `*Zona T*\n\n`;
+                    report += `*Jefe de Vigilancia*\n`;
+                    report += `${jefe.grade} ${jefe.name}\n\n`;
+                }
             }
 
             // Servicios de Importancia
@@ -1355,27 +1167,22 @@
                 report += `*Información de CAI*\n\n`;
                 caiInfoGroups.forEach(group => {
                     if (group.members.length > 0) {
-                        report += `*${group.name.replace(' (Información)', '')}*\n`;
-                        group.members.forEach(memberId => {
-                            const person = appData.personnel.find(p => p.id === memberId);
-                            if (person) {
-                                report += `👮🏻‍♂️ ${person.grade}. ${person.name}\n`;
-                            }
-                        });
-                        report += '\n';
+                        const person = appData.personnel.find(p => p.id === group.members[0]); // Asumiendo una persona por información de CAI
+                        if (person) {
+                            report += `*${group.name.replace(' (Información)', '')}*\n`;
+                            report += `👮🏻‍♂️ ${person.grade}. ${person.name}\n\n`;
+                        }
                     }
                 });
             }
 
-            // Novedades (incluye Vacaciones, Excusado, Calamidad y cualquier otro grupo dinámico)
-            const allNovedadesGroups = appData.otherGroups.filter(g => 
-                !["Zona T", "Jefe de Vigilancia", "Jefe de información E-12 y Centinelas", "Custodio E-12"].includes(g.name) && 
-                !g.name.includes("(Información)") // Exclude (Información) groups from Novedades since they are now a separate section
-            );
+            // Novedades
+            const novedadesGroups = appData.otherGroups.filter(g => ["Vacaciones", "Excusado", "Calamidad"].includes(g.name));
+            const customNovedadesGroups = appData.otherGroups.filter(g => !["Jefe de Vigilancia", "Jefe de información E-12 y Centinelas", "Custodio E-12", "Vacaciones", "Excusado", "Calamidad"].includes(g.name) && !g.name.includes("(Información)"));
 
-            if (allNovedadesGroups.length > 0) {
+            if (novedadesGroups.length > 0 || customNovedadesGroups.length > 0) {
                 report += `*📌NOVEDADES*\n\n`;
-                allNovedadesGroups.forEach(group => {
+                novedadesGroups.concat(customNovedadesGroups).forEach(group => {
                     if (group.members.length > 0) {
                         report += `*${group.name}*\n\n`;
                         group.members.forEach(memberId => {
@@ -1393,7 +1200,6 @@
             report += `*Comandante Estación de Policía Barrios Unidos*\n`;
 
             document.getElementById('reportOutput').textContent = report;
-            console.log('generateReport: Informe final generado:\n', report);
         }
 
         // --- Función para copiar el informe ---
@@ -1426,4 +1232,3 @@
     </script>
 </body>
 </html>
-
