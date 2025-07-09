@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome CDN para íconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- SheetJS (xlsx) CDN para leer archivos Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         /* Estilos base para el cuerpo y contenedor principal */
         body {
@@ -256,6 +258,12 @@
             <!-- Gestión de Personal -->
             <div class="mb-6">
                 <h3 class="subsection-title">Gestión de Personal</h3>
+                <!-- Nueva sección para cargar desde Excel -->
+                <div class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <label for="excelFileInput" class="block text-gray-700 font-medium mb-2">Cargar Personal desde Excel (.xlsx/.xls):</label>
+                    <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="input-field mb-2">
+                    <button onclick="handleFileUpload()" class="btn btn-primary w-full"><i class="fas fa-file-excel"></i> Cargar Excel</button>
+                </div>
                 <div id="personnelListContainer" class="bg-white p-4 rounded-lg border border-gray-200 mb-4 max-h-60 overflow-y-auto">
                     <!-- Los elementos del personal se renderizarán aquí -->
                 </div>
@@ -331,7 +339,7 @@
             return 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
         }
 
-        // Datos iniciales por defecto
+        // Datos iniciales por defecto (usados para valores por defecto si no hay datos guardados)
         const defaultData = {
             commanderName: "Buitrago Valderrama Diego Alejandro",
             commanderRank: "MY.",
@@ -350,50 +358,7 @@
                 "Carrera 30",
                 "Calle 80"
             ],
-            personnel: [
-                { id: generateUniqueId(), grade: "PT", name: "Martin", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "Daniela", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "Rosario", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "Karol", assigned: false },
-                { id: generateUniqueId(), grade: "SI", name: "Chacon", assigned: false },
-                { id: generateUniqueId(), grade: "SI", name: "Manrique", assigned: false },
-                { id: generateUniqueId(), grade: "SI", name: "Diaz", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "Ospino", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "Solano", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "Hernandez", assigned: false },
-                { id: generateUniqueId(), grade: "SI", name: "Pineda", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "Escobar", assigned: false },
-                { id: generateUniqueId(), grade: "SI", name: "Corredor", assigned: false },
-                { id: generateUniqueId(), grade: "PP", name: "Maria", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "Castillo", assigned: false },
-                { id: generateUniqueId(), grade: "PP", name: "Juana", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "Jurado", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "González Marrugo", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "Chavarria", assigned: false },
-                { id: generateUniqueId(), grade: "PP", name: "Sofia", assigned: false },
-                { id: generateUniqueId(), grade: "SI", name: "Gomez Lozano", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "Montenegro", assigned: false },
-                { id: generateUniqueId(), grade: "IJ", name: "Manuel Antonio Arias Guerra", assigned: false },
-                { id: generateUniqueId(), grade: "SI", name: "Nieto", assigned: false },
-                { id: generateUniqueId(), grade: "SI", name: "Ávila", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "Higuita", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "Ballesteros", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "González", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "Marquez", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "Gomez Muñoz", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "Nayerly", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "Sierra", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "Garzon Garcia", assigned: false },
-                { id: generateUniqueId(), grade: "SI", name: "Olivero", assigned: false },
-                { id: generateUniqueId(), grade: "SI", name: "Marmol", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "Sanchez", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "Trujillo", assigned: false },
-                { id: generateUniqueId(), grade: "SI", name: "Gonzalez", assigned: false },
-                { id: generateUniqueId(), grade: "PT", name: "Velazquez Bohorquez", assigned: false }
-           
-            
-            
-            ],
+            personnel: [], // Este sí debe iniciar vacío por defecto
             caiSections: [
                 {
                     id: generateUniqueId(), name: "CAI - MODELO",
@@ -433,14 +398,15 @@
                 }
             ],
             otherGroups: [
-                { id: generateUniqueId(), name: "Jefe de Vigilancia", members: [] },
-                { id: generateUniqueId(), name: "Jefe de información E-12 y Centinelas", members: [] },
-                { id: generateUniqueId(), name: "Custodio E-12", members: [] },
-                { id: generateUniqueId(), name: "CAI - ALCÁZARES (Información)", members: [] },
-                { id: generateUniqueId(), name: "CAI - MODELO (Información)", members: [] },
-                { id: generateUniqueId(), name: "CAI - POLO CLUB (Información)", members: [] },
-                { id: generateUniqueId(), name: "CAI - RIONEGRO (Información)", members: [] },
-                { id: generateUniqueId(), name: "CAI 7 DE AGOSTO (Información)", members: [] },
+                { id: generateUniqueId(), name: "Zona T", members: ["", ""] }, // Nuevo grupo "Zona T" con dos espacios
+                { id: generateUniqueId(), name: "Jefe de Vigilancia", members: [""] }, // Un espacio por defecto
+                { id: generateUniqueId(), name: "Jefe de información E-12 y Centinelas", members: [""] }, // Un espacio por defecto
+                { id: generateUniqueId(), name: "Custodio E-12", members: [""] }, // Un espacio por defecto
+                { id: generateUniqueId(), name: "CAI - ALCÁZARES (Información)", members: [""] }, // Un espacio por defecto
+                { id: generateUniqueId(), name: "CAI - MODELO (Información)", members: [""] }, // Un espacio por defecto
+                { id: generateUniqueId(), name: "CAI - POLO CLUB (Información)", members: [""] }, // Un espacio por defecto
+                { id: generateUniqueId(), name: "CAI - RIONEGRO (Información)", members: [""] }, // Un espacio por defecto
+                { id: generateUniqueId(), name: "CAI 7 DE AGOSTO (Información)", members: [""] }, // Un espacio por defecto
                 { id: generateUniqueId(), name: "Vacaciones", members: [] },
                 { id: generateUniqueId(), name: "Excusado", members: [] },
                 { id: generateUniqueId(), name: "Calamidad", members: [] }
@@ -459,6 +425,14 @@
 
         let modalCallback = null;
 
+        /**
+         * Muestra un modal personalizado para confirmación, prompt o alerta.
+         * @param {string} title - Título del modal.
+         * @param {string} message - Mensaje del modal.
+         * @param {'prompt'|'confirm'|'alert'} type - Tipo de modal (prompt, confirm, alert).
+         * @param {string} [defaultValue=''] - Valor por defecto para el input en tipo 'prompt'.
+         * @param {function} [callback] - Función a ejecutar al confirmar (para 'prompt' y 'confirm').
+         */
         function showModal(title, message, type, defaultValue = '', callback) {
             scrollPosition = window.scrollY; // Guarda la posición de desplazamiento actual
             modalTitle.textContent = title;
@@ -479,6 +453,10 @@
                 modalConfirmBtn.classList.remove('hidden');
                 modalCancelBtn.textContent = 'No';
                 modalCancelBtn.classList.remove('hidden');
+            } else if (type === 'alert') { // Nuevo tipo 'alert'
+                modalConfirmBtn.textContent = 'Entendido';
+                modalConfirmBtn.classList.remove('hidden');
+                modalCallback = () => {}; // Para alertas, el callback no necesita hacer nada específico
             }
 
             modalOverlay.classList.add('active');
@@ -520,39 +498,53 @@
             const storedData = localStorage.getItem('policeReportData');
             if (storedData) {
                 appData = JSON.parse(storedData);
-                // Asegura que la estructura por defecto se mantenga para nuevas propiedades
-                appData.personnel = appData.personnel || defaultData.personnel;
-                appData.caiSections = appData.caiSections || defaultData.caiSections;
-                appData.otherGroups = appData.otherGroups || defaultData.otherGroups;
-                appData.importantServices = appData.importantServices || defaultData.importantServices;
-                appData.commanderName = appData.commanderName || defaultData.commanderName;
-                appData.commanderRank = appData.commanderRank || defaultData.commanderRank;
+                // Asegura que las propiedades existan, usando valores por defecto si no están presentes
+                appData.commanderName = appData.commanderName !== undefined ? appData.commanderName : defaultData.commanderName;
+                appData.commanderRank = appData.commanderRank !== undefined ? appData.commanderRank : defaultData.commanderRank;
+                appData.importantServices = appData.importantServices !== undefined ? appData.importantServices : defaultData.importantServices;
+                
+                // Personal: siempre carga de localStorage o inicia vacío
+                appData.personnel = appData.personnel || []; 
 
-                // Re-asigna el personal inicial para que coincida con la estructura por defecto si no estaban asignados
-                defaultData.personnel.forEach(defaultP => {
-                    const found = appData.personnel.find(p => p.grade === defaultP.grade && p.name === defaultP.name);
-                    if (!found) {
-                        appData.personnel.push({ ...defaultP, assigned: false });
-                    }
-                });
-
-                // Si no hay asignaciones cargadas, aplica las predeterminadas
-                if (appData.caiSections.every(s => s.teams.every(t => t.members.length === 0)) &&
-                    appData.otherGroups.every(g => g.members.every(m => m === ''))) { // Check for empty strings in members
-                    assignDefaultPersonnel();
-                } else {
-                    // Si los datos se cargaron, asegura que el estado de asignado sea correcto
-                    updatePersonnelAssignedStatus();
+                // CAI Sections: carga de localStorage o usa los valores por defecto
+                appData.caiSections = appData.caiSections && appData.caiSections.length > 0 ? appData.caiSections : JSON.parse(JSON.stringify(defaultData.caiSections));
+                
+                // Other Groups: carga de localStorage y se fusiona con los valores por defecto
+                const mergedOtherGroups = JSON.parse(JSON.stringify(defaultData.otherGroups)); // Copia profunda de los defaults
+                if (appData.otherGroups) {
+                    appData.otherGroups.forEach(savedGroup => {
+                        const existingGroupIndex = mergedOtherGroups.findIndex(g => g.name === savedGroup.name);
+                        if (existingGroupIndex !== -1) {
+                            // Si el grupo ya existe en los defaults, actualiza sus miembros con los guardados
+                            mergedOtherGroups[existingGroupIndex].members = savedGroup.members;
+                        } else {
+                            // Si es un grupo nuevo añadido por el usuario o desde Novedades, lo añade a la lista
+                            mergedOtherGroups.push(savedGroup);
+                        }
+                    });
                 }
+                appData.otherGroups = mergedOtherGroups;
+
+                // Después de cargar, actualiza el estado de asignación basado en las asignaciones actuales
+                updatePersonnelAssignedStatus();
 
             } else {
-                appData = JSON.parse(JSON.stringify(defaultData)); // Copia profunda de los datos por defecto
-                assignDefaultPersonnel(); // Asigna el personal por defecto a sus lugares iniciales
+                // Si no hay datos guardados, inicializa con valores por defecto para configuración
+                // y arrays vacíos para personal, secciones CAI y otros grupos.
+                appData = {
+                    commanderName: defaultData.commanderName,
+                    commanderRank: defaultData.commanderRank,
+                    importantServices: defaultData.importantServices,
+                    personnel: [], // Inicia vacío
+                    caiSections: JSON.parse(JSON.stringify(defaultData.caiSections)), // Copia profunda de los valores por defecto
+                    otherGroups: JSON.parse(JSON.stringify(defaultData.otherGroups))  // Copia profunda de los valores por defecto
+                };
             }
             renderUI();
         }
 
         // Función para asignar el personal por defecto a sus lugares iniciales
+        // Esta función ya no se llama automáticamente al cargar, solo si se desea implementarla manualmente.
         function assignDefaultPersonnel() {
             // Reinicia todo el personal a no asignado primero
             appData.personnel.forEach(p => p.assigned = false);
@@ -643,6 +635,133 @@
         }
 
         // --- Gestión de Personal ---
+
+        /**
+         * Maneja la carga de un archivo Excel para actualizar la lista de personal.
+         * El archivo debe tener columnas llamadas "GR" y "APELLIDOS".
+         */
+        function handleFileUpload() {
+            const fileInput = document.getElementById('excelFileInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                showModal('Error', 'Por favor, selecciona un archivo Excel.', 'alert');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+
+                    // Asume que los datos están en la primera hoja
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+
+                    // Convertir la hoja a JSON
+                    // header: 1 para obtener la primera fila como encabezados
+                    const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                    if (json.length < 2) { // Necesita al menos una fila de encabezado y una de datos
+                        showModal('Error', 'El archivo Excel está vacío o no tiene el formato esperado (se espera al menos una fila de encabezado y una de datos).', 'alert');
+                        return;
+                    }
+
+                    const headers = json[0]; // La primera fila son los encabezados
+                    const gradeColIndex = headers.findIndex(h => h && h.toUpperCase() === 'GR');
+                    const nameColIndex = headers.findIndex(h => h && h.toUpperCase() === 'APELLIDOS');
+                    const novedadesColIndex = headers.findIndex(h => h && h.toUpperCase() === 'NOVEDADES'); // Nuevo índice para Novedades
+
+                    if (gradeColIndex === -1 || nameColIndex === -1) {
+                        showModal('Error', 'Las columnas "GR" y "APELLIDOS" no se encontraron en el archivo Excel. Asegúrate de que los encabezados coincidan exactamente.', 'alert');
+                        return;
+                    }
+
+                    const newPersonnel = [];
+                    // Usamos un mapa para almacenar las asignaciones de novedades temporales: { "NombreGrupo": [idPersona1, idPersona2] }
+                    const novedadesAssignmentsTemp = {}; 
+                    let ignoredRowsCount = 0;
+
+                    // Itera desde la segunda fila (índice 1) para los datos
+                    for (let i = 1; i < json.length; i++) {
+                        const row = json[i];
+                        const grade = row[gradeColIndex];
+                        const name = row[nameColIndex];
+                        const novedad = novedadesColIndex !== -1 ? row[novedadesColIndex] : null;
+
+                        if (grade && name) {
+                            const personId = generateUniqueId();
+                            newPersonnel.push({
+                                id: personId,
+                                grade: String(grade).trim(),
+                                name: String(name).trim(),
+                                assigned: false
+                            });
+
+                            // Procesar la columna de Novedades para asignar personal a grupos dinámicamente
+                            if (novedad && String(novedad).trim() !== '') {
+                                const novedadGroupName = String(novedad).trim();
+                                if (!novedadesAssignmentsTemp[novedadGroupName]) {
+                                    novedadesAssignmentsTemp[novedadGroupName] = [];
+                                }
+                                novedadesAssignmentsTemp[novedadGroupName].push(personId);
+                            }
+                        } else {
+                            console.warn('Fila ignorada debido a datos faltantes (GR o APELLIDOS):', row);
+                            ignoredRowsCount++;
+                        }
+                    }
+
+                    // Antes de actualizar, desasigna a todo el personal actual y limpia las asignaciones
+                    appData.personnel.forEach(p => p.assigned = false);
+                    appData.caiSections.forEach(cai => cai.teams.forEach(team => team.members = []));
+                    appData.otherGroups.forEach(group => group.members = []); // Limpia miembros de TODOS los grupos existentes
+
+                    // Actualizar el personal principal
+                    appData.personnel = newPersonnel;
+
+                    // Añadir o actualizar los grupos de Novedades y asignar personal
+                    for (const groupName in novedadesAssignmentsTemp) {
+                        if (novedadesAssignmentsTemp.hasOwnProperty(groupName)) {
+                            let group = appData.otherGroups.find(g => g.name === groupName);
+                            if (!group) {
+                                // Si el grupo no existe, créalo
+                                group = {
+                                    id: generateUniqueId(),
+                                    name: groupName,
+                                    members: []
+                                };
+                                appData.otherGroups.push(group);
+                            }
+                            // Asigna los miembros a este grupo
+                            group.members = novedadesAssignmentsTemp[groupName];
+                        }
+                    }
+
+                    saveData(); // Esto también re-renderiza la UI y guarda en localStorage
+
+                    let successMessage = `Se cargaron ${newPersonnel.length} miembros del personal desde el Excel.`;
+                    if (Object.keys(novedadesAssignmentsTemp).length > 0) {
+                        successMessage += ` Se asignaron personal a ${Object.keys(novedadesAssignmentsTemp).length} grupos de Novedades.`;
+                    }
+                    if (ignoredRowsCount > 0) {
+                        successMessage += ` Se ignoraron ${ignoredRowsCount} filas debido a datos faltantes.`;
+                        showModal('Advertencia', successMessage, 'alert');
+                    } else {
+                        showModal('Éxito', successMessage, 'alert');
+                    }
+
+                } catch (error) {
+                    console.error('Error al procesar el archivo Excel:', error);
+                    showModal('Error', 'Hubo un error al procesar el archivo Excel. Asegúrate de que sea un archivo .xlsx o .xls válido y que las columnas "GR" y "APELLIDOS" existan.', 'alert');
+                } finally {
+                    fileInput.value = ''; // Limpia el input de archivo para la próxima carga
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
         function renderPersonnelList() {
             const container = document.getElementById('personnelListContainer');
             container.innerHTML = '';
@@ -671,6 +790,8 @@
                 gradeInput.value = '';
                 nameInput.value = '';
                 saveData();
+            } else {
+                showModal('Advertencia', 'Por favor, ingresa el grado y el nombre del personal.', 'alert');
             }
         }
 
@@ -678,14 +799,18 @@
             const person = appData.personnel.find(p => p.id === id);
             if (person) {
                 showModal('Editar Grado', `Editar grado para ${person.name}:`, 'prompt', person.grade, (newGrade) => {
-                    if (newGrade !== null) {
+                    if (newGrade !== null && newGrade.trim() !== '') {
                         showModal('Editar Nombre', `Editar nombre para ${person.grade} ${person.name}:`, 'prompt', person.name, (newName) => {
-                            if (newName !== null) {
+                            if (newName !== null && newName.trim() !== '') {
                                 person.grade = newGrade.trim();
                                 person.name = newName.trim();
                                 saveData();
+                            } else if (newName !== null) { // Si el usuario borró el nombre
+                                showModal('Advertencia', 'El nombre no puede estar vacío.', 'alert');
                             }
                         });
+                    } else if (newGrade !== null) { // Si el usuario borró el grado
+                        showModal('Advertencia', 'El grado no puede estar vacío.', 'alert');
                     }
                 });
             }
@@ -803,13 +928,15 @@
 
         function addCaiSection() {
             showModal('Añadir Sección CAI', 'Ingrese el nombre de la nueva sección CAI (ej. CAI - NUEVO):', 'prompt', '', (newCaiName) => {
-                if (newCaiName) {
+                if (newCaiName && newCaiName.trim() !== '') {
                     appData.caiSections.push({
                         id: generateUniqueId(),
                         name: newCaiName.trim(),
                         teams: []
                     });
                     saveData();
+                } else if (newCaiName !== null) {
+                    showModal('Advertencia', 'El nombre de la sección CAI no puede estar vacío.', 'alert');
                 }
             });
         }
@@ -887,9 +1014,7 @@
                 if (team) {
                     // Verifica si hay una asignación duplicada dentro del mismo equipo
                     if (personId && team.members.includes(personId) && team.members[1 - memberIndex] === personId) {
-                        // Si la persona seleccionada ya está en la otra ranura de este equipo,
-                        // y no es la opción "vacía", evita la asignación.
-                        // No es necesario un alert, simplemente no se actualiza y se re-renderiza.
+                        showModal('Advertencia', 'Este personal ya está asignado a otra posición en este mismo equipo.', 'alert');
                         renderUI(); // Re-renderiza para revertir la selección visualmente
                         return;
                     }
@@ -917,9 +1042,11 @@
             const cai = appData.caiSections.find(c => c.id === caiId);
             if (cai) {
                 showModal('Añadir Equipo', 'Ingrese el nombre del nuevo equipo (ej. 17-18):', 'prompt', '', (newTeamName) => {
-                    if (newTeamName) {
+                    if (newTeamName && newTeamName.trim() !== '') {
                         cai.teams.push({ id: generateUniqueId(), name: newTeamName.trim(), members: [] });
                         saveData();
+                    } else if (newTeamName !== null) {
+                        showModal('Advertencia', 'El nombre del equipo no puede estar vacío.', 'alert');
                     }
                 });
             }
@@ -984,10 +1111,12 @@
                 appData.otherGroups.push({
                     id: generateUniqueId(),
                     name: newGroupName,
-                    members: []
+                    members: [""] // Nuevo grupo con un campo por defecto
                 });
                 newGroupNameInput.value = '';
                 saveData();
+            } else {
+                showModal('Advertencia', 'Por favor, ingresa el nombre del nuevo grupo.', 'alert');
             }
         }
 
@@ -1015,6 +1144,7 @@
             const container = document.getElementById(`group-members-${group.id}`);
             container.innerHTML = '';
 
+            // Renderiza los selectores de miembros existentes
             group.members.forEach((memberId, index) => {
                 const memberDiv = document.createElement('div');
                 memberDiv.className = 'flex items-center gap-2 mb-2';
@@ -1044,7 +1174,14 @@
         function updateOtherGroupMember(groupId, memberIndex, personId) {
             const group = appData.otherGroups.find(g => g.id === groupId);
             if (group) {
-                // Desasigna al miembro anterior si existe
+                // Verifica si hay una asignación duplicada dentro del mismo grupo
+                if (personId && group.members.includes(personId) && group.members.some((id, idx) => id === personId && idx !== memberIndex)) {
+                    showModal('Advertencia', 'Este personal ya está asignado a otra posición en este mismo grupo.', 'alert');
+                    renderUI(); // Re-renderiza para revertir la selección visualmente
+                    return;
+                }
+
+                // Antes de actualizar, desasigna al miembro anterior si existe
                 const oldMemberId = group.members[memberIndex];
                 if (oldMemberId) {
                     const oldPerson = appData.personnel.find(p => p.id === oldMemberId);
@@ -1114,15 +1251,30 @@
                 report += '\n'; // Añade un salto de línea después de cada sección CAI
             });
 
+            // Zona T
+            const zonaTGroup = appData.otherGroups.find(g => g.name === "Zona T");
+            if (zonaTGroup && zonaTGroup.members.length > 0) {
+                report += `*Zona T*\n\n`;
+                zonaTGroup.members.forEach(memberId => {
+                    const person = appData.personnel.find(p => p.id === memberId);
+                    if (person) {
+                        report += `👮🏻‍♂️ ${person.grade}. ${person.name}\n`;
+                    }
+                });
+                report += '\n';
+            }
+
             // Jefe de Vigilancia
             const jefeVigilanciaGroup = appData.otherGroups.find(g => g.name === "Jefe de Vigilancia");
             if (jefeVigilanciaGroup && jefeVigilanciaGroup.members.length > 0) {
-                const jefe = appData.personnel.find(p => p.id === jefeVigilanciaGroup.members[0]);
-                if (jefe) {
-                    report += `*Zona T*\n\n`;
-                    report += `*Jefe de Vigilancia*\n`;
-                    report += `${jefe.grade} ${jefe.name}\n\n`;
-                }
+                report += `*Jefe de Vigilancia*\n`;
+                jefeVigilanciaGroup.members.forEach(memberId => {
+                    const person = appData.personnel.find(p => p.id === memberId);
+                    if (person) {
+                        report += `${person.grade} ${person.name}\n`;
+                    }
+                });
+                report += '\n';
             }
 
             // Servicios de Importancia
@@ -1167,22 +1319,27 @@
                 report += `*Información de CAI*\n\n`;
                 caiInfoGroups.forEach(group => {
                     if (group.members.length > 0) {
-                        const person = appData.personnel.find(p => p.id === group.members[0]); // Asumiendo una persona por información de CAI
-                        if (person) {
-                            report += `*${group.name.replace(' (Información)', '')}*\n`;
-                            report += `👮🏻‍♂️ ${person.grade}. ${person.name}\n\n`;
-                        }
+                        report += `*${group.name.replace(' (Información)', '')}*\n`;
+                        group.members.forEach(memberId => {
+                            const person = appData.personnel.find(p => p.id === memberId);
+                            if (person) {
+                                report += `👮🏻‍♂️ ${person.grade}. ${person.name}\n`;
+                            }
+                        });
+                        report += '\n';
                     }
                 });
             }
 
-            // Novedades
-            const novedadesGroups = appData.otherGroups.filter(g => ["Vacaciones", "Excusado", "Calamidad"].includes(g.name));
-            const customNovedadesGroups = appData.otherGroups.filter(g => !["Jefe de Vigilancia", "Jefe de información E-12 y Centinelas", "Custodio E-12", "Vacaciones", "Excusado", "Calamidad"].includes(g.name) && !g.name.includes("(Información)"));
+            // Novedades (incluye Vacaciones, Excusado, Calamidad y cualquier otro grupo dinámico)
+            const allNovedadesGroups = appData.otherGroups.filter(g => 
+                !["Zona T", "Jefe de Vigilancia", "Jefe de información E-12 y Centinelas", "Custodio E-12"].includes(g.name) && 
+                !g.name.includes("(Información)")
+            );
 
-            if (novedadesGroups.length > 0 || customNovedadesGroups.length > 0) {
+            if (allNovedadesGroups.length > 0) {
                 report += `*📌NOVEDADES*\n\n`;
-                novedadesGroups.concat(customNovedadesGroups).forEach(group => {
+                allNovedadesGroups.forEach(group => {
                     if (group.members.length > 0) {
                         report += `*${group.name}*\n\n`;
                         group.members.forEach(memberId => {
@@ -1232,4 +1389,3 @@
     </script>
 </body>
 </html>
-
