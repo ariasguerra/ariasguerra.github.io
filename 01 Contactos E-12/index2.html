@@ -495,9 +495,11 @@
 
         // Función para cargar datos desde localStorage
         function loadData() {
+            console.log('loadData: Intentando cargar datos de localStorage...');
             const storedData = localStorage.getItem('policeReportData');
             if (storedData) {
                 appData = JSON.parse(storedData);
+                console.log('loadData: Datos cargados de localStorage:', appData);
                 // Asegura que las propiedades existan, usando valores por defecto si no están presentes
                 appData.commanderName = appData.commanderName !== undefined ? appData.commanderName : defaultData.commanderName;
                 appData.commanderRank = appData.commanderRank !== undefined ? appData.commanderRank : defaultData.commanderRank;
@@ -551,6 +553,7 @@
                 updatePersonnelAssignedStatus();
 
             } else {
+                console.log('loadData: No se encontraron datos en localStorage. Inicializando con valores por defecto.');
                 // Si no hay datos guardados, inicializa con valores por defecto para configuración
                 // y arrays vacíos para personal, secciones CAI y otros grupos.
                 appData = {
@@ -640,7 +643,13 @@
 
         // Función para guardar datos en localStorage
         function saveData() {
-            localStorage.setItem('policeReportData', JSON.stringify(appData));
+            try {
+                localStorage.setItem('policeReportData', JSON.stringify(appData));
+                console.log('saveData: Datos guardados exitosamente en localStorage.');
+            } catch (e) {
+                console.error('saveData: Error al guardar en localStorage:', e);
+                showModal('Error de Guardado', 'No se pudieron guardar los datos en su navegador. El almacenamiento local podría estar lleno o deshabilitado.', 'alert');
+            }
             renderUI(); // Re-renderiza la UI después de guardar para actualizar el personal disponible
         }
 
@@ -762,6 +771,7 @@
                     }
 
                     saveData(); // Esto también re-renderiza la UI y guarda en localStorage
+                    console.log('handleFileUpload: Datos después de la carga y asignación de novedades:', appData);
 
                     let successMessage = `Se cargaron ${newPersonnel.length} miembros del personal desde el Excel.`;
                     if (Object.keys(novedadesAssignmentsTemp).length > 0) {
@@ -858,7 +868,9 @@
 
         // --- Renderizado de Selectores de Personal ---
         function getAvailablePersonnel() {
-            return appData.personnel.filter(p => !p.assigned);
+            const available = appData.personnel.filter(p => !p.assigned);
+            // console.log('getAvailablePersonnel: Personal disponible (assigned: false):', available.map(p => p.name));
+            return available;
         }
 
         function createPersonnelSelect(selectedPersonId = '', onChangeCallback) {
@@ -887,6 +899,7 @@
                     select.appendChild(option);
                 }
             });
+            // console.log(`createPersonnelSelect: Generando selector para selectedPersonId: ${selectedPersonId}. Opciones disponibles:`, Array.from(select.options).map(opt => opt.textContent));
 
             select.onchange = onChangeCallback;
             return select;
@@ -894,6 +907,7 @@
 
         // --- Actualizar estado de 'assigned' para el personal ---
         function updatePersonnelAssignedStatus() {
+            // console.log('updatePersonnelAssignedStatus: Reiniciando todos los estados de asignación a false.');
             appData.personnel.forEach(p => p.assigned = false); // Reinicia todos
 
             // Marca el personal asignado en los equipos CAI
@@ -913,6 +927,7 @@
                     if (person) person.assigned = true;
                 });
             });
+            // console.log('updatePersonnelAssignedStatus: Estado final del personal (assigned):', appData.personnel.map(p => ({ name: p.name, assigned: p.assigned })));
         }
 
 
@@ -1278,15 +1293,19 @@
 
         // --- Renderizado General de la UI ---
         function renderUI() {
+            // console.log('renderUI: Iniciando renderizado de la UI.');
+            // Asegura que el estado de asignado sea correcto antes de renderizar los selectores
+            updatePersonnelAssignedStatus(); 
+
             // Actualiza los campos de entrada
             document.getElementById('commanderRank').value = appData.commanderRank;
             document.getElementById('commanderName').value = appData.commanderName;
             document.getElementById('importantServices').value = appData.importantServices.join('\n');
 
-            updatePersonnelAssignedStatus(); // Asegura que el estado de asignado sea correcto antes de renderizar los selectores
             renderPersonnelList();
             renderCaiSections();
             renderOtherGroups();
+            // console.log('renderUI: Renderizado de la UI completado.');
         }
 
         // --- Generar Informe ---
