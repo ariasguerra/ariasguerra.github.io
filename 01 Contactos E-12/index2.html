@@ -365,35 +365,40 @@
                     teams: [
                         { id: generateUniqueId(), name: "11-13", members: [] },
                         { id: generateUniqueId(), name: "12-14", members: [] },
-                        { id: generateUniqueId(), name: "15-16", members: [] }
+                        { id: generateUniqueId(), name: "15-16", members: [] },
+                        { id: generateUniqueId(), name: "CAI - MODELO (Información)", members: [""] } // Added
                     ]
                 },
                 {
                     id: generateUniqueId(), name: "CAI - ALCAZARES",
                     teams: [
                         { id: generateUniqueId(), name: "1", members: [] },
-                        { id: generateUniqueId(), name: "2", members: [] }
+                        { id: generateUniqueId(), name: "2", members: [] },
+                        { id: generateUniqueId(), name: "CAI - ALCÁZARES (Información)", members: [""] } // Added
                     ]
                 },
                 {
                     id: generateUniqueId(), name: "CAI - POLO CLUB",
                     teams: [
                         { id: generateUniqueId(), name: "6-7", members: [] },
-                        { id: generateUniqueId(), name: "8", members: [] }
+                        { id: generateUniqueId(), name: "8", members: [] },
+                        { id: generateUniqueId(), name: "CAI - POLO CLUB (Información)", members: [""] } // Added
                     ]
                 },
                 {
                     id: generateUniqueId(), name: "CAI - RIONEGRO",
                     teams: [
                         { id: generateUniqueId(), name: "9", members: [] },
-                        { id: generateUniqueId(), name: "10", members: [] }
+                        { id: generateUniqueId(), name: "10", members: [] },
+                        { id: generateUniqueId(), name: "CAI - RIONEGRO (Información)", members: [""] } // Added
                     ]
                 },
                 {
                     id: generateUniqueId(), name: "CAI - 7 DE AGOSTO",
                     teams: [
                         { id: generateUniqueId(), name: "3", members: [] },
-                        { id: generateUniqueId(), name: "4-5", members: [] }
+                        { id: generateUniqueId(), name: "4-5", members: [] },
+                        { id: generateUniqueId(), name: "CAI 7 DE AGOSTO (Información)", members: [""] } // Added
                     ]
                 }
             ],
@@ -402,11 +407,7 @@
                 { id: generateUniqueId(), name: "Jefe de Vigilancia", members: [""] }, // Un espacio por defecto
                 { id: generateUniqueId(), name: "Jefe de información E-12 y Centinelas", members: [""] }, // Un espacio por defecto
                 { id: generateUniqueId(), name: "Custodio E-12", members: [""] }, // Un espacio por defecto
-                { id: generateUniqueId(), name: "CAI - ALCÁZARES (Información)", members: [""] }, // Un espacio por defecto
-                { id: generateUniqueId(), name: "CAI - MODELO (Información)", members: [""] }, // Un espacio por defecto
-                { id: generateUniqueId(), name: "CAI - POLO CLUB (Información)", members: [""] }, // Un espacio por defecto
-                { id: generateUniqueId(), name: "CAI - RIONEGRO (Información)", members: [""] }, // Un espacio por defecto
-                { id: generateUniqueId(), name: "CAI 7 DE AGOSTO (Información)", members: [""] }, // Un espacio por defecto
+                // Removed: CAI - ALCÁZARES (Información), CAI - MODELO (Información), etc.
                 { id: generateUniqueId(), name: "Vacaciones", members: [] },
                 { id: generateUniqueId(), name: "Excusado", members: [] },
                 { id: generateUniqueId(), name: "Calamidad", members: [] }
@@ -507,7 +508,29 @@
                 appData.personnel = appData.personnel || []; 
 
                 // CAI Sections: carga de localStorage o usa los valores por defecto
-                appData.caiSections = appData.caiSections && appData.caiSections.length > 0 ? appData.caiSections : JSON.parse(JSON.stringify(defaultData.caiSections));
+                // Fusiona los equipos de información si ya existen en los datos guardados
+                const mergedCaiSections = JSON.parse(JSON.stringify(defaultData.caiSections));
+                if (appData.caiSections) {
+                    appData.caiSections.forEach(savedCai => {
+                        const existingCaiIndex = mergedCaiSections.findIndex(c => c.name === savedCai.name);
+                        if (existingCaiIndex !== -1) {
+                            // Si el CAI ya existe en los defaults, actualiza sus equipos con los guardados
+                            // Y también fusiona los equipos de información si no están ya en los guardados
+                            savedCai.teams.forEach(savedTeam => {
+                                const existingTeamIndex = mergedCaiSections[existingCaiIndex].teams.findIndex(t => t.name === savedTeam.name);
+                                if (existingTeamIndex !== -1) {
+                                    mergedCaiSections[existingCaiIndex].teams[existingTeamIndex].members = savedTeam.members;
+                                } else {
+                                    mergedCaiSections[existingCaiIndex].teams.push(savedTeam);
+                                }
+                            });
+                        } else {
+                            // Si es un CAI nuevo añadido por el usuario, lo añade a la lista
+                            mergedCaiSections.push(savedCai);
+                        }
+                    });
+                }
+                appData.caiSections = mergedCaiSections;
                 
                 // Other Groups: carga de localStorage y se fusiona con los valores por defecto
                 const mergedOtherGroups = JSON.parse(JSON.stringify(defaultData.otherGroups)); // Copia profunda de los defaults
@@ -554,14 +577,19 @@
                 { caiName: "CAI - MODELO", teamName: "11-13", members: ["PT_Martin", "PT_Daniela"] },
                 { caiName: "CAI - MODELO", teamName: "12-14", members: ["PT_Rosario", "PT_Karol"] },
                 { caiName: "CAI - MODELO", teamName: "15-16", members: ["SI_Chacon", "SI_Manrique"] },
+                { caiName: "CAI - MODELO", teamName: "CAI - MODELO (Información)", members: ["IJ_Manuel Antonio Arias Guerra"] }, // Example assignment
                 { caiName: "CAI - ALCAZARES", teamName: "1", members: ["SI_Diaz", "PT_Ospino"] },
                 { caiName: "CAI - ALCAZARES", teamName: "2", members: ["PT_Solano", "PT_Hernandez"] },
+                { caiName: "CAI - ALCAZARES", teamName: "CAI - ALCÁZARES (Información)", members: ["PT_Marquez"] }, // Example assignment
                 { caiName: "CAI - POLO CLUB", teamName: "6-7", members: ["SI_Pineda", "PT_Escobar"] },
                 { caiName: "CAI - POLO CLUB", teamName: "8", members: ["SI_Corredor", "PP_Maria"] },
+                { caiName: "CAI - POLO CLUB", teamName: "CAI - POLO CLUB (Información)", members: ["PT_Nayerly"] }, // Example assignment
                 { caiName: "CAI - RIONEGRO", teamName: "9", members: ["PT_Castillo", "PP_Juana"] },
                 { caiName: "CAI - RIONEGRO", teamName: "10", members: ["PT_Jurado", "PT_González Marrugo"] },
+                { caiName: "CAI - RIONEGRO", teamName: "CAI - RIONEGRO (Información)", members: ["PT_Sierra"] }, // Example assignment
                 { caiName: "CAI - 7 DE AGOSTO", teamName: "3", members: ["PT_Chavarria", "PP_Sofia"] },
-                { caiName: "CAI - 7 DE AGOSTO", teamName: "4-5", members: ["SI_Gomez Lozano", "PT_Montenegro"] }
+                { caiName: "CAI - 7 DE AGOSTO", teamName: "4-5", members: ["SI_Gomez Lozano", "PT_Montenegro"] },
+                { caiName: "CAI - 7 DE AGOSTO", teamName: "CAI 7 DE AGOSTO (Información)", members: ["PT_Garzon Garcia"] } // Example assignment
             ];
 
             defaultCaiAssignments.forEach(assignment => {
@@ -585,14 +613,9 @@
 
             // Asigna el personal a otros grupos (basado en nombres para coincidir)
             const defaultOtherGroupAssignments = [
-                { groupName: "Jefe de Vigilancia", members: ["IJ_Manuel Antonio Arias Guerra"] },
-                { groupName: "Jefe de información E-12 y Centinelas", members: ["SI_Nieto"] },
+                { groupName: "Jefe de Vigilancia", members: ["SI_Nieto"] },
+                { groupName: "Jefe de información E-12 y Centinelas", members: ["SI_Nieto"] }, // Example: same person for now
                 { groupName: "Custodio E-12", members: ["SI_Ávila", "PT_Higuita", "PT_Ballesteros", "PT_González"] },
-                { groupName: "CAI - ALCÁZARES (Información)", members: ["PT_Marquez"] },
-                { groupName: "CAI - MODELO (Información)", members: ["PT_Gomez Muñoz"] },
-                { groupName: "CAI - POLO CLUB (Información)", members: ["PT_Nayerly"] },
-                { groupName: "CAI - RIONEGRO (Información)", members: ["PT_Sierra"] },
-                { groupName: "CAI 7 DE AGOSTO (Información)", members: ["PT_Garzon Garcia"] },
                 { groupName: "Vacaciones", members: ["SI_Olivero", "SI_Marmol", "PT_Sanche", "PT_Velázquez"] },
                 { groupName: "Excusado", members: ["PT_Trujillo"] },
                 { groupName: "Calamidad", members: ["SI_Gonzalez"] }
@@ -903,19 +926,55 @@
                 const caiDiv = document.createElement('div');
                 caiDiv.id = `cai-${cai.id}`;
                 caiDiv.className = 'card mb-6';
-                caiDiv.innerHTML = `
-                    <div class="flex flex-col sm:flex-row justify-between items-center mb-4">
-                        <input type="text" value="${cai.name}" class="subsection-title input-field flex-grow mr-2 mb-2 sm:mb-0" onchange="updateCaiName('${cai.id}', this.value)">
-                        <button onclick="deleteCaiSection('${cai.id}')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
-                    </div>
-                    <div id="cai-teams-${cai.id}">
-                        <!-- Los equipos se renderizarán aquí -->
-                    </div>
-                    <button onclick="addCaiTeam('${cai.id}')" class="btn btn-secondary mt-4"><i class="fas fa-plus"></i></button>
+
+                // Header for the collapsible section
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'flex items-center justify-between cursor-pointer py-2 px-4 bg-blue-100 rounded-t-lg';
+                headerDiv.onclick = () => toggleCaiSection(cai.id);
+                headerDiv.innerHTML = `
+                    <input type="text" value="${cai.name}" class="font-semibold text-blue-800 bg-transparent border-none focus:outline-none flex-grow" onchange="updateCaiName('${cai.id}', this.value)">
+                    <i id="icon-${cai.id}" class="fas fa-chevron-down text-blue-800 transition-transform duration-300"></i>
                 `;
+                caiDiv.appendChild(headerDiv);
+
+                // Content area for teams
+                const contentDiv = document.createElement('div');
+                contentDiv.id = `cai-teams-content-${cai.id}`; // New ID for the collapsible content
+                contentDiv.className = 'p-4 border border-t-0 border-gray-200 rounded-b-lg'; // Initially visible
+
+                // Existing team rendering container
+                const teamsContainer = document.createElement('div');
+                teamsContainer.id = `cai-teams-${cai.id}`;
+                contentDiv.appendChild(teamsContainer);
+
+                // Add team button
+                const addTeamButton = document.createElement('button');
+                addTeamButton.onclick = () => addCaiTeam(cai.id);
+                addTeamButton.className = 'btn btn-secondary mt-4';
+                addTeamButton.innerHTML = '<i class="fas fa-plus"></i>';
+                contentDiv.appendChild(addTeamButton);
+
+                caiDiv.appendChild(contentDiv);
                 container.appendChild(caiDiv);
-                renderCaiTeams(cai.id);
+
+                renderCaiTeams(cai.id); // Render teams inside the newly created teamsContainer
             });
+        }
+
+        /**
+         * Toggles the visibility of a CAI section and rotates its icon.
+         * @param {string} caiId - The ID of the CAI section to toggle.
+         */
+        function toggleCaiSection(caiId) {
+            const content = document.getElementById(`cai-teams-content-${caiId}`);
+            const icon = document.getElementById(`icon-${caiId}`);
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.classList.remove('rotate-180'); // Rotate icon back
+            } else {
+                content.style.display = 'none';
+                icon.classList.add('rotate-180'); // Rotate icon
+            }
         }
 
         function updateCaiName(caiId, newName) {
@@ -971,28 +1030,46 @@
             cai.teams.forEach((team, teamIndex) => {
                 const teamDiv = document.createElement('div');
                 teamDiv.className = 'card bg-white p-4 mb-3';
+                let teamMembersHtml = '';
+
+                // If it's an "Información" team, it might only have one member or a specific display
+                if (team.name.includes("(Información)")) {
+                    teamMembersHtml = `
+                        <div class="flex-1">
+                            <label class="block text-gray-700 font-medium mb-1">Personal de Información:</label>
+                            ${createPersonnelSelect(team.members[0], (event) => {
+                                updateCaiTeamMember(cai.id, team.id, 0, event.target.value);
+                            }).outerHTML}
+                        </div>
+                    `;
+                } else {
+                    // For regular teams, show two member selectors
+                    teamMembersHtml = `
+                        <div class="flex-1">
+                            <label class="block text-gray-700 font-medium mb-1">Miembro 1:</label>
+                            ${createPersonnelSelect(team.members[0], (event) => {
+                                updateCaiTeamMember(cai.id, team.id, 0, event.target.value);
+                            }).outerHTML}
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-gray-700 font-medium mb-1">Miembro 2:</label>
+                            ${createPersonnelSelect(team.members[1], (event) => {
+                                updateCaiTeamMember(cai.id, team.id, 1, event.target.value);
+                            }).outerHTML}
+                        </div>
+                    `;
+                }
+
                 teamDiv.innerHTML = `
                     <div class="flex flex-col sm:flex-row justify-between items-center mb-3">
                         <input type="text" value="${team.name}" class="font-semibold input-field flex-grow mr-2 mb-2 sm:mb-0" onchange="updateCaiTeamName('${cai.id}', '${team.id}', this.value)">
                         <button onclick="deleteCaiTeam('${cai.id}', '${team.id}')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-2">
-                        <div id="cai-${cai.id}-team-${team.id}-member1" class="flex-1"></div>
-                        <div id="cai-${cai.id}-team-${team.id}-member2" class="flex-1"></div>
+                        ${teamMembersHtml}
                     </div>
                 `;
                 container.appendChild(teamDiv);
-
-                // Renderiza los selectores de miembros
-                const member1Container = document.getElementById(`cai-${cai.id}-team-${team.id}-member1`);
-                const member2Container = document.getElementById(`cai-${cai.id}-team-${team.id}-member2`);
-
-                member1Container.appendChild(createPersonnelSelect(team.members[0], (event) => {
-                    updateCaiTeamMember(cai.id, team.id, 0, event.target.value);
-                }));
-                member2Container.appendChild(createPersonnelSelect(team.members[1], (event) => {
-                    updateCaiTeamMember(cai.id, team.id, 1, event.target.value);
-                }));
             });
         }
 
@@ -1012,8 +1089,8 @@
             if (cai) {
                 const team = cai.teams.find(t => t.id === teamId);
                 if (team) {
-                    // Verifica si hay una asignación duplicada dentro del mismo equipo
-                    if (personId && team.members.includes(personId) && team.members[1 - memberIndex] === personId) {
+                    // Verifica si hay una asignación duplicada dentro del mismo equipo (solo si no es el mismo índice)
+                    if (personId && team.members.includes(personId) && team.members.indexOf(personId) !== memberIndex) {
                         showModal('Advertencia', 'Este personal ya está asignado a otra posición en este mismo equipo.', 'alert');
                         renderUI(); // Re-renderiza para revertir la selección visualmente
                         return;
@@ -1043,7 +1120,7 @@
             if (cai) {
                 showModal('Añadir Equipo', 'Ingrese el nombre del nuevo equipo (ej. 17-18):', 'prompt', '', (newTeamName) => {
                     if (newTeamName && newTeamName.trim() !== '') {
-                        cai.teams.push({ id: generateUniqueId(), name: newTeamName.trim(), members: [] });
+                        cai.teams.push({ id: generateUniqueId(), name: newTeamName.trim(), members: ["", ""] }); // Default to two members
                         saveData();
                     } else if (newTeamName !== null) {
                         showModal('Advertencia', 'El nombre del equipo no puede estar vacío.', 'alert');
@@ -1246,7 +1323,12 @@
                         const person = appData.personnel.find(p => p.id === memberId);
                         return person ? `${person.grade} ${person.name}` : 'Personal no asignado';
                     }).join(' / ');
-                    report += `🚔 ${team.name} ${members}\n`;
+                    // Special formatting for "Información" teams within CAI sections
+                    if (team.name.includes("(Información)")) {
+                        report += `👮🏻‍♂️ ${team.name.replace(' (Información)', '')} (Información) ${members}\n`;
+                    } else {
+                        report += `🚔 ${team.name} ${members}\n`;
+                    }
                 });
                 report += '\n'; // Añade un salto de línea después de cada sección CAI
             });
@@ -1313,28 +1395,10 @@
                 report += '\n';
             }
 
-            // Información de CAI (individual)
-            const caiInfoGroups = appData.otherGroups.filter(g => g.name.includes("(Información)"));
-            if (caiInfoGroups.length > 0) {
-                report += `*Información de CAI*\n\n`;
-                caiInfoGroups.forEach(group => {
-                    if (group.members.length > 0) {
-                        report += `*${group.name.replace(' (Información)', '')}*\n`;
-                        group.members.forEach(memberId => {
-                            const person = appData.personnel.find(p => p.id === memberId);
-                            if (person) {
-                                report += `👮🏻‍♂️ ${person.grade}. ${person.name}\n`;
-                            }
-                        });
-                        report += '\n';
-                    }
-                });
-            }
-
             // Novedades (incluye Vacaciones, Excusado, Calamidad y cualquier otro grupo dinámico)
             const allNovedadesGroups = appData.otherGroups.filter(g => 
-                !["Zona T", "Jefe de Vigilancia", "Jefe de información E-12 y Centinelas", "Custodio E-12"].includes(g.name) && 
-                !g.name.includes("(Información)")
+                !["Zona T", "Jefe de Vigilancia", "Jefe de información E-12 y Centinelas", "Custodio E-12"].includes(g.name)
+                // No need to exclude (Información) groups here, as they are now in caiSections
             );
 
             if (allNovedadesGroups.length > 0) {
