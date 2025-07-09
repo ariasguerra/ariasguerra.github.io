@@ -499,70 +499,68 @@
             const storedData = localStorage.getItem('policeReportData');
             if (storedData) {
                 appData = JSON.parse(storedData);
-                console.log('loadData: Datos cargados de localStorage:', appData);
-                // Asegura que las propiedades existan, usando valores por defecto si no están presentes
+                console.log('loadData: Datos cargados de localStorage (raw):', JSON.parse(JSON.stringify(appData))); // Deep copy for logging
+
+                // Ensure all top-level properties are present, using defaultData as fallback
                 appData.commanderName = appData.commanderName !== undefined ? appData.commanderName : defaultData.commanderName;
                 appData.commanderRank = appData.commanderRank !== undefined ? appData.commanderRank : defaultData.commanderRank;
                 appData.importantServices = appData.importantServices !== undefined ? appData.importantServices : defaultData.importantServices;
                 
-                // Personal: siempre carga de localStorage o inicia vacío
+                // Personnel: always load from localStorage or initialize empty
                 appData.personnel = appData.personnel || []; 
 
-                // CAI Sections: carga de localStorage o usa los valores por defecto
-                // Fusiona los equipos de información si ya existen en los datos guardados
-                const mergedCaiSections = JSON.parse(JSON.stringify(defaultData.caiSections));
+                // CAI Sections: load from localStorage and merge with default values
+                const mergedCaiSections = JSON.parse(JSON.stringify(defaultData.caiSections)); // Start with default structure
                 if (appData.caiSections) {
                     appData.caiSections.forEach(savedCai => {
                         const existingCaiIndex = mergedCaiSections.findIndex(c => c.name === savedCai.name);
                         if (existingCaiIndex !== -1) {
-                            // Si el CAI ya existe en los defaults, actualiza sus equipos con los guardados
-                            // Y también fusiona los equipos si no están ya en los guardados
+                            // If CAI exists in defaults, update its teams with saved ones
                             savedCai.teams.forEach(savedTeam => {
                                 const existingTeamIndex = mergedCaiSections[existingCaiIndex].teams.findIndex(t => t.name === savedTeam.name);
                                 if (existingTeamIndex !== -1) {
                                     mergedCaiSections[existingCaiIndex].teams[existingTeamIndex].members = savedTeam.members;
                                 } else {
-                                    mergedCaiSections[existingCaiIndex].teams.push(savedTeam);
+                                    mergedCgedCaiSections[existingCaiIndex].teams.push(savedTeam); // Add new teams
                                 }
                             });
                         } else {
-                            // Si es un CAI nuevo añadido por el usuario, lo añade a la lista
-                            mergedCaiSections.push(savedCai);
+                            mergedCaiSections.push(savedCai); // Add new CAI sections
                         }
                     });
                 }
                 appData.caiSections = mergedCaiSections;
                 
-                // Other Groups: carga de localStorage y se fusiona con los valores por defecto
-                const mergedOtherGroups = JSON.parse(JSON.stringify(defaultData.otherGroups)); // Copia profunda de los defaults
+                // Other Groups: load from localStorage and merge with default values
+                const mergedOtherGroups = JSON.parse(JSON.stringify(defaultData.otherGroups)); // Start with default structure
                 if (appData.otherGroups) {
                     appData.otherGroups.forEach(savedGroup => {
                         const existingGroupIndex = mergedOtherGroups.findIndex(g => g.name === savedGroup.name);
                         if (existingGroupIndex !== -1) {
-                            // Si el grupo ya existe en los defaults, actualiza sus miembros con los guardados
+                            // If group exists in defaults, update its members with saved ones
                             mergedOtherGroups[existingGroupIndex].members = savedGroup.members;
                         } else {
-                            // Si es un grupo nuevo añadido por el usuario o desde Novedades, lo añade a la lista
-                            mergedOtherGroups.push(savedGroup);
+                            mergedOtherGroups.push(savedGroup); // Add new groups
                         }
                     });
                 }
                 appData.otherGroups = mergedOtherGroups;
 
-                // Después de cargar, actualiza el estado de asignación basado en las asignaciones actuales
+                console.log('loadData: appData después de la fusión con defaults:', JSON.parse(JSON.stringify(appData))); // Deep copy for logging
+
+                // After loading, update assigned status based on current assignments
                 updatePersonnelAssignedStatus();
 
             } else {
                 console.log('loadData: No se encontraron datos en localStorage. Inicializando con valores por defecto.');
-                // Si no hay datos guardados, inicializa con valores por defecto para configuración
-                // y arrays vacíos para personal, secciones CAI y otros grupos.
+                // If no saved data, initialize with deep copy of default values
                 appData = {
                     commanderName: defaultData.commanderName,
                     commanderRank: defaultData.commanderRank,
                     importantServices: defaultData.importantServices,
-                    personnel: [], // Inicia vacío
-                    caiSections: JSON.parse(JSON.stringify(defaultData.caiSections)), // Copia profunda de los valores por defecto
-                    otherGroups: JSON.parse(JSON.stringify(defaultData.otherGroups))  // Copia profunda de los valores por defecto
+                    personnel: JSON.parse(JSON.stringify(defaultData.personnel)), // Deep copy empty array
+                    caiSections: JSON.parse(JSON.stringify(defaultData.caiSections)), // Deep copy default CAI structure
+                    otherGroups: JSON.parse(JSON.stringify(defaultData.otherGroups))  // Deep copy default otherGroups structure
                 };
             }
             renderUI();
@@ -571,74 +569,17 @@
         // Función para asignar el personal por defecto a sus lugares iniciales
         // Esta función ya no se llama automáticamente al cargar, solo si se desea implementarla manualmente.
         function assignDefaultPersonnel() {
+            // This function is kept for reference but is not called on load anymore.
+            // It would manually assign personnel if needed.
+            console.warn('assignDefaultPersonnel: Esta función no se llama automáticamente al cargar. Se usa para asignaciones manuales por defecto si fuera necesario.');
+            
             // Reinicia todo el personal a no asignado primero
             appData.personnel.forEach(p => p.assigned = false);
 
-            // Asigna el personal a los equipos CAI (basado en nombres para coincidir)
-            const defaultCaiAssignments = [
-                { caiName: "CAI - MODELO", teamName: "11-13", members: ["PT_Martin", "PT_Daniela"] },
-                { caiName: "CAI - MODELO", teamName: "12-14", members: ["PT_Rosario", "PT_Karol"] },
-                { caiName: "CAI - MODELO", teamName: "15-16", members: ["SI_Chacon", "SI_Manrique"] },
-                { caiName: "CAI - ALCAZARES", teamName: "1", members: ["SI_Diaz", "PT_Ospino"] },
-                { caiName: "CAI - ALCAZARES", teamName: "2", members: ["PT_Solano", "PT_Hernandez"] },
-                { caiName: "CAI - POLO CLUB", teamName: "6-7", members: ["SI_Pineda", "PT_Escobar"] },
-                { caiName: "CAI - POLO CLUB", teamName: "8", members: ["SI_Corredor", "PP_Maria"] },
-                { caiName: "CAI - RIONEGRO", teamName: "9", members: ["PT_Castillo", "PP_Juana"] },
-                { caiName: "CAI - RIONEGRO", teamName: "10", members: ["PT_Jurado", "PT_González Marrugo"] },
-                { caiName: "CAI - 7 DE AGOSTO", teamName: "3", members: ["PT_Chavarria", "PP_Sofia"] },
-                { caiName: "CAI - 7 DE AGOSTO", teamName: "4-5", members: ["SI_Gomez Lozano", "PT_Montenegro"] }
-            ];
-
-            defaultCaiAssignments.forEach(assignment => {
-                const cai = appData.caiSections.find(c => c.name === assignment.caiName);
-                if (cai) {
-                    const team = cai.teams.find(t => t.name === assignment.teamName);
-                    if (team) {
-                        team.members = assignment.members.map(memberString => {
-                            const [grade, ...nameParts] = memberString.split('_');
-                            const name = nameParts.join(' ');
-                            const person = appData.personnel.find(p => p.grade === grade && p.name === name);
-                            if (person) {
-                                person.assigned = true;
-                                return person.id;
-                            }
-                            return ''; // Return empty string if not found
-                        }).filter(Boolean); // Filter out any nulls/empty strings
-                    }
-                }
-            });
-
-            // Asigna el personal a otros grupos (basado en nombres para coincidir)
-            const defaultOtherGroupAssignments = [
-                { groupName: "Jefe de Vigilancia", members: ["IJ_Manuel Antonio Arias Guerra"] },
-                { groupName: "Jefe de información E-12 y Centinelas", members: ["SI_Nieto"] },
-                { groupName: "Custodio E-12", members: ["SI_Ávila", "PT_Higuita", "PT_Ballesteros", "PT_González"] },
-                { groupName: "CAI - ALCÁZARES (Información)", members: ["PT_Marquez"] },
-                { groupName: "CAI - MODELO (Información)", members: ["PT_Gomez Muñoz"] },
-                { groupName: "CAI - POLO CLUB (Información)", members: ["PT_Nayerly"] },
-                { groupName: "CAI - RIONEGRO (Información)", members: ["PT_Sierra"] },
-                { groupName: "CAI 7 DE AGOSTO (Información)", members: ["PT_Garzon Garcia"] },
-                { groupName: "Vacaciones", members: ["SI_Olivero", "SI_Marmol", "PT_Sanche", "PT_Velázquez"] },
-                { groupName: "Excusado", members: ["PT_Trujillo"] },
-                { groupName: "Calamidad", members: ["SI_Gonzalez"] }
-            ];
-
-            defaultOtherGroupAssignments.forEach(assignment => {
-                const group = appData.otherGroups.find(g => g.name === assignment.groupName);
-                if (group) {
-                    group.members = assignment.members.map(memberString => {
-                        const [grade, ...nameParts] = memberString.split('_');
-                        const name = nameParts.join(' ');
-                        const person = appData.personnel.find(p => p.grade === grade && p.name === name);
-                        if (person) {
-                            person.assigned = true;
-                            return person.id;
-                        }
-                        return ''; // Return empty string if not found
-                    }).filter(Boolean); // Filter out any nulls/empty strings
-                }
-            });
-            updatePersonnelAssignedStatus(); // Re-run to ensure all assigned statuses are correct after default assignment
+            // Example default assignments (these would need to be based on actual personnel IDs)
+            // For now, this function is mostly illustrative as Excel import handles initial assignment.
+            
+            updatePersonnelAssignedStatus(); 
         }
 
         // Función para guardar datos en localStorage
@@ -693,6 +634,7 @@
                     // Convertir la hoja a JSON
                     // header: 1 para obtener la primera fila como encabezados
                     const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    console.log('handleFileUpload: JSON de Excel crudo:', json);
 
                     if (json.length < 2) { // Necesita al menos una fila de encabezado y una de datos
                         showModal('Error', 'El archivo Excel está vacío o no tiene el formato esperado (se espera al menos una fila de encabezado y una de datos).', 'alert');
@@ -739,18 +681,21 @@
                                 novedadesAssignmentsTemp[novedadGroupName].push(personId);
                             }
                         } else {
-                            console.warn('Fila ignorada debido a datos faltantes (GR o APELLIDOS):', row);
+                            console.warn('handleFileUpload: Fila ignorada debido a datos faltantes (GR o APELLIDOS):', row);
                             ignoredRowsCount++;
                         }
                     }
 
-                    // Antes de actualizar, desasigna a todo el personal actual y limpia las asignaciones
+                    // --- Limpiar todas las asignaciones existentes antes de aplicar las nuevas del Excel ---
+                    console.log('handleFileUpload: Limpiando asignaciones existentes antes de la nueva carga...');
                     appData.personnel.forEach(p => p.assigned = false);
                     appData.caiSections.forEach(cai => cai.teams.forEach(team => team.members = []));
-                    appData.otherGroups.forEach(group => group.members = []); // Limpia miembros de TODOS los grupos existentes
+                    // Para otros grupos, solo limpiamos los miembros, no eliminamos los grupos en sí
+                    appData.otherGroups.forEach(group => group.members = []); 
 
                     // Actualizar el personal principal
                     appData.personnel = newPersonnel;
+                    console.log('handleFileUpload: Nuevo personal cargado:', JSON.parse(JSON.stringify(appData.personnel)));
 
                     // Añadir o actualizar los grupos de Novedades y asignar personal
                     for (const groupName in novedadesAssignmentsTemp) {
@@ -764,14 +709,16 @@
                                     members: []
                                 };
                                 appData.otherGroups.push(group);
+                                console.log(`handleFileUpload: Creado nuevo grupo de Novedades: ${groupName}`);
                             }
                             // Asigna los miembros a este grupo
                             group.members = novedadesAssignmentsTemp[groupName];
+                            console.log(`handleFileUpload: Asignado personal a grupo "${groupName}":`, group.members.length, 'miembros.');
                         }
                     }
 
                     saveData(); // Esto también re-renderiza la UI y guarda en localStorage
-                    console.log('handleFileUpload: Datos después de la carga y asignación de novedades:', appData);
+                    console.log('handleFileUpload: appData después de la carga y asignación de novedades:', JSON.parse(JSON.stringify(appData)));
 
                     let successMessage = `Se cargaron ${newPersonnel.length} miembros del personal desde el Excel.`;
                     if (Object.keys(novedadesAssignmentsTemp).length > 0) {
@@ -785,7 +732,7 @@
                     }
 
                 } catch (error) {
-                    console.error('Error al procesar el archivo Excel:', error);
+                    console.error('handleFileUpload: Error al procesar el archivo Excel:', error);
                     showModal('Error', 'Hubo un error al procesar el archivo Excel. Asegúrate de que sea un archivo .xlsx o .xls válido y que las columnas "GR" y "APELLIDOS" existan.', 'alert');
                 } finally {
                     fileInput.value = ''; // Limpia el input de archivo para la próxima carga
@@ -869,7 +816,7 @@
         // --- Renderizado de Selectores de Personal ---
         function getAvailablePersonnel() {
             const available = appData.personnel.filter(p => !p.assigned);
-            // console.log('getAvailablePersonnel: Personal disponible (assigned: false):', available.map(p => p.name));
+            console.log('getAvailablePersonnel: Personal disponible (assigned: false):', available.map(p => p.name));
             return available;
         }
 
@@ -881,7 +828,7 @@
             const available = getAvailablePersonnel();
             const assignedPerson = selectedPersonId ? appData.personnel.find(p => p.id === selectedPersonId) : null;
 
-            // Añade a la persona actualmente asignada a las opciones, incluso si está marcada como asignada
+            // Add the currently assigned person to the options, even if they are marked as assigned
             if (assignedPerson) {
                 const option = document.createElement('option');
                 option.value = assignedPerson.id;
@@ -890,16 +837,16 @@
                 select.appendChild(option);
             }
 
-            // Añade el resto del personal disponible
+            // Add the rest of the available personnel
             available.forEach(person => {
-                if (person.id !== selectedPersonId) { // Evita duplicar si ya se añadió como asignado
+                if (person.id !== selectedPersonId) { // Avoid duplicating if already added as assigned
                     const option = document.createElement('option');
                     option.value = person.id;
                     option.textContent = `${person.grade} ${person.name}`;
                     select.appendChild(option);
                 }
             });
-            // console.log(`createPersonnelSelect: Generando selector para selectedPersonId: ${selectedPersonId}. Opciones disponibles:`, Array.from(select.options).map(opt => opt.textContent));
+            console.log(`createPersonnelSelect: Generando selector para selectedPersonId: ${selectedPersonId}. Opciones disponibles:`, Array.from(select.options).map(opt => opt.textContent));
 
             select.onchange = onChangeCallback;
             return select;
@@ -907,10 +854,10 @@
 
         // --- Actualizar estado de 'assigned' para el personal ---
         function updatePersonnelAssignedStatus() {
-            // console.log('updatePersonnelAssignedStatus: Reiniciando todos los estados de asignación a false.');
-            appData.personnel.forEach(p => p.assigned = false); // Reinicia todos
+            console.log('updatePersonnelAssignedStatus: Reiniciando todos los estados de asignación a false.');
+            appData.personnel.forEach(p => p.assigned = false); // Reset all to false
 
-            // Marca el personal asignado en los equipos CAI
+            // Mark assigned personnel in CAI teams
             appData.caiSections.forEach(cai => {
                 cai.teams.forEach(team => {
                     team.members.forEach(memberId => {
@@ -920,14 +867,14 @@
                 });
             });
 
-            // Marca el personal asignado en otros grupos
+            // Mark assigned personnel in other groups
             appData.otherGroups.forEach(group => {
                 group.members.forEach(memberId => {
                     const person = appData.personnel.find(p => p.id === memberId);
                     if (person) person.assigned = true;
                 });
             });
-            // console.log('updatePersonnelAssignedStatus: Estado final del personal (assigned):', appData.personnel.map(p => ({ name: p.name, assigned: p.assigned })));
+            console.log('updatePersonnelAssignedStatus: Estado final del personal (assigned):', appData.personnel.map(p => ({ name: p.name, assigned: p.assigned })));
         }
 
 
@@ -1076,41 +1023,37 @@
             });
         }
 
-        function updateCaiTeamName(caiId, teamId, newName) {
-            const cai = appData.caiSections.find(c => c.id === caiId);
-            if (cai) {
-                const team = cai.teams.find(t => t.id === teamId);
-                if (team) {
-                    team.name = newName.trim();
-                    saveData();
-                }
-            }
-        }
-
         function updateCaiTeamMember(caiId, teamId, memberIndex, personId) {
+            console.log(`updateCaiTeamMember: CAI ID: ${caiId}, Team ID: ${teamId}, Member Index: ${memberIndex}, New Person ID: ${personId}`);
             const cai = appData.caiSections.find(c => c.id === caiId);
             if (cai) {
                 const team = cai.teams.find(t => t.id === teamId);
                 if (team) {
-                    // Verifica si hay una asignación duplicada dentro del mismo equipo (solo si no es el mismo índice)
+                    // Check for duplicate assignment within the same team (only if it's not the same index)
                     if (personId && team.members.includes(personId) && team.members.indexOf(personId) !== memberIndex) {
                         showModal('Advertencia', 'Este personal ya está asignado a otra posición en este mismo equipo.', 'alert');
-                        renderUI(); // Re-renderiza para revertir la selección visualmente
+                        renderUI(); // Re-render to revert visual selection
                         return;
                     }
 
-                    // Antes de actualizar, desasigna al miembro anterior si existe
+                    // Explicitly unassign the old member if they exist
                     const oldMemberId = team.members[memberIndex];
-                    if (oldMemberId) {
+                    if (oldMemberId && oldMemberId !== '') { // Only unassign if there was a person assigned
                         const oldPerson = appData.personnel.find(p => p.id === oldMemberId);
-                        if (oldPerson) oldPerson.assigned = false;
+                        if (oldPerson) {
+                            oldPerson.assigned = false;
+                            console.log(`updateCaiTeamMember: Desasignado personal: ${oldPerson.name} (ID: ${oldMemberId})`);
+                        }
                     }
 
-                    // Asigna al nuevo miembro
+                    // Assign the new member
                     team.members[memberIndex] = personId;
-                    if (personId) {
+                    if (personId && personId !== '') { // Only assign if a new person is selected
                         const newPerson = appData.personnel.find(p => p.id === personId);
-                        if (newPerson) newPerson.assigned = true;
+                        if (newPerson) {
+                            newPerson.assigned = true;
+                            console.log(`updateCaiTeamMember: Asignado personal: ${newPerson.name} (ID: ${personId})`);
+                        }
                     }
                     saveData();
                 }
@@ -1252,27 +1195,34 @@
         }
 
         function updateOtherGroupMember(groupId, memberIndex, personId) {
+            console.log(`updateOtherGroupMember: Group ID: ${groupId}, Member Index: ${memberIndex}, New Person ID: ${personId}`);
             const group = appData.otherGroups.find(g => g.id === groupId);
             if (group) {
-                // Verifica si hay una asignación duplicada dentro del mismo grupo
+                // Check for duplicate assignment within the same group
                 if (personId && group.members.includes(personId) && group.members.some((id, idx) => id === personId && idx !== memberIndex)) {
                     showModal('Advertencia', 'Este personal ya está asignado a otra posición en este mismo grupo.', 'alert');
-                    renderUI(); // Re-renderiza para revertir la selección visualmente
+                    renderUI(); // Re-render to revert visual selection
                     return;
                 }
 
-                // Antes de actualizar, desasigna al miembro anterior si existe
+                // Explicitly unassign the old member if they exist
                 const oldMemberId = group.members[memberIndex];
-                if (oldMemberId) {
+                if (oldMemberId && oldMemberId !== '') { // Only unassign if there was a person assigned
                     const oldPerson = appData.personnel.find(p => p.id === oldMemberId);
-                    if (oldPerson) oldPerson.assigned = false;
+                    if (oldPerson) {
+                        oldPerson.assigned = false;
+                        console.log(`updateOtherGroupMember: Desasignado personal: ${oldPerson.name} (ID: ${oldMemberId})`);
+                    }
                 }
 
-                // Asigna al nuevo miembro
+                // Assign the new member
                 group.members[memberIndex] = personId;
-                if (personId) {
+                if (personId && personId !== '') { // Only assign if a new person is selected
                     const newPerson = appData.personnel.find(p => p.id === personId);
-                    if (newPerson) newPerson.assigned = true;
+                    if (newPerson) {
+                        newPerson.assigned = true;
+                        console.log(`updateOtherGroupMember: Asignado personal: ${newPerson.name} (ID: ${personId})`);
+                    }
                 }
                 saveData();
             }
@@ -1293,7 +1243,7 @@
 
         // --- Renderizado General de la UI ---
         function renderUI() {
-            // console.log('renderUI: Iniciando renderizado de la UI.');
+            console.log('renderUI: Iniciando renderizado de la UI.');
             // Asegura que el estado de asignado sea correcto antes de renderizar los selectores
             updatePersonnelAssignedStatus(); 
 
@@ -1305,11 +1255,13 @@
             renderPersonnelList();
             renderCaiSections();
             renderOtherGroups();
-            // console.log('renderUI: Renderizado de la UI completado.');
+            console.log('renderUI: Renderizado de la UI completado. appData final:', JSON.parse(JSON.stringify(appData)));
         }
 
         // --- Generar Informe ---
         function generateReport() {
+            console.log('generateReport: Iniciando generación del informe. appData actual:', JSON.parse(JSON.stringify(appData)));
+
             const greeting = getGreeting();
             const commanderRank = document.getElementById('commanderRank').value.trim();
             const commanderName = document.getElementById('commanderName').value.trim();
@@ -1441,6 +1393,7 @@
             report += `*Comandante Estación de Policía Barrios Unidos*\n`;
 
             document.getElementById('reportOutput').textContent = report;
+            console.log('generateReport: Informe final generado:\n', report);
         }
 
         // --- Función para copiar el informe ---
@@ -1473,3 +1426,4 @@
     </script>
 </body>
 </html>
+
