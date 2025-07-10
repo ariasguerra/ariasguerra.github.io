@@ -1416,9 +1416,9 @@
                 });
             });
 
-            // Count personnel from "Jefe de Vigilancia", "Jefe de información E-12 y Centinelas", and "Información de CAI" groups
+            // Count personnel from "Jefe de Vigilancia", "Jefe de información E-12 y Centinelas", "Zona T" and "Información de CAI" groups
             appData.otherGroups.forEach(group => {
-                if (group.name === "Jefe de Vigilancia" || group.name === "Jefe de información E-12 y Centinelas" || group.name.includes("(Información)")) {
+                if (group.name === "Jefe de Vigilancia" || group.name === "Jefe de información E-12 y Centinelas" || group.name === "Zona T" || group.name.includes("(Información)")) {
                     group.members.forEach(memberId => {
                         const person = appData.personnel.find(p => p.id === memberId);
                         if (person) {
@@ -1466,25 +1466,33 @@
 
             // Zona T (newly added group)
             const zonaTGroup = appData.otherGroups.find(g => g.name === "Zona T");
+            let zonaTContentAdded = false;
             if (zonaTGroup && zonaTGroup.members.length > 0) {
-                report += `*Zona T*\n\n`;
+                report += `*Zona T*\n`;
                 zonaTGroup.members.forEach(memberId => {
                     const person = appData.personnel.find(p => p.id === memberId);
                     if (person) {
                         report += `${person.grade} ${person.name}\n`;
                     }
                 });
-                report += '\n';
+                report += '\n'; // Add a newline after Zona T members
+                zonaTContentAdded = true;
             }
 
             // Jefe de Vigilancia (existing group, now potentially separate from general Zona T members)
             const jefeVigilanciaGroup = appData.otherGroups.find(g => g.name === "Jefe de Vigilancia");
+            let jefeVigilanciaContentAdded = false;
             if (jefeVigilanciaGroup && jefeVigilanciaGroup.members.length > 0) {
                 const jefe = appData.personnel.find(p => p.id === jefeVigilanciaGroup.members[0]);
                 if (jefe) {
-                    report += `*Jefe de Vigilancia*\n`; // Sub-heading under Zona T, as per original report
-                    report += `${jefe.grade} ${jefe.name}\n\n`;
+                    report += `*Jefe de Vigilancia*\n`;
+                    report += `${jefe.grade} ${jefe.name}\n`;
+                    jefeVigilanciaContentAdded = true;
                 }
+            }
+            // Add a newline after Jefe de Vigilancia if content was added
+            if (jefeVigilanciaContentAdded) {
+                report += '\n';
             }
 
 
@@ -1500,14 +1508,14 @@
             // Jefe de información E-12 y Centinelas
             const jefeInfoGroup = appData.otherGroups.find(g => g.name === "Jefe de información E-12 y Centinelas");
             if (jefeInfoGroup && jefeInfoGroup.members.length > 0) {
-                report += `*Jefe de información E-12 y Centinelas*\n\n`;
+                report += `*Jefe de información E-12 y Centinelas*\n`; // Changed to single newline
                 jefeInfoGroup.members.forEach(memberId => {
                     const person = appData.personnel.find(p => p.id === memberId);
                     if (person) {
                         report += `👮🏻‍♂️${person.grade}. ${person.name}\n`;
                     }
                 });
-                report += '\n';
+                report += '\n'; // Added back a single newline after this section
             }
 
             // Custodio E-12
