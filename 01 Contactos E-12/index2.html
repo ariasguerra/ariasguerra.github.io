@@ -302,7 +302,7 @@
 
                 <!-- Otros Grupos -->
                 <div class="mt-8">
-                    <!-- <h3 class="subsection-title">Otros Grupos</h3> -->
+                    <h3 class="subsection-title">Otros Grupos</h3>
                     <div id="otherGroupsContainer">
                         <!-- Otros grupos se renderizarán aquí -->
                     </div>
@@ -633,7 +633,7 @@
                 appData.personnel.forEach(person => {
                     person.category = getPersonnelCategory(person.grade);
                 });
-                assignDefaultPersonnel(); // Assigns default personnel to their initial places
+                // No call to assignDefaultPersonnel() here for first load
             }
             renderUI();
         }
@@ -688,9 +688,9 @@
                 { groupName: "CAI - POLO CLUB (Información)", members: ["PT_Nayerly"] },
                 { groupName: "CAI - RIONEGRO (Información)", members: ["PT_Sierra"] },
                 { groupName: "CAI 7 DE AGOSTO (Información)", members: ["PT_Garzon Garcia"] },
-                { groupName: "Vacaciones", members: ["SI_Olivero", "SI_Marmol", "PT_Sanche", "PT_Velázquez"] },
-                { groupName: "Excusado", members: ["PT_Trujillo"] },
-                { groupName: "Calamidad", members: ["SI_Gonzalez"] }
+                { id: generateUniqueId(), name: "Vacaciones", members: [], defaultName: "Vacaciones" },
+                { id: generateUniqueId(), name: "Excusado", members: [], defaultName: "Excusado" },
+                { id: generateUniqueId(), name: "Calamidad", members: [], defaultName: "Calamidad" }
             ];
 
             // Assign "Zona T" default member if it exists
@@ -830,10 +830,10 @@
             select.className = 'input-field w-full';
             select.innerHTML = '<option value="">-- Seleccionar Personal --</option>';
 
-            const available = getAvailablePersonnel();
+            const available = appData.personnel.filter(p => !p.assigned || p.id === selectedPersonId); // Include selected person even if assigned
             const assignedPerson = selectedPersonId ? appData.personnel.find(p => p.id === selectedPersonId) : null;
 
-            // Añade a la persona actualmente asignada a las opciones, incluso si está marcada como asignada
+            // Add the currently assigned person to options, even if marked as assigned
             if (assignedPerson) {
                 const option = document.createElement('option');
                 option.value = assignedPerson.id;
@@ -841,9 +841,9 @@
                 select.appendChild(option);
             }
 
-            // Añade el resto del personal disponible
+            // Add the rest of available personnel
             available.forEach(person => {
-                if (person.id !== selectedPersonId) { // Evita duplicar si ya se añadió como asignado
+                if (person.id !== selectedPersonId) { // Avoids duplication if already added as assigned
                     const option = document.createElement('option');
                     option.value = person.id;
                     option.textContent = `${person.grade} ${person.name}`;
