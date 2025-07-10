@@ -275,15 +275,8 @@
 
                 <!-- Gestión de Personal -->
                 <div class="mb-6">
-                    <h3 class="subsection-title">Gestión de Personal</h3>
-                    <div id="personnelListContainer" class="bg-white p-4 rounded-lg border border-gray-200 mb-4 max-h-60 overflow-y-auto">
-                        <!-- Los elementos del personal se renderizarán aquí -->
-                    </div>
-                    <div class="flex flex-col sm:flex-row gap-4 mb-4">
-                        <input type="text" id="newPersonnelGrade" class="input-field flex-grow" placeholder="Grado (ej. PT, SI)" aria-label="Nuevo Grado de Personal">
-                        <input type="text" id="newPersonnelName" class="input-field flex-grow" placeholder="Nombre (ej. Martin, Daniela)" aria-label="Nuevo Nombre de Personal">
-                        <button onclick="addPersonnel()" class="btn btn-success"><i class="fas fa-plus"></i></button>
-                    </div>
+                    <h3 class="subsection-title">Gestión de Personal <span class="text-sm text-gray-500">(uno por línea: GRADO NOMBRE)</span></h3>
+                    <textarea id="personnelTextarea" class="input-field min-h-[150px]" onchange="savePersonnelData()"></textarea>
                 </div>
             </div>
         </div>
@@ -739,6 +732,47 @@
             renderUI(); // Re-renderiza la UI después de guardar para actualizar el personal disponible
         }
 
+        // Función para guardar los datos del personal desde el textarea
+        function savePersonnelData() {
+            const personnelText = document.getElementById('personnelTextarea').value;
+            const lines = personnelText.split('\n').map(line => line.trim()).filter(line => line !== '');
+
+            const newPersonnelData = [];
+            const existingPersonnelMap = new Map(appData.personnel.map(p => [`${p.grade.toUpperCase()} ${p.name.toUpperCase()}`, p]));
+
+            lines.forEach(line => {
+                const parts = line.split(' ');
+                if (parts.length >= 2) {
+                    const grade = parts[0].trim();
+                    const name = parts.slice(1).join(' ').trim();
+                    const key = `${grade.toUpperCase()} ${name.toUpperCase()}`;
+
+                    if (existingPersonnelMap.has(key)) {
+                        // Si ya existe, usa el objeto existente para preservar el ID y el estado 'assigned'
+                        const existingPerson = existingPersonnelMap.get(key);
+                        existingPerson.grade = grade; // Update grade in case of casing change
+                        existingPerson.name = name;   // Update name in case of casing change
+                        existingPerson.category = getPersonnelCategory(grade); // Update category
+                        newPersonnelData.push(existingPerson);
+                        existingPersonnelMap.delete(key); // Mark as processed
+                    } else {
+                        // Si es nuevo, crea un nuevo objeto
+                        newPersonnelData.push({
+                            id: generateUniqueId(),
+                            grade: grade,
+                            name: name,
+                            assigned: false, // Default to not assigned, will be updated by updatePersonnelAssignedStatus
+                            category: getPersonnelCategory(grade)
+                        });
+                    }
+                }
+            });
+
+            // Update appData.personnel with the new reconciled list
+            appData.personnel = newPersonnelData;
+            saveData(); // Save the updated appData
+        }
+
         // Función para obtener el saludo según la hora
         function getGreeting() {
             const hour = new Date().getHours();
@@ -751,74 +785,8 @@
             }
         }
 
-        // --- Gestión de Personal ---
-        function renderPersonnelList() {
-            const container = document.getElementById('personnelListContainer');
-            container.innerHTML = '';
-            appData.personnel.forEach(person => {
-                const div = document.createElement('div');
-                div.className = 'personnel-list-item';
-                div.innerHTML = `
-                    <span class="text-gray-800">${person.grade} ${person.name}</span>
-                    <div class="flex gap-2">
-                        <button onclick="editPersonnel('${person.id}')" class="text-blue-600 hover:text-blue-800 text-sm p-1 rounded-full"><i class="fas fa-edit"></i></button>
-                        <button onclick="deletePersonnel('${person.id}')" class="text-red-600 hover:text-red-800 text-sm p-1 rounded-full"><i class="fas fa-trash"></i></button>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function addPersonnel() {
-            const gradeInput = document.getElementById('newPersonnelGrade');
-            const nameInput = document.getElementById('newPersonnelName');
-            const grade = gradeInput.value.trim();
-            const name = nameInput.value.trim();
-
-            if (grade && name) {
-                const category = getPersonnelCategory(grade); // Get category
-                appData.personnel.push({ id: generateUniqueId(), grade: grade, name: name, assigned: false, category: category });
-                gradeInput.value = '';
-                nameInput.value = '';
-                saveData();
-            }
-        }
-
-        function editPersonnel(id) {
-            const person = appData.personnel.find(p => p.id === id);
-            if (person) {
-                showModal('Editar Grado', `Editar grado para ${person.name}:`, 'prompt', person.grade, (newGrade) => {
-                    if (newGrade !== null) {
-                        showModal('Editar Nombre', `Editar nombre para ${person.grade} ${person.name}:`, 'prompt', person.name, (newName) => {
-                            if (newName !== null) {
-                                person.grade = newGrade.trim();
-                                person.name = newName.trim();
-                                person.category = getPersonnelCategory(newGrade.trim()); // Update category on grade change
-                                saveData();
-                            }
-                        });
-                    }
-                });
-            }
-        }
-
-        function deletePersonnel(id) {
-            showModal('Eliminar Personal', '¿Estás seguro de que quieres eliminar a este miembro del personal? Esto lo desasignará de todos los equipos.', 'confirm', '', (confirmed) => {
-                if (confirmed) {
-                    appData.personnel = appData.personnel.filter(p => p.id !== id);
-                    // Eliminar de todas las asignaciones
-                    appData.caiSections.forEach(cai => {
-                        cai.teams.forEach(team => {
-                            team.members = team.members.filter(memberId => memberId !== id);
-                        });
-                    });
-                    appData.otherGroups.forEach(group => {
-                        group.members = group.members.filter(memberId => memberId !== id);
-                    });
-                    saveData();
-                }
-            });
-        }
+        // --- Gestión de Personal (No longer renders a list, but populates textarea) ---
+        // Removed renderPersonnelList, addPersonnel, editPersonnel, deletePersonnel as they are replaced by textarea input
 
         // --- Renderizado de Selectores de Personal ---
         function getAvailablePersonnel() {
@@ -830,31 +798,28 @@
             select.className = 'input-field w-full';
             select.innerHTML = '<option value="">-- Seleccionar Personal --</option>';
 
-            const available = appData.personnel.filter(p => !p.assigned || p.id === selectedPersonId); // Include selected person even if assigned
-            const assignedPerson = selectedPersonId ? appData.personnel.find(p => p.id === selectedPersonId) : null;
+            // Filter personnel: include unassigned OR the currently selected person
+            const filteredPersonnel = appData.personnel.filter(p => !p.assigned || p.id === selectedPersonId);
 
-            // Add the currently assigned person to options, even if marked as assigned
-            if (assignedPerson) {
-                const option = document.createElement('option');
-                option.value = assignedPerson.id;
-                option.textContent = `${assignedPerson.grade} ${assignedPerson.name}`;
-                select.appendChild(option);
-            }
-
-            // Add the rest of available personnel
-            available.forEach(person => {
-                if (person.id !== selectedPersonId) { // Avoids duplication if already added as assigned
-                    const option = document.createElement('option');
-                    option.value = person.id;
-                    option.textContent = `${person.grade} ${person.name}`;
-                    select.appendChild(option);
-                }
+            // Sort the filtered personnel
+            filteredPersonnel.sort((a, b) => {
+                const gradeA = a.grade.toUpperCase();
+                const gradeB = b.grade.toUpperCase();
+                if (gradeA < gradeB) return -1;
+                if (gradeA > gradeB) return 1;
+                return a.name.localeCompare(b.name);
             });
 
-            // Set selected option
-            if (selectedPersonId) {
-                select.value = selectedPersonId;
-            }
+            filteredPersonnel.forEach(person => {
+                const option = document.createElement('option');
+                option.value = person.id;
+                option.textContent = `${person.grade} ${person.name}`;
+                // Set selected option
+                if (person.id === selectedPersonId) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
 
             select.onchange = onChangeCallback;
             return select;
@@ -946,11 +911,15 @@
                 cai.name = newName.trim();
 
                 // Also, update the name of the corresponding "Información" group in otherGroups
-                const oldInfoGroupName = `${cai.name} (Información)`; // Use old name to find
-                const newInfoGroupName = `${newName.trim()} (Información)`; // New name for the group
-                const infoGroup = appData.otherGroups.find(g => g.name === oldInfoGroupName);
-                if (infoGroup) {
-                    infoGroup.name = newInfoGroupName;
+                // Find the old info group name based on the original name before update
+                const originalCai = JSON.parse(localStorage.getItem('policeReportData')).caiSections.find(c => c.id === caiId);
+                const oldInfoGroupName = originalCai ? `${originalCai.name} (Información)` : null;
+
+                if (oldInfoGroupName) {
+                    const infoGroup = appData.otherGroups.find(g => g.name === oldInfoGroupName);
+                    if (infoGroup) {
+                        infoGroup.name = `${newName.trim()} (Información)`;
+                    }
                 }
                 saveData();
             }
@@ -1374,9 +1343,11 @@
             document.getElementById('commanderRank').value = appData.commanderRank;
             document.getElementById('commanderName').value = appData.commanderName;
             document.getElementById('importantServices').value = appData.importantServices.join('\n');
+            document.getElementById('personnelTextarea').value = appData.personnel.map(p => `${p.grade} ${p.name}`).join('\n');
+
 
             updatePersonnelAssignedStatus(); // Asegura que el estado de asignado sea correcto antes de renderizar los selectores
-            renderPersonnelList();
+            // renderPersonnelList(); // Removed as it's no longer needed
             renderCaiSections(); // This will now also apply CAI specific collapse states
             renderOtherGroups(); // This will now only render non-CAI info groups
 
