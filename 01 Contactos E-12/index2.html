@@ -248,7 +248,7 @@
 </head>
 <body class="p-4">
     <div class="container">
-        <h1 class="text-3xl font-extrabold text-center text-gray-800 mb-8">Generador de Informe Policial</h1>
+        <h1 class="text-3xl font-extrabold text-center text-gray-800 mb-8"></h1>
 
         <!-- Sección de Configuración -->
         <div class="mb-8 p-6 bg-blue-50 rounded-lg shadow-inner">
@@ -291,7 +291,7 @@
         <!-- Sección de Equipos y Grupos -->
         <div class="mb-8 p-6 bg-green-50 rounded-lg shadow-inner">
             <h2 class="section-title text-green-800">
-                Asignación de Equipos y Grupos
+                Zonas de Atención
             </h2>
             <div id="assignmentSectionContent">
                 <!-- Secciones CAI -->
@@ -302,7 +302,7 @@
 
                 <!-- Otros Grupos -->
                 <div class="mt-8">
-                    <h3 class="subsection-title">Otros Grupos</h3>
+                    <!-- <h3 class="subsection-title">Otros Grupos</h3> -->
                     <div id="otherGroupsContainer">
                         <!-- Otros grupos se renderizarán aquí -->
                     </div>
@@ -474,7 +474,7 @@
                 { id: generateUniqueId(), name: "Jefe de Vigilancia", members: [], defaultName: "Jefe de Vigilancia" },
                 { id: generateUniqueId(), name: "Zona T", members: [], defaultName: "Zona T" }, // Added "Zona T" group
                 { id: generateUniqueId(), name: "Jefe de información E-12 y Centinelas", members: [], defaultName: "Jefe de información E-12 y Centinelas" },
-                { id: generateUniqueId(), name: "Custodio E-12", members: [], defaultName: "Custodio E-12" },
+                { id: generateUniqueId(), name: "Custodios E-12", members: [], defaultName: "Custodios E-12" }, // Changed to "Custodios E-12"
                 { id: generateUniqueId(), name: "CAI - ALCÁZARES (Información)", members: [], defaultName: "CAI - ALCÁZARES (Información)" },
                 { id: generateUniqueId(), name: "CAI - MODELO (Información)", members: [], defaultName: "CAI - MODELO (Información)" },
                 { id: generateUniqueId(), name: "CAI - POLO CLUB (Información)", members: [], defaultName: "CAI - POLO CLUB (Información)" },
@@ -682,7 +682,7 @@
                 { groupName: "Jefe de Vigilancia", members: ["IJ_Manuel Antonio Arias Guerra"] },
                 { groupName: "Zona T", members: [] }, // No default member for Zona T, as it's a new group
                 { groupName: "Jefe de información E-12 y Centinelas", members: ["SI_Nieto"] },
-                { groupName: "Custodio E-12", members: ["SI_Ávila", "PT_Higuita", "PT_Ballesteros", "PT_González"] },
+                { groupName: "Custodios E-12", members: ["SI_Ávila", "PT_Higuita", "PT_Ballesteros", "PT_González"] }, // Changed to "Custodios E-12"
                 { groupName: "CAI - ALCÁZARES (Información)", members: ["PT_Marquez"] },
                 { groupName: "CAI - MODELO (Información)", members: ["PT_Gomez Muñoz"] },
                 { groupName: "CAI - POLO CLUB (Información)", members: ["PT_Nayerly"] },
@@ -1475,7 +1475,6 @@
                         report += `${person.grade} ${person.name}\n`;
                     }
                 });
-                report += '\n'; // Add a newline after Zona T members
                 zonaTContentAdded = true;
             }
 
@@ -1485,6 +1484,9 @@
             if (jefeVigilanciaGroup && jefeVigilanciaGroup.members.length > 0) {
                 const jefe = appData.personnel.find(p => p.id === jefeVigilanciaGroup.members[0]);
                 if (jefe) {
+                    if (zonaTContentAdded) { // Add newline only if Zona T had content
+                        report += '\n';
+                    }
                     report += `*Jefe de Vigilancia*\n`;
                     report += `${jefe.grade} ${jefe.name}\n`;
                     jefeVigilanciaContentAdded = true;
@@ -1518,14 +1520,14 @@
                 report += '\n'; // Added back a single newline after this section
             }
 
-            // Custodio E-12
-            const custodioE12Group = appData.otherGroups.find(g => g.name === "Custodio E-12");
-            if (custodioE12Group && custodioE12Group.members.length > 0) {
+            // Custodios E-12 (Updated name)
+            const custodiosE12Group = appData.otherGroups.find(g => g.name === "Custodios E-12"); // Changed to "Custodios E-12"
+            if (custodiosE12Group && custodiosE12Group.members.length > 0) {
                 let custodioOficialesCount = 0;
                 let custodioSuboficialesCount = 0;
                 let custodioPatrullerosCount = 0;
 
-                custodioE12Group.members.forEach(memberId => {
+                custodiosE12Group.members.forEach(memberId => {
                     const person = appData.personnel.find(p => p.id === memberId);
                     if (person) {
                         if (person.category === "Oficiales") {
@@ -1538,9 +1540,9 @@
                     }
                 });
 
-                report += `*Custodio E-12*\n\n`;
-                report += `Parte: (${custodioOficialesCount}-${custodioSuboficialesCount}-${custodioPatrullerosCount})\n\n`; // Dynamic count for Custodio E-12
-                custodioE12Group.members.forEach(memberId => {
+                report += `*Custodios E-12*\n\n`; // Updated name
+                report += `Parte: (${custodioOficialesCount}-${custodioSuboficialesCount}-${custodioPatrullerosCount})\n\n`; // Dynamic count for Custodios E-12
+                custodiosE12Group.members.forEach(memberId => {
                     const person = appData.personnel.find(p => p.id === memberId);
                     if (person) {
                         report += `${person.grade}. ${person.name}\n`;
@@ -1569,7 +1571,7 @@
 
             // Novedades (excluding the CAI Information groups, which are now handled above)
             const novedadesGroups = appData.otherGroups.filter(g => ["Vacaciones", "Excusado", "Calamidad"].includes(g.name));
-            const customNovedadesGroups = appData.otherGroups.filter(g => !["Jefe de Vigilancia", "Zona T", "Jefe de información E-12 y Centinelas", "Custodio E-12", "Vacaciones", "Excusado", "Calamidad"].includes(g.name) && !g.name.includes("(Información)"));
+            const customNovedadesGroups = appData.otherGroups.filter(g => !["Jefe de Vigilancia", "Zona T", "Jefe de información E-12 y Centinelas", "Custodios E-12", "Vacaciones", "Excusado", "Calamidad"].includes(g.name) && !g.name.includes("(Información)")); // Updated name
 
             if (novedadesGroups.length > 0 || customNovedadesGroups.length > 0) {
                 report += `*📌NOVEDADES*\n\n`;
