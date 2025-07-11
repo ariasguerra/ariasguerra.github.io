@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -488,11 +488,11 @@
                 { id: generateUniqueId(), name: "Zona T", members: [], defaultName: "Zona T" }, // Added "Zona T" group
                 { id: generateUniqueId(), name: "Jefe de información E-12 y Centinelas", members: [], defaultName: "Jefe de información E-12 y Centinelas" },
                 { id: generateUniqueId(), name: "Custodios E-12", members: [], defaultName: "Custodios E-12" }, // Changed to "Custodios E-12"
-                { id: generateUniqueId(), name: "CAI - ALCÁZARES (Información)", members: [], defaultName: "CAI - ALCÁZARES (Información)" },
+                { id: generateUniqueId(), name: "CAI - ALCAZARES (Información)", members: [], defaultName: "CAI - ALCAZARES (Información)" },
                 { id: generateUniqueId(), name: "CAI - MODELO (Información)", members: [], defaultName: "CAI - MODELO (Información)" },
                 { id: generateUniqueId(), name: "CAI - POLO CLUB (Información)", members: [], defaultName: "CAI - POLO CLUB (Información)" },
                 { id: generateUniqueId(), name: "CAI - RIONEGRO (Información)", members: [], defaultName: "CAI - RIONEGRO (Información)" },
-                { id: generateUniqueId(), name: "CAI 7 DE AGOSTO (Información)", members: [], defaultName: "CAI 7 DE AGOSTO (Información)" },
+                { id: generateUniqueId(), name: "CAI - 7 DE AGOSTO (Información)", members: [], defaultName: "CAI - 7 DE AGOSTO (Información)" },
                 { id: generateUniqueId(), name: "Vacaciones", members: [], defaultName: "Vacaciones" },
                 { id: generateUniqueId(), name: "Excusado", members: [], defaultName: "Excusado" },
                 { id: generateUniqueId(), name: "Calamidad", members: [], defaultName: "Calamidad" }
@@ -692,11 +692,11 @@
                 { groupName: "Zona T", members: [] },
                 { groupName: "Jefe de información E-12 y Centinelas", members: ["SI_Nieto"] },
                 { groupName: "Custodios E-12", members: ["SI_Ávila", "PT_Higuita", "PT_Ballesteros", "PT_González"] },
-                { groupName: "CAI - ALCÁZARES (Información)", members: ["PT_Marquez"] },
+                { groupName: "CAI - ALCAZARES (Información)", members: ["PT_Marquez"] },
                 { groupName: "CAI - MODELO (Información)", members: ["PT_Gomez Muñoz"] },
                 { groupName: "CAI - POLO CLUB (Información)", members: ["PT_Nayerly"] },
                 { groupName: "CAI - RIONEGRO (Información)", members: ["PT_Sierra"] },
-                { groupName: "CAI 7 DE AGOSTO (Información)", members: ["PT_Garzon Garcia"] },
+                { groupName: "CAI - 7 DE AGOSTO (Información)", members: ["PT_Garzon Garcia"] },
                 { id: generateUniqueId(), name: "Vacaciones", members: [], defaultName: "Vacaciones" },
                 { id: generateUniqueId(), name: "Excusado", members: [], defaultName: "Excusado" },
                 { id: generateUniqueId(), name: "Calamidad", members: [], defaultName: "Calamidad" }
@@ -1499,7 +1499,7 @@
             if (importantServices.length > 0) {
                 report += `*Servicios de Importancia*\n\n`;
                 importantServices.forEach(service => {
-                    report += `�${service}\n`;
+                    report += `📍${service}\n`;
                 });
                 report += '\n';
             }
