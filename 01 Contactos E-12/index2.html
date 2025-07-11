@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -260,11 +260,11 @@
                 <!-- Comandante -->
                 <div class="mb-4">
                     <label for="commanderRank" class="block text-gray-700 font-medium mb-2">Grado del Comandante:</label>
-                    <input type="text" id="commanderRank" class="input-field" value="MY." onchange="saveData()">
+                    <input type="text" id="commanderRank" class="input-field" value="" onchange="saveData()">
                 </div>
                 <div class="mb-4">
                     <label for="commanderName" class="block text-gray-700 font-medium mb-2">Nombre del Comandante:</label>
-                    <input type="text" id="commanderName" class="input-field" value="Buitrago Valderrama Diego Alejandro" onchange="saveData()">
+                    <input type="text" id="commanderName" class="input-field" value="" onchange="saveData()">
                 </div>
 
                 <!-- Servicios de Importancia -->
@@ -381,70 +381,15 @@
 
         // Datos iniciales por defecto
         const defaultData = {
-            commanderName: "Buitrago Valderrama Diego Alejandro",
-            commanderRank: "MY.",
-            importantServices: [
-                "Puntos criticos",
-                "Sector comercio",
-                "Sector bancario",
-                "Sector residencial",
-                "Carrilera",
-                "Zona Tolerancia",
-                "Universidades",
-                "Talleres 7 Agosto",
-                "Puentes de la 92",
-                "Av. Caracas",
-                "Calle 63",
-                "Carrera 30",
-                "Calle 80"
-            ],
-            // Renamed 'personnel' to 'allPersonnelLists' and made it an object
+            commanderName: "",
+            commanderRank: "",
+            importantServices: [],
             allPersonnelLists: {
-                list1: [
-                    { id: generateUniqueId(), grade: "PT", name: "Martin", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "PT", name: "Daniela", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "PT", name: "Rosario", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "PT", name: "Karol", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "SI", name: "Chacon", assigned: false, category: "Suboficiales" },
-                    { id: generateUniqueId(), grade: "SI", name: "Manrique", assigned: false, category: "Suboficiales" },
-                    { id: generateUniqueId(), grade: "SI", name: "Diaz", assigned: false, category: "Suboficiales" },
-                    { id: generateUniqueId(), grade: "PT", name: "Ospino", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "PT", name: "Solano", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "PT", name: "Hernandez", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "SI", name: "Pineda", assigned: false, category: "Suboficiales" },
-                    { id: generateUniqueId(), grade: "PT", name: "Escobar", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "SI", name: "Corredor", assigned: false, category: "Suboficiales" },
-                    { id: generateUniqueId(), grade: "PP", name: "Maria", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "PT", name: "Castillo", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "PP", name: "Juana", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "PT", name: "Jurado", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "PT", name: "González Marrugo", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "PT", name: "Chavarria", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "PP", name: "Sofia", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "SI", name: "Gomez Lozano", assigned: false, category: "Suboficiales" },
-                    { id: generateUniqueId(), grade: "PT", name: "Montenegro", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "IJ", name: "Manuel Antonio Arias Guerra", assigned: false, category: "Suboficiales" },
-                    { id: generateUniqueId(), grade: "SI", name: "Nieto", assigned: false, category: "Suboficiales" },
-                    { id: generateUniqueId(), grade: "SI", name: "Ávila", assigned: false, category: "Suboficiales" },
-                    { id: generateUniqueId(), grade: "PT", name: "Higuita", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "PT", name: "Ballesteros", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "PT", name: "González", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "PT", name: "Marquez", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "PT", name: "Gomez Muñoz", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "PT", name: "Nayerly", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "PT", name: "Sierra", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "PT", name: "Garzon Garcia", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "SI", name: "Olivero", assigned: false, category: "Suboficiales" },
-                    { id: generateUniqueId(), grade: "SI", name: "Marmol", assigned: false, category: "Suboficiales" },
-                    { id: generateUniqueId(), grade: "PT", name: "Sanchez", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "PT", name: "Trujillo", assigned: false, category: "Patrulleros" },
-                    { id: generateUniqueId(), grade: "SI", name: "Gonzalez", assigned: false, category: "Suboficiales" },
-                    { id: generateUniqueId(), grade: "PT", name: "Velazquez Bohorquez", assigned: false, category: "Patrulleros" }
-                ],
-                list2: [], // Empty for now
-                list3: []  // Empty for now
+                list1: [],
+                list2: [],
+                list3: []
             },
-            currentPersonnelListId: 'list1', // New property to track active list
+            currentPersonnelListId: 'list1',
             caiSections: [
                 {
                     id: generateUniqueId(), name: "CAI - MODELO",
@@ -485,9 +430,9 @@
             ],
             otherGroups: [
                 { id: generateUniqueId(), name: "Jefe de Vigilancia", members: [], defaultName: "Jefe de Vigilancia" },
-                { id: generateUniqueId(), name: "Zona T", members: [], defaultName: "Zona T" }, // Added "Zona T" group
+                { id: generateUniqueId(), name: "Zona T", members: [], defaultName: "Zona T" },
                 { id: generateUniqueId(), name: "Jefe de información E-12 y Centinelas", members: [], defaultName: "Jefe de información E-12 y Centinelas" },
-                { id: generateUniqueId(), name: "Custodios E-12", members: [], defaultName: "Custodios E-12" }, // Changed to "Custodios E-12"
+                { id: generateUniqueId(), name: "Custodios E-12", members: [], defaultName: "Custodios E-12" },
                 { id: generateUniqueId(), name: "CAI - ALCAZARES (Información)", members: [], defaultName: "CAI - ALCAZARES (Información)" },
                 { id: generateUniqueId(), name: "CAI - MODELO (Información)", members: [], defaultName: "CAI - MODELO (Información)" },
                 { id: generateUniqueId(), name: "CAI - POLO CLUB (Información)", members: [], defaultName: "CAI - POLO CLUB (Información)" },
@@ -500,12 +445,9 @@
             // UI state to manage collapsed sections
             uiState: {
                 collapsedSections: {
-                    configSection: true, // Set to true (collapsed) by default
+                    configSection: false,
                 },
-                collapsedCaiSections: {
-                    // Initialize all default CAIs to be collapsed
-                    // This will be populated dynamically in loadData based on defaultData.caiSections
-                }
+                collapsedCaiSections: {}
             }
         };
 
@@ -582,165 +524,23 @@
             const storedData = localStorage.getItem('policeReportData');
             if (storedData) {
                 appData = JSON.parse(storedData);
-                // Ensure allPersonnelLists exists and has default lists
-                appData.allPersonnelLists = appData.allPersonnelLists || { list1: [], list2: [], list3: [] };
-                appData.allPersonnelLists.list1 = appData.allPersonnelLists.list1 || [];
-                appData.allPersonnelLists.list2 = appData.allPersonnelLists.list2 || [];
-                appData.allPersonnelLists.list3 = appData.allPersonnelLists.list3 || [];
-
-                // Set currentPersonnelListId, default to 'list1' if not found
-                appData.currentPersonnelListId = appData.currentPersonnelListId || 'list1';
-
-                // Ensure categories are set for all personnel in all lists
-                Object.values(appData.allPersonnelLists).forEach(personnelList => {
-                    personnelList.forEach(person => {
-                        person.category = getPersonnelCategory(person.grade);
-                    });
-                });
-
-                // If no assignments loaded, apply default ones to the current active list
-                const currentPersonnel = appData.allPersonnelLists[appData.currentPersonnelListId];
-                // Only assign defaults if the current list is empty and it's the first list (list1)
-                if (currentPersonnel.length === 0 && appData.currentPersonnelListId === 'list1') {
-                     // Check if default personnel are present in defaultData.allPersonnelLists.list1
-                    if (defaultData.allPersonnelLists.list1.length > 0) {
-                        // Deep copy default personnel to list1 if it's empty
-                        appData.allPersonnelLists.list1 = JSON.parse(JSON.stringify(defaultData.allPersonnelLists.list1));
-                        // Assign categories to the newly copied default personnel
-                        appData.allPersonnelLists.list1.forEach(person => {
-                            person.category = getPersonnelCategory(person.grade);
-                        });
-                        assignDefaultPersonnel(); // This will assign to the newly populated list1
-                    }
-                } else {
-                    updatePersonnelAssignedStatus();
-                }
-
             } else {
                 appData = JSON.parse(JSON.stringify(defaultData)); // Deep copy of default data
                 // Initialize all default CAIs to be collapsed for new data
                 appData.caiSections.forEach(cai => {
                     appData.uiState.collapsedCaiSections[cai.id] = true;
                 });
-                // Set configSection to true (collapsed) for new data
-                appData.uiState.collapsedSections.configSection = true;
-                // Ensure categories are set for default personnel when initializing new data
-                Object.values(appData.allPersonnelLists).forEach(personnelList => {
-                    personnelList.forEach(person => {
-                        person.category = getPersonnelCategory(person.grade);
-                    });
-                });
-                assignDefaultPersonnel(); // Assign defaults on first load if no stored data
             }
             renderUI();
         }
 
-        // Función para asignar el personal por defecto a sus lugares iniciales
-        function assignDefaultPersonnel() {
-            const currentPersonnelList = appData.allPersonnelLists[appData.currentPersonnelListId];
-
-            // Reinicia todo el personal a no asignado primero en la *active* list
-            currentPersonnelList.forEach(p => p.assigned = false);
-
-            // Clear all existing assignments in CAI sections and other groups
-            appData.caiSections.forEach(cai => {
-                cai.teams.forEach(team => {
-                    team.members = [];
-                });
-            });
-            appData.otherGroups.forEach(group => {
-                group.members = [];
-            });
-
-
-            // Asigna el personal a los equipos CAI (basado en nombres para coincidir)
-            const defaultCaiAssignments = [
-                { caiName: "CAI - MODELO", teamName: "11-13", members: ["PT_Martin", "PT_Daniela"] },
-                { caiName: "CAI - MODELO", teamName: "12-14", members: ["PT_Rosario", "PT_Karol"] },
-                { caiName: "CAI - MODELO", teamName: "15-16", members: ["SI_Chacon", "SI_Manrique"] },
-                { caiName: "CAI - ALCAZARES", teamName: "1", members: ["SI_Diaz", "PT_Ospino"] },
-                { caiName: "CAI - ALCAZARES", teamName: "2", members: ["PT_Solano", "PT_Hernandez"] },
-                { caiName: "CAI - POLO CLUB", teamName: "6-7", members: ["SI_Pineda", "PT_Escobar"] },
-                { caiName: "CAI - POLO CLUB", teamName: "8", members: ["SI_Corredor", "PP_Maria"] },
-                { caiName: "CAI - RIONEGRO", teamName: "9", members: ["PT_Castillo", "PP_Juana"] },
-                { caiName: "CAI - RIONEGRO", teamName: "10", members: ["PT_Jurado", "PT_González Marrugo"] },
-                { caiName: "CAI - 7 DE AGOSTO", teamName: "3", members: ["PT_Chavarria", "PP_Sofia"] },
-                { caiName: "CAI - 7 DE AGOSTO", teamName: "4-5", members: ["SI_Gomez Lozano", "PT_Montenegro"] }
-            ];
-
-            defaultCaiAssignments.forEach(assignment => {
-                const cai = appData.caiSections.find(c => c.name === assignment.caiName);
-                if (cai) {
-                    const team = cai.teams.find(t => t.name === assignment.teamName);
-                    if (team) {
-                        team.members = assignment.members.map(memberString => {
-                            const [grade, ...nameParts] = memberString.split('_');
-                            const name = nameParts.join(' ');
-                            const person = currentPersonnelList.find(p => p.grade === grade && p.name === name); // Use currentPersonnelList
-                            if (person) {
-                                person.assigned = true;
-                                return person.id;
-                            }
-                            return ''; // Return empty string if not found
-                        }).filter(Boolean); // Filter out any nulls/empty strings
-                    }
-                }
-            });
-
-            const defaultOtherGroupAssignments = [
-                { groupName: "Jefe de Vigilancia", members: ["IJ_Manuel Antonio Arias Guerra"] },
-                { groupName: "Zona T", members: [] },
-                { groupName: "Jefe de información E-12 y Centinelas", members: ["SI_Nieto"] },
-                { groupName: "Custodios E-12", members: ["SI_Ávila", "PT_Higuita", "PT_Ballesteros", "PT_González"] },
-                { groupName: "CAI - ALCAZARES (Información)", members: ["PT_Marquez"] },
-                { groupName: "CAI - MODELO (Información)", members: ["PT_Gomez Muñoz"] },
-                { groupName: "CAI - POLO CLUB (Información)", members: ["PT_Nayerly"] },
-                { groupName: "CAI - RIONEGRO (Información)", members: ["PT_Sierra"] },
-                { groupName: "CAI - 7 DE AGOSTO (Información)", members: ["PT_Garzon Garcia"] },
-                { id: generateUniqueId(), name: "Vacaciones", members: [], defaultName: "Vacaciones" },
-                { id: generateUniqueId(), name: "Excusado", members: [], defaultName: "Excusado" },
-                { id: generateUniqueId(), name: "Calamidad", members: [], defaultName: "Calamidad" }
-            ];
-
-            const zonaTGroup = appData.otherGroups.find(g => g.name === "Zona T");
-            if (zonaTGroup) {
-                const zonaTDefault = defaultOtherGroupAssignments.find(a => a.groupName === "Zona T");
-                if (zonaTDefault) {
-                    zonaTGroup.members = zonaTDefault.members.map(memberString => {
-                        const [grade, ...nameParts] = memberString.split('_');
-                        const name = nameParts.join(' ');
-                        const person = currentPersonnelList.find(p => p.grade === grade && p.name === name); // Use currentPersonnelList
-                        if (person) {
-                            person.assigned = true;
-                            return person.id;
-                        }
-                        return '';
-                    }).filter(Boolean);
-                }
-            }
-
-            defaultOtherGroupAssignments.forEach(assignment => {
-                if (assignment.groupName === "Zona T") return;
-
-                const group = appData.otherGroups.find(g => g.name === assignment.groupName);
-                if (group) {
-                    group.members = assignment.members.map(memberString => {
-                        const [grade, ...nameParts] = memberString.split('_');
-                        const name = nameParts.join(' ');
-                        const person = currentPersonnelList.find(p => p.grade === grade && p.name === name); // Use currentPersonnelList
-                        if (person) {
-                            person.assigned = true;
-                            return person.id;
-                        }
-                        return '';
-                    }).filter(Boolean);
-                }
-            });
-            updatePersonnelAssignedStatus();
-        }
-
         // Función para guardar datos en localStorage
         function saveData() {
+            // Update appData from UI before saving
+            appData.commanderRank = document.getElementById('commanderRank').value;
+            appData.commanderName = document.getElementById('commanderName').value;
+            appData.importantServices = document.getElementById('importantServices').value.split('\n').filter(line => line.trim() !== '');
+
             localStorage.setItem('policeReportData', JSON.stringify(appData));
             renderUI(); // Re-renderiza la UI después de guardar para actualizar el personal disponible
         }
