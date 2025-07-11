@@ -805,8 +805,8 @@
                 const teamDiv = document.createElement('div');
                 teamDiv.className = 'card bg-white p-4 mb-3';
                 teamDiv.innerHTML = `
-                    <div class="flex flex-col sm:flex-row justify-content-between items-center mb-3">
-                        <input type="text" value="${team.name}" class="font-semibold input-field flex-grow mr-2 mb-2 sm:mb-0" onchange="updateCaiTeamName('${cai.id}', '${team.id}', this.value)">
+                    <div class="flex justify-between items-center gap-2 mb-3">
+                        <input type="text" value="${team.name}" class="font-semibold input-field flex-grow" onchange="updateCaiTeamName('${cai.id}', '${team.id}', this.value)">
                         <button onclick="deleteCaiTeam('${cai.id}', '${team.id}')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-2">
@@ -923,8 +923,8 @@
                 const displayName = (group.name === "Zona T") ? "Zona T" : group.name;
 
                 groupDiv.innerHTML = `
-                    <div class="flex flex-col sm:flex-row justify-content-between items-center mb-4">
-                        <input type="text" value="${displayName}" class="subsection-title input-field flex-grow mr-2 mb-2 sm:mb-0" onchange="updateOtherGroupName('${group.id}', this.value)">
+                    <div class="flex justify-between items-center gap-2 mb-4">
+                        <input type="text" value="${displayName}" class="subsection-title input-field flex-grow" onchange="updateOtherGroupName('${group.id}', this.value)">
                         <button onclick="deleteOtherGroup('${group.id}')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
                     </div>
                     <div id="group-members-container-${group.id}" class="mb-3">
