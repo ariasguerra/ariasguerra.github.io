@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Informe Policial</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome CDN para íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Estilos base (móvil primero) */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0.5rem; /* Padding reducido para móviles */
+        }
+        .container {
+            max-width: 1000px;
+            margin: 10px auto;
+            padding: 1rem; /* Padding reducido para móviles */
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        /* Títulos de sección y subsección */
+        .section-title {
+            font-size: 1.25rem; /* Tamaño de fuente reducido para móviles */
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        .cai-section-title {
+            font-size: 1.1rem; /* Reducido */
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding-bottom: 0.25rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .subsection-title {
+            font-size: 1.1rem; /* Reducido */
+            font-weight: bold;
+            color: #374151;
+            margin-top: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        /* Campos de entrada y áreas de texto */
+        .input-field {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 0.6rem 0.8rem; /* Padding reducido */
+            font-size: 0.9rem; /* Fuente reducida */
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+        /* Estilos para botones */
+        .btn {
+            padding: 0.6rem 1rem; /* Padding reducido */
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem; /* Fuente reducida */
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-width: 38px; /* Tamaño de toque mínimo */
+            min-height: 38px;
+        }
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            gap: 0.3rem;
+            min-width: 32px;
+            min-height: 32px;
+        }
+        /* Variantes de color para botones */
+        .btn-primary { background-color: #2563eb; color: #ffffff; }
+        .btn-primary:hover { background-color: #1d4ed8; transform: translateY(-1px); }
+        .btn-secondary { background-color: #6b7280; color: #ffffff; }
+        .btn-secondary:hover { background-color: #4b5563; transform: translateY(-1px); }
+        .btn-danger { background-color: #ef4444; color: #ffffff; }
+        .btn-danger:hover { background-color: #dc2626; transform: translateY(-1px); }
+        .btn-success { background-color: #22c55e; color: #ffffff; }
+        .btn-success:hover { background-color: #16a34a; transform: translateY(-1px); }
+
+        /* Estilos para tarjetas de contenido */
+        .card {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        /* Estilos para la salida del informe */
+        .report-output {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background-color: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem; /* Reducido */
+            min-height: 150px; /* Reducido */
+            font-family: monospace;
+            font-size: 0.8rem; /* Reducido */
+            line-height: 1.5;
+            color: #374151;
+        }
+        .personnel-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed #e5e7eb;
+        }
+        .personnel-list-item:last-child { border-bottom: none; }
+        
+        /* Estilos para Búsqueda de Personal */
+        .search-result-item {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            background-color: #fff;
+        }
+        .search-result-item .info {
+            font-size: 0.9rem;
+            flex-grow: 1;
+        }
+        .search-result-item .status {
+             font-size: 0.8rem;
+             width: 100%;
+             margin-top: 0.25rem;
+        }
+        .search-result-item .status-assigned {
+            color: #ef4444; /* red-500 */
+            font-weight: 600;
+        }
+        .search-result-item .status-free {
+            color: #22c55e; /* green-500 */
+            font-weight: 600;
+        }
+
+
+        /* --- Estilos para el Modal Personalizado --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content {
+            background-color: #ffffff;
+            padding: 1.5rem; /* Reducido */
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 500px;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+        .modal-title {
+            font-size: 1.25rem; /* Reducido */
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .modal-message {
+            font-size: 0.9rem; /* Reducido */
+            color: #4b5563;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .modal-input {
+            width: 100%;
+            padding: 0.6rem 0.8rem; /* Reducido */
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem; /* Reducido */
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        /* Estilos para el mensaje de copiado */
+        .copy-feedback {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 1001;
+        }
+        .copy-feedback.show { opacity: 1; visibility: visible; }
+
+        /* Ajustes para pantallas más grandes (Desktop) */
+        @media (min-width: 640px) {
+            body {
+                padding: 2rem;
+            }
+            .container {
+                margin: 20px auto;
+                padding: 20px;
+            }
+            .section-title {
+                font-size: 1.5rem;
+            }
+            .cai-section-title {
+                font-size: 1.25rem;
+            }
+            .subsection-title {
+                font-size: 1.25rem;
+            }
+            .input-field {
+                padding: 0.75rem 1rem;
+                font-size: 1rem;
+            }
+            .btn {
+                padding: 0.75rem 1.25rem;
+                font-size: 1rem;
+                min-width: 44px;
+                min-height: 44px;
+            }
+            .btn-sm {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            .report-output {
+                padding: 1.5rem;
+                min-height: 200px;
+                font-size: 1rem;
+            }
+            .modal-content {
+                padding: 2rem;
+            }
+            .modal-title {
+                font-size: 1.75rem;
+            }
+            .modal-message {
+                font-size: 1rem;
+            }
+            .modal-input {
+                padding: 0.75rem 1rem;
+                font-size: 1rem;
+            }
+            .search-result-item .status {
+                width: auto;
+                margin-top: 0;
+            }
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div class="container">
+        <h1 class="text-3xl font-extrabold text-center text-gray-800 mb-8"></h1>
+
+        <!-- Sección de Configuración -->
+        <div class="mb-8 p-6 bg-blue-50 rounded-lg shadow-inner">
+            <h2 class="section-title text-blue-800" onclick="toggleSection('configSection')">
+                Configuración del Informe
+                <i id="configSectionToggleIcon" class="fas fa-chevron-up"></i>
+            </h2>
+            <div id="configSectionContent">
+                <!-- Comandante -->
+                <div class="mb-4">
+                    <label for="commanderRank" class="block text-gray-700 font-medium mb-2">Grado del Comandante:</label>
+                    <input type="text" id="commanderRank" class="input-field" value="" onchange="saveData()">
+                </div>
+                <div class="mb-4">
+                    <label for="commanderName" class="block text-gray-700 font-medium mb-2">Nombre del Comandante:</label>
+                    <input type="text" id="commanderName" class="input-field" value="" onchange="saveData()">
+                </div>
+
+                <!-- Servicios de Importancia -->
+                <div class="mb-6">
+                    <h3 class="subsection-title">Servicios de Importancia <span class="text-sm text-gray-500">(uno por línea)</span></h3>
+                    <textarea id="importantServices" class="input-field min-h-[150px]" onchange="saveData()"></textarea>
+                </div>
+
+                <!-- Gestión de Personal -->
+                <div class="mb-6">
+                    <h3 class="subsection-title">Gestión de Personal <span class="text-sm text-gray-500">(uno por línea: GRADO NOMBRE)</span></h3>
+                    <div class="flex gap-4 mb-4">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="personnelListSelector" value="list1" class="form-radio" onchange="switchPersonnelList('list1')">
+                            <span class="ml-2 text-gray-700">Lista 1</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="personnelListSelector" value="list2" class="form-radio" onchange="switchPersonnelList('list2')">
+                            <span class="ml-2 text-gray-700">Lista 2</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="personnelListSelector" value="list3" class="form-radio" onchange="switchPersonnelList('list3')">
+                            <span class="ml-2 text-gray-700">Lista 3</span>
+                        </label>
+                    </div>
+                    <textarea id="personnelTextarea" class="input-field min-h-[150px]" onchange="saveData()"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Búsqueda de Personal -->
+        <div class="mb-8 p-6 bg-yellow-50 rounded-lg shadow-inner">
+            <h2 class="section-title text-yellow-800">Búsqueda de Personal</h2>
+            <div id="searchSectionContent">
+                <div class="mb-4">
+                    <label for="personnelSearch" class="block text-gray-700 font-medium mb-2">Buscar funcionario:</label>
+                    <input type="text" id="personnelSearch" class="input-field" placeholder="Escriba grado o nombre..." oninput="renderPersonnelSearch()">
+                </div>
+                <div id="personnelSearchResults" class="mt-4">
+                    <!-- Los resultados de la búsqueda aparecerán aquí -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Equipos y Grupos -->
+        <div class="mb-8 p-6 bg-green-50 rounded-lg shadow-inner">
+            <h2 class="section-title text-green-800">
+                Zonas de Atención
+            </h2>
+            <div id="assignmentSectionContent">
+                <!-- Secciones CAI -->
+                <div id="caiSectionsContainer">
+                    <!-- Las secciones CAI se renderizarán aquí -->
+                </div>
+                <button onclick="addCaiSection()" class="btn btn-primary mt-4"><i class="fas fa-plus"></i></button>
+
+                <!-- Otros Grupos -->
+                <div class="mt-8">
+                    <h3 class="subsection-title">Otros Grupos</h3>
+                    <div id="otherGroupsContainer">
+                        <!-- Otros grupos se renderizarán aquí -->
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-4 mt-4">
+                        <input type="text" id="newGroupName" class="input-field flex-grow" placeholder="Nombre del nuevo grupo" aria-label="Nuevo Nombre del Grupo">
+                        <button onclick="addOtherGroup()" class="btn btn-primary"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botón de Generar Informe -->
+        <div class="text-center mb-8">
+            <button onclick="generateReport()" class="btn btn-primary text-xl px-8 py-4">Generar Informe</button>
+        </div>
+
+        <!-- Área de Salida del Informe -->
+        <div class="p-6 bg-gray-100 rounded-lg shadow-inner relative">
+            <h2 class="section-title text-gray-800">Informe Generado</h2>
+            <button onclick="copyReport()" class="absolute top-4 right-4 btn btn-secondary p-2 text-lg" title="Copiar informe">
+                <i class="fas fa-copy"></i>
+            </button>
+            <pre id="reportOutput" class="report-output"></pre>
+        </div>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div id="customModalOverlay" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modalTitle" class="modal-title"></h3>
+            <p id="modalMessage" class="modal-message"></p>
+            <input type="text" id="modalInput" class="modal-input hidden">
+            <div class="modal-buttons">
+                <button id="modalConfirmBtn" class="btn btn-primary hidden">Aceptar</button>
+                <button id="modalCancelBtn" class="btn btn-secondary hidden">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback de copiado -->
+    <div id="copyFeedback" class="copy-feedback">
+        ¡Copiado!
+    </div>
+
+    <script>
+        let scrollPosition = 0; // Variable para almacenar la posición de desplazamiento
+
+        // Función para generar un ID único
+        function generateUniqueId() {
+            return 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Helper function to determine personnel category based on grade
+        function getPersonnelCategory(grade) {
+            const oficiales = ["TC", "MY", "CT", "TE", "ST"];
+            const suboficiales = ["CM", "SC", "IJ", "IT", "SI"];
+            const patrulleros = ["PT", "PP"];
+
+            if (oficiales.includes(grade.toUpperCase())) {
+                return "Oficiales";
+            } else if (suboficiales.includes(grade.toUpperCase())) {
+                return "Suboficiales";
+            } else if (patrulleros.includes(grade.toUpperCase())) {
+                return "Patrulleros";
+            } else {
+                return "Desconocido"; // Default category if not found
+            }
+        }
+
+        // Datos iniciales por defecto
+        const defaultData = {
+            commanderName: "",
+            commanderRank: "",
+            importantServices: [],
+            allPersonnelLists: {
+                list1: [],
+                list2: [],
+                list3: []
+            },
+            currentPersonnelListId: 'list1',
+            caiSections: [
+                {
+                    id: generateUniqueId(), name: "CAI - MODELO",
+                    teams: [
+                        { id: generateUniqueId(), name: "11-13", members: [] },
+                        { id: generateUniqueId(), name: "12-14", members: [] },
+                        { id: generateUniqueId(), name: "15-16", members: [] }
+                    ]
+                },
+                {
+                    id: generateUniqueId(), name: "CAI - ALCAZARES",
+                    teams: [
+                        { id: generateUniqueId(), name: "1", members: [] },
+                        { id: generateUniqueId(), name: "2", members: [] }
+                    ]
+                },
+                {
+                    id: generateUniqueId(), name: "CAI - POLO CLUB",
+                    teams: [
+                        { id: generateUniqueId(), name: "6-7", members: [] },
+                        { id: generateUniqueId(), name: "8", members: [] }
+                    ]
+                },
+                {
+                    id: generateUniqueId(), name: "CAI - RIONEGRO",
+                    teams: [
+                        { id: generateUniqueId(), name: "9", members: [] },
+                        { id: generateUniqueId(), name: "10", members: [] }
+                    ]
+                },
+                {
+                    id: generateUniqueId(), name: "CAI - 7 DE AGOSTO",
+                    teams: [
+                        { id: generateUniqueId(), name: "3", members: [] },
+                        { id: generateUniqueId(), name: "4-5", members: [] }
+                    ]
+                }
+            ],
+            otherGroups: [
+                { id: generateUniqueId(), name: "Jefe de Vigilancia", members: [], defaultName: "Jefe de Vigilancia" },
+                { id: generateUniqueId(), name: "Zona T", members: [], defaultName: "Zona T" },
+                { id: generateUniqueId(), name: "Jefe de información E-12 y Centinelas", members: [], defaultName: "Jefe de información E-12 y Centinelas" },
+                { id: generateUniqueId(), name: "Custodios E-12", members: [], defaultName: "Custodios E-12" },
+                { id: generateUniqueId(), name: "CAI - ALCAZARES (Información)", members: [], defaultName: "CAI - ALCAZARES (Información)" },
+                { id: generateUniqueId(), name: "CAI - MODELO (Información)", members: [], defaultName: "CAI - MODELO (Información)" },
+                { id: generateUniqueId(), name: "CAI - POLO CLUB (Información)", members: [], defaultName: "CAI - POLO CLUB (Información)" },
+                { id: generateUniqueId(), name: "CAI - RIONEGRO (Información)", members: [], defaultName: "CAI - RIONEGRO (Información)" },
+                { id: generateUniqueId(), name: "CAI - 7 DE AGOSTO (Información)", members: [], defaultName: "CAI - 7 DE AGOSTO (Información)" },
+                { id: generateUniqueId(), name: "Vacaciones", members: [], defaultName: "Vacaciones" },
+                { id: generateUniqueId(), name: "Excusado", members: [], defaultName: "Excusado" },
+                { id: generateUniqueId(), name: "Calamidad", members: [], defaultName: "Calamidad" }
+            ],
+            // UI state to manage collapsed sections
+            uiState: {
+                collapsedSections: {
+                    configSection: false,
+                },
+                collapsedCaiSections: {}
+            }
+        };
+
+        let appData = {};
+
+        // --- Funciones para el Modal Personalizado ---
+        const modalOverlay = document.getElementById('customModalOverlay');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalInput = document.getElementById('modalInput');
+        const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+
+        let modalCallback = null;
+
+        function showModal(title, message, type, defaultValue = '', callback) {
+            scrollPosition = window.scrollY; // Guarda la posición de desplazamiento actual
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            modalCallback = callback;
+
+            modalInput.classList.add('hidden');
+            modalConfirmBtn.classList.add('hidden');
+            modalCancelBtn.classList.add('hidden');
+
+            if (type === 'prompt') {
+                modalInput.value = defaultValue;
+                modalInput.classList.remove('hidden');
+                modalConfirmBtn.textContent = 'Aceptar';
+                modalConfirmBtn.classList.remove('hidden');
+            } else if (type === 'confirm') {
+                modalConfirmBtn.textContent = 'Sí';
+                modalConfirmBtn.classList.remove('hidden');
+                modalCancelBtn.textContent = 'No';
+                modalCancelBtn.classList.remove('hidden');
+            }
+
+            modalOverlay.classList.add('active');
+            // Deshabilita el desplazamiento del cuerpo mientras el modal está activo
+            document.body.style.overflow = 'hidden';
+            if (type === 'prompt') {
+                modalInput.focus();
+            }
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+            document.body.style.overflow = ''; // Restaura el desplazamiento del cuerpo
+            window.scrollTo(0, scrollPosition); // Vuelve a la posición de desplazamiento guardada
+        }
+
+        modalConfirmBtn.onclick = () => {
+            closeModal();
+            if (modalCallback) {
+                if (!modalInput.classList.contains('hidden')) {
+                    modalCallback(modalInput.value);
+                } else {
+                    modalCallback(true);
+                }
+            }
+        };
+
+        modalCancelBtn.onclick = () => {
+            closeModal();
+            if (modalCallback) {
+                modalCallback(false);
+            }
+        };
+
+        // --- Fin de funciones del Modal Personalizado ---
+
+        // Function to load data from localStorage
+        function loadData() {
+            const storedData = localStorage.getItem('policeReportData');
+            if (storedData) {
+                appData = JSON.parse(storedData);
+            } else {
+                appData = JSON.parse(JSON.stringify(defaultData)); // Deep copy of default data
+                // Initialize all default CAIs to be collapsed for new data
+                appData.caiSections.forEach(cai => {
+                    appData.uiState.collapsedCaiSections[cai.id] = true;
+                });
+            }
+            renderUI();
+        }
+        
+        /**
+         * Reads the personnel textarea from the DOM and updates the appData model.
+         * This is the single source of truth for parsing the personnel list.
+         */
+        function updatePersonnelDataFromDOM() {
+            const personnelText = document.getElementById('personnelTextarea').value;
+            const lines = personnelText.split('\n').map(line => line.trim()).filter(line => line !== '');
+
+            const currentPersonnelList = appData.allPersonnelLists[appData.currentPersonnelListId] || [];
+            const newPersonnelData = [];
+            const existingPersonnelMap = new Map(currentPersonnelList.map(p => [`${p.grade.toUpperCase()} ${p.name.toUpperCase()}`, p]));
+
+            lines.forEach(line => {
+                const parts = line.split(' ');
+                if (parts.length >= 2) {
+                    const grade = parts[0].trim();
+                    const name = parts.slice(1).join(' ').trim();
+                    const key = `${grade.toUpperCase()} ${name.toUpperCase()}`;
+
+                    if (existingPersonnelMap.has(key)) {
+                        const existingPerson = existingPersonnelMap.get(key);
+                        existingPerson.grade = grade;
+                        existingPerson.name = name;
+                        existingPerson.category = getPersonnelCategory(grade);
+                        newPersonnelData.push(existingPerson);
+                        existingPersonnelMap.delete(key);
+                    } else {
+                        newPersonnelData.push({
+                            id: generateUniqueId(),
+                            grade: grade,
+                            name: name,
+                            assigned: false,
+                            category: getPersonnelCategory(grade)
+                        });
+                    }
+                }
+            });
+            appData.allPersonnelLists[appData.currentPersonnelListId] = newPersonnelData;
+        }
+
+        /**
+         * Saves the current state of appData to localStorage and re-renders the entire UI.
+         */
+        function commitAndRender() {
+            localStorage.setItem('policeReportData', JSON.stringify(appData));
+            renderUI();
+        }
+
+        /**
+         * The main save function, called by simple onchange events.
+         * It updates all data from the DOM and then commits it.
+         */
+        function saveData() {
+            // Update simple fields
+            appData.commanderRank = document.getElementById('commanderRank').value;
+            appData.commanderName = document.getElementById('commanderName').value;
+            appData.importantServices = document.getElementById('importantServices').value.split('\n').filter(line => line.trim() !== '');
+            
+            // Update the personnel list from its textarea
+            updatePersonnelDataFromDOM();
+
+            // Commit all changes
+            commitAndRender();
+        }
+
+        // Función para obtener el saludo según la hora
+        function getGreeting() {
+            const hour = new Date().getHours();
+            if (hour >= 5 && hour < 12) {
+                return "buenos días";
+            } else if (hour >= 12 && hour < 19) {
+                return "buenas tardes";
+            } else {
+                return "buenas noches";
+            }
+        }
+
+        // --- Renderizado de Selectores de Personal ---
+        function createPersonnelSelect(selectedPersonId = '', onChangeCallback) {
+            const select = document.createElement('select');
+            select.className = 'input-field w-full';
+            select.innerHTML = '<option value="">-- Seleccionar Personal --</option>';
+
+            const currentPersonnelList = appData.allPersonnelLists[appData.currentPersonnelListId];
+
+            // Filter personnel: include unassigned OR the currently selected person
+            const filteredPersonnel = currentPersonnelList.filter(p => !p.assigned || p.id === selectedPersonId);
+
+            // Sort the filtered personnel
+            filteredPersonnel.sort((a, b) => {
+                const gradeA = a.grade.toUpperCase();
+                const gradeB = b.grade.toUpperCase();
+                if (gradeA < gradeB) return -1;
+                if (gradeA > gradeB) return 1;
+                return a.name.localeCompare(b.name);
+            });
+
+            filteredPersonnel.forEach(person => {
+                const option = document.createElement('option');
+                option.value = person.id;
+                option.textContent = `${person.grade} ${person.name}`;
+                // Set selected option
+                if (person.id === selectedPersonId) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+
+            select.onchange = onChangeCallback;
+            return select;
+        }
+
+        // --- Actualizar estado de 'assigned' para el personal ---
+        function updatePersonnelAssignedStatus() {
+            if (!appData.allPersonnelLists || !appData.allPersonnelLists[appData.currentPersonnelListId]) return;
+            // Reset assigned status for all personnel in the *active* list
+            appData.allPersonnelLists[appData.currentPersonnelListId].forEach(p => p.assigned = false);
+
+            // Mark assigned personnel in CAI teams
+            appData.caiSections.forEach(cai => {
+                cai.teams.forEach(team => {
+                    team.members.forEach(memberId => {
+                        const person = appData.allPersonnelLists[appData.currentPersonnelListId].find(p => p.id === memberId);
+                        if (person) person.assigned = true;
+                    });
+                });
+            });
+
+            // Mark assigned personnel in other groups
+            appData.otherGroups.forEach(group => {
+                group.members.forEach(memberId => {
+                    const person = appData.allPersonnelLists[appData.currentPersonnelListId].find(p => p.id === memberId);
+                    if (person) person.assigned = true;
+                });
+            });
+        }
+
+
+        // --- Renderizado de Secciones CAI ---
+        function renderCaiSections() {
+            const container = document.getElementById('caiSectionsContainer');
+            container.innerHTML = '';
+
+            appData.caiSections.forEach(cai => {
+                const caiDiv = document.createElement('div');
+                caiDiv.id = `cai-${cai.id}`;
+                caiDiv.className = 'card mb-6';
+                caiDiv.innerHTML = `
+                    <div class="cai-section-title" onclick="toggleCaiSection('${cai.id}')">
+                        <input type="text" value="${cai.name}" class="font-semibold input-field flex-grow mr-2 mb-2 sm:mb-0" onchange="updateCaiName('${cai.id}', this.value)" onclick="event.stopPropagation();">
+                        <i id="caiToggleIcon-${cai.id}" class="fas fa-chevron-up ml-2"></i>
+                    </div>
+                    <div id="caiContent-${cai.id}">
+                        <div id="cai-teams-${cai.id}">
+                            <!-- Los equipos se renderizarán aquí -->
+                        </div>
+                        <button onclick="addCaiTeam('${cai.id}')" class="btn btn-secondary btn-sm mt-4"><i class="fas fa-plus"></i></button>
+                        <div id="cai-info-${cai.id}" class="mt-6">
+                            <!-- La sección de información del CAI se renderizará aquí -->
+                        </div>
+                    </div>
+                `;
+                container.appendChild(caiDiv);
+                renderCaiTeams(cai.id);
+                renderCaiInfoSection(cai.id, cai.name); // Render the CAI info section
+                applyCaiSectionState(cai.id); // Apply state after rendering
+            });
+        }
+
+        function renderCaiInfoSection(caiId, caiName) {
+            const container = document.getElementById(`cai-info-${caiId}`);
+            if (!container) return; // Ensure the container exists
+
+            // Find the corresponding "Información" group
+            const infoGroupName = `${caiName} (Información)`;
+            const infoGroup = appData.otherGroups.find(g => g.name === infoGroupName);
+
+            if (infoGroup) {
+                container.innerHTML = `
+                    <h3 class="subsection-title">Información de ${caiName.replace('CAI - ', '')}</h3>
+                    <div id="cai-info-members-container-${infoGroup.id}" class="mb-3">
+                        <!-- Los miembros de información se renderizarán aquí -->
+                    </div>
+                    <button onclick="addMemberToOtherGroup('${infoGroup.id}', 'cai-info-members-container-')" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i></button>
+                `;
+                renderOtherGroupMembers(infoGroup.id, 'cai-info-members-container-'); // Pass the correct container ID prefix
+            } else {
+                // If no matching info group, optionally display a message or nothing
+                container.innerHTML = `<p class="text-gray-500 text-sm">No hay sección de información para este CAI.</p>`;
+            }
+        }
+
+
+        function updateCaiName(caiId, newName) {
+            updatePersonnelDataFromDOM();
+            const cai = appData.caiSections.find(c => c.id === caiId);
+            if (cai) {
+                cai.name = newName.trim();
+                commitAndRender();
+            }
+        }
+
+        function addCaiSection() {
+            updatePersonnelDataFromDOM();
+            showModal('Añadir Sección CAI', 'Ingrese el nombre de la nueva sección CAI (ej. CAI - NUEVO):', 'prompt', '', (newCaiName) => {
+                if (newCaiName) {
+                    const newCaiId = generateUniqueId();
+                    appData.caiSections.push({
+                        id: newCaiId,
+                        name: newCaiName.trim(),
+                        teams: []
+                    });
+                    appData.uiState.collapsedCaiSections[newCaiId] = true;
+                    appData.otherGroups.push({
+                        id: generateUniqueId(),
+                        name: `${newCaiName.trim()} (Información)`,
+                        members: []
+                    });
+                    commitAndRender();
+                }
+            });
+        }
+
+        function deleteCaiSection(caiId) {
+            updatePersonnelDataFromDOM();
+            showModal('Eliminar Sección CAI', '¿Estás seguro de que quieres eliminar esta sección CAI y todos sus equipos?', 'confirm', '', (confirmed) => {
+                if (confirmed) {
+                    const cai = appData.caiSections.find(c => c.id === caiId);
+                    if (cai) {
+                        const infoGroupName = `${cai.name} (Información)`;
+                        appData.otherGroups = appData.otherGroups.filter(g => g.name !== infoGroupName);
+                    }
+                    appData.caiSections = appData.caiSections.filter(c => c.id !== caiId);
+                    delete appData.uiState.collapsedCaiSections[caiId];
+                    commitAndRender();
+                }
+            });
+        }
+
+        // --- Renderizado de Equipos de CAI ---
+        function renderCaiTeams(caiId) {
+            const cai = appData.caiSections.find(c => c.id === caiId);
+            if (!cai) return;
+
+            const container = document.getElementById(`cai-teams-${cai.id}`);
+            container.innerHTML = '';
+
+            cai.teams.forEach((team, teamIndex) => {
+                const teamDiv = document.createElement('div');
+                teamDiv.className = 'card bg-white p-4 mb-3';
+                teamDiv.innerHTML = `
+                    <div class="flex justify-between items-center gap-2 mb-3">
+                        <input type="text" value="${team.name}" class="font-semibold input-field flex-grow" onchange="updateCaiTeamName('${cai.id}', '${team.id}', this.value)">
+                        <button onclick="deleteCaiTeam('${cai.id}', '${team.id}')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <div id="cai-${cai.id}-team-${team.id}-member1" class="flex-1"></div>
+                        <div id="cai-${cai.id}-team-${team.id}-member2" class="flex-1"></div>
+                    </div>
+                `;
+                container.appendChild(teamDiv);
+
+                // Renderiza los selectores de miembros
+                const member1Container = document.getElementById(`cai-${cai.id}-team-${team.id}-member1`);
+                const member2Container = document.getElementById(`cai-${cai.id}-team-${team.id}-member2`);
+
+                member1Container.appendChild(createPersonnelSelect(team.members[0], (event) => {
+                    updateCaiTeamMember(cai.id, team.id, 0, event.target.value);
+                }));
+                member2Container.appendChild(createPersonnelSelect(team.members[1], (event) => {
+                    updateCaiTeamMember(cai.id, team.id, 1, event.target.value);
+                }));
+            });
+        }
+
+        function updateCaiTeamName(caiId, teamId, newName) {
+            updatePersonnelDataFromDOM();
+            const cai = appData.caiSections.find(c => c.id === caiId);
+            if (cai) {
+                const team = cai.teams.find(t => t.id === teamId);
+                if (team) {
+                    team.name = newName.trim();
+                    commitAndRender();
+                }
+            }
+        }
+
+        function updateCaiTeamMember(caiId, teamId, memberIndex, personId) {
+            updatePersonnelDataFromDOM();
+            const cai = appData.caiSections.find(c => c.id === caiId);
+            if (cai) {
+                const team = cai.teams.find(t => t.id === teamId);
+                if (team) {
+                    if (personId && team.members.includes(personId) && team.members[1 - memberIndex] === personId) {
+                        commitAndRender();
+                        return;
+                    }
+                    team.members[memberIndex] = personId;
+                    commitAndRender();
+                }
+            }
+        }
+
+
+        function addCaiTeam(caiId) {
+            updatePersonnelDataFromDOM();
+            const cai = appData.caiSections.find(c => c.id === caiId);
+            if (cai) {
+                showModal('Añadir Equipo', 'Ingrese el nombre del nuevo equipo (ej. 17-18):', 'prompt', '', (newTeamName) => {
+                    if (newTeamName) {
+                        cai.teams.push({ id: generateUniqueId(), name: newTeamName.trim(), members: [] });
+                        commitAndRender();
+                    }
+                });
+            }
+        }
+
+        function deleteCaiTeam(caiId, teamId) {
+            updatePersonnelDataFromDOM();
+            showModal('Eliminar Equipo', '¿Estás seguro de que quieres eliminar este equipo?', 'confirm', '', (confirmed) => {
+                if (confirmed) {
+                    const cai = appData.caiSections.find(c => c.id === caiId);
+                    if (cai) {
+                        cai.teams = cai.teams.filter(t => t.id !== teamId);
+                        commitAndRender();
+                    }
+                }
+            });
+        }
+
+        // --- Renderizado de Otros Grupos ---
+        function renderOtherGroups() {
+            const container = document.getElementById('otherGroupsContainer');
+            container.innerHTML = '';
+
+            // Filter out the "Información" groups as they are now rendered within CAI sections
+            const filteredOtherGroups = appData.otherGroups.filter(group =>
+                !group.name.includes("(Información)")
+            );
+
+            filteredOtherGroups.forEach(group => {
+                const groupDiv = document.createElement('div');
+                groupDiv.id = `group-${group.id}`;
+                groupDiv.className = 'card mb-6';
+                // Display "Zona T" as "Zona T" in the UI, but keep its internal name for report logic
+                const displayName = (group.name === "Zona T") ? "Zona T" : group.name;
+
+                groupDiv.innerHTML = `
+                    <div class="flex justify-between items-center gap-2 mb-4">
+                        <input type="text" value="${displayName}" class="subsection-title input-field flex-grow" onchange="updateOtherGroupName('${group.id}', this.value)">
+                        <button onclick="deleteOtherGroup('${group.id}')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+                    </div>
+                    <div id="group-members-container-${group.id}" class="mb-3">
+                        <!-- Los miembros se renderizarán aquí -->
+                    </div>
+                    <button onclick="addMemberToOtherGroup('${group.id}', 'group-members-container-')" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i></button>
+                `;
+                container.appendChild(groupDiv);
+                renderOtherGroupMembers(group.id, 'group-members-container-'); // Pass the correct container ID prefix
+            });
+        }
+
+        function updateOtherGroupName(groupId, newName) {
+            updatePersonnelDataFromDOM();
+            const group = appData.otherGroups.find(g => g.id === groupId);
+            if (group) {
+                group.name = newName.trim();
+                commitAndRender();
+            }
+        }
+
+        function addOtherGroup() {
+            updatePersonnelDataFromDOM();
+            const newGroupNameInput = document.getElementById('newGroupName');
+            const newGroupName = newGroupNameInput.value.trim();
+            if (newGroupName) {
+                appData.otherGroups.push({
+                    id: generateUniqueId(),
+                    name: newGroupName,
+                    members: []
+                });
+                newGroupNameInput.value = '';
+                commitAndRender();
+            }
+        }
+
+        function deleteOtherGroup(groupId) {
+            updatePersonnelDataFromDOM();
+            showModal('Eliminar Grupo', '¿Estás seguro de que quieres eliminar este grupo?', 'confirm', '', (confirmed) => {
+                if (confirmed) {
+                    appData.otherGroups = appData.otherGroups.filter(g => g.id !== groupId);
+                    commitAndRender();
+                }
+            });
+        }
+
+        // Modified to accept containerIdPrefix
+        function renderOtherGroupMembers(groupId, containerIdPrefix) {
+            const group = appData.otherGroups.find(g => g.id === groupId);
+            if (!group) return;
+
+            const container = document.getElementById(`${containerIdPrefix}${groupId}`);
+            if (!container) return; // Ensure the container exists
+
+            container.innerHTML = ''; // Clear existing members for re-render
+
+            // Render existing members
+            group.members.forEach((memberId, index) => {
+                const memberDiv = document.createElement('div');
+                memberDiv.className = 'flex items-center gap-2 mb-2';
+                const select = createPersonnelSelect(memberId, (event) => {
+                    updateOtherGroupMember(group.id, index, event.target.value);
+                });
+                memberDiv.appendChild(select);
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn btn-danger btn-sm rounded-full';
+                deleteBtn.innerHTML = '<i class="fas fa-times"></i>'; // Icono 'X'
+                deleteBtn.onclick = () => deleteMemberFromOtherGroup(group.id, index);
+                memberDiv.appendChild(deleteBtn);
+
+                container.appendChild(memberDiv);
+            });
+
+            // If no members, add one empty select field
+            if (group.members.length === 0) {
+                const memberDiv = document.createElement('div');
+                memberDiv.className = 'flex items-center gap-2 mb-2';
+                const select = createPersonnelSelect('', (event) => {
+                    if (event.target.value) {
+                        updatePersonnelDataFromDOM();
+                        group.members.push(event.target.value);
+                        commitAndRender();
+                    }
+                });
+                memberDiv.appendChild(select);
+                container.appendChild(memberDiv);
+            }
+        }
+
+        // Modified to accept containerIdPrefix
+        function addMemberToOtherGroup(groupId, containerIdPrefix) {
+            updatePersonnelDataFromDOM();
+            const group = appData.otherGroups.find(g => g.id === groupId);
+            if (group) {
+                group.members.push(''); // Añade una ranura vacía para un nuevo miembro
+                commitAndRender();
+            }
+        }
+
+        function updateOtherGroupMember(groupId, memberIndex, personId) {
+            updatePersonnelDataFromDOM();
+            const group = appData.otherGroups.find(g => g.id === groupId);
+            if (group) {
+                group.members[memberIndex] = personId;
+                commitAndRender();
+            }
+        }
+
+        function deleteMemberFromOtherGroup(groupId, memberIndex) {
+            updatePersonnelDataFromDOM();
+            const group = appData.otherGroups.find(g => g.id === groupId);
+            if (group) {
+                group.members.splice(memberIndex, 1);
+                commitAndRender();
+            }
+        }
+
+        // --- Toggle Section Functionality (for main sections) ---
+        function toggleSection(sectionId) {
+            const contentDiv = document.getElementById(`${sectionId}Content`);
+            const toggleIcon = document.getElementById(`${sectionId}ToggleIcon`);
+
+            if (contentDiv && toggleIcon) {
+                const isCollapsed = contentDiv.classList.toggle('hidden');
+                appData.uiState.collapsedSections[sectionId] = isCollapsed;
+                // Just save the UI state, no need for a full re-render
+                localStorage.setItem('policeReportData', JSON.stringify(appData));
+                
+                if (isCollapsed) {
+                    toggleIcon.classList.remove('fa-chevron-up');
+                    toggleIcon.classList.add('fa-chevron-down');
+                } else {
+                    toggleIcon.classList.remove('fa-chevron-down');
+                    toggleIcon.classList.add('fa-chevron-up');
+                }
+            }
+        }
+
+        // --- Apply Section State on Load (for main sections) ---
+        function applySectionState(sectionId) {
+            const contentDiv = document.getElementById(`${sectionId}Content`);
+            const toggleIcon = document.getElementById(`${sectionId}ToggleIcon`);
+
+            if (contentDiv && toggleIcon) {
+                const isCollapsed = appData.uiState.collapsedSections[sectionId];
+                if (isCollapsed) {
+                    contentDiv.classList.add('hidden');
+                    toggleIcon.classList.remove('fa-chevron-up');
+                    toggleIcon.classList.add('fa-chevron-down');
+                } else {
+                    contentDiv.classList.remove('hidden');
+                    toggleIcon.classList.remove('fa-chevron-down');
+                    toggleIcon.classList.add('fa-chevron-up');
+                }
+            }
+        }
+
+        // --- Toggle CAI Section Functionality ---
+        function toggleCaiSection(caiId) {
+            const contentDiv = document.getElementById(`caiContent-${caiId}`);
+            const toggleIcon = document.getElementById(`caiToggleIcon-${caiId}`);
+
+            if (contentDiv && toggleIcon) {
+                const isCollapsed = contentDiv.classList.toggle('hidden');
+                appData.uiState.collapsedCaiSections[caiId] = isCollapsed;
+                localStorage.setItem('policeReportData', JSON.stringify(appData));
+
+                if (isCollapsed) {
+                    toggleIcon.classList.remove('fa-chevron-up');
+                    toggleIcon.classList.add('fa-chevron-down');
+                } else {
+                    toggleIcon.classList.remove('fa-chevron-down');
+                    toggleIcon.classList.add('fa-chevron-up');
+                }
+            }
+        }
+
+        // --- Apply CAI Section State on Load ---
+        function applyCaiSectionState(caiId) {
+            const contentDiv = document.getElementById(`caiContent-${caiId}`);
+            const toggleIcon = document.getElementById(`caiToggleIcon-${caiId}`);
+
+            if (contentDiv && toggleIcon) {
+                const isCollapsed = appData.uiState.collapsedCaiSections[caiId] === true;
+
+                if (isCollapsed) {
+                    contentDiv.classList.add('hidden');
+                    toggleIcon.classList.remove('fa-chevron-up');
+                    toggleIcon.classList.add('fa-chevron-down');
+                } else {
+                    contentDiv.classList.remove('hidden');
+                    toggleIcon.classList.remove('fa-chevron-down');
+                    toggleIcon.classList.add('fa-chevron-up');
+                }
+            }
+        }
+
+        // --- Funciones de Búsqueda de Personal ---
+        function findAssignment(personId) {
+            for (const cai of appData.caiSections) {
+                for (const team of cai.teams) {
+                    if (team.members.includes(personId)) {
+                        return `${cai.name} / ${team.name}`;
+                    }
+                }
+            }
+            for (const group of appData.otherGroups) {
+                if (group.members.includes(personId)) {
+                    return `Grupo: ${group.name}`;
+                }
+            }
+            return null;
+        }
+
+        function unassignPersonnel(personId) {
+            updatePersonnelDataFromDOM();
+            let wasUnassigned = false;
+            appData.caiSections.forEach(cai => {
+                cai.teams.forEach(team => {
+                    const index = team.members.indexOf(personId);
+                    if (index > -1) {
+                        team.members.splice(index, 1, undefined); // Replace with undefined to keep array length
+                        wasUnassigned = true;
+                    }
+                });
+            });
+            appData.otherGroups.forEach(group => {
+                const index = group.members.indexOf(personId);
+                if (index > -1) {
+                    group.members.splice(index, 1);
+                    wasUnassigned = true;
+                }
+            });
+
+            if(wasUnassigned) {
+                commitAndRender();
+            }
+        }
+
+        function renderPersonnelSearch() {
+            const searchInput = document.getElementById('personnelSearch');
+            const resultsContainer = document.getElementById('personnelSearchResults');
+            const searchTerm = searchInput.value.toLowerCase().trim();
+
+            resultsContainer.innerHTML = '';
+            if (!searchTerm) return;
+
+            const currentPersonnelList = appData.allPersonnelLists[appData.currentPersonnelListId];
+            if (!currentPersonnelList) return;
+
+            const results = currentPersonnelList.filter(p => 
+                p.name.toLowerCase().includes(searchTerm) || 
+                p.grade.toLowerCase().includes(searchTerm)
+            );
+
+            if (results.length === 0) {
+                resultsContainer.innerHTML = '<p class="text-gray-500 text-sm">No se encontraron funcionarios.</p>';
+                return;
+            }
+
+            results.forEach(person => {
+                const assignment = findAssignment(person.id);
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'search-result-item';
+
+                let html = `
+                    <div class="info">
+                        <strong>${person.grade} ${person.name}</strong>
+                        <div class="status ${assignment ? 'status-assigned' : 'status-free'}">
+                            ${assignment ? `Asignado a: ${assignment}` : 'Disponible'}
+                        </div>
+                    </div>
+                `;
+
+                if (assignment) {
+                    html += `<button onclick="unassignPersonnel('${person.id}')" class="btn btn-danger btn-sm">Desasignar</button>`;
+                }
+
+                resultDiv.innerHTML = html;
+                resultsContainer.appendChild(resultDiv);
+            });
+        }
+
+
+        // Función para determinar el turno según la hora
+        function getTurno() {
+            const hour = new Date().getHours();
+            if (hour >= 5 && hour <= 7) {
+                return "segundo turno";
+            } else if (hour >= 20 && hour <= 22) {
+                return "primer turno";
+            } else if (hour >= 12 && hour <= 14) {
+                return "tercer turno";
+            } else {
+                return "segundo turno";
+            }
+        }
+
+        // --- Renderizado General de la UI ---
+        function renderUI() {
+            updatePersonnelAssignedStatus();
+            
+            document.getElementById('commanderRank').value = appData.commanderRank;
+            document.getElementById('commanderName').value = appData.commanderName;
+            document.getElementById('importantServices').value = appData.importantServices.join('\n');
+            document.getElementById('personnelTextarea').value = appData.allPersonnelLists[appData.currentPersonnelListId].map(p => `${p.grade} ${p.name}`).join('\n');
+            document.querySelector(`input[name="personnelListSelector"][value="${appData.currentPersonnelListId}"]`).checked = true;
+
+            renderPersonnelSearch();
+            renderCaiSections();
+            renderOtherGroups();
+
+            applySectionState('configSection');
+        }
+
+        // Función para cambiar la lista de personal activa
+        function switchPersonnelList(listId) {
+            saveData();
+            appData.currentPersonnelListId = listId;
+            localStorage.setItem('policeReportData', JSON.stringify(appData));
+            renderUI();
+        }
+
+        // --- Generar Informe ---
+        function generateReport() {
+            const greeting = getGreeting();
+            const commanderRank = document.getElementById('commanderRank').value.trim();
+            const commanderName = document.getElementById('commanderName').value.trim();
+            const importantServicesText = document.getElementById('importantServices').value.trim();
+            const importantServices = importantServicesText.split('\n').filter(line => line.trim() !== '');
+            const turno = getTurno();
+
+            let oficialesTotalCount = 0;
+            let suboficialesTotalCount = 0;
+            let patrullerosTotalCount = 0;
+
+            const currentPersonnelList = appData.allPersonnelLists[appData.currentPersonnelListId];
+
+            appData.caiSections.forEach(cai => {
+                cai.teams.forEach(team => {
+                    team.members.forEach(memberId => {
+                        const person = currentPersonnelList.find(p => p.id === memberId);
+                        if (person) {
+                            if (person.category === "Oficiales") oficialesTotalCount++;
+                            else if (person.category === "Suboficiales") suboficialesTotalCount++;
+                            else if (person.category === "Patrulleros") patrullerosTotalCount++;
+                        }
+                    });
+                });
+            });
+
+            appData.otherGroups.forEach(group => {
+                if (group.name === "Jefe de Vigilancia" || group.name.includes("(Información)")) {
+                    group.members.forEach(memberId => {
+                        const person = currentPersonnelList.find(p => p.id === memberId);
+                        if (person) {
+                           if (person.category === "Oficiales") oficialesTotalCount++;
+                            else if (person.category === "Suboficiales") suboficialesTotalCount++;
+                            else if (person.category === "Patrulleros") patrullerosTotalCount++;
+                        }
+                    });
+                }
+            });
+
+
+            let report = `Dios y Patria mi Mayor ${greeting}, respetuosamente me permito reportar el personal para el ${turno}, así:\n\n`;
+            report += `*Parte =(${oficialesTotalCount}-${suboficialesTotalCount}-${patrullerosTotalCount})*\n\n`;
+
+            let totalZones = 0;
+            appData.caiSections.forEach(cai => {
+                cai.teams.forEach(team => {
+                    const member1 = currentPersonnelList.find(p => p.id === team.members[0]);
+                    const member2 = currentPersonnelList.find(p => p.id === team.members[1]);
+                    if (member1 && member2) totalZones++;
+                });
+            });
+
+            report += `Total: *(${totalZones})* Zonas de Atención asignados al Nuevo Modelo de Servicio de Policía en la Estación Barrios Unidos, así:\n\n`;
+
+            appData.caiSections.forEach(cai => {
+                report += `*${cai.name.toUpperCase()}*\n`;
+                cai.teams.forEach(team => {
+                    const members = team.members.map(memberId => {
+                        const person = currentPersonnelList.find(p => p.id === memberId);
+                        return person ? `${person.grade} ${person.name}` : 'Personal no asignado';
+                    }).join(' / ');
+                    report += `🚔 ${team.name} ${members}\n`;
+                });
+                report += '\n';
+            });
+
+            const zonaTGroup = appData.otherGroups.find(g => g.name === "Zona T");
+            if (zonaTGroup && zonaTGroup.members.length > 0) {
+                report += `*Zona T*\n`;
+                zonaTGroup.members.forEach(memberId => {
+                    const person = currentPersonnelList.find(p => p.id === memberId);
+                    if (person) report += `${person.grade} ${person.name}\n`;
+                });
+                report += '\n';
+            }
+            
+            const jefeVigilanciaGroup = appData.otherGroups.find(g => g.name === "Jefe de Vigilancia");
+            if (jefeVigilanciaGroup && jefeVigilanciaGroup.members.length > 0) {
+                const jefe = currentPersonnelList.find(p => p.id === jefeVigilanciaGroup.members[0]);
+                if (jefe) {
+                    report += `*Jefe de Vigilancia*\n`;
+                    report += `${jefe.grade} ${jefe.name}\n\n`;
+                }
+            }
+
+            if (importantServices.length > 0) {
+                report += `*Servicios de Importancia*\n\n`;
+                importantServices.forEach(service => {
+                    report += `📍${service}\n`;
+                });
+                report += '\n';
+            }
+
+            const jefeInfoGroup = appData.otherGroups.find(g => g.name === "Jefe de información E-12 y Centinelas");
+            if (jefeInfoGroup && jefeInfoGroup.members.length > 0) {
+                report += `*Jefe de información E-12 y Centinelas*\n`;
+                jefeInfoGroup.members.forEach(memberId => {
+                    const person = currentPersonnelList.find(p => p.id === memberId);
+                    if (person) report += `👮🏻‍♂️${person.grade}. ${person.name}\n`;
+                });
+                report += '\n';
+            }
+
+            const custodiosE12Group = appData.otherGroups.find(g => g.name === "Custodios E-12");
+            if (custodiosE12Group && custodiosE12Group.members.length > 0) {
+                let custodioOficialesCount = 0;
+                let custodioSuboficialesCount = 0;
+                let custodioPatrullerosCount = 0;
+                custodiosE12Group.members.forEach(memberId => {
+                    const person = currentPersonnelList.find(p => p.id === memberId);
+                    if (person) {
+                        if (person.category === "Oficiales") custodioOficialesCount++;
+                        else if (person.category === "Suboficiales") custodioSuboficialesCount++;
+                        else if (person.category === "Patrulleros") custodioPatrullerosCount++;
+                    }
+                });
+                report += `*Custodios E-12*\n\n`;
+                report += `Parte: (${custodioOficialesCount}-${custodioSuboficialesCount}-${custodioPatrullerosCount})\n\n`;
+                custodiosE12Group.members.forEach(memberId => {
+                    const person = currentPersonnelList.find(p => p.id === memberId);
+                    if (person) report += `${person.grade}. ${person.name}\n`;
+                });
+                report += '\n';
+            }
+
+            const caiInfoGroups = appData.otherGroups.filter(g => g.name.includes("(Información)"));
+            if (caiInfoGroups.some(g => g.members.length > 0)) {
+                report += `*Información de CAI*\n\n`;
+                caiInfoGroups.forEach(group => {
+                    if (group.members.length > 0) {
+                        group.members.forEach(memberId => {
+                            const person = currentPersonnelList.find(p => p.id === memberId);
+                            if (person) {
+                                report += `*${group.name.replace(' (Información)', '')}*\n`;
+                                report += `👮🏻‍♂️ ${person.grade}. ${person.name}\n\n`;
+                            }
+                        });
+                    }
+                });
+            }
+
+            const novedadesGroups = appData.otherGroups.filter(g => ["Vacaciones", "Excusado", "Calamidad"].includes(g.name));
+            const customNovedadesGroups = appData.otherGroups.filter(g => !g.defaultName && !g.name.includes("(Información)"));
+            if (novedadesGroups.some(g => g.members.length > 0) || customNovedadesGroups.some(g => g.members.length > 0)) {
+                report += `*📌NOVEDADES*\n\n`;
+                novedadesGroups.concat(customNovedadesGroups).forEach(group => {
+                    if (group.members.length > 0) {
+                        report += `*${group.name}*\n\n`;
+                        group.members.forEach(memberId => {
+                            const person = currentPersonnelList.find(p => p.id === memberId);
+                            if (person) report += `${person.grade} ${person.name}\n`;
+                        });
+                        report += '\n';
+                    }
+                });
+            }
+
+            report += `${commanderRank} ${commanderName}\n`;
+            report += `*Comandante Estación de Policía Barrios Unidos*\n`;
+
+            document.getElementById('reportOutput').textContent = report;
+        }
+
+        // --- Función para copiar el informe ---
+        function copyReport() {
+            const reportText = document.getElementById('reportOutput').textContent;
+            try {
+                const textarea = document.createElement('textarea');
+                textarea.value = reportText;
+                textarea.style.position = 'fixed'; // Evita que el scroll se mueva
+                textarea.style.opacity = 0; // Lo hace invisible
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+
+                const feedback = document.getElementById('copyFeedback');
+                feedback.classList.add('show');
+                setTimeout(() => {
+                    feedback.classList.remove('show');
+                }, 2000); // Oculta el feedback después de 2 segundos
+            } catch (err) {
+                console.error('Error al copiar el informe: ', err);
+            }
+        }
+
+
+        // Inicializar la aplicación al cargar la página
+        window.onload = loadData;
+    </script>
+</body>
+</html>
