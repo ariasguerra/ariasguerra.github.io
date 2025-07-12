@@ -248,7 +248,7 @@
 <body class="p-4">
 
     <!-- Botones Flotantes -->
-    <div style="position: fixed; top: 20px; left: 20px; z-index: 999;" class="flex flex-col gap-3">
+    <div style="position: fixed; top: 50%; left: 20px; transform: translateY(-50%); z-index: 999;" class="flex flex-col gap-3">
         <button id="floatingConfigBtn" onclick="openConfigModal()" class="btn btn-primary btn-float shadow-lg">
             <i class="fas fa-cog"></i>
         </button>
@@ -291,7 +291,7 @@
     </div>
 
     <!-- Modal de Confirmación/Prompt -->
-    <div id="customModalOverlay" class="modal-overlay">
+    <div id="customModalOverlay" class="modal-overlay" onclick="if(event.target === this) closeModal()">
         <div class="modal-content">
             <h3 id="modalTitle" class="modal-title"></h3>
             <p id="modalMessage" class="modal-message"></p>
@@ -304,7 +304,7 @@
     </div>
     
     <!-- Modal de Búsqueda -->
-    <div id="searchModalOverlay" class="modal-overlay">
+    <div id="searchModalOverlay" class="modal-overlay" onclick="if(event.target === this) closeSearchModal()">
         <div class="modal-content w-full max-w-lg">
              <div class="flex justify-between items-center mb-4">
                 <h3 class="modal-title text-left !mb-0">Búsqueda de Personal</h3>
@@ -313,21 +313,21 @@
             <div class="mb-4">
                 <input type="text" id="personnelSearch" class="input-field" placeholder="Escriba grado o nombre..." oninput="renderPersonnelSearch()">
             </div>
-            <div id="personnelSearchResults" class="mt-4 max-h-96 overflow-y-auto">
+            <div id="personnelSearchResults" class="mt-4 max-h-[60vh] overflow-y-auto">
                 <!-- Los resultados de la búsqueda aparecerán aquí -->
             </div>
         </div>
     </div>
 
     <!-- Modal de Configuración -->
-    <div id="configModalOverlay" class="modal-overlay">
+    <div id="configModalOverlay" class="modal-overlay" onclick="if(event.target === this) closeConfigModal()">
         <div class="modal-content w-full max-w-lg">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="modal-title text-left !mb-0">Configuración del Informe</h3>
                 <button onclick="closeConfigModal()" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
             </div>
             <!-- Contenido de Configuración -->
-            <div class="max-h-[80vh] overflow-y-auto pr-2">
+            <div class="max-h-[70vh] overflow-y-auto pr-2">
                 <!-- Comandante -->
                 <div class="mb-4">
                     <label for="commanderRank" class="block text-gray-700 font-medium mb-2">Grado del Comandante:</label>
@@ -341,7 +341,7 @@
                 <!-- Servicios de Importancia -->
                 <div class="mb-6">
                     <h3 class="subsection-title">Servicios de Importancia <span class="text-sm text-gray-500">(uno por línea)</span></h3>
-                    <textarea id="importantServices" class="input-field min-h-[150px]" onchange="saveData()"></textarea>
+                    <textarea id="importantServices" class="input-field min-h-[120px]" onchange="saveData()"></textarea>
                 </div>
 
                 <!-- Gestión de Personal -->
@@ -368,7 +368,7 @@
     </div>
 
     <!-- Modal de Informe Generado -->
-    <div id="reportModalOverlay" class="modal-overlay">
+    <div id="reportModalOverlay" class="modal-overlay" onclick="if(event.target === this) closeReportModal()">
         <div class="modal-content w-full max-w-2xl">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="modal-title text-left !mb-0">Informe Generado</h3>
@@ -379,7 +379,7 @@
                     <button onclick="closeReportModal()" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
                 </div>
             </div>
-            <pre id="reportOutput" class="report-output max-h-[70vh] overflow-y-auto"></pre>
+            <pre id="reportOutput" class="report-output max-h-[60vh] overflow-y-auto"></pre>
         </div>
     </div>
 
