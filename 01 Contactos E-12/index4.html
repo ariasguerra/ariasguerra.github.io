@@ -441,4 +441,576 @@
                 { id: generateUniqueId(), name: "CAI - 7 DE AGOSTO", teams: [ { id: generateUniqueId(), name: "3", members: [] }, { id: generateUniqueId(), name: "4-5", members: [] } ] }
             ],
             otherGroups: [
-                { id: generateUniqueId(), name: "Jefe de Vigilancia", members: [], defaultName: "Jefe de Vigilancia" }, { id: generateUniqueId(), name: "Zona T", members: [], defaultName: "Zona T" }, { id: generateUniqueId(), name: "Jefe de información E-12 y Centinelas", members: [], defaultName: "Jefe de información E-12 y Centinelas" }, { id: generateUniqueId(), name: "Custodios E-12", members: [], defaultName: "Custodios E-12" }, { id: generateUniqueId(), name: "CAI - ALCAZARES (Información)", members: [], defaultName: "CAI - ALCAZARES
+                { id: generateUniqueId(), name: "Jefe de Vigilancia", members: [], defaultName: "Jefe de Vigilancia" }, { id: generateUniqueId(), name: "Zona T", members: [], defaultName: "Zona T" }, { id: generateUniqueId(), name: "Jefe de información E-12 y Centinelas", members: [], defaultName: "Jefe de información E-12 y Centinelas" }, { id: generateUniqueId(), name: "Custodios E-12", members: [], defaultName: "Custodios E-12" }, { id: generateUniqueId(), name: "CAI - ALCAZARES (Información)", members: [], defaultName: "CAI - ALCAZARES (Información)" }, { id: generateUniqueId(), name: "CAI - MODELO (Información)", members: [], defaultName: "CAI - MODELO (Información)" }, { id: generateUniqueId(), name: "CAI - POLO CLUB (Información)", members: [], defaultName: "CAI - POLO CLUB (Información)" }, { id: generateUniqueId(), name: "CAI - RIONEGRO (Información)", members: [], defaultName: "CAI - RIONEGRO (Información)" }, { id: generateUniqueId(), name: "CAI - 7 DE AGOSTO (Información)", members: [], defaultName: "CAI - 7 DE AGOSTO (Información)" }, { id: generateUniqueId(), name: "Vacaciones", members: [], defaultName: "Vacaciones" }, { id: generateUniqueId(), name: "Excusado", members: [], defaultName: "Excusado" }, { id: generateUniqueId(), name: "Calamidad", members: [], defaultName: "Calamidad" }
+            ],
+            uiState: { collapsedCaiSections: {} }
+        };
+
+        let appData = {};
+        let modalCallback = null;
+
+        // --- Funciones para Modales ---
+        function showModal(title, message, type, defaultValue = '', callback) {
+            scrollPosition = window.scrollY;
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            modalCallback = callback;
+
+            modalInput.classList.add('hidden');
+            modalConfirmBtn.classList.add('hidden');
+            modalCancelBtn.classList.add('hidden');
+
+            if (type === 'prompt') {
+                modalInput.value = defaultValue;
+                modalInput.classList.remove('hidden');
+                modalConfirmBtn.textContent = 'Aceptar';
+                modalConfirmBtn.classList.remove('hidden');
+            } else if (type === 'confirm') {
+                modalConfirmBtn.textContent = 'Sí';
+                modalConfirmBtn.classList.remove('hidden');
+                modalCancelBtn.textContent = 'No';
+                modalCancelBtn.classList.remove('hidden');
+            }
+
+            customModalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            if (type === 'prompt') modalInput.focus();
+        }
+
+        function closeModal() {
+            customModalOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+            window.scrollTo(0, scrollPosition);
+        }
+
+        modalConfirmBtn.onclick = () => {
+            closeModal();
+            if (modalCallback) modalCallback(!modalInput.classList.contains('hidden') ? modalInput.value : true);
+        };
+        modalCancelBtn.onclick = () => {
+            closeModal();
+            if (modalCallback) modalCallback(false);
+        };
+        
+        function openSearchModal() {
+            scrollPosition = window.scrollY;
+            searchModalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            document.getElementById('personnelSearch').focus();
+            renderPersonnelSearch();
+        }
+
+        function closeSearchModal() {
+            searchModalOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+            window.scrollTo(0, scrollPosition);
+        }
+        
+        function openConfigModal() {
+            scrollPosition = window.scrollY;
+            configModalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeConfigModal() {
+            configModalOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+            window.scrollTo(0, scrollPosition);
+        }
+
+        function openReportModal() {
+            generateReport();
+            scrollPosition = window.scrollY;
+            reportModalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeReportModal() {
+            reportModalOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+            window.scrollTo(0, scrollPosition);
+        }
+
+
+        // --- Gestión de Datos ---
+        function loadData() {
+            const storedData = localStorage.getItem('policeReportData');
+            if (storedData) {
+                appData = JSON.parse(storedData);
+            } else {
+                appData = JSON.parse(JSON.stringify(defaultData));
+                appData.caiSections.forEach(cai => { appData.uiState.collapsedCaiSections[cai.id] = true; });
+            }
+            renderUI();
+        }
+        
+        function updatePersonnelDataFromDOM() {
+            const personnelText = document.getElementById('personnelTextarea').value;
+            const lines = personnelText.split('\n').map(line => line.trim()).filter(line => line !== '');
+            const currentPersonnelList = appData.allPersonnelLists[appData.currentPersonnelListId] || [];
+            const newPersonnelData = [];
+            const existingPersonnelMap = new Map(currentPersonnelList.map(p => [`${p.grade.toUpperCase()} ${p.name.toUpperCase()}`, p]));
+
+            lines.forEach(line => {
+                const parts = line.split(' ');
+                if (parts.length >= 2) {
+                    const grade = parts[0].trim();
+                    const name = parts.slice(1).join(' ').trim();
+                    const key = `${grade.toUpperCase()} ${name.toUpperCase()}`;
+                    if (existingPersonnelMap.has(key)) {
+                        const existingPerson = existingPersonnelMap.get(key);
+                        existingPerson.grade = grade;
+                        existingPerson.name = name;
+                        existingPerson.category = getPersonnelCategory(grade);
+                        newPersonnelData.push(existingPerson);
+                        existingPersonnelMap.delete(key);
+                    } else {
+                        newPersonnelData.push({ id: generateUniqueId(), grade: grade, name: name, assigned: false, category: getPersonnelCategory(grade) });
+                    }
+                }
+            });
+            appData.allPersonnelLists[appData.currentPersonnelListId] = newPersonnelData;
+        }
+
+        function commitAndRender() {
+            localStorage.setItem('policeReportData', JSON.stringify(appData));
+            renderUI();
+        }
+
+        function saveData() {
+            appData.commanderRank = document.getElementById('commanderRank').value;
+            appData.commanderName = document.getElementById('commanderName').value;
+            appData.importantServices = document.getElementById('importantServices').value.split('\n').filter(line => line.trim() !== '');
+            updatePersonnelDataFromDOM();
+            commitAndRender();
+        }
+
+        // --- Lógica de Renderizado de UI ---
+        function getGreeting() {
+            const hour = new Date().getHours();
+            if (hour >= 5 && hour < 12) return "buenos días";
+            if (hour >= 12 && hour < 19) return "buenas tardes";
+            return "buenas noches";
+        }
+
+        function createPersonnelSelect(selectedPersonId = '', onChangeCallback) {
+            const select = document.createElement('select');
+            select.className = 'input-field w-full';
+            select.innerHTML = '<option value="">-- Seleccionar Personal --</option>';
+            const currentPersonnelList = appData.allPersonnelLists[appData.currentPersonnelListId];
+            const filteredPersonnel = currentPersonnelList.filter(p => !p.assigned || p.id === selectedPersonId);
+            filteredPersonnel.sort((a, b) => a.grade.localeCompare(b.grade) || a.name.localeCompare(b.name));
+            filteredPersonnel.forEach(person => {
+                const option = document.createElement('option');
+                option.value = person.id;
+                option.textContent = `${person.grade} ${person.name}`;
+                if (person.id === selectedPersonId) option.selected = true;
+                select.appendChild(option);
+            });
+            select.onchange = onChangeCallback;
+            return select;
+        }
+
+        function updatePersonnelAssignedStatus() {
+            if (!appData.allPersonnelLists?.[appData.currentPersonnelListId]) return;
+            appData.allPersonnelLists[appData.currentPersonnelListId].forEach(p => p.assigned = false);
+            appData.caiSections.forEach(cai => cai.teams.forEach(team => team.members.forEach(memberId => {
+                const person = appData.allPersonnelLists[appData.currentPersonnelListId].find(p => p.id === memberId);
+                if (person) person.assigned = true;
+            })));
+            appData.otherGroups.forEach(group => group.members.forEach(memberId => {
+                const person = appData.allPersonnelLists[appData.currentPersonnelListId].find(p => p.id === memberId);
+                if (person) person.assigned = true;
+            }));
+        }
+
+        // --- Renderizado de Componentes Específicos (CAI, Grupos, etc.) ---
+        
+        function renderCaiSections() {
+            const container = document.getElementById('caiSectionsContainer');
+            container.innerHTML = '';
+            appData.caiSections.forEach(cai => {
+                const caiDiv = document.createElement('div');
+                caiDiv.id = `cai-${cai.id}`;
+                caiDiv.className = 'card mb-6';
+                caiDiv.innerHTML = `
+                    <div class="cai-section-title" onclick="toggleCaiSection('${cai.id}')">
+                        <input type="text" value="${cai.name}" class="font-semibold input-field flex-grow mr-2 mb-2 sm:mb-0" onchange="updateCaiName('${cai.id}', this.value)" onclick="event.stopPropagation();">
+                        <i id="caiToggleIcon-${cai.id}" class="fas fa-chevron-up ml-2"></i>
+                    </div>
+                    <div id="caiContent-${cai.id}">
+                        <div id="cai-teams-${cai.id}"></div>
+                        <button onclick="addCaiTeam('${cai.id}')" class="btn btn-secondary btn-sm mt-4"><i class="fas fa-plus"></i></button>
+                        <div id="cai-info-${cai.id}" class="mt-6"></div>
+                    </div>`;
+                container.appendChild(caiDiv);
+                renderCaiTeams(cai.id);
+                renderCaiInfoSection(cai.id, cai.name);
+                applyCaiSectionState(cai.id);
+            });
+        }
+
+        function renderCaiInfoSection(caiId, caiName) {
+            const container = document.getElementById(`cai-info-${caiId}`);
+            if (!container) return;
+            const infoGroupName = `${caiName} (Información)`;
+            const infoGroup = appData.otherGroups.find(g => g.name === infoGroupName);
+            if (infoGroup) {
+                container.innerHTML = `
+                    <h3 class="subsection-title">Información de ${caiName.replace('CAI - ', '')}</h3>
+                    <div id="cai-info-members-container-${infoGroup.id}" class="mb-3"></div>
+                    <button onclick="addMemberToOtherGroup('${infoGroup.id}', 'cai-info-members-container-')" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i></button>`;
+                renderOtherGroupMembers(infoGroup.id, 'cai-info-members-container-');
+            } else {
+                container.innerHTML = `<p class="text-gray-500 text-sm">No hay sección de información para este CAI.</p>`;
+            }
+        }
+
+        function renderCaiTeams(caiId) {
+            const cai = appData.caiSections.find(c => c.id === caiId);
+            if (!cai) return;
+            const container = document.getElementById(`cai-teams-${cai.id}`);
+            container.innerHTML = '';
+            cai.teams.forEach(team => {
+                const teamDiv = document.createElement('div');
+                teamDiv.className = 'card bg-white p-4 mb-3';
+                teamDiv.innerHTML = `
+                    <div class="flex justify-between items-center gap-2 mb-3">
+                        <input type="text" value="${team.name}" class="font-semibold input-field flex-grow" onchange="updateCaiTeamName('${cai.id}', '${team.id}', this.value)">
+                        <button onclick="deleteCaiTeam('${cai.id}', '${team.id}')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <div id="cai-${cai.id}-team-${team.id}-member1" class="flex-1"></div>
+                        <div id="cai-${cai.id}-team-${team.id}-member2" class="flex-1"></div>
+                    </div>`;
+                container.appendChild(teamDiv);
+                document.getElementById(`cai-${cai.id}-team-${team.id}-member1`).appendChild(createPersonnelSelect(team.members[0], (e) => updateCaiTeamMember(cai.id, team.id, 0, e.target.value)));
+                document.getElementById(`cai-${cai.id}-team-${team.id}-member2`).appendChild(createPersonnelSelect(team.members[1], (e) => updateCaiTeamMember(cai.id, team.id, 1, e.target.value)));
+            });
+        }
+
+        function renderOtherGroups() {
+            const container = document.getElementById('otherGroupsContainer');
+            container.innerHTML = '';
+            const filteredOtherGroups = appData.otherGroups.filter(g => !g.name.includes("(Información)"));
+            filteredOtherGroups.forEach(group => {
+                const groupDiv = document.createElement('div');
+                groupDiv.id = `group-${group.id}`;
+                groupDiv.className = 'card mb-6';
+                groupDiv.innerHTML = `
+                    <div class="flex justify-between items-center gap-2 mb-4">
+                        <input type="text" value="${group.name}" class="subsection-title input-field flex-grow" onchange="updateOtherGroupName('${group.id}', this.value)">
+                        <button onclick="deleteOtherGroup('${group.id}')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+                    </div>
+                    <div id="group-members-container-${group.id}" class="mb-3"></div>
+                    <button onclick="addMemberToOtherGroup('${group.id}', 'group-members-container-')" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i></button>`;
+                container.appendChild(groupDiv);
+                renderOtherGroupMembers(group.id, 'group-members-container-');
+            });
+        }
+
+        function renderOtherGroupMembers(groupId, containerIdPrefix) {
+            const group = appData.otherGroups.find(g => g.id === groupId);
+            if (!group) return;
+            const container = document.getElementById(`${containerIdPrefix}${groupId}`);
+            if (!container) return;
+            container.innerHTML = '';
+            group.members.forEach((memberId, index) => {
+                const memberDiv = document.createElement('div');
+                memberDiv.className = 'flex items-center gap-2 mb-2';
+                memberDiv.appendChild(createPersonnelSelect(memberId, (e) => updateOtherGroupMember(group.id, index, e.target.value)));
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn btn-danger btn-sm rounded-full';
+                deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+                deleteBtn.onclick = () => deleteMemberFromOtherGroup(group.id, index);
+                memberDiv.appendChild(deleteBtn);
+                container.appendChild(memberDiv);
+            });
+            if (group.members.length === 0) {
+                const memberDiv = document.createElement('div');
+                memberDiv.className = 'flex items-center gap-2 mb-2';
+                memberDiv.appendChild(createPersonnelSelect('', (e) => {
+                    if (e.target.value) { updatePersonnelDataFromDOM(); group.members.push(e.target.value); commitAndRender(); }
+                }));
+                container.appendChild(memberDiv);
+            }
+        }
+
+        function renderPersonnelSearch() {
+            const searchInput = document.getElementById('personnelSearch');
+            const resultsContainer = document.getElementById('personnelSearchResults');
+            const searchTerm = searchInput.value.toLowerCase().trim();
+
+            resultsContainer.innerHTML = '';
+            const currentPersonnelList = appData.allPersonnelLists[appData.currentPersonnelListId];
+            if (!currentPersonnelList) return;
+            
+            const results = searchTerm ? currentPersonnelList.filter(p => p.name.toLowerCase().includes(searchTerm) || p.grade.toLowerCase().includes(searchTerm)) : currentPersonnelList;
+
+            if (results.length === 0) {
+                resultsContainer.innerHTML = '<p class="text-gray-500 text-center p-4">No se encontraron funcionarios.</p>';
+                return;
+            }
+
+            results.forEach(person => {
+                const assignment = findAssignment(person.id);
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'search-result-item';
+                resultDiv.innerHTML = `
+                    <div class="info">
+                        <strong>${person.grade} ${person.name}</strong>
+                        <div class="status ${assignment ? 'status-assigned' : 'status-free'}">${assignment ? `Asignado a: ${assignment}` : 'Disponible'}</div>
+                    </div>
+                    ${assignment ? `<button onclick="unassignPersonnel('${person.id}')" class="btn btn-danger btn-sm">Desasignar</button>` : ''}`;
+                resultsContainer.appendChild(resultDiv);
+            });
+        }
+
+        // --- Lógica de Interacción del Usuario ---
+        function updateCaiName(caiId, newName) { updatePersonnelDataFromDOM(); const cai = appData.caiSections.find(c => c.id === caiId); if (cai) { cai.name = newName.trim(); commitAndRender(); } }
+        function addCaiSection() { updatePersonnelDataFromDOM(); showModal('Añadir Sección CAI', 'Ingrese el nombre de la nueva sección CAI (ej. CAI - NUEVO):', 'prompt', '', (newName) => { if (newName) { const newId = generateUniqueId(); appData.caiSections.push({ id: newId, name: newName.trim(), teams: [] }); appData.uiState.collapsedCaiSections[newId] = true; appData.otherGroups.push({ id: generateUniqueId(), name: `${newName.trim()} (Información)`, members: [] }); commitAndRender(); } }); }
+        function deleteCaiSection(caiId) { updatePersonnelDataFromDOM(); showModal('Eliminar Sección CAI', '¿Seguro que quieres eliminar esta sección y sus equipos?', 'confirm', '', (confirmed) => { if (confirmed) { const cai = appData.caiSections.find(c => c.id === caiId); if (cai) appData.otherGroups = appData.otherGroups.filter(g => g.name !== `${cai.name} (Información)`); appData.caiSections = appData.caiSections.filter(c => c.id !== caiId); delete appData.uiState.collapsedCaiSections[caiId]; commitAndRender(); } }); }
+        function updateCaiTeamName(caiId, teamId, newName) { updatePersonnelDataFromDOM(); const team = appData.caiSections.find(c => c.id === caiId)?.teams.find(t => t.id === teamId); if (team) { team.name = newName.trim(); commitAndRender(); } }
+        function addCaiTeam(caiId) { updatePersonnelDataFromDOM(); const cai = appData.caiSections.find(c => c.id === caiId); if (cai) { showModal('Añadir Equipo', 'Ingrese el nombre del nuevo equipo (ej. 17-18):', 'prompt', '', (newName) => { if (newName) { cai.teams.push({ id: generateUniqueId(), name: newName.trim(), members: [] }); commitAndRender(); } }); } }
+        function deleteCaiTeam(caiId, teamId) { updatePersonnelDataFromDOM(); showModal('Eliminar Equipo', '¿Seguro que quieres eliminar este equipo?', 'confirm', '', (confirmed) => { if (confirmed) { const cai = appData.caiSections.find(c => c.id === caiId); if (cai) { cai.teams = cai.teams.filter(t => t.id !== teamId); commitAndRender(); } } }); }
+        function updateCaiTeamMember(caiId, teamId, memberIndex, personId) { updatePersonnelDataFromDOM(); const team = appData.caiSections.find(c => c.id === caiId)?.teams.find(t => t.id === teamId); if (team) { if (personId && team.members.includes(personId) && team.members[1 - memberIndex] === personId) { commitAndRender(); return; } team.members[memberIndex] = personId; commitAndRender(); } }
+        function updateOtherGroupName(groupId, newName) { updatePersonnelDataFromDOM(); const group = appData.otherGroups.find(g => g.id === groupId); if (group) { group.name = newName.trim(); commitAndRender(); } }
+        function addOtherGroup() { updatePersonnelDataFromDOM(); const input = document.getElementById('newGroupName'); const newName = input.value.trim(); if (newName) { appData.otherGroups.push({ id: generateUniqueId(), name: newName, members: [] }); input.value = ''; commitAndRender(); } }
+        function deleteOtherGroup(groupId) { updatePersonnelDataFromDOM(); showModal('Eliminar Grupo', '¿Seguro que quieres eliminar este grupo?', 'confirm', '', (confirmed) => { if (confirmed) { appData.otherGroups = appData.otherGroups.filter(g => g.id !== groupId); commitAndRender(); } }); }
+        function addMemberToOtherGroup(groupId) { updatePersonnelDataFromDOM(); const group = appData.otherGroups.find(g => g.id === groupId); if (group) { group.members.push(''); commitAndRender(); } }
+        function updateOtherGroupMember(groupId, memberIndex, personId) { updatePersonnelDataFromDOM(); const group = appData.otherGroups.find(g => g.id === groupId); if (group) { group.members[memberIndex] = personId; commitAndRender(); } }
+        function deleteMemberFromOtherGroup(groupId, memberIndex) { updatePersonnelDataFromDOM(); const group = appData.otherGroups.find(g => g.id === groupId); if (group) { group.members.splice(memberIndex, 1); commitAndRender(); } }
+        
+        function findAssignment(personId) {
+            for (const cai of appData.caiSections) { for (const team of cai.teams) { if (team.members.includes(personId)) return `${cai.name} / ${team.name}`; } }
+            for (const group of appData.otherGroups) { if (group.members.includes(personId)) return `Grupo: ${group.name}`; }
+            return null;
+        }
+
+        function unassignPersonnel(personId) {
+            updatePersonnelDataFromDOM();
+            let wasUnassigned = false;
+            appData.caiSections.forEach(cai => cai.teams.forEach(team => { const index = team.members.indexOf(personId); if (index > -1) { team.members.splice(index, 1, undefined); wasUnassigned = true; } }));
+            appData.otherGroups.forEach(group => { const index = group.members.indexOf(personId); if (index > -1) { group.members.splice(index, 1); wasUnassigned = true; } });
+            if (wasUnassigned) {
+                commitAndRender();
+                renderPersonnelSearch();
+            }
+        }
+
+        // --- Lógica de Visibilidad y Estado de UI ---
+        function toggleCaiSection(caiId) {
+            const content = document.getElementById(`caiContent-${caiId}`);
+            const icon = document.getElementById(`caiToggleIcon-${caiId}`);
+            if (!content || !icon) return;
+            const isCollapsed = content.classList.toggle('hidden');
+            appData.uiState.collapsedCaiSections[caiId] = isCollapsed;
+            localStorage.setItem('policeReportData', JSON.stringify(appData));
+            icon.classList.toggle('fa-chevron-up', !isCollapsed);
+            icon.classList.toggle('fa-chevron-down', isCollapsed);
+        }
+
+        function applyCaiSectionState(caiId) {
+            const content = document.getElementById(`caiContent-${caiId}`);
+            const icon = document.getElementById(`caiToggleIcon-${caiId}`);
+            if (!content || !icon) return;
+            const isCollapsed = appData.uiState.collapsedCaiSections[caiId] === true;
+            content.classList.toggle('hidden', isCollapsed);
+            icon.classList.toggle('fa-chevron-up', !isCollapsed);
+            icon.classList.toggle('fa-chevron-down', isCollapsed);
+        }
+
+        function switchPersonnelList(listId) {
+            saveData();
+            appData.currentPersonnelListId = listId;
+            commitAndRender();
+        }
+        
+        // --- Renderizado Principal y Generación de Informe ---
+        function renderUI() {
+            updatePersonnelAssignedStatus();
+            document.getElementById('commanderRank').value = appData.commanderRank;
+            document.getElementById('commanderName').value = appData.commanderName;
+            document.getElementById('importantServices').value = appData.importantServices.join('\n');
+            document.getElementById('personnelTextarea').value = appData.allPersonnelLists[appData.currentPersonnelListId].map(p => `${p.grade} ${p.name}`).join('\n');
+            document.querySelector(`input[name="personnelListSelector"][value="${appData.currentPersonnelListId}"]`).checked = true;
+            renderCaiSections();
+            renderOtherGroups();
+        }
+
+        // **MODIFICADO**: Función de generación de informe
+        function generateReport() {
+            const greeting = getGreeting();
+            const { commanderRank, commanderName, importantServices } = appData;
+            const turno = getTurno();
+            const currentPersonnelList = appData.allPersonnelLists[appData.currentPersonnelListId];
+            
+            let oficialesTotalCount = 0;
+            let suboficialesTotalCount = 0;
+            let patrullerosTotalCount = 0;
+
+            const assignedPersonnelIds = new Set();
+
+            // Recopilar IDs únicos de todo el personal asignado a servicios contables
+            appData.caiSections.forEach(cai => {
+                cai.teams.forEach(team => team.members.forEach(id => {
+                    if (id) assignedPersonnelIds.add(id);
+                }));
+            });
+
+            appData.otherGroups.forEach(group => {
+                const isCountableGroup = group.name === "Jefe de Vigilancia" || 
+                                         group.name === "Jefe de información E-12 y Centinelas" || 
+                                         group.name === "Zona T" || 
+                                         group.name.includes("(Información)");
+                if (isCountableGroup) {
+                    group.members.forEach(id => {
+                        if (id) assignedPersonnelIds.add(id);
+                    });
+                }
+            });
+
+            // Iterar sobre los IDs únicos para contar una sola vez
+            assignedPersonnelIds.forEach(id => {
+                const person = currentPersonnelList.find(p => p.id === id);
+                if (person) {
+                    if (person.category === "Oficiales") oficialesTotalCount++;
+                    else if (person.category === "Suboficiales") suboficialesTotalCount++;
+                    else if (person.category === "Patrulleros") patrullerosTotalCount++;
+                }
+            });
+
+            let report = `Dios y Patria mi Mayor ${greeting}, respetuosamente me permito reportar el personal para el ${turno}, así:\n\n`;
+            
+            // Parte general (único conteo)
+            report += `*Parte =(${oficialesTotalCount}-${suboficialesTotalCount}-${patrullerosTotalCount})*\n\n`;
+
+            let totalZones = 0;
+            appData.caiSections.forEach(cai => cai.teams.forEach(team => { 
+                const member1 = currentPersonnelList.find(p => p.id === team.members[0]);
+                const member2 = currentPersonnelList.find(p => p.id === team.members[1]);
+                if (member1 && member2) totalZones++; 
+            }));
+            report += `Total: *(${totalZones})* Zonas de Atención asignados al Nuevo Modelo de Servicio de Policía en la Estación Barrios Unidos, así:\n\n`;
+
+            appData.caiSections.forEach(cai => {
+                report += `*${toTitleCase(cai.name)}*\n`;
+                cai.teams.forEach(team => {
+                    const members = team.members.map(id => {
+                        const p = currentPersonnelList.find(p => p.id === id);
+                        // Aplicar formato de nombre
+                        return p ? `${p.grade.toUpperCase()} ${toTitleCase(p.name)}` : 'Personal no asignado';
+                    }).join(' / ');
+                    report += `🚔 ${team.name} ${members}\n`;
+                });
+                report += '\n';
+            });
+            
+            const processGroup = (groupName, title) => {
+                const group = appData.otherGroups.find(g => g.name === groupName);
+                let text = '';
+                if (group && group.members.length > 0) {
+                    text += `*${toTitleCase(title)}*\n`;
+                    group.members.forEach(id => {
+                        const p = currentPersonnelList.find(p => p.id === id);
+                        // Aplicar formato de nombre
+                        if (p) text += `${p.grade.toUpperCase()} ${toTitleCase(p.name)}\n`;
+                    });
+                    text += '\n';
+                }
+                return text;
+            };
+
+            report += processGroup("Zona T", "Zona T");
+            report += processGroup("Jefe de Vigilancia", "Jefe de Vigilancia");
+
+            if (importantServices.length > 0) {
+                report += `*Servicios de Importancia*\n\n`;
+                importantServices.forEach(service => { report += `📍${toTitleCase(service)}\n`; });
+                report += '\n';
+            }
+
+            report += processGroup("Jefe de información E-12 y Centinelas", "Jefe de información E-12 y Centinelas");
+
+            const custodiosGroup = appData.otherGroups.find(g => g.name === "Custodios E-12");
+            if (custodiosGroup && custodiosGroup.members.length > 0) {
+                let custodioCounts = { Oficiales: 0, Suboficiales: 0, Patrulleros: 0 };
+                report += `*Custodios E-12*\n\n`;
+                custodiosGroup.members.forEach(id => {
+                    const p = currentPersonnelList.find(p => p.id === id);
+                    if (p) {
+                         if (p.category === "Oficiales") custodioCounts.Oficiales++;
+                         else if (p.category === "Suboficiales") custodioCounts.Suboficiales++;
+                         else if (p.category === "Patrulleros") custodioCounts.Patrulleros++;
+                    }
+                });
+                report += `Parte: (${custodioCounts.Oficiales}-${custodioCounts.Suboficiales}-${custodioCounts.Patrulleros})\n\n`;
+                custodiosGroup.members.forEach(id => {
+                    const p = currentPersonnelList.find(p => p.id === id);
+                    // Aplicar formato de nombre
+                    if (p) report += `${p.grade.toUpperCase()}. ${toTitleCase(p.name)}\n`;
+                });
+                report += '\n';
+            }
+
+            const caiInfoGroups = appData.otherGroups.filter(g => g.name.includes("(Información)"));
+            if (caiInfoGroups.some(g => g.members.length > 0)) {
+                report += `*Información de CAI*\n\n`;
+                caiInfoGroups.forEach(group => {
+                    if (group.members.length > 0) {
+                        group.members.forEach(id => {
+                            const p = currentPersonnelList.find(p => p.id === id);
+                            // Aplicar formato de nombre
+                            if (p) report += `*${toTitleCase(group.name.replace(' (Información)', ''))}*\n👮🏻‍♂️ ${p.grade.toUpperCase()}. ${toTitleCase(p.name)}\n\n`;
+                        });
+                    }
+                });
+            }
+
+            const defaultNovedades = ["Vacaciones", "Excusado", "Calamidad"];
+            const novedadesGroups = appData.otherGroups.filter(g => defaultNovedades.includes(g.name) || (!g.defaultName && !g.name.includes("(Información)")));
+            if (novedadesGroups.some(g => g.members.length > 0)) {
+                report += `*📌NOVEDADES*\n\n`;
+                novedadesGroups.forEach(group => {
+                    if (group.members.length > 0) {
+                        report += `*${toTitleCase(group.name)}*\n\n`;
+                        group.members.forEach(id => {
+                            const p = currentPersonnelList.find(p => p.id === id);
+                            // Aplicar formato de nombre
+                            if (p) report += `${p.grade.toUpperCase()} ${toTitleCase(p.name)}\n`;
+                        });
+                        report += '\n';
+                    }
+                });
+            }
+
+            report += `${toTitleCase(commanderRank)} ${toTitleCase(commanderName)}\n*Comandante Estación de Policía Barrios Unidos*\n`;
+            document.getElementById('reportOutput').textContent = report;
+        }
+        
+        function getTurno() {
+            const hour = new Date().getHours();
+            if (hour >= 5 && hour <= 7) return "segundo turno";
+            if (hour >= 20 && hour <= 22) return "primer turno";
+            if (hour >= 12 && hour <= 14) return "tercer turno";
+            return "segundo turno";
+        }
+
+        function copyReport() {
+            const reportText = document.getElementById('reportOutput').textContent;
+            const textarea = document.createElement('textarea');
+            textarea.value = reportText;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            const feedback = document.getElementById('copyFeedback');
+            feedback.classList.add('show');
+            setTimeout(() => { feedback.classList.remove('show'); }, 2000);
+        }
+
+        // Inicializar la aplicación
+        window.onload = loadData;
+    </script>
+</body>
+</html>
