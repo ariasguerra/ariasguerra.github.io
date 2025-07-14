@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
+    <title>Generador de Informe Policial</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome CDN para íconos -->
@@ -106,6 +106,8 @@
         .btn-secondary:hover { background-color: #4b5563; transform: translateY(-1px); }
         .btn-danger { background-color: #ef4444; color: #ffffff; }
         .btn-danger:hover { background-color: #dc2626; transform: translateY(-1px); }
+        .btn-success { background-color: #22c55e; color: #ffffff; }
+        .btn-success:hover { background-color: #16a34a; }
 
         /* Estilos para tarjetas de contenido */
         .card {
@@ -226,6 +228,50 @@
         }
         .copy-feedback.show { opacity: 1; visibility: visible; }
 
+        /* --- ESTILOS PARA SELECTOR CON BÚSQUEDA --- */
+        .search-select-container {
+            position: relative;
+            width: 100%;
+        }
+        .search-select-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border: 1px solid #d1d5db;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1010;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .search-select-option {
+            padding: 0.6rem 0.8rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .search-select-option:hover {
+            background-color: #f0f2f5;
+        }
+        .search-select-clear-btn {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0 0.25rem;
+        }
+        .search-select-clear-btn:hover {
+            color: #374151;
+        }
+
         /* Ajustes para pantallas más grandes (Desktop) */
         @media (min-width: 640px) {
             body { padding: 2rem; }
@@ -249,19 +295,28 @@
 
     <!-- Botones Flotantes -->
     <div style="position: fixed; top: 50%; left: 20px; transform: translateY(-50%); z-index: 999;" class="flex flex-col gap-3">
-        <button id="floatingConfigBtn" onclick="openConfigModal()" class="btn btn-primary btn-float shadow-lg">
+        <button id="floatingConfigBtn" onclick="openConfigModal()" class="btn btn-primary btn-float shadow-lg" title="Configuración">
             <i class="fas fa-cog"></i>
         </button>
-        <button id="floatingSearchBtn" onclick="openSearchModal()" class="btn btn-primary btn-float shadow-lg">
+        <button id="floatingSearchBtn" onclick="openSearchModal()" class="btn btn-primary btn-float shadow-lg" title="Buscar Personal">
             <i class="fas fa-search"></i>
         </button>
-        <button id="floatingReportBtn" onclick="openReportModal()" class="btn btn-primary btn-float shadow-lg">
+        <button id="floatingReportBtn" onclick="openReportModal()" class="btn btn-primary btn-float shadow-lg" title="Generar Informe">
             <i class="fas fa-file-alt"></i>
         </button>
     </div>
 
     <div class="container">
-        <h1 class="text-3xl font-extrabold text-center text-gray-800 mb-8"></h1>
+        <!-- **MODIFICADO**: Botones de Importar/Exportar movidos aquí -->
+        <div class="flex justify-end items-center mb-4 gap-3">
+            <button onclick="downloadData()" class="btn btn-success" title="Descargar Datos">
+                <i class="fas fa-download"></i>
+            </button>
+            <label for="uploadFile" class="btn btn-secondary cursor-pointer" title="Cargar Datos">
+                <i class="fas fa-upload"></i>
+            </label>
+            <input type="file" id="uploadFile" class="hidden" accept=".json" onchange="handleFileUpload(event)">
+       </div>
 
         <!-- Sección de Equipos y Grupos -->
         <div class="mb-8 p-6 bg-green-50 rounded-lg shadow-inner">
@@ -420,7 +475,7 @@
             return "Desconocido";
         }
 
-        // **NUEVO**: Función para convertir un string a "Formato de Título"
+        // Función para convertir un string a "Formato de Título"
         function toTitleCase(str) {
             if (!str || typeof str !== 'string') return '';
             return str.toLowerCase().split(' ').map(word => {
@@ -593,22 +648,75 @@
             return "buenas noches";
         }
 
-        function createPersonnelSelect(selectedPersonId = '', onChangeCallback) {
-            const select = document.createElement('select');
-            select.className = 'input-field w-full';
-            select.innerHTML = '<option value="">-- Seleccionar Personal --</option>';
+        function createSearchableSelect(selectedPersonId = '', onChangeCallback) {
+            const container = document.createElement('div');
+            container.className = 'search-select-container';
+
             const currentPersonnelList = appData.allPersonnelLists[appData.currentPersonnelListId];
-            const filteredPersonnel = currentPersonnelList.filter(p => !p.assigned || p.id === selectedPersonId);
-            filteredPersonnel.sort((a, b) => a.grade.localeCompare(b.grade) || a.name.localeCompare(b.name));
-            filteredPersonnel.forEach(person => {
-                const option = document.createElement('option');
-                option.value = person.id;
-                option.textContent = `${person.grade} ${person.name}`;
-                if (person.id === selectedPersonId) option.selected = true;
-                select.appendChild(option);
-            });
-            select.onchange = onChangeCallback;
-            return select;
+            const selectedPerson = currentPersonnelList.find(p => p.id === selectedPersonId);
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'input-field';
+            input.value = selectedPerson ? `${selectedPerson.grade.toUpperCase()} ${selectedPerson.name}` : '';
+            input.placeholder = '-- Buscar y seleccionar --';
+            input.autocomplete = 'off';
+
+            const dropdown = document.createElement('div');
+            dropdown.className = 'search-select-dropdown';
+            
+            const availablePersonnel = currentPersonnelList.filter(p => !p.assigned || p.id === selectedPersonId);
+            availablePersonnel.sort((a, b) => a.grade.localeCompare(b.grade) || a.name.localeCompare(b.name));
+
+            if (availablePersonnel.length === 0) {
+                const noOpt = document.createElement('div');
+                noOpt.className = 'search-select-option text-gray-500';
+                noOpt.textContent = 'No hay personal disponible';
+                dropdown.appendChild(noOpt);
+            } else {
+                availablePersonnel.forEach(person => {
+                    const option = document.createElement('div');
+                    option.className = 'search-select-option';
+                    option.textContent = `${person.grade.toUpperCase()} ${person.name}`;
+                    option.dataset.id = person.id;
+                    
+                    option.onclick = () => {
+                        onChangeCallback(person.id);
+                    };
+                    dropdown.appendChild(option);
+                });
+            }
+
+            input.onfocus = () => {
+                document.querySelectorAll('.search-select-dropdown').forEach(d => d.style.display = 'none');
+                dropdown.style.display = 'block';
+                input.select();
+            };
+
+            input.oninput = () => {
+                const searchTerm = input.value.toLowerCase();
+                dropdown.querySelectorAll('.search-select-option').forEach(opt => {
+                    const text = opt.textContent.toLowerCase();
+                    opt.style.display = text.includes(searchTerm) ? 'block' : 'none';
+                });
+            };
+            
+            container.appendChild(input);
+            container.appendChild(dropdown);
+
+            if (selectedPerson) {
+                const clearBtn = document.createElement('button');
+                clearBtn.innerHTML = '&times;';
+                clearBtn.className = 'search-select-clear-btn';
+                clearBtn.title = 'Desasignar';
+                clearBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    onChangeCallback('');
+                };
+                container.appendChild(clearBtn);
+            }
+            
+            return container;
         }
 
         function updatePersonnelAssignedStatus() {
@@ -659,8 +767,8 @@
                 container.innerHTML = `
                     <h3 class="subsection-title">Información de ${caiName.replace('CAI - ', '')}</h3>
                     <div id="cai-info-members-container-${infoGroup.id}" class="mb-3"></div>
-                    <button onclick="addMemberToOtherGroup('${infoGroup.id}', 'cai-info-members-container-')" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i></button>`;
-                renderOtherGroupMembers(infoGroup.id, 'cai-info-members-container-');
+                    <button onclick="addMemberToOtherGroup('${infoGroup.id}')" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i></button>`;
+                renderOtherGroupMembers(infoGroup.id);
             } else {
                 container.innerHTML = `<p class="text-gray-500 text-sm">No hay sección de información para este CAI.</p>`;
             }
@@ -684,8 +792,8 @@
                         <div id="cai-${cai.id}-team-${team.id}-member2" class="flex-1"></div>
                     </div>`;
                 container.appendChild(teamDiv);
-                document.getElementById(`cai-${cai.id}-team-${team.id}-member1`).appendChild(createPersonnelSelect(team.members[0], (e) => updateCaiTeamMember(cai.id, team.id, 0, e.target.value)));
-                document.getElementById(`cai-${cai.id}-team-${team.id}-member2`).appendChild(createPersonnelSelect(team.members[1], (e) => updateCaiTeamMember(cai.id, team.id, 1, e.target.value)));
+                document.getElementById(`cai-${cai.id}-team-${team.id}-member1`).appendChild(createSearchableSelect(team.members[0], (personId) => updateCaiTeamMember(cai.id, team.id, 0, personId)));
+                document.getElementById(`cai-${cai.id}-team-${team.id}-member2`).appendChild(createSearchableSelect(team.members[1], (personId) => updateCaiTeamMember(cai.id, team.id, 1, personId)));
             });
         }
 
@@ -703,37 +811,25 @@
                         <button onclick="deleteOtherGroup('${group.id}')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
                     </div>
                     <div id="group-members-container-${group.id}" class="mb-3"></div>
-                    <button onclick="addMemberToOtherGroup('${group.id}', 'group-members-container-')" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i></button>`;
+                    <button onclick="addMemberToOtherGroup('${group.id}')" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i></button>`;
                 container.appendChild(groupDiv);
-                renderOtherGroupMembers(group.id, 'group-members-container-');
+                renderOtherGroupMembers(group.id);
             });
         }
 
-        function renderOtherGroupMembers(groupId, containerIdPrefix) {
+        function renderOtherGroupMembers(groupId) {
             const group = appData.otherGroups.find(g => g.id === groupId);
             if (!group) return;
-            const container = document.getElementById(`${containerIdPrefix}${groupId}`);
+            const containerId = group.name.includes("(Información)") ? `cai-info-members-container-${groupId}` : `group-members-container-${groupId}`;
+            const container = document.getElementById(containerId);
             if (!container) return;
             container.innerHTML = '';
             group.members.forEach((memberId, index) => {
                 const memberDiv = document.createElement('div');
-                memberDiv.className = 'flex items-center gap-2 mb-2';
-                memberDiv.appendChild(createPersonnelSelect(memberId, (e) => updateOtherGroupMember(group.id, index, e.target.value)));
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'btn btn-danger btn-sm rounded-full';
-                deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
-                deleteBtn.onclick = () => deleteMemberFromOtherGroup(group.id, index);
-                memberDiv.appendChild(deleteBtn);
+                memberDiv.className = 'mb-2';
+                memberDiv.appendChild(createSearchableSelect(memberId, (personId) => updateOtherGroupMember(group.id, index, personId)));
                 container.appendChild(memberDiv);
             });
-            if (group.members.length === 0) {
-                const memberDiv = document.createElement('div');
-                memberDiv.className = 'flex items-center gap-2 mb-2';
-                memberDiv.appendChild(createPersonnelSelect('', (e) => {
-                    if (e.target.value) { updatePersonnelDataFromDOM(); group.members.push(e.target.value); commitAndRender(); }
-                }));
-                container.appendChild(memberDiv);
-            }
         }
 
         function renderPersonnelSearch() {
@@ -777,10 +873,29 @@
         function updateOtherGroupName(groupId, newName) { updatePersonnelDataFromDOM(); const group = appData.otherGroups.find(g => g.id === groupId); if (group) { group.name = newName.trim(); commitAndRender(); } }
         function addOtherGroup() { updatePersonnelDataFromDOM(); const input = document.getElementById('newGroupName'); const newName = input.value.trim(); if (newName) { appData.otherGroups.push({ id: generateUniqueId(), name: newName, members: [] }); input.value = ''; commitAndRender(); } }
         function deleteOtherGroup(groupId) { updatePersonnelDataFromDOM(); showModal('Eliminar Grupo', '¿Seguro que quieres eliminar este grupo?', 'confirm', '', (confirmed) => { if (confirmed) { appData.otherGroups = appData.otherGroups.filter(g => g.id !== groupId); commitAndRender(); } }); }
-        function addMemberToOtherGroup(groupId) { updatePersonnelDataFromDOM(); const group = appData.otherGroups.find(g => g.id === groupId); if (group) { group.members.push(''); commitAndRender(); } }
-        function updateOtherGroupMember(groupId, memberIndex, personId) { updatePersonnelDataFromDOM(); const group = appData.otherGroups.find(g => g.id === groupId); if (group) { group.members[memberIndex] = personId; commitAndRender(); } }
-        function deleteMemberFromOtherGroup(groupId, memberIndex) { updatePersonnelDataFromDOM(); const group = appData.otherGroups.find(g => g.id === groupId); if (group) { group.members.splice(memberIndex, 1); commitAndRender(); } }
         
+        function addMemberToOtherGroup(groupId) { 
+            updatePersonnelDataFromDOM(); 
+            const group = appData.otherGroups.find(g => g.id === groupId); 
+            if (group) { 
+                group.members.push(''); 
+                commitAndRender(); 
+            } 
+        }
+        
+        function updateOtherGroupMember(groupId, memberIndex, personId) { 
+            updatePersonnelDataFromDOM(); 
+            const group = appData.otherGroups.find(g => g.id === groupId); 
+            if (group) { 
+                if(group.members.length <= memberIndex) {
+                    group.members.push(personId);
+                } else {
+                    group.members[memberIndex] = personId;
+                }
+                commitAndRender(); 
+            } 
+        }
+
         function findAssignment(personId) {
             for (const cai of appData.caiSections) { for (const team of cai.teams) { if (team.members.includes(personId)) return `${cai.name} / ${team.name}`; } }
             for (const group of appData.otherGroups) { if (group.members.includes(personId)) return `Grupo: ${group.name}`; }
@@ -790,8 +905,19 @@
         function unassignPersonnel(personId) {
             updatePersonnelDataFromDOM();
             let wasUnassigned = false;
-            appData.caiSections.forEach(cai => cai.teams.forEach(team => { const index = team.members.indexOf(personId); if (index > -1) { team.members.splice(index, 1, undefined); wasUnassigned = true; } }));
-            appData.otherGroups.forEach(group => { const index = group.members.indexOf(personId); if (index > -1) { group.members.splice(index, 1); wasUnassigned = true; } });
+            appData.caiSections.forEach(cai => cai.teams.forEach(team => { 
+                for(let i=0; i < team.members.length; i++){
+                    if(team.members[i] === personId){
+                        team.members[i] = '';
+                        wasUnassigned = true;
+                    }
+                }
+            }));
+            appData.otherGroups.forEach(group => { 
+                const initialLength = group.members.length;
+                group.members = group.members.filter(id => id !== personId && id !== null);
+                if(group.members.length < initialLength) wasUnassigned = true;
+            });
             if (wasUnassigned) {
                 commitAndRender();
                 renderPersonnelSearch();
@@ -838,7 +964,6 @@
             renderOtherGroups();
         }
 
-        // **MODIFICADO**: Función de generación de informe
         function generateReport() {
             const greeting = getGreeting();
             const { commanderRank, commanderName, importantServices } = appData;
@@ -851,7 +976,6 @@
 
             const assignedPersonnelIds = new Set();
 
-            // Recopilar IDs únicos de todo el personal asignado a servicios contables
             appData.caiSections.forEach(cai => {
                 cai.teams.forEach(team => team.members.forEach(id => {
                     if (id) assignedPersonnelIds.add(id);
@@ -870,7 +994,6 @@
                 }
             });
 
-            // Iterar sobre los IDs únicos para contar una sola vez
             assignedPersonnelIds.forEach(id => {
                 const person = currentPersonnelList.find(p => p.id === id);
                 if (person) {
@@ -882,7 +1005,6 @@
 
             let report = `Dios y Patria mi Mayor ${greeting}, respetuosamente me permito reportar el personal para el ${turno}, así:\n\n`;
             
-            // Parte general (único conteo)
             report += `*Parte =(${oficialesTotalCount}-${suboficialesTotalCount}-${patrullerosTotalCount})*\n\n`;
 
             let totalZones = 0;
@@ -898,7 +1020,6 @@
                 cai.teams.forEach(team => {
                     const members = team.members.map(id => {
                         const p = currentPersonnelList.find(p => p.id === id);
-                        // Aplicar formato de nombre
                         return p ? `${p.grade.toUpperCase()} ${toTitleCase(p.name)}` : 'Personal no asignado';
                     }).join(' / ');
                     report += `🚔 ${team.name} ${members}\n`;
@@ -913,7 +1034,6 @@
                     text += `*${toTitleCase(title)}*\n`;
                     group.members.forEach(id => {
                         const p = currentPersonnelList.find(p => p.id === id);
-                        // Aplicar formato de nombre
                         if (p) text += `${p.grade.toUpperCase()} ${toTitleCase(p.name)}\n`;
                     });
                     text += '\n';
@@ -947,7 +1067,6 @@
                 report += `Parte: (${custodioCounts.Oficiales}-${custodioCounts.Suboficiales}-${custodioCounts.Patrulleros})\n\n`;
                 custodiosGroup.members.forEach(id => {
                     const p = currentPersonnelList.find(p => p.id === id);
-                    // Aplicar formato de nombre
                     if (p) report += `${p.grade.toUpperCase()}. ${toTitleCase(p.name)}\n`;
                 });
                 report += '\n';
@@ -960,7 +1079,6 @@
                     if (group.members.length > 0) {
                         group.members.forEach(id => {
                             const p = currentPersonnelList.find(p => p.id === id);
-                            // Aplicar formato de nombre
                             if (p) report += `*${toTitleCase(group.name.replace(' (Información)', ''))}*\n👮🏻‍♂️ ${p.grade.toUpperCase()}. ${toTitleCase(p.name)}\n\n`;
                         });
                     }
@@ -976,7 +1094,6 @@
                         report += `*${toTitleCase(group.name)}*\n\n`;
                         group.members.forEach(id => {
                             const p = currentPersonnelList.find(p => p.id === id);
-                            // Aplicar formato de nombre
                             if (p) report += `${p.grade.toUpperCase()} ${toTitleCase(p.name)}\n`;
                         });
                         report += '\n';
@@ -1008,6 +1125,60 @@
             feedback.classList.add('show');
             setTimeout(() => { feedback.classList.remove('show'); }, 2000);
         }
+
+        // --- Funciones de Importar/Exportar ---
+        function downloadData() {
+            saveData();
+            const dataStr = JSON.stringify(appData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: "application/json"});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            const date = new Date().toISOString().slice(0, 10);
+            link.download = `datos-informe-${date}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            showModal('Confirmar Carga', '¿Seguro que quieres cargar este archivo? Se sobrescribirán todos los datos actuales.', 'confirm', '', (confirmed) => {
+                if (confirmed) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const loadedData = JSON.parse(e.target.result);
+                            if (loadedData && loadedData.caiSections && loadedData.allPersonnelLists) {
+                                appData = loadedData;
+                                commitAndRender();
+                            } else {
+                                showModal('Error', 'El archivo no parece ser un archivo de datos válido.', 'alert');
+                            }
+                        } catch (error) {
+                            showModal('Error', 'No se pudo leer el archivo. Asegúrate de que es un archivo .json válido.', 'alert');
+                            console.error("Error al parsear el archivo JSON:", error);
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+                event.target.value = '';
+            });
+        }
+
+        // --- Event Listener para cerrar dropdowns ---
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.search-select-container')) {
+                document.querySelectorAll('.search-select-dropdown').forEach(dropdown => {
+                    dropdown.style.display = 'none';
+                });
+            }
+        });
 
         // Inicializar la aplicación
         window.onload = loadData;
