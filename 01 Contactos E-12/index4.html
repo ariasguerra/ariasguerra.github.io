@@ -108,6 +108,10 @@
         .btn-danger:hover { background-color: #dc2626; transform: translateY(-1px); }
         .btn-success { background-color: #22c55e; color: #ffffff; }
         .btn-success:hover { background-color: #16a34a; }
+        
+        /* **NUEVO**: Estilo para botones flotantes azul oscuro */
+        .btn-dark-blue { background-color: #1e40af; color: #ffffff; }
+        .btn-dark-blue:hover { background-color: #1e3a8a; }
 
         /* Estilos para tarjetas de contenido */
         .card {
@@ -289,35 +293,40 @@
             .modal-input { padding: 0.75rem 1rem; font-size: 1rem; }
             .search-result-item .status { width: auto; margin-top: 0; }
         }
+
+        /* **NUEVO**: Media query para reducir botones flotantes en pantallas pequeñas */
+        @media (max-width: 639px) {
+            .btn-float {
+                width: 45px;
+                height: 45px;
+                font-size: 1rem;
+            }
+        }
     </style>
 </head>
 <body class="p-4">
 
     <!-- Botones Flotantes -->
     <div style="position: fixed; top: 50%; left: 20px; transform: translateY(-50%); z-index: 999;" class="flex flex-col gap-3">
-        <button id="floatingConfigBtn" onclick="openConfigModal()" class="btn btn-primary btn-float shadow-lg" title="Configuración">
+        <button onclick="openConfigModal()" class="btn btn-dark-blue btn-float shadow-lg" title="Configuración">
             <i class="fas fa-cog"></i>
         </button>
-        <button id="floatingSearchBtn" onclick="openSearchModal()" class="btn btn-primary btn-float shadow-lg" title="Buscar Personal">
+        <button onclick="downloadData()" class="btn btn-dark-blue btn-float shadow-lg" title="Descargar Datos">
+            <i class="fas fa-download"></i>
+        </button>
+        <label for="uploadFile" class="btn btn-dark-blue btn-float shadow-lg cursor-pointer" title="Cargar Datos">
+            <i class="fas fa-upload"></i>
+        </label>
+        <input type="file" id="uploadFile" class="hidden" accept=".json" onchange="handleFileUpload(event)">
+        <button onclick="openSearchModal()" class="btn btn-dark-blue btn-float shadow-lg" title="Buscar Personal">
             <i class="fas fa-search"></i>
         </button>
-        <button id="floatingReportBtn" onclick="openReportModal()" class="btn btn-primary btn-float shadow-lg" title="Generar Informe">
+        <button onclick="openReportModal()" class="btn btn-dark-blue btn-float shadow-lg" title="Generar Informe">
             <i class="fas fa-file-alt"></i>
         </button>
     </div>
 
     <div class="container">
-        <!-- **MODIFICADO**: Botones de Importar/Exportar movidos aquí -->
-        <div class="flex justify-end items-center mb-4 gap-3">
-            <button onclick="downloadData()" class="btn btn-success" title="Descargar Datos">
-                <i class="fas fa-download"></i>
-            </button>
-            <label for="uploadFile" class="btn btn-secondary cursor-pointer" title="Cargar Datos">
-                <i class="fas fa-upload"></i>
-            </label>
-            <input type="file" id="uploadFile" class="hidden" accept=".json" onchange="handleFileUpload(event)">
-       </div>
-
         <!-- Sección de Equipos y Grupos -->
         <div class="mb-8 p-6 bg-green-50 rounded-lg shadow-inner">
             <h2 class="section-title text-green-800">
@@ -378,7 +387,7 @@
     <div id="configModalOverlay" class="modal-overlay" onclick="if(event.target === this) closeConfigModal()">
         <div class="modal-content w-full max-w-lg">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="modal-title text-left !mb-0">Configuración del Informe</h3>
+                <h3 class="modal-title text-left !mb-0">Configuración</h3>
                 <button onclick="closeConfigModal()" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
             </div>
             <!-- Contenido de Configuración -->
@@ -475,11 +484,25 @@
             return "Desconocido";
         }
 
-        // Función para convertir un string a "Formato de Título"
-        function toTitleCase(str) {
+        // Función de formato de título inteligente
+        function toTitleCaseSmart(str) {
             if (!str || typeof str !== 'string') return '';
-            return str.toLowerCase().split(' ').map(word => {
-                return word.charAt(0).toUpperCase() + word.slice(1);
+            
+            const minorWords = new Set(['de', 'a', 'en', 'y', 'e', 'o', 'u', 'el', 'la', 'los', 'las', 'un', 'una']);
+            const acronyms = new Set(['CAI', 'E-12']);
+
+            return str.split(' ').map((word, index) => {
+                const upperWord = word.toUpperCase();
+                if (acronyms.has(upperWord)) {
+                    return upperWord;
+                }
+                
+                const lowerWord = word.toLowerCase();
+                if (index > 0 && minorWords.has(lowerWord)) {
+                    return lowerWord;
+                }
+                
+                return lowerWord.charAt(0).toUpperCase() + lowerWord.slice(1);
             }).join(' ');
         }
 
@@ -1016,11 +1039,11 @@
             report += `Total: *(${totalZones})* Zonas de Atención asignados al Nuevo Modelo de Servicio de Policía en la Estación Barrios Unidos, así:\n\n`;
 
             appData.caiSections.forEach(cai => {
-                report += `*${toTitleCase(cai.name)}*\n`;
+                report += `*${toTitleCaseSmart(cai.name)}*\n`;
                 cai.teams.forEach(team => {
                     const members = team.members.map(id => {
                         const p = currentPersonnelList.find(p => p.id === id);
-                        return p ? `${p.grade.toUpperCase()} ${toTitleCase(p.name)}` : 'Personal no asignado';
+                        return p ? `${p.grade.toUpperCase()} ${toTitleCaseSmart(p.name)}` : 'Personal no asignado';
                     }).join(' / ');
                     report += `🚔 ${team.name} ${members}\n`;
                 });
@@ -1031,10 +1054,10 @@
                 const group = appData.otherGroups.find(g => g.name === groupName);
                 let text = '';
                 if (group && group.members.length > 0) {
-                    text += `*${toTitleCase(title)}*\n`;
+                    text += `*${toTitleCaseSmart(title)}*\n`;
                     group.members.forEach(id => {
                         const p = currentPersonnelList.find(p => p.id === id);
-                        if (p) text += `${p.grade.toUpperCase()} ${toTitleCase(p.name)}\n`;
+                        if (p) text += `${p.grade.toUpperCase()} ${toTitleCaseSmart(p.name)}\n`;
                     });
                     text += '\n';
                 }
@@ -1046,7 +1069,7 @@
 
             if (importantServices.length > 0) {
                 report += `*Servicios de Importancia*\n\n`;
-                importantServices.forEach(service => { report += `📍${toTitleCase(service)}\n`; });
+                importantServices.forEach(service => { report += `📍${toTitleCaseSmart(service)}\n`; });
                 report += '\n';
             }
 
@@ -1067,7 +1090,7 @@
                 report += `Parte: (${custodioCounts.Oficiales}-${custodioCounts.Suboficiales}-${custodioCounts.Patrulleros})\n\n`;
                 custodiosGroup.members.forEach(id => {
                     const p = currentPersonnelList.find(p => p.id === id);
-                    if (p) report += `${p.grade.toUpperCase()}. ${toTitleCase(p.name)}\n`;
+                    if (p) report += `${p.grade.toUpperCase()}. ${toTitleCaseSmart(p.name)}\n`;
                 });
                 report += '\n';
             }
@@ -1079,7 +1102,7 @@
                     if (group.members.length > 0) {
                         group.members.forEach(id => {
                             const p = currentPersonnelList.find(p => p.id === id);
-                            if (p) report += `*${toTitleCase(group.name.replace(' (Información)', ''))}*\n👮🏻‍♂️ ${p.grade.toUpperCase()}. ${toTitleCase(p.name)}\n\n`;
+                            if (p) report += `*${toTitleCaseSmart(group.name.replace(' (Información)', ''))}*\n👮🏻‍♂️ ${p.grade.toUpperCase()}. ${toTitleCaseSmart(p.name)}\n\n`;
                         });
                     }
                 });
@@ -1091,17 +1114,17 @@
                 report += `*📌NOVEDADES*\n\n`;
                 novedadesGroups.forEach(group => {
                     if (group.members.length > 0) {
-                        report += `*${toTitleCase(group.name)}*\n\n`;
+                        report += `*${toTitleCaseSmart(group.name)}*\n\n`;
                         group.members.forEach(id => {
                             const p = currentPersonnelList.find(p => p.id === id);
-                            if (p) report += `${p.grade.toUpperCase()} ${toTitleCase(p.name)}\n`;
+                            if (p) report += `${p.grade.toUpperCase()} ${toTitleCaseSmart(p.name)}\n`;
                         });
                         report += '\n';
                     }
                 });
             }
 
-            report += `${toTitleCase(commanderRank)} ${toTitleCase(commanderName)}\n*Comandante Estación de Policía Barrios Unidos*\n`;
+            report += `${toTitleCaseSmart(commanderRank)} ${toTitleCaseSmart(commanderName)}\n*Comandante Estación de Policía Barrios Unidos*\n`;
             document.getElementById('reportOutput').textContent = report;
         }
         
