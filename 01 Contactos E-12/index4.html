@@ -506,11 +506,10 @@
             }).join(' ');
         }
 
-        // Datos iniciales por defecto
-        const defaultData = {
+        // --- ESTRUCTURA DE DATOS ---
+        // Plantilla para la configuración de una lista individual
+        const defaultConfig = {
             commanderName: "", commanderRank: "", importantServices: [],
-            allPersonnelLists: { list1: [], list2: [], list3: [] },
-            currentPersonnelListId: 'list1',
             caiSections: [
                 { id: generateUniqueId(), name: "CAI - MODELO", teams: [ { id: generateUniqueId(), name: "11-13", members: [] }, { id: generateUniqueId(), name: "12-14", members: [] }, { id: generateUniqueId(), name: "15-16", members: [] } ] },
                 { id: generateUniqueId(), name: "CAI - ALCAZARES", teams: [ { id: generateUniqueId(), name: "1", members: [] }, { id: generateUniqueId(), name: "2", members: [] } ] },
@@ -524,7 +523,25 @@
             uiState: { collapsedCaiSections: {} }
         };
 
-        let appData = {};
+        // Estructura de estado inicial completa de la aplicación
+        const initialFullState = {
+            allPersonnelLists: { list1: [], list2: [], list3: [] },
+            configurations: {
+                list1: JSON.parse(JSON.stringify(defaultConfig)),
+                list2: JSON.parse(JSON.stringify(defaultConfig)),
+                list3: JSON.parse(JSON.stringify(defaultConfig))
+            },
+            currentListId: 'list1'
+        };
+        // Inicializar el estado de la UI para cada configuración por defecto
+        Object.values(initialFullState.configurations).forEach(config => {
+            config.caiSections.forEach(cai => {
+                config.uiState.collapsedCaiSections[cai.id] = true;
+            });
+        });
+
+        let fullState = {};
+        let appData = {}; // Puntero a la configuración actual
         let modalCallback = null;
 
         // --- Funciones para Modales ---
@@ -612,20 +629,23 @@
 
         // --- Gestión de Datos ---
         function loadData() {
-            const storedData = localStorage.getItem('policeReportData');
-            if (storedData) {
-                appData = JSON.parse(storedData);
+            const storedState = localStorage.getItem('policeReportFullState');
+            if (storedState) {
+                fullState = JSON.parse(storedState);
+                if (!fullState.configurations || !fullState.allPersonnelLists || !fullState.currentListId) {
+                    fullState = JSON.parse(JSON.stringify(initialFullState));
+                }
             } else {
-                appData = JSON.parse(JSON.stringify(defaultData));
-                appData.caiSections.forEach(cai => { appData.uiState.collapsedCaiSections[cai.id] = true; });
+                fullState = JSON.parse(JSON.stringify(initialFullState));
             }
+            appData = fullState.configurations[fullState.currentListId];
             renderUI();
         }
         
         function updatePersonnelDataFromDOM() {
             const personnelText = document.getElementById('personnelTextarea').value;
             const lines = personnelText.split('\n').map(line => line.trim()).filter(line => line !== '');
-            const currentPersonnelList = appData.allPersonnelLists[appData.currentPersonnelListId] || [];
+            const currentPersonnelList = fullState.allPersonnelLists[fullState.currentListId] || [];
             const newPersonnelData = [];
             const existingPersonnelMap = new Map(currentPersonnelList.map(p => [`${p.grade.toUpperCase()} ${p.name.toUpperCase()}`, p]));
 
@@ -647,11 +667,16 @@
                     }
                 }
             });
-            appData.allPersonnelLists[appData.currentPersonnelListId] = newPersonnelData;
+            fullState.allPersonnelLists[fullState.currentListId] = newPersonnelData;
+        }
+
+        function saveDataToLocalStorage() {
+            fullState.configurations[fullState.currentListId] = appData;
+            localStorage.setItem('policeReportFullState', JSON.stringify(fullState));
         }
 
         function commitAndRender() {
-            localStorage.setItem('policeReportData', JSON.stringify(appData));
+            saveDataToLocalStorage();
             renderUI();
         }
 
@@ -675,7 +700,7 @@
             const container = document.createElement('div');
             container.className = 'search-select-container';
 
-            const currentPersonnelList = appData.allPersonnelLists[appData.currentPersonnelListId];
+            const currentPersonnelList = fullState.allPersonnelLists[fullState.currentListId];
             const selectedPerson = currentPersonnelList.find(p => p.id === selectedPersonId);
 
             const input = document.createElement('input');
@@ -743,14 +768,17 @@
         }
 
         function updatePersonnelAssignedStatus() {
-            if (!appData.allPersonnelLists?.[appData.currentPersonnelListId]) return;
-            appData.allPersonnelLists[appData.currentPersonnelListId].forEach(p => p.assigned = false);
+            const currentPersonnelList = fullState.allPersonnelLists[fullState.currentListId];
+            if (!currentPersonnelList) return;
+            
+            currentPersonnelList.forEach(p => p.assigned = false);
+            
             appData.caiSections.forEach(cai => cai.teams.forEach(team => team.members.forEach(memberId => {
-                const person = appData.allPersonnelLists[appData.currentPersonnelListId].find(p => p.id === memberId);
+                const person = currentPersonnelList.find(p => p.id === memberId);
                 if (person) person.assigned = true;
             })));
             appData.otherGroups.forEach(group => group.members.forEach(memberId => {
-                const person = appData.allPersonnelLists[appData.currentPersonnelListId].find(p => p.id === memberId);
+                const person = currentPersonnelList.find(p => p.id === memberId);
                 if (person) person.assigned = true;
             }));
         }
@@ -861,7 +889,7 @@
             const searchTerm = searchInput.value.toLowerCase().trim();
 
             resultsContainer.innerHTML = '';
-            const currentPersonnelList = appData.allPersonnelLists[appData.currentPersonnelListId];
+            const currentPersonnelList = fullState.allPersonnelLists[fullState.currentListId];
             if (!currentPersonnelList) return;
             
             const results = searchTerm ? currentPersonnelList.filter(p => p.name.toLowerCase().includes(searchTerm) || p.grade.toLowerCase().includes(searchTerm)) : currentPersonnelList;
@@ -954,7 +982,7 @@
             if (!content || !icon) return;
             const isCollapsed = content.classList.toggle('hidden');
             appData.uiState.collapsedCaiSections[caiId] = isCollapsed;
-            localStorage.setItem('policeReportData', JSON.stringify(appData));
+            saveDataToLocalStorage();
             icon.classList.toggle('fa-chevron-up', !isCollapsed);
             icon.classList.toggle('fa-chevron-down', isCollapsed);
         }
@@ -970,9 +998,21 @@
         }
 
         function switchPersonnelList(listId) {
-            saveData();
-            appData.currentPersonnelListId = listId;
-            commitAndRender();
+            // Guardar datos de la UI en los objetos JS antes de cambiar
+            appData.commanderRank = document.getElementById('commanderRank').value;
+            appData.commanderName = document.getElementById('commanderName').value;
+            appData.importantServices = document.getElementById('importantServices').value.split('\n').filter(line => line.trim() !== '');
+            updatePersonnelDataFromDOM();
+
+            // Cambiar el ID de la lista actual
+            fullState.currentListId = listId;
+            
+            // Apuntar appData a la nueva configuración
+            appData = fullState.configurations[fullState.currentListId];
+
+            // Guardar el estado completo y renderizar la UI para la nueva lista
+            saveDataToLocalStorage();
+            renderUI();
         }
         
         // --- Renderizado Principal y Generación de Informe ---
@@ -981,8 +1021,8 @@
             document.getElementById('commanderRank').value = appData.commanderRank;
             document.getElementById('commanderName').value = appData.commanderName;
             document.getElementById('importantServices').value = appData.importantServices.join('\n');
-            document.getElementById('personnelTextarea').value = appData.allPersonnelLists[appData.currentPersonnelListId].map(p => `${p.grade} ${p.name}`).join('\n');
-            document.querySelector(`input[name="personnelListSelector"][value="${appData.currentPersonnelListId}"]`).checked = true;
+            document.getElementById('personnelTextarea').value = fullState.allPersonnelLists[fullState.currentListId].map(p => `${p.grade} ${p.name}`).join('\n');
+            document.querySelector(`input[name="personnelListSelector"][value="${fullState.currentListId}"]`).checked = true;
             renderCaiSections();
             renderOtherGroups();
         }
@@ -991,7 +1031,7 @@
             const greeting = getGreeting();
             const { commanderRank, commanderName, importantServices } = appData;
             const turno = getTurno();
-            const currentPersonnelList = appData.allPersonnelLists[appData.currentPersonnelListId];
+            const currentPersonnelList = fullState.allPersonnelLists[fullState.currentListId];
             
             let oficialesTotalCount = 0;
             let suboficialesTotalCount = 0;
@@ -1151,14 +1191,14 @@
 
         // --- Funciones de Importar/Exportar ---
         function downloadData() {
-            saveData();
-            const dataStr = JSON.stringify(appData, null, 2);
+            saveDataToLocalStorage();
+            const dataStr = JSON.stringify(fullState, null, 2);
             const dataBlob = new Blob([dataStr], {type: "application/json"});
             const url = URL.createObjectURL(dataBlob);
             const link = document.createElement('a');
             link.href = url;
             const date = new Date().toISOString().slice(0, 10);
-            link.download = `datos-informe-${date}.json`;
+            link.download = `datos-informe-completos-${date}.json`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -1171,17 +1211,18 @@
                 return;
             }
 
-            showModal('Confirmar Carga', '¿Seguro que quieres cargar este archivo? Se sobrescribirán todos los datos actuales.', 'confirm', '', (confirmed) => {
+            showModal('Confirmar Carga', '¿Seguro que quieres cargar este archivo? Se sobrescribirán todos los datos y configuraciones actuales.', 'confirm', '', (confirmed) => {
                 if (confirmed) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         try {
                             const loadedData = JSON.parse(e.target.result);
-                            if (loadedData && loadedData.caiSections && loadedData.allPersonnelLists) {
-                                appData = loadedData;
+                            if (loadedData && loadedData.configurations && loadedData.allPersonnelLists && loadedData.currentListId) {
+                                fullState = loadedData;
+                                appData = fullState.configurations[fullState.currentListId];
                                 commitAndRender();
                             } else {
-                                showModal('Error', 'El archivo no parece ser un archivo de datos válido.', 'alert');
+                                showModal('Error', 'El archivo no parece ser un archivo de datos válido para la nueva estructura.', 'alert');
                             }
                         } catch (error) {
                             showModal('Error', 'No se pudo leer el archivo. Asegúrate de que es un archivo .json válido.', 'alert');
