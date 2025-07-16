@@ -108,6 +108,10 @@
         .btn-danger:hover { background-color: #dc2626; transform: translateY(-1px); }
         .btn-success { background-color: #22c55e; color: #ffffff; }
         .btn-success:hover { background-color: #16a34a; }
+        
+        /* **NUEVO**: Estilo para botones flotantes azul oscuro */
+        .btn-dark-blue { background-color: #1e40af; color: #ffffff; }
+        .btn-dark-blue:hover { background-color: #1e3a8a; }
 
         /* Estilos para tarjetas de contenido */
         .card {
@@ -289,26 +293,40 @@
             .modal-input { padding: 0.75rem 1rem; font-size: 1rem; }
             .search-result-item .status { width: auto; margin-top: 0; }
         }
+
+        /* **NUEVO**: Media query para reducir botones flotantes en pantallas pequeñas */
+        @media (max-width: 639px) {
+            .btn-float {
+                width: 45px;
+                height: 45px;
+                font-size: 1rem;
+            }
+        }
     </style>
 </head>
 <body class="p-4">
 
     <!-- Botones Flotantes -->
     <div style="position: fixed; top: 50%; left: 20px; transform: translateY(-50%); z-index: 999;" class="flex flex-col gap-3">
-        <button id="floatingConfigBtn" onclick="openConfigModal()" class="btn btn-primary btn-float shadow-lg" title="Configuración">
+        <button onclick="openConfigModal()" class="btn btn-dark-blue btn-float shadow-lg" title="Configuración">
             <i class="fas fa-cog"></i>
         </button>
-        <button id="floatingSearchBtn" onclick="openSearchModal()" class="btn btn-primary btn-float shadow-lg" title="Buscar Personal">
+        <button onclick="downloadData()" class="btn btn-dark-blue btn-float shadow-lg" title="Descargar Datos">
+            <i class="fas fa-download"></i>
+        </button>
+        <label for="uploadFile" class="btn btn-dark-blue btn-float shadow-lg cursor-pointer" title="Cargar Datos">
+            <i class="fas fa-upload"></i>
+        </label>
+        <input type="file" id="uploadFile" class="hidden" accept=".json" onchange="handleFileUpload(event)">
+        <button onclick="openSearchModal()" class="btn btn-dark-blue btn-float shadow-lg" title="Buscar Personal">
             <i class="fas fa-search"></i>
         </button>
-        <button id="floatingReportBtn" onclick="openReportModal()" class="btn btn-primary btn-float shadow-lg" title="Generar Informe">
+        <button onclick="openReportModal()" class="btn btn-dark-blue btn-float shadow-lg" title="Generar Informe">
             <i class="fas fa-file-alt"></i>
         </button>
     </div>
 
     <div class="container">
-        <h1 class="text-3xl font-extrabold text-center text-gray-800 mb-8">Generador de Informes</h1>
-
         <!-- Sección de Equipos y Grupos -->
         <div class="mb-8 p-6 bg-green-50 rounded-lg shadow-inner">
             <h2 class="section-title text-green-800">
@@ -369,21 +387,11 @@
     <div id="configModalOverlay" class="modal-overlay" onclick="if(event.target === this) closeConfigModal()">
         <div class="modal-content w-full max-w-lg">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="modal-title text-left !mb-0">Configuración del Informe</h3>
+                <h3 class="modal-title text-left !mb-0">Configuración</h3>
                 <button onclick="closeConfigModal()" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
             </div>
             <!-- Contenido de Configuración -->
             <div class="max-h-[70vh] overflow-y-auto pr-2">
-                <!-- **NUEVO**: Sección de Importar/Exportar -->
-                <div class="mb-6">
-                    <h3 class="subsection-title">Gestión de Datos</h3>
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <button onclick="downloadData()" class="btn btn-success flex-1"><i class="fas fa-download mr-2"></i>Descargar Datos</button>
-                        <label for="uploadFile" class="btn btn-secondary flex-1 cursor-pointer"><i class="fas fa-upload mr-2"></i>Cargar Datos</label>
-                        <input type="file" id="uploadFile" class="hidden" accept=".json" onchange="handleFileUpload(event)">
-                    </div>
-                </div>
-
                 <!-- Comandante -->
                 <div class="mb-4">
                     <label for="commanderRank" class="block text-gray-700 font-medium mb-2">Grado del Comandante:</label>
@@ -476,19 +484,32 @@
             return "Desconocido";
         }
 
-        // Función para convertir un string a "Formato de Título"
-        function toTitleCase(str) {
+        // Función de formato de título inteligente
+        function toTitleCaseSmart(str) {
             if (!str || typeof str !== 'string') return '';
-            return str.toLowerCase().split(' ').map(word => {
-                return word.charAt(0).toUpperCase() + word.slice(1);
+            
+            const minorWords = new Set(['de', 'a', 'en', 'y', 'e', 'o', 'u', 'el', 'la', 'los', 'las', 'un', 'una']);
+            const acronyms = new Set(['CAI', 'E-12']);
+
+            return str.split(' ').map((word, index) => {
+                const upperWord = word.toUpperCase();
+                if (acronyms.has(upperWord)) {
+                    return upperWord;
+                }
+                
+                const lowerWord = word.toLowerCase();
+                if (index > 0 && minorWords.has(lowerWord)) {
+                    return lowerWord;
+                }
+                
+                return lowerWord.charAt(0).toUpperCase() + lowerWord.slice(1);
             }).join(' ');
         }
 
-        // Datos iniciales por defecto
-        const defaultData = {
+        // --- ESTRUCTURA DE DATOS ---
+        // Plantilla para la configuración de una lista individual
+        const defaultConfig = {
             commanderName: "", commanderRank: "", importantServices: [],
-            allPersonnelLists: { list1: [], list2: [], list3: [] },
-            currentPersonnelListId: 'list1',
             caiSections: [
                 { id: generateUniqueId(), name: "CAI - MODELO", teams: [ { id: generateUniqueId(), name: "11-13", members: [] }, { id: generateUniqueId(), name: "12-14", members: [] }, { id: generateUniqueId(), name: "15-16", members: [] } ] },
                 { id: generateUniqueId(), name: "CAI - ALCAZARES", teams: [ { id: generateUniqueId(), name: "1", members: [] }, { id: generateUniqueId(), name: "2", members: [] } ] },
@@ -502,7 +523,25 @@
             uiState: { collapsedCaiSections: {} }
         };
 
-        let appData = {};
+        // Estructura de estado inicial completa de la aplicación
+        const initialFullState = {
+            allPersonnelLists: { list1: [], list2: [], list3: [] },
+            configurations: {
+                list1: JSON.parse(JSON.stringify(defaultConfig)),
+                list2: JSON.parse(JSON.stringify(defaultConfig)),
+                list3: JSON.parse(JSON.stringify(defaultConfig))
+            },
+            currentListId: 'list1'
+        };
+        // Inicializar el estado de la UI para cada configuración por defecto
+        Object.values(initialFullState.configurations).forEach(config => {
+            config.caiSections.forEach(cai => {
+                config.uiState.collapsedCaiSections[cai.id] = true;
+            });
+        });
+
+        let fullState = {};
+        let appData = {}; // Puntero a la configuración actual
         let modalCallback = null;
 
         // --- Funciones para Modales ---
@@ -590,20 +629,23 @@
 
         // --- Gestión de Datos ---
         function loadData() {
-            const storedData = localStorage.getItem('policeReportData');
-            if (storedData) {
-                appData = JSON.parse(storedData);
+            const storedState = localStorage.getItem('policeReportFullState');
+            if (storedState) {
+                fullState = JSON.parse(storedState);
+                if (!fullState.configurations || !fullState.allPersonnelLists || !fullState.currentListId) {
+                    fullState = JSON.parse(JSON.stringify(initialFullState));
+                }
             } else {
-                appData = JSON.parse(JSON.stringify(defaultData));
-                appData.caiSections.forEach(cai => { appData.uiState.collapsedCaiSections[cai.id] = true; });
+                fullState = JSON.parse(JSON.stringify(initialFullState));
             }
+            appData = fullState.configurations[fullState.currentListId];
             renderUI();
         }
         
         function updatePersonnelDataFromDOM() {
             const personnelText = document.getElementById('personnelTextarea').value;
             const lines = personnelText.split('\n').map(line => line.trim()).filter(line => line !== '');
-            const currentPersonnelList = appData.allPersonnelLists[appData.currentPersonnelListId] || [];
+            const currentPersonnelList = fullState.allPersonnelLists[fullState.currentListId] || [];
             const newPersonnelData = [];
             const existingPersonnelMap = new Map(currentPersonnelList.map(p => [`${p.grade.toUpperCase()} ${p.name.toUpperCase()}`, p]));
 
@@ -625,11 +667,16 @@
                     }
                 }
             });
-            appData.allPersonnelLists[appData.currentPersonnelListId] = newPersonnelData;
+            fullState.allPersonnelLists[fullState.currentListId] = newPersonnelData;
+        }
+
+        function saveDataToLocalStorage() {
+            fullState.configurations[fullState.currentListId] = appData;
+            localStorage.setItem('policeReportFullState', JSON.stringify(fullState));
         }
 
         function commitAndRender() {
-            localStorage.setItem('policeReportData', JSON.stringify(appData));
+            saveDataToLocalStorage();
             renderUI();
         }
 
@@ -653,7 +700,7 @@
             const container = document.createElement('div');
             container.className = 'search-select-container';
 
-            const currentPersonnelList = appData.allPersonnelLists[appData.currentPersonnelListId];
+            const currentPersonnelList = fullState.allPersonnelLists[fullState.currentListId];
             const selectedPerson = currentPersonnelList.find(p => p.id === selectedPersonId);
 
             const input = document.createElement('input');
@@ -721,14 +768,17 @@
         }
 
         function updatePersonnelAssignedStatus() {
-            if (!appData.allPersonnelLists?.[appData.currentPersonnelListId]) return;
-            appData.allPersonnelLists[appData.currentPersonnelListId].forEach(p => p.assigned = false);
+            const currentPersonnelList = fullState.allPersonnelLists[fullState.currentListId];
+            if (!currentPersonnelList) return;
+            
+            currentPersonnelList.forEach(p => p.assigned = false);
+            
             appData.caiSections.forEach(cai => cai.teams.forEach(team => team.members.forEach(memberId => {
-                const person = appData.allPersonnelLists[appData.currentPersonnelListId].find(p => p.id === memberId);
+                const person = currentPersonnelList.find(p => p.id === memberId);
                 if (person) person.assigned = true;
             })));
             appData.otherGroups.forEach(group => group.members.forEach(memberId => {
-                const person = appData.allPersonnelLists[appData.currentPersonnelListId].find(p => p.id === memberId);
+                const person = currentPersonnelList.find(p => p.id === memberId);
                 if (person) person.assigned = true;
             }));
         }
@@ -839,7 +889,7 @@
             const searchTerm = searchInput.value.toLowerCase().trim();
 
             resultsContainer.innerHTML = '';
-            const currentPersonnelList = appData.allPersonnelLists[appData.currentPersonnelListId];
+            const currentPersonnelList = fullState.allPersonnelLists[fullState.currentListId];
             if (!currentPersonnelList) return;
             
             const results = searchTerm ? currentPersonnelList.filter(p => p.name.toLowerCase().includes(searchTerm) || p.grade.toLowerCase().includes(searchTerm)) : currentPersonnelList;
@@ -932,7 +982,7 @@
             if (!content || !icon) return;
             const isCollapsed = content.classList.toggle('hidden');
             appData.uiState.collapsedCaiSections[caiId] = isCollapsed;
-            localStorage.setItem('policeReportData', JSON.stringify(appData));
+            saveDataToLocalStorage();
             icon.classList.toggle('fa-chevron-up', !isCollapsed);
             icon.classList.toggle('fa-chevron-down', isCollapsed);
         }
@@ -948,9 +998,21 @@
         }
 
         function switchPersonnelList(listId) {
-            saveData();
-            appData.currentPersonnelListId = listId;
-            commitAndRender();
+            // Guardar datos de la UI en los objetos JS antes de cambiar
+            appData.commanderRank = document.getElementById('commanderRank').value;
+            appData.commanderName = document.getElementById('commanderName').value;
+            appData.importantServices = document.getElementById('importantServices').value.split('\n').filter(line => line.trim() !== '');
+            updatePersonnelDataFromDOM();
+
+            // Cambiar el ID de la lista actual
+            fullState.currentListId = listId;
+            
+            // Apuntar appData a la nueva configuración
+            appData = fullState.configurations[fullState.currentListId];
+
+            // Guardar el estado completo y renderizar la UI para la nueva lista
+            saveDataToLocalStorage();
+            renderUI();
         }
         
         // --- Renderizado Principal y Generación de Informe ---
@@ -959,8 +1021,8 @@
             document.getElementById('commanderRank').value = appData.commanderRank;
             document.getElementById('commanderName').value = appData.commanderName;
             document.getElementById('importantServices').value = appData.importantServices.join('\n');
-            document.getElementById('personnelTextarea').value = appData.allPersonnelLists[appData.currentPersonnelListId].map(p => `${p.grade} ${p.name}`).join('\n');
-            document.querySelector(`input[name="personnelListSelector"][value="${appData.currentPersonnelListId}"]`).checked = true;
+            document.getElementById('personnelTextarea').value = fullState.allPersonnelLists[fullState.currentListId].map(p => `${p.grade} ${p.name}`).join('\n');
+            document.querySelector(`input[name="personnelListSelector"][value="${fullState.currentListId}"]`).checked = true;
             renderCaiSections();
             renderOtherGroups();
         }
@@ -969,7 +1031,7 @@
             const greeting = getGreeting();
             const { commanderRank, commanderName, importantServices } = appData;
             const turno = getTurno();
-            const currentPersonnelList = appData.allPersonnelLists[appData.currentPersonnelListId];
+            const currentPersonnelList = fullState.allPersonnelLists[fullState.currentListId];
             
             let oficialesTotalCount = 0;
             let suboficialesTotalCount = 0;
@@ -1017,11 +1079,11 @@
             report += `Total: *(${totalZones})* Zonas de Atención asignados al Nuevo Modelo de Servicio de Policía en la Estación Barrios Unidos, así:\n\n`;
 
             appData.caiSections.forEach(cai => {
-                report += `*${toTitleCase(cai.name)}*\n`;
+                report += `*${toTitleCaseSmart(cai.name)}*\n`;
                 cai.teams.forEach(team => {
                     const members = team.members.map(id => {
                         const p = currentPersonnelList.find(p => p.id === id);
-                        return p ? `${p.grade.toUpperCase()} ${toTitleCase(p.name)}` : 'Personal no asignado';
+                        return p ? `${p.grade.toUpperCase()} ${toTitleCaseSmart(p.name)}` : 'Personal no asignado';
                     }).join(' / ');
                     report += `🚔 ${team.name} ${members}\n`;
                 });
@@ -1032,10 +1094,10 @@
                 const group = appData.otherGroups.find(g => g.name === groupName);
                 let text = '';
                 if (group && group.members.length > 0) {
-                    text += `*${toTitleCase(title)}*\n`;
+                    text += `*${toTitleCaseSmart(title)}*\n`;
                     group.members.forEach(id => {
                         const p = currentPersonnelList.find(p => p.id === id);
-                        if (p) text += `${p.grade.toUpperCase()} ${toTitleCase(p.name)}\n`;
+                        if (p) text += `${p.grade.toUpperCase()} ${toTitleCaseSmart(p.name)}\n`;
                     });
                     text += '\n';
                 }
@@ -1047,7 +1109,7 @@
 
             if (importantServices.length > 0) {
                 report += `*Servicios de Importancia*\n\n`;
-                importantServices.forEach(service => { report += `📍${toTitleCase(service)}\n`; });
+                importantServices.forEach(service => { report += `📍${toTitleCaseSmart(service)}\n`; });
                 report += '\n';
             }
 
@@ -1068,7 +1130,7 @@
                 report += `Parte: (${custodioCounts.Oficiales}-${custodioCounts.Suboficiales}-${custodioCounts.Patrulleros})\n\n`;
                 custodiosGroup.members.forEach(id => {
                     const p = currentPersonnelList.find(p => p.id === id);
-                    if (p) report += `${p.grade.toUpperCase()}. ${toTitleCase(p.name)}\n`;
+                    if (p) report += `${p.grade.toUpperCase()}. ${toTitleCaseSmart(p.name)}\n`;
                 });
                 report += '\n';
             }
@@ -1080,7 +1142,7 @@
                     if (group.members.length > 0) {
                         group.members.forEach(id => {
                             const p = currentPersonnelList.find(p => p.id === id);
-                            if (p) report += `*${toTitleCase(group.name.replace(' (Información)', ''))}*\n👮🏻‍♂️ ${p.grade.toUpperCase()}. ${toTitleCase(p.name)}\n\n`;
+                            if (p) report += `*${toTitleCaseSmart(group.name.replace(' (Información)', ''))}*\n👮🏻‍♂️ ${p.grade.toUpperCase()}. ${toTitleCaseSmart(p.name)}\n\n`;
                         });
                     }
                 });
@@ -1092,17 +1154,17 @@
                 report += `*📌NOVEDADES*\n\n`;
                 novedadesGroups.forEach(group => {
                     if (group.members.length > 0) {
-                        report += `*${toTitleCase(group.name)}*\n\n`;
+                        report += `*${toTitleCaseSmart(group.name)}*\n\n`;
                         group.members.forEach(id => {
                             const p = currentPersonnelList.find(p => p.id === id);
-                            if (p) report += `${p.grade.toUpperCase()} ${toTitleCase(p.name)}\n`;
+                            if (p) report += `${p.grade.toUpperCase()} ${toTitleCaseSmart(p.name)}\n`;
                         });
                         report += '\n';
                     }
                 });
             }
 
-            report += `${toTitleCase(commanderRank)} ${toTitleCase(commanderName)}\n*Comandante Estación de Policía Barrios Unidos*\n`;
+            report += `${toTitleCaseSmart(commanderRank)} ${toTitleCaseSmart(commanderName)}\n*Comandante Estación de Policía Barrios Unidos*\n`;
             document.getElementById('reportOutput').textContent = report;
         }
         
@@ -1127,22 +1189,31 @@
             setTimeout(() => { feedback.classList.remove('show'); }, 2000);
         }
 
-        // --- **NUEVO**: Funciones de Importar/Exportar ---
+        // --- Funciones de Importar/Exportar ---
         function downloadData() {
-            // Asegurarse de que los datos más recientes del DOM estén en appData
-            saveData();
+            saveDataToLocalStorage();
+            const dataStr = JSON.stringify(fullState, null, 2);
+            const dataBlob = new Blob([dataStr], {type: "application/json;charset=utf-8"});
+            const date = new Date().toISOString().slice(0, 10);
+            const fileName = `datos-informe-completos-${date}.json`;
 
-            const dataStr = JSON.stringify(appData, null, 2); // El 2 es para formatear el JSON y hacerlo legible
-            const dataBlob = new Blob([dataStr], {type: "application/json"});
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            const date = new Date().toISOString().slice(0, 10); // Formato YYYY-MM-DD
-            link.download = `datos-informe-${date}.json`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
+            // Fallback para Internet Explorer y Edge legacy
+            if (navigator.msSaveBlob) {
+                navigator.msSaveBlob(dataBlob, fileName);
+            } else {
+                // Método estándar para navegadores modernos
+                const link = document.createElement('a');
+                if (link.download !== undefined) { // Chequea si el atributo download es soportado
+                    const url = URL.createObjectURL(dataBlob);
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', fileName);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                }
+            }
         }
 
         function handleFileUpload(event) {
@@ -1151,19 +1222,18 @@
                 return;
             }
 
-            showModal('Confirmar Carga', '¿Seguro que quieres cargar este archivo? Se sobrescribirán todos los datos actuales.', 'confirm', '', (confirmed) => {
+            showModal('Confirmar Carga', '¿Seguro que quieres cargar este archivo? Se sobrescribirán todos los datos y configuraciones actuales.', 'confirm', '', (confirmed) => {
                 if (confirmed) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         try {
                             const loadedData = JSON.parse(e.target.result);
-                            // Validación simple para asegurar que es un archivo de datos válido
-                            if (loadedData && loadedData.caiSections && loadedData.allPersonnelLists) {
-                                appData = loadedData;
+                            if (loadedData && loadedData.configurations && loadedData.allPersonnelLists && loadedData.currentListId) {
+                                fullState = loadedData;
+                                appData = fullState.configurations[fullState.currentListId];
                                 commitAndRender();
-                                closeConfigModal();
                             } else {
-                                showModal('Error', 'El archivo no parece ser un archivo de datos válido.', 'alert');
+                                showModal('Error', 'El archivo no parece ser un archivo de datos válido para la nueva estructura.', 'alert');
                             }
                         } catch (error) {
                             showModal('Error', 'No se pudo leer el archivo. Asegúrate de que es un archivo .json válido.', 'alert');
@@ -1172,7 +1242,6 @@
                     };
                     reader.readAsText(file);
                 }
-                // Limpiar el input para permitir cargar el mismo archivo de nuevo
                 event.target.value = '';
             });
         }
