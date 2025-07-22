@@ -18,5 +18,10 @@
     "codigo": "TAPP",
     "direccion": "CARRERA 19 N° 30-13 BARRIO ALTAMIRA, TUNJA (BOYACÁ) PRIMER PISO",
     "parteArrendada": "Primer piso, exceptuando habitación a la calle y puerta de acceso al segundo piso"
+  },
+  {
+    "codigo": "CABA",
+    "direccion": "CALLE 34A N° 19-42 BARRIO CORINTO, PAIPA (BOYACÁ)",
+    "parteArrendada": "vivienda y terreno"
   }
 ]
