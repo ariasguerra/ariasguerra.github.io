@@ -502,5 +502,26 @@
     "periodoFin": "2025-08-05",
     "nombreQuienRecibe": "Manuel Antonio Arias Guerra",
     "cedulaQuienRecibe": "1.057.736.060"
+  },
+  {
+    "numeroRecibo": "CABA2025001",
+    "lugarExpedicion": "Bogotá D.C.",
+    "fechaExpedicion": "23 de julio de 2025",
+    "nombreArrendatario": "Victor Julio Caceres Medina",
+    "documentoArrendatario": "4239916",
+    "telefonoArrendatario": "3203439171",
+    "emailArrendatario": "bunkkersystem@gmail.com",
+    "montoPagado": "700000",
+    "montoEnLetras": "setecientos mil pesos M/CTE",
+    "formaPago": "Consignación bancaria",
+    "fechaPago": "2025-07-22",
+    "horaPago": "07:00",
+    "concepto": "Canon de arrendamiento",
+    "direccionInmueble": "CALLE 34A N° 19-42 BARRIO CORINTO, PAIPA (BOYACÁ)",
+    "parteArrendada": "vivienda y terreno",
+    "periodoInicio": "2025-07-20",
+    "periodoFin": "2025-08-19",
+    "nombreQuienRecibe": "Manuel Antonio Arias Guerra",
+    "cedulaQuienRecibe": "1.057.736.060"
   }
 ]
