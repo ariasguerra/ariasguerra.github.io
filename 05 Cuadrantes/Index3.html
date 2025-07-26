@@ -433,13 +433,20 @@
             color: #003366;
         }
 
-        .dialog-box input {
+        .dialog-box input[type="text"] {
             width: 100%;
             box-sizing: border-box;
             padding: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             border: 1px solid #ccc;
             border-radius: 4px;
+        }
+        
+        #validation-message {
+            font-size: 0.8rem;
+            color: #dc3545;
+            height: 1.2em;
+            margin-bottom: 10px;
         }
 
         .dialog-box .dialog-list {
@@ -802,7 +809,7 @@
 
                 const moveButtonHtml = team.isCovering 
                     ? `<button class="move-team-button return-home" onclick="confirmReturnHome('${team.name}')" title="Regresar a CAI Original"><i class="fas fa-home"></i></button>`
-                    : `<button class="move-team-button" onclick="showMoveTeamDialog('${team.name}')" title="Mover / Reasignar Equipo"><i class="fas fa-exchange-alt"></i></button>`;
+                    : `<button class="move-team-button" onclick="showMoveTeamDialog('${team.name}')" title="Reemplazar a otro equipo"><i class="fas fa-exchange-alt"></i></button>`;
 
                 teamItem.innerHTML = `
                     <div class="team-header">
@@ -1572,32 +1579,23 @@
                 .catch(() => alert('No se pudieron cargar los datos básicos.'));
         }
         
-        // --- MOVE TEAM LOGIC (BUTTON-BASED) ---
+        // --- MOVE TEAM LOGIC (DIRECT REPLACEMENT) ---
 
-        function showMoveTeamDialog(teamName) {
-            const team = teams.find(t => t.name === teamName);
-            if (!team) return;
+        function showMoveTeamDialog(coveringTeamName) {
+            const coveringTeam = teams.find(t => t.name === coveringTeamName);
+            if (!coveringTeam) return;
 
-            const allCais = [...new Set(quadrants.map(q => q.cai))].sort();
-            
             const backdrop = document.createElement('div');
             backdrop.className = 'dialog-backdrop';
             
             const dialog = document.createElement('div');
             dialog.className = 'dialog-box';
 
-            let caiListHtml = '<div id="caiSelectionList" class="dialog-list">';
-            allCais.forEach(cai => {
-                if (cai !== team.currentCAI) {
-                    caiListHtml += `<div data-cai="${cai}">${cai}</div>`;
-                }
-            });
-            caiListHtml += '</div>';
-
             dialog.innerHTML = `
-                <h3>Mover Equipo ${team.name}</h3>
-                <p>Seleccione el CAI de destino:</p>
-                ${caiListHtml}
+                <h3>Reemplazar Equipo</h3>
+                <p>El equipo <strong>${coveringTeam.name}</strong> cubrirá al equipo que ingrese a continuación:</p>
+                <input type="text" id="targetTeamInput" placeholder="Ej: 9-10 o 12">
+                <div id="validation-message"></div>
                 <div class="dialog-buttons">
                     <button id="cancelMove" class="cancel-btn">Cancelar</button>
                     <button id="confirmMove" class="confirm-btn" disabled>Confirmar</button>
@@ -1607,26 +1605,50 @@
             document.body.appendChild(backdrop);
             document.body.appendChild(dialog);
 
-            let selectedCai = null;
             const confirmButton = document.getElementById('confirmMove');
+            const inputField = document.getElementById('targetTeamInput');
+            const validationMessage = document.getElementById('validation-message');
+            let targetTeam = null;
+
+            const validateInput = () => {
+                const teamNumber = inputField.value.trim();
+                if (!teamNumber) {
+                    validationMessage.textContent = '';
+                    confirmButton.disabled = true;
+                    return;
+                }
+
+                const targetTeamName = 'C-' + teamNumber;
+                targetTeam = teams.find(t => t.name === targetTeamName);
+                
+                if (!targetTeam) {
+                    validationMessage.textContent = 'Equipo no encontrado.';
+                    confirmButton.disabled = true;
+                } else if (targetTeam.name === coveringTeam.name) {
+                    validationMessage.textContent = 'No se puede reemplazar a sí mismo.';
+                    confirmButton.disabled = true;
+                } else if (targetTeam.active) {
+                    validationMessage.textContent = 'El equipo objetivo está activo.';
+                    confirmButton.disabled = true;
+                } else if (targetTeam.coveredByTeamName) {
+                    validationMessage.textContent = 'Equipo ya está siendo cubierto.';
+                    confirmButton.disabled = true;
+                } else {
+                    validationMessage.textContent = '';
+                    confirmButton.disabled = false;
+                }
+            };
+
+            inputField.addEventListener('input', validateInput);
 
             const closeDialog = () => {
                 document.body.removeChild(dialog);
                 document.body.removeChild(backdrop);
             };
 
-            document.getElementById('caiSelectionList').addEventListener('click', (e) => {
-                if(e.target.dataset.cai) {
-                    document.querySelectorAll('#caiSelectionList div').forEach(el => el.classList.remove('selected'));
-                    e.target.classList.add('selected');
-                    selectedCai = e.target.dataset.cai;
-                    confirmButton.disabled = false;
-                }
-            });
-
             confirmButton.addEventListener('click', () => {
-                if (selectedCai) {
-                    assignCoverage(team, selectedCai);
+                if (targetTeam) {
+                    assignDirectCoverage(coveringTeam, targetTeam);
                     renderTeams();
                     closeDialog();
                 }
@@ -1634,87 +1656,46 @@
 
             document.getElementById('cancelMove').addEventListener('click', closeDialog);
             backdrop.addEventListener('click', closeDialog);
+            inputField.focus();
+        }
+        
+        function assignDirectCoverage(coveringTeam, teamToCover) {
+            resetCoverageForTeam(coveringTeam); // Clear previous state
+
+            // Set covering team's new state
+            coveringTeam.isCovering = true;
+            coveringTeam.coveringTeamNames = [teamToCover.name];
+            coveringTeam.displayName = `${coveringTeam.name} (Cubriendo ${teamToCover.name})`;
+            coveringTeam.currentCAI = teamToCover.currentCAI;
+
+            // Set covered team's state
+            teamToCover.coveredByTeamName = coveringTeam.name;
         }
 
         function confirmReturnHome(teamName) {
             const team = teams.find(t => t.name === teamName);
             if (!team) return;
-            if (confirm(`¿Desea regresar el equipo ${team.name} a su CAI original (${team.originalCAI}) y deshacer la cobertura actual?`)) {
+            if (confirm(`¿Desea que el equipo ${team.name} regrese a su CAI original (${team.originalCAI}) y deje de cubrir a otros equipos?`)) {
                 resetCoverageForTeam(team);
                 renderTeams();
             }
         }
 
-        function assignCoverage(draggedTeam, destinationCai) {
-            resetCoverageForTeam(draggedTeam);
-
-            const destinationInactiveTeams = teams.filter(t => 
-                !t.active && t.currentCAI === destinationCai && !t.coveredByTeamName && t.name !== draggedTeam.name
-            );
-
-            if (destinationInactiveTeams.length === 0) {
-                draggedTeam.currentCAI = destinationCai;
-                draggedTeam.isCovering = true;
-                draggedTeam.displayName = `${draggedTeam.name} (Refuerzo en ${destinationCai})`;
-            } else {
-                const getTeamNumber = (name) => parseInt(name.match(/\d+/g).pop(), 10);
-                destinationInactiveTeams.sort((a, b) => getTeamNumber(b.name) - getTeamNumber(a.name));
-                
-                const consolidatorTeam = destinationInactiveTeams[0];
-                const otherTeamsToCover = destinationInactiveTeams.slice(1);
-
-                draggedTeam.currentCAI = destinationCai;
-                draggedTeam.isCovering = true;
-                draggedTeam.coveringTeamNames = [consolidatorTeam.name];
-                draggedTeam.displayName = `${draggedTeam.name} (Cubriendo ${consolidatorTeam.name})`;
-
-                consolidatorTeam.isCovering = true;
-                consolidatorTeam.coveredByTeamName = draggedTeam.name;
-                const teamsToCoverNames = otherTeamsToCover.map(t => t.name);
-                if(teamsToCoverNames.length > 0) {
-                    consolidatorTeam.coveringTeamNames = teamsToCoverNames;
-                    consolidatorTeam.displayName = `${consolidatorTeam.name} (Cubriendo ${teamsToCoverNames.join(', ')})`;
-                } else {
-                    consolidatorTeam.displayName = `${consolidatorTeam.name} (Cubierto por ${draggedTeam.name})`;
-                }
-
-                otherTeamsToCover.forEach(team => {
-                    team.coveredByTeamName = consolidatorTeam.name;
-                });
-            }
-        }
-
         function resetCoverageForTeam(teamToReset) {
-            const teamsToUpdate = new Set();
-            teamsToUpdate.add(teamToReset);
-
-            if (teamToReset.coveredByTeamName) {
-                const parent = teams.find(t => t.name === teamToReset.coveredByTeamName);
-                if(parent) teamsToUpdate.add(parent);
+            // Find the team that was being covered by teamToReset
+            if (teamToReset.coveringTeamNames.length > 0) {
+                const coveredTeamName = teamToReset.coveringTeamNames[0];
+                const coveredTeam = teams.find(t => t.name === coveredTeamName);
+                if (coveredTeam) {
+                    coveredTeam.coveredByTeamName = null;
+                }
             }
 
-            teamToReset.coveringTeamNames.forEach(name => {
-                const child = teams.find(t => t.name === name);
-                if(child) teamsToUpdate.add(child);
-            });
-
-            teams.forEach(t => {
-                if (t.coveredByTeamName === teamToReset.name) {
-                    teamsToUpdate.add(t);
-                }
-                const parent = teams.find(p => p.name === t.coveredByTeamName);
-                if (parent && parent.name === teamToReset.name) {
-                    teamsToUpdate.add(t);
-                }
-            });
-
-            teamsToUpdate.forEach(team => {
-                team.currentCAI = team.originalCAI;
-                team.displayName = team.name;
-                team.isCovering = false;
-                team.coveringTeamNames = [];
-                team.coveredByTeamName = null;
-            });
+            // Reset the teamToReset itself
+            teamToReset.currentCAI = teamToReset.originalCAI;
+            teamToReset.displayName = teamToReset.name;
+            teamToReset.isCovering = false;
+            teamToReset.coveringTeamNames = [];
         }
 
         loadData();
