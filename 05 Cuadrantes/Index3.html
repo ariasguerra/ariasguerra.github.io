@@ -232,15 +232,6 @@
             font-size: 0.9rem;
             transition: background-color 0.3s;
         }
-        
-        .team-item.is-covering {
-            background-color: #d1ecf1; /* Azul claro para equipos que cubren */
-            border-left-color: #0c5460;
-        }
-        .team-item.is-covered {
-            background-color: #fff3cd; /* Amarillo claro para equipos cubiertos */
-            border-left-color: #856404;
-        }
 
         .team-item:hover {
             background-color: #f0f8ff;
@@ -250,6 +241,7 @@
             display: flex;
             align-items: center;
             margin-bottom: 5px;
+            gap: 5px; /* Added gap for spacing between buttons */
         }
 
         .team-name {
@@ -257,7 +249,7 @@
             font-weight: bold;
         }
 
-        .undo-button, .activate-button, .deactivate-button, .call-button, .view-officers-button, .move-team-button {
+        .undo-button, .activate-button, .deactivate-button, .call-button, .view-officers-button, .rename-button, .reset-name-button {
             color: white;
             border: none;
             border-radius: 50%;
@@ -269,29 +261,28 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-left: 5px;
+            flex-shrink: 0; /* Prevent buttons from shrinking */
         }
 
         .undo-button { background-color: #dc3545; }
         .undo-button:hover { background-color: #c82333; }
+        .rename-button { background-color: #6c757d; }
+        .rename-button:hover { background-color: #5a6268; }
+        .reset-name-button { background-color: #fd7e14; }
+        .reset-name-button:hover { background-color: #e66a00; }
         .activate-button { background-color: #28a745; }
         .activate-button:hover { background-color: #218838; }
         .deactivate-button { background-color: #ffc107; }
         .deactivate-button:hover { background-color: #e0a800; }
         .call-button { background-color: #17a2b8; }
         .call-button:hover { background-color: #138496; }
-        .view-officers-button { background-color: #6c757d; }
-        .view-officers-button:hover { background-color: #5a6268; }
-        .move-team-button { background-color: #5bc0de; }
-        .move-team-button:hover { background-color: #31b0d5; }
-        .move-team-button.return-home { background-color: #f0ad4e; }
-        .move-team-button.return-home:hover { background-color: #ec971f; }
+        .view-officers-button { background-color: #007bff; }
+        .view-officers-button:hover { background-color: #0056b3; }
 
 
         .timer {
             font-family: monospace;
             font-size: 0.9em;
-            margin-right: 10px;
             color: #007bff;
         }
 
@@ -441,16 +432,9 @@
             width: 100%;
             box-sizing: border-box;
             padding: 8px;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
-        }
-        
-        #validation-message {
-            font-size: 0.8rem;
-            color: #dc3545;
-            height: 1.2em;
-            margin-bottom: 10px;
         }
 
         .dialog-box .dialog-list {
@@ -763,31 +747,43 @@
             const teamsList = document.getElementById('teamsList');
             teamsList.innerHTML = '';
 
-            const activeTeams = teams.filter(team => team.active);
-            const inactiveTeams = teams.filter(team => !team.active);
-
-            const activeTeamsByCai = groupTeamsByCurrentCai(activeTeams);
-            const inactiveTeamsByCai = groupTeamsByCurrentCai(inactiveTeams);
-            
-            const allCais = [...new Set(quadrants.map(q => q.cai))].sort();
-            const allActiveCais = Object.keys(activeTeamsByCai).sort();
-
-            // Render all CAIs in the inactive section
-            allCais.forEach(cai => {
-                const teamsForThisCai = inactiveTeamsByCai[cai] || [];
-                teamsList.appendChild(createCaiSection(cai, teamsForThisCai));
+            const sortedTeams = teams.sort((a, b) => {
+                if (!a.quadrants.length || !b.quadrants.length) return 0;
+                const numA = parseInt((a.originalName || a.name).match(/\d+/)?.[0] || 0);
+                const numB = parseInt((b.originalName || b.name).match(/\d+/)?.[0] || 0);
+                return numA - numB;
             });
 
-            if (teams.some(t => t.active) && teams.some(t => !t.active)) {
+            const inactiveTeams = sortedTeams.filter(team => !team.active);
+            const activeTeams = sortedTeams.filter(team => team.active);
+
+            const inactiveTeamsByCai = groupTeamsByCai(inactiveTeams);
+            const activeTeamsByCai = groupTeamsByCai(activeTeams);
+
+            const allCaisWithTeams = Object.keys(groupTeamsByCai(teams)).sort();
+
+            // Render inactive teams section
+            const inactiveContainer = document.createElement('div');
+            allCaisWithTeams.forEach(cai => {
+                const caiTeams = inactiveTeamsByCai[cai] || [];
+                inactiveContainer.appendChild(createCaiSection(cai, caiTeams));
+            });
+            teamsList.appendChild(inactiveContainer);
+
+
+            if (inactiveTeams.length > 0 && activeTeams.length > 0) {
                 const separator = document.createElement('hr');
                 separator.className = 'teams-separator';
                 teamsList.appendChild(separator);
             }
 
-            // Render only CAIs with active teams in the active section
-            allActiveCais.forEach(cai => {
-                teamsList.appendChild(createCaiSection(cai, activeTeamsByCai[cai]));
+            // Render active teams section
+            const activeContainer = document.createElement('div');
+            const sortedActiveCais = Object.keys(activeTeamsByCai).sort();
+            sortedActiveCais.forEach(cai => {
+                activeContainer.appendChild(createCaiSection(cai, activeTeamsByCai[cai]));
             });
+            teamsList.appendChild(activeContainer);
 
             const buttonsContainer = document.createElement('div');
             buttonsContainer.className = 'buttons-container';
@@ -799,60 +795,73 @@
 
             saveToLocalStorage();
         }
-        
+
         function createCaiSection(cai, caiTeams) {
             const caiSection = document.createElement('div');
             caiSection.className = 'cai-teams-section';
-            caiSection.dataset.caiName = cai;
             caiSection.innerHTML = `<h3>CAI ${cai}</h3>`;
 
-            caiTeams.sort((a,b) => parseInt(a.name.slice(2)) - parseInt(b.name.slice(2))).forEach(team => {
-                const teamItem = document.createElement('div');
-                teamItem.className = 'team-item';
-                if (team.isCovering) teamItem.classList.add('is-covering');
-                if (team.coveredByTeamName) teamItem.classList.add('is-covered');
-                teamItem.dataset.teamName = team.name;
+            if (caiTeams.length > 0) {
+                 caiTeams.forEach(team => {
+                    const teamItem = document.createElement('div');
+                    teamItem.className = 'team-item';
+                    teamItem.setAttribute('data-team-name', team.name);
 
-                let moveButtonHtml = '';
-                if (!team.active) {
-                    if (team.isCovering) {
-                        moveButtonHtml = `<button class="move-team-button return-home" onclick="confirmReturnHome('${team.name}')" title="Regresar a CAI Original"><i class="fas fa-home"></i></button>`;
-                    } else if (!team.coveredByTeamName) {
-                        moveButtonHtml = `<button class="move-team-button" onclick="showMoveTeamDialog('${team.name}')" title="Reemplazar a otro equipo"><i class="fas fa-exchange-alt"></i></button>`;
-                    }
-                }
+                    let prefixButtons = '';
+                    let suffixButtons = '';
+                    let coreButtons = '';
 
-                teamItem.innerHTML = `
-                    <div class="team-header">
-                        ${!team.active ? `<button class="undo-button" onclick="confirmUndoTeam('${team.name}')" title="Deshacer equipo"><i class="fas fa-undo"></i></button>` : ''}
-                        <span class="team-name">${team.displayName}</span>
-                        ${team.active && team.assignedTime ? `
-                            <span class="timer" data-start-time="${team.assignedTime.getTime()}">00:00:00</span>
-                            <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
-                            <button class="deactivate-button" onclick="toggleTeamStatus('${team.name}')" title="Desactivar equipo"><i class="fas fa-power-off"></i></button>
-                        ` : `
-                            ${moveButtonHtml}
+                    if (team.active) {
+                        // --- ACTIVE TEAM BUTTONS ---
+                        if (team.assignedTime) {
+                            coreButtons = `
+                                <span class="timer" data-start-time="${team.assignedTime.getTime()}">00:00:00</span>
+                                <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
+                                <button class="deactivate-button" onclick="toggleTeamStatus('${team.name}')" title="Desactivar equipo"><i class="fas fa-power-off"></i></button>
+                            `;
+                        }
+                    } else {
+                        // --- INACTIVE TEAM BUTTONS ---
+                        prefixButtons = `<button class="undo-button" onclick="confirmUndoTeam('${team.name}')" title="Deshacer equipo"><i class="fas fa-undo"></i></button>`;
+                        
+                        suffixButtons += `<button class="rename-button" onclick="showRenameDialog('${team.name}')" title="Renombrar equipo"><i class="fas fa-edit"></i></button>`;
+                        if (team.originalName && team.name !== team.originalName) {
+                            suffixButtons += `<button class="reset-name-button" onclick="confirmResetTeamName('${team.name}')" title="Restaurar nombre original"><i class="fas fa-history"></i></button>`;
+                        }
+
+                        coreButtons = `
                             <button class="activate-button" onclick="showMotiveAssignmentDialog('${team.name}')" title="Activar equipo"><i class="fas fa-play"></i></button>
                             <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
-                        `}
-                        <button class="call-button" onclick="callTeam('${team.name}')" title="Llamar al cuadrante"><i class="fas fa-phone"></i></button>
-                    </div>
-                `;
+                        `;
+                    }
+                    
+                    const callButton = `<button class="call-button" onclick="callTeam('${team.name}')" title="Llamar al cuadrante"><i class="fas fa-phone"></i></button>`;
 
-                if (team.active) {
-                    const activityDisplay = document.createElement('div');
-                    activityDisplay.className = 'activity-display';
-                    activityDisplay.innerHTML = `
-                        <span class="assignment-time">${team.assignedTime ? formatDate(team.assignedTime) : 'Pendiente'}</span>
-                        <span class="activity">Actividad: ${team.selectedMotive || 'No asignada'}</span>
+                    teamItem.innerHTML = `
+                        <div class="team-header">
+                            ${prefixButtons}
+                            <span class="team-name">${team.name}</span>
+                            ${suffixButtons}
+                            ${coreButtons}
+                            ${callButton}
+                        </div>
                     `;
-                    teamItem.appendChild(activityDisplay);
-                }
-                caiSection.appendChild(teamItem);
-            });
 
+                    if (team.active && team.assignedTime) {
+                        const activityDisplay = document.createElement('div');
+                        activityDisplay.className = 'activity-display';
+                        activityDisplay.innerHTML = `
+                            <span class="assignment-time">${formatDate(team.assignedTime)}</span>
+                            <span class="activity">Actividad: ${team.selectedMotive || 'No asignada'}</span>
+                        `;
+                        teamItem.appendChild(activityDisplay);
+                    }
+                    caiSection.appendChild(teamItem);
+                });
+            }
             return caiSection;
         }
+
 
         function addStylesToResultDialog() {
             if (document.getElementById('result-dialog-styles')) return;
@@ -920,15 +929,10 @@
                     return;
                 }
                 const teamName = 'C-' + teamQuadrants.map(q => q.name.slice(2)).join('-');
-                const teamCAI = teamQuadrants[0].cai;
                 const newTeam = { 
                     name: teamName, 
-                    displayName: teamName,
+                    originalName: teamName, // Guardar el nombre original
                     quadrants: teamQuadrants, 
-                    originalCAI: teamCAI,
-                    currentCAI: teamCAI,
-                    isCovering: false,
-                    coveredByTeamName: null,
                     active: false, 
                     selectedMotive: '', 
                     assignedTime: null, 
@@ -958,9 +962,6 @@
         function undoTeam(teamName) {
             const teamIndex = teams.findIndex(t => t.name === teamName);
             if (teamIndex > -1) {
-                const teamToUndo = teams[teamIndex];
-                resetCoverageForTeam(teamToUndo);
-
                 teams.splice(teamIndex, 1);
                 renderQuadrants();
                 renderTeams();
@@ -968,6 +969,101 @@
                 saveToLocalStorage();
             }
         }
+
+        // --- FUNCIONES PARA RENOMBRAR ---
+        function showRenameDialog(teamName) {
+            const team = teams.find(t => t.name === teamName);
+            if (!team) return;
+
+            const backdrop = document.createElement('div');
+            backdrop.className = 'dialog-backdrop';
+            document.body.appendChild(backdrop);
+
+            const dialog = document.createElement('div');
+            dialog.className = 'dialog-box';
+            dialog.innerHTML = `
+                <h3>Renombrar Equipo</h3>
+                <input type="text" id="renameInput" value="${team.name}" placeholder="Nuevo nombre para el equipo">
+                <div class="dialog-buttons">
+                    <button id="cancelRename" class="cancel-btn">Cancelar</button>
+                    <button id="confirmRename" class="confirm-btn">Confirmar</button>
+                </div>
+            `;
+            document.body.appendChild(dialog);
+
+            const closeDialog = () => {
+                document.body.removeChild(dialog);
+                document.body.removeChild(backdrop);
+            };
+
+            document.getElementById('confirmRename').onclick = () => {
+                const newName = document.getElementById('renameInput').value.trim();
+                renameTeam(teamName, newName);
+                closeDialog();
+            };
+            document.getElementById('cancelRename').onclick = closeDialog;
+            backdrop.onclick = closeDialog;
+        }
+
+        function renameTeam(oldName, newName) {
+            if (!newName) {
+                alert('El nombre no puede estar vacío.');
+                return;
+            }
+            if (teams.some(t => t.name === newName && t.name !== oldName)) {
+                alert('Ya existe un equipo con ese nombre.');
+                return;
+            }
+
+            const team = teams.find(t => t.name === oldName);
+            if (team) {
+                if (!team.originalName) {
+                    team.originalName = oldName;
+                }
+                
+                team.name = newName;
+
+                const cai = team.quadrants[0]?.cai;
+                if (cai && activityResults[cai] && activityResults[cai][oldName]) {
+                    activityResults[cai][newName] = activityResults[cai][oldName];
+                    delete activityResults[cai][oldName];
+                }
+
+                renderTeams();
+                saveToLocalStorage();
+            }
+        }
+
+        function confirmResetTeamName(teamName) {
+            if (confirm(`¿Restaurar el nombre original para el equipo "${teamName}"?`)) {
+                resetTeamName(teamName);
+            }
+        }
+
+        function resetTeamName(teamName) {
+            const team = teams.find(t => t.name === teamName);
+            if (team && team.originalName) {
+                const oldName = team.name;
+                const newName = team.originalName;
+
+                if (teams.some(t => t.name === newName && t !== team)) {
+                    alert(`No se puede restaurar el nombre "${newName}" porque ya está en uso.`);
+                    return;
+                }
+
+                team.name = newName;
+
+                const cai = team.quadrants[0]?.cai;
+                if (cai && activityResults[cai] && activityResults[cai][oldName]) {
+                    activityResults[cai][newName] = activityResults[cai][oldName];
+                    delete activityResults[cai][oldName];
+                }
+
+                renderTeams();
+                saveToLocalStorage();
+            }
+        }
+        // --- FIN DE FUNCIONES PARA RENOMBRAR ---
 
         function toggleTeamStatus(teamName) {
             const team = teams.find(t => t.name === teamName);
@@ -1079,7 +1175,7 @@
 
         function saveActivityResult(team, result) {
             if (!team || !team.quadrants || team.quadrants.length === 0) return;
-            const cai = team.originalCAI;
+            const cai = team.quadrants[0].cai;
             if (!team.activityHistory || team.activityHistory.length === 0) return;
             const activityIndex = team.activityHistory.length - 1;
             if (!activityResults[cai]) activityResults[cai] = {};
@@ -1091,14 +1187,6 @@
 
         function completeTeamDeactivation(team) {
             if (!team) return;
-
-            if (team.coveredByTeamName) {
-                const coveringTeam = teams.find(t => t.name === team.coveredByTeamName);
-                if (coveringTeam) {
-                    resetCoverageForTeam(coveringTeam);
-                }
-            }
-            
             team.active = false;
             const endTime = new Date();
             if (team.activityHistory && team.activityHistory.length > 0) {
@@ -1106,7 +1194,6 @@
             }
             team.selectedMotive = '';
             team.assignedTime = null;
-            
             renderTeams();
             updateTimers();
             saveToLocalStorage();
@@ -1123,7 +1210,7 @@
             const dialog = document.createElement('div');
             dialog.className = 'dialog-box';
             dialog.innerHTML = `
-                <h3>Asignar Actividad a ${team.displayName}</h3>
+                <h3>Asignar Actividad a ${team.name}</h3>
                 <input type="text" id="motiveSearchInput" class="search-input" placeholder="Buscar motivo...">
                 <div id="motiveSearchResults" class="dialog-list" style="position: static; display: block;"></div>
                 <div class="dialog-buttons">
@@ -1229,7 +1316,7 @@
             officersHtml += '</ul>';
 
             dialog.innerHTML = `
-                <h3>Funcionarios del Equipo ${team.displayName}</h3>
+                <h3>Funcionarios del Equipo ${team.name}</h3>
                 ${officersHtml}
                 <div class="dialog-buttons">
                     <button id="closeOfficerList" class="cancel-btn">Cerrar</button>
@@ -1246,6 +1333,7 @@
             backdrop.addEventListener('click', closeDialog);
         }
 
+
         function formatDate(date) {
             if (!(date instanceof Date) || isNaN(date.getTime())) return 'Fecha no disponible';
             return date.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
@@ -1254,19 +1342,10 @@
         function groupByCai(items) {
             if (!items || !Array.isArray(items)) return {};
             return items.reduce((groups, item) => {
-                if (!item || !item.cai) return groups;
-                if (!groups[item.cai]) groups[item.cai] = [];
-                groups[item.cai].push(item);
-                return groups;
-            }, {});
-        }
-
-        function groupTeamsByCurrentCai(teams) {
-            if (!teams || !Array.isArray(teams)) return {};
-            return teams.reduce((groups, team) => {
-                const cai = team.currentCAI || 'Unknown CAI';
+                if (!item || !item.quadrants || item.quadrants.length === 0) return groups;
+                const cai = item.quadrants[0]?.cai || 'Unknown CAI';
                 if (!groups[cai]) groups[cai] = [];
-                groups[cai].push(team);
+                groups[cai].push(item);
                 return groups;
             }, {});
         }
@@ -1338,6 +1417,9 @@
                                 if (activity.endTime) activity.endTime = new Date(activity.endTime);
                             });
                         }
+                        if (typeof team.originalName === 'undefined') {
+                            team.originalName = team.name;
+                        }
                     });
                 }
                 return parsedData;
@@ -1387,7 +1469,7 @@
             .activity-list { padding-left: 20px; margin: 0; } .page-break { page-break-before: always; }
             </style></head><body>
             <h1>Reporte de Actividades por CAI y Cuadrante</h1><div class="report-date">Fecha: ${new Date().toLocaleString('es-CO')}</div>
-            <h2>1. Conformación y Cobertura de Equipos</h2>${reportData.teamComposition}
+            <h2>1. Conformación de Equipos</h2>${reportData.teamComposition}
             <div class="page-break"></div><h2>2. Actividades Realizadas</h2>${reportData.activities}
             <div class="page-break"></div><h2>3. Consolidado de Resultados</h2>${reportData.summaryTable}
             </body></html>`;
@@ -1396,16 +1478,13 @@
         function generateReportData() {
             let teamComposition = '', activities = '', summaryData = {};
             if (!teams || teams.length === 0) return { teamComposition: '<p>No hay equipos.</p>', activities: '<p>No hay actividades.</p>', summaryTable: '<p>No hay resultados.</p>' };
-            const teamsByCai = groupTeamsByCurrentCai(teams);
+            const teamsByCai = groupTeamsByCai(teams);
             for (const cai in teamsByCai) {
-                teamComposition += `<div class="cai-section"><div class="cai-title">CAI ${cai}</div><table><tr><th>Cuadrante (Display)</th><th>Funcionarios</th></tr>`;
-                activities += `<div class="cai-section"><div class="cai-title">CAI ${cai}</div><table><tr><th>Cuadrante</th><th>Funcionarios</th><th>Actividades</th></tr>`;
-                
-                const visibleTeamsInCai = teamsByCai[cai];
-
-                visibleTeamsInCai.forEach(team => {
+                teamComposition += `<div class="cai-section"><div class="cai-title">CAI ${cai}</div><table><tr><th>Equipo</th><th>Funcionarios</th></tr>`;
+                activities += `<div class="cai-section"><div class="cai-title">CAI ${cai}</div><table><tr><th>Equipo</th><th>Funcionarios</th><th>Actividades</th></tr>`;
+                teamsByCai[cai].forEach(team => {
                     const officers = team.contacts?.map(c => `${c.GR || ''} ${c.NOMBRES || ''} ${c.APELLIDOS || ''}${c.PLACA ? ` - Placa: ${c.PLACA}` : ''}`).join('<br>') || 'N/A';
-                    teamComposition += `<tr><td>${team.displayName}</td><td>${officers}</td></tr>`;
+                    teamComposition += `<tr><td>${team.name}</td><td>${officers}</td></tr>`;
                     let activityList = '<ul class="activity-list">';
                     if (team.activityHistory?.length > 0) {
                         team.activityHistory.forEach((activity, index) => {
@@ -1413,7 +1492,7 @@
                             const endTime = activity.endTime ? formatDateTime(activity.endTime) : 'En curso';
                             const duration = activity.startTime && activity.endTime ? calculateDuration(activity.startTime, activity.endTime) : 'N/A';
                             activityList += `<li>${activity.motive || 'N/A'}<br>Inicio: ${startTime}, Fin: ${endTime}, Duración: ${duration}`;
-                            const result = activityResults?.[team.originalCAI]?.[team.name]?.[index];
+                            const result = activityResults?.[cai]?.[team.name]?.[index];
                             if (result) {
                                 activityList += `<br>Resultado: ${result}`;
                                 if (!summaryData[cai]) summaryData[cai] = {};
@@ -1425,12 +1504,12 @@
                         });
                     } else activityList += '<li>No hay actividades</li>';
                     activityList += '</ul>';
-                    activities += `<tr><td>${team.displayName}</td><td>${officers}</td><td>${activityList}</td></tr>`;
+                    activities += `<tr><td>${team.name}</td><td>${officers}</td><td>${activityList}</td></tr>`;
                 });
                 teamComposition += `</table></div>`;
                 activities += `</table></div>`;
             }
-            let summaryTable = `<table><tr><th>CAI</th><th>Cuadrante Original</th><th>Resultado</th><th>Cantidad</th></tr>`;
+            let summaryTable = `<table><tr><th>CAI</th><th>Equipo</th><th>Resultado</th><th>Cantidad</th></tr>`;
             let hasSummaryData = false;
             for (const cai in summaryData) for (const teamName in summaryData[cai]) for (const result in summaryData[cai][teamName]) {
                 hasSummaryData = true;
@@ -1444,19 +1523,18 @@
         function generateSimplifiedReport() {
             let report = `Reporte de Actividades\nFecha: ${new Date().toLocaleString('es-CO')}\n\n`;
             if (!teams || teams.length === 0) return report + "No hay equipos o actividades registradas.";
-            const teamsByCai = groupTeamsByCurrentCai(teams);
+            const teamsByCai = groupTeamsByCai(teams);
             let summaryData = {};
             for (const cai in teamsByCai) {
                 report += `CAI ${cai}:\n${"-".repeat(20)}\n`;
-                const visibleTeamsInCai = teamsByCai[cai];
-                visibleTeamsInCai.forEach(team => {
-                    report += `\nEquipo ${team.displayName}:\n`;
+                teamsByCai[cai].forEach(team => {
+                    report += `\nEquipo ${team.name}:\n`;
                     report += "Funcionarios:\n";
                     team.contacts?.forEach(c => {
                         report += `- ${c.GR || ''} ${c.NOMBRES || ''} ${c.APELLIDOS || ''}${c.PLACA ? ` - Placa: ${c.PLACA}` : ''}\n`;
                     });
                     team.activityHistory?.forEach((activity, index) => {
-                        const result = activityResults?.[team.originalCAI]?.[team.name]?.[index];
+                        const result = activityResults?.[cai]?.[team.name]?.[index];
                         report += `- ${activity.motive || 'N/A'}${result ? ` -> ${result}` : ''}\n`;
                         if (result) {
                             if (!summaryData[result]) summaryData[result] = 0;
@@ -1594,116 +1672,6 @@
             quadrants = [], teams = [], motivesList = [], contactsList = [], selectedQuadrants = [], selectedOfficers = [null, null], activityResults = {};
             fetch('cuadrantes.json').then(res => res.json()).then(data => { quadrants = data; renderQuadrants(); })
                 .catch(() => alert('No se pudieron cargar los datos básicos.'));
-        }
-        
-        // --- MOVE TEAM LOGIC (CORRECTED) ---
-
-        function showMoveTeamDialog(coveringTeamName) {
-            const coveringTeam = teams.find(t => t.name === coveringTeamName);
-            if (!coveringTeam) return;
-
-            const backdrop = document.createElement('div');
-            backdrop.className = 'dialog-backdrop';
-            
-            const dialog = document.createElement('div');
-            dialog.className = 'dialog-box';
-
-            dialog.innerHTML = `
-                <h3>Reemplazar Equipo</h3>
-                <p>El equipo <strong>${coveringTeam.name}</strong> cubrirá al equipo que ingrese a continuación:</p>
-                <input type="text" id="targetTeamInput" placeholder="Ej: 9-10 o 12">
-                <div id="validation-message"></div>
-                <div class="dialog-buttons">
-                    <button id="cancelMove" class="cancel-btn">Cancelar</button>
-                    <button id="confirmMove" class="confirm-btn" disabled>Confirmar</button>
-                </div>
-            `;
-            
-            document.body.appendChild(backdrop);
-            document.body.appendChild(dialog);
-
-            const confirmButton = document.getElementById('confirmMove');
-            const inputField = document.getElementById('targetTeamInput');
-            const validationMessage = document.getElementById('validation-message');
-            let targetTeam = null;
-
-            const validateInput = () => {
-                const teamNumber = inputField.value.trim();
-                if (!teamNumber) {
-                    validationMessage.textContent = '';
-                    confirmButton.disabled = true;
-                    return;
-                }
-
-                const targetTeamName = 'C-' + teamNumber;
-                targetTeam = teams.find(t => t.name === targetTeamName);
-                
-                if (!targetTeam) {
-                    validationMessage.textContent = 'Equipo no encontrado.';
-                    confirmButton.disabled = true;
-                } else if (targetTeam.name === coveringTeam.name) {
-                    validationMessage.textContent = 'No se puede cubrir a sí mismo.';
-                    confirmButton.disabled = true;
-                } else if (targetTeam.coveredByTeamName) {
-                    validationMessage.textContent = `Equipo ya cubierto por ${targetTeam.coveredByTeamName}.`;
-                    confirmButton.disabled = true;
-                } else {
-                    validationMessage.textContent = '';
-                    confirmButton.disabled = false;
-                }
-            };
-
-            inputField.addEventListener('input', validateInput);
-
-            const closeDialog = () => {
-                document.body.removeChild(dialog);
-                document.body.removeChild(backdrop);
-            };
-
-            confirmButton.addEventListener('click', () => {
-                if (targetTeam) {
-                    assignDirectCoverage(coveringTeam, targetTeam);
-                    renderTeams();
-                    closeDialog();
-                }
-            });
-
-            document.getElementById('cancelMove').addEventListener('click', closeDialog);
-            backdrop.addEventListener('click', closeDialog);
-            inputField.focus();
-        }
-        
-        function assignDirectCoverage(coveringTeam, teamToCover) {
-            resetCoverageForTeam(coveringTeam);
-
-            coveringTeam.isCovering = true;
-            coveringTeam.currentCAI = teamToCover.currentCAI;
-            coveringTeam.displayName = `${coveringTeam.name} (Cubriendo ${teamToCover.name})`;
-            
-            teamToCover.coveredByTeamName = coveringTeam.name;
-            const status = teamToCover.active ? "Activo" : "Inactivo";
-            teamToCover.displayName = `${teamToCover.name} (${status} - Cubierto por ${coveringTeam.name})`;
-        }
-
-        function confirmReturnHome(teamName) {
-            const team = teams.find(t => t.name === teamName);
-            if (!team) return;
-            if (confirm(`¿Desea que el equipo ${team.name} regrese a su CAI original (${team.originalCAI}) y deje de cubrir a otros equipos?`)) {
-                resetCoverageForTeam(team);
-                renderTeams();
-            }
-        }
-
-        function resetCoverageForTeam(teamToReset) {
-            const coveredTeam = teams.find(t => t.coveredByTeamName === teamToReset.name);
-            if(coveredTeam) {
-                coveredTeam.coveredByTeamName = null;
-                coveredTeam.displayName = coveredTeam.name;
-            }
-
-            teamToReset.currentCAI = teamToReset.originalCAI;
-            teamToReset.displayName = teamToReset.name;
-            teamToReset.isCovering = false;
         }
 
         loadData();
