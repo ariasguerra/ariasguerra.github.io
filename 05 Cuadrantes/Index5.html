@@ -188,7 +188,26 @@
         }
 
         /* Estilos para botones */
-        #createTeamButton, #reportButton, #emailButton, #resetButton, #whatsappButton {
+        .action-button {
+            background-color: #003366;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .action-button:hover {
+             background-color: #004080;
+        }
+
+        #createTeamButton {
             background-color: #003366;
             color: white;
             border: none;
@@ -197,38 +216,29 @@
             cursor: pointer;
             font-size: 0.9rem;
             transition: background-color 0.3s;
-        }
-
-        #createTeamButton:hover, #reportButton:hover, #emailButton:hover {
-            background-color: #004080;
-        }
-
-        #createTeamButton {
             display: block;
             width: 100%;
             margin: 10px 0;
+        }
+
+        #createTeamButton:hover {
+            background-color: #004080;
         }
 
         #createTeamButton:disabled {
             background-color: #cccccc;
             cursor: not-allowed;
         }
+        
+        #resetButton { background-color: #dc3545; }
+        #resetButton:hover { background-color: #c82333; }
+        #reportButton { background-color: #17a2b8; }
+        #reportButton:hover { background-color: #138496; }
+        #whatsappButton { background-color: #25D366; }
+        #whatsappButton:hover { background-color: #128C7E; }
+        #emailButton { background-color: #6c757d; }
+        #emailButton:hover { background-color: #5a6268; }
 
-        #resetButton {
-            background-color: #dc3545;
-        }
-
-        #resetButton:hover {
-            background-color: #c82333;
-        }
-
-        #whatsappButton {
-            background-color: #25D366;
-        }
-
-        #whatsappButton:hover {
-            background-color: #128C7E;
-        }
 
         /* Estilos para equipos */
         .team-item {
@@ -493,19 +503,25 @@
         
         .dialog-box .dialog-buttons {
              display: flex;
+             justify-content: flex-end; /* Alinea los botones a la derecha */
              gap: 10px;
              margin-top: 15px;
         }
         
         .dialog-box .dialog-buttons button {
-            flex-grow: 1;
+            flex-grow: 0; /* Evita que los botones crezcan */
             padding: 10px;
             border: none;
-            border-radius: 4px;
+            border-radius: 50%;
             color: white;
             cursor: pointer;
             font-size: 1rem;
             transition: background-color 0.3s;
+            width: 44px; /* Ancho fijo para botones de ícono */
+            height: 44px; /* Alto fijo para botones de ícono */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .dialog-box .dialog-buttons .confirm-btn { background-color: #28a745; }
@@ -514,6 +530,9 @@
         
         .dialog-box .dialog-buttons .cancel-btn { background-color: #6c757d; }
         .dialog-box .dialog-buttons .cancel-btn:hover { background-color: #5a6268; }
+
+        .dialog-box .dialog-buttons .reset-btn { background-color: #fd7e14; }
+        .dialog-box .dialog-buttons .reset-btn:hover { background-color: #e66a00; }
 
         /* Estilos responsivos */
         @media (min-width: 768px) {
@@ -542,7 +561,7 @@
                 font-size: 0.9rem;
             }
 
-            #createTeamButton, #reportButton, #emailButton {
+            #createTeamButton {
                 font-size: 1rem;
             }
 
@@ -563,13 +582,12 @@
 <body>
     <div class="container">
         <header>
-            <h1>Sistema de Gestión de Cuadrantes Policiales</h1>
-            <h2 id="current-date"></h2>
+            <h2 id="current-date">sábado, 26 de julio de 2025</h2>
         </header>
         <main class="main-content">
             <div class="left-panel">
                 <div class="file-upload-container">
-                    <button id="uploadButton" class="btn btn-primary">
+                    <button id="uploadButton" title="Cargar archivo JSON con la lista de funcionarios">
                         <i class="fas fa-upload"></i> Cargar lista de funcionarios
                     </button>
                     <input type="file" id="contactsFile" accept=".json" style="display: none;">
@@ -680,9 +698,10 @@
             toggleCreateTeamElements(quadrants.filter(q => !isQuadrantInTeam(q.id)).length > 0);
             addStylesToResultDialog();
             
-            const dateElement = document.getElementById('current-date');
-            if(dateElement) {
-                dateElement.textContent = new Date().toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            // Hide upload button if contacts are already loaded
+            if (contactsList && contactsList.length > 0) {
+                const uploadContainer = document.querySelector('.file-upload-container');
+                if(uploadContainer) uploadContainer.style.display = 'none';
             }
         }
 
@@ -690,6 +709,9 @@
             const uploadButton = document.getElementById('uploadButton');
             const fileInput = document.getElementById('contactsFile');
             const fileStatus = document.getElementById('fileStatus');
+            const uploadContainer = document.querySelector('.file-upload-container');
+
+            if (!uploadButton || !fileInput || !fileStatus || !uploadContainer) return;
 
             uploadButton.addEventListener('click', () => fileInput.click());
 
@@ -712,21 +734,20 @@
                             
                             contactsList = data;
                             localStorage.setItem('contactsList', JSON.stringify(contactsList));
-                            fileStatus.textContent = 'Lista de funcionarios cargada y guardada correctamente';
-                            fileStatus.style.color = 'green';
                             loadOfficerDropdowns();
                             saveToLocalStorage();
+                            
+                            // Hide the upload container on successful load
+                            uploadContainer.style.display = 'none';
 
-                            uploadButton.innerHTML = '<i class="fas fa-check"></i> Lista cargada';
-                            uploadButton.style.backgroundColor = '#28a745';
                         } catch (error) {
                             console.error('Error al parsear el archivo JSON:', error);
                             fileStatus.textContent = 'Error al cargar el archivo: ' + error.message;
                             fileStatus.style.color = 'red';
                             uploadButton.innerHTML = '<i class="fas fa-upload"></i> Cargar lista de funcionarios';
                             uploadButton.style.backgroundColor = '';
+                            uploadButton.disabled = false;
                         }
-                        uploadButton.disabled = false;
                     };
                     reader.readAsText(file);
                 }
@@ -876,10 +897,10 @@
 
             const buttonsContainer = document.createElement('div');
             buttonsContainer.className = 'buttons-container';
-            buttonsContainer.appendChild(createButton('resetButton', 'Reiniciar Turno', resetLocalStorage));
-            buttonsContainer.appendChild(createButton('reportButton', 'Reporte', generateReport));
-            buttonsContainer.appendChild(createButton('whatsappButton', '<i class="fab fa-whatsapp"></i>', sendReportWhatsApp));
-            buttonsContainer.appendChild(createButton('emailButton', '<i class="far fa-envelope"></i>', sendReportEmail));
+            buttonsContainer.appendChild(createButton('resetButton', '<i class="fas fa-sync-alt"></i>', resetLocalStorage, 'Reiniciar Turno'));
+            buttonsContainer.appendChild(createButton('reportButton', '<i class="fas fa-file-alt"></i>', generateReport, 'Generar Reporte PDF'));
+            buttonsContainer.appendChild(createButton('whatsappButton', '<i class="fab fa-whatsapp"></i>', sendReportWhatsApp, 'Enviar Reporte por WhatsApp'));
+            buttonsContainer.appendChild(createButton('emailButton', '<i class="far fa-envelope"></i>', sendReportEmail, 'Enviar Reporte por Email'));
             teamsList.appendChild(buttonsContainer);
 
             saveToLocalStorage();
@@ -899,11 +920,13 @@
             document.head.appendChild(style);
         }
 
-        function createButton(id, innerHTML, onClickHandler) {
+        function createButton(id, innerHTML, onClickHandler, title = '') {
             const button = document.createElement('button');
             button.id = id;
+            button.className = 'action-button';
             button.innerHTML = innerHTML;
             button.onclick = onClickHandler;
+            if (title) button.title = title;
             return button;
         }
 
@@ -965,7 +988,8 @@
                     assignedTime: null, 
                     activityHistory: [], 
                     contacts: selectedOfficers.slice(),
-                    observation: '' // Nueva propiedad
+                    observation: '',
+                    originalCai: teamQuadrants[0]?.cai // Nueva propiedad para el CAI original
                 };
                 teams.push(newTeam);
                 alert(`Equipo "${teamName}" creado con éxito.`);
@@ -1022,12 +1046,13 @@
                 <label for="observationInput">Observación:</label>
                 <textarea id="observationInput" placeholder="Añada una observación...">${team.observation || ''}</textarea>
                 
-                <label for="caiSelector">Cambiar CAI:</label>
+                <label for="caiSelector">CAI Actual:</label>
                 <select id="caiSelector">${caiOptions}</select>
 
                 <div class="dialog-buttons">
-                    <button id="cancelEdit" class="cancel-btn">Cancelar</button>
-                    <button id="confirmEdit" class="confirm-btn">Guardar Cambios</button>
+                    <button id="resetObservationAndCai" class="reset-btn" title="Borrar observación y restaurar CAI original"><i class="fas fa-history"></i></button>
+                    <button id="cancelEdit" class="cancel-btn" title="Cancelar"><i class="fas fa-times"></i></button>
+                    <button id="confirmEdit" class="confirm-btn" title="Guardar Cambios"><i class="fas fa-check"></i></button>
                 </div>
             `;
             document.body.appendChild(dialog);
@@ -1044,13 +1069,9 @@
                 team.observation = newObservation;
 
                 if (newCai && newCai !== currentCai) {
-                    // Actualizar el CAI para los cuadrantes del equipo en la lista principal de cuadrantes
                     team.quadrants.forEach(teamQuadrant => {
                         const mainQuadrant = quadrants.find(q => q.id === teamQuadrant.id);
-                        if (mainQuadrant) {
-                            mainQuadrant.cai = newCai;
-                        }
-                        // Actualizar también en la copia dentro del objeto team
+                        if (mainQuadrant) mainQuadrant.cai = newCai;
                         teamQuadrant.cai = newCai;
                     });
                 }
@@ -1059,6 +1080,24 @@
                 saveToLocalStorage();
                 closeDialog();
             };
+
+            document.getElementById('resetObservationAndCai').onclick = () => {
+                if (confirm('¿Está seguro de que desea borrar la observación y restaurar el CAI original para este equipo?')) {
+                    team.observation = '';
+                    const originalCai = team.originalCai;
+                    if (originalCai && originalCai !== currentCai) {
+                        team.quadrants.forEach(teamQuadrant => {
+                            const mainQuadrant = quadrants.find(q => q.id === teamQuadrant.id);
+                            if (mainQuadrant) mainQuadrant.cai = originalCai;
+                            teamQuadrant.cai = originalCai;
+                        });
+                    }
+                    renderTeams();
+                    saveToLocalStorage();
+                    closeDialog();
+                }
+            };
+            
             document.getElementById('cancelEdit').onclick = closeDialog;
             backdrop.onclick = closeDialog;
         }
@@ -1080,7 +1119,8 @@
                 <input type="text" id="resultSearch" placeholder="Buscar resultado...">
                 <div id="resultsList" class="dialog-list"></div>
                 <div class="dialog-buttons">
-                    <button id="confirmResult" class="confirm-btn" disabled>Confirmar</button>
+                    <button id="cancelResult" class="cancel-btn" title="Cancelar"><i class="fas fa-times"></i></button>
+                    <button id="confirmResult" class="confirm-btn" title="Confirmar Resultado" disabled><i class="fas fa-check"></i></button>
                 </div>
             `;
             document.body.appendChild(dialog);
@@ -1093,6 +1133,7 @@
             const resultSearch = document.getElementById('resultSearch');
             const resultsList = document.getElementById('resultsList');
             const confirmButton = document.getElementById('confirmResult');
+            const cancelButton = document.getElementById('cancelResult');
             
             const showAllResults = () => {
                 resultsList.innerHTML = '';
@@ -1133,6 +1174,7 @@
                 }
             });
             
+            cancelButton.onclick = closeDialog;
             backdrop.addEventListener('click', closeDialog);
             showAllResults();
         }
@@ -1214,8 +1256,8 @@
                 <input type="text" id="motiveSearchInput" class="search-input" placeholder="Buscar motivo...">
                 <div id="motiveSearchResults" class="dialog-list" style="position: static; display: block;"></div>
                 <div class="dialog-buttons">
-                    <button id="cancelMotive" class="cancel-btn">Cancelar</button>
-                    <button id="confirmMotive" class="confirm-btn" disabled>Confirmar y Activar</button>
+                    <button id="cancelMotive" class="cancel-btn" title="Cancelar"><i class="fas fa-times"></i></button>
+                    <button id="confirmMotive" class="confirm-btn" title="Confirmar y Activar" disabled><i class="fas fa-check"></i></button>
                 </div>
             `;
             document.body.appendChild(dialog);
@@ -1318,8 +1360,8 @@
             dialog.innerHTML = `
                 <h3>Funcionarios del Equipo ${team.name}</h3>
                 ${officersHtml}
-                <div class="dialog-buttons">
-                    <button id="closeOfficerList" class="cancel-btn">Cerrar</button>
+                <div class="dialog-buttons" style="justify-content: center;">
+                    <button id="closeOfficerList" class="cancel-btn" title="Cerrar"><i class="fas fa-times"></i></button>
                 </div>
             `;
             document.body.appendChild(dialog);
@@ -1405,7 +1447,6 @@
                         });
                     }
                 });
-                // Guardamos también la lista de cuadrantes principal por si se cambió un CAI
                 const dataToSave = { quadrants, teams: teamsToSave, motivesList, selectedQuadrants, selectedOfficers, activityResults };
                 localStorage.setItem('policeQuadrantsData', JSON.stringify(dataToSave));
                 localStorage.setItem('contactsList', JSON.stringify(contactsList));
@@ -1428,10 +1469,8 @@
                                 if (activity.endTime) activity.endTime = new Date(activity.endTime);
                             });
                         }
-                        // Aseguramos que la nueva propiedad exista en los datos cargados
-                        if (typeof team.observation === 'undefined') {
-                            team.observation = '';
-                        }
+                        if (typeof team.observation === 'undefined') team.observation = '';
+                        if (typeof team.originalCai === 'undefined') team.originalCai = team.quadrants[0]?.cai;
                     });
                 }
                 return parsedData;
