@@ -1017,28 +1017,61 @@
                 alert('El nombre no puede estar vacío.');
                 return;
             }
+
             if (teams.some(t => !t.active && t.name === newName && t.name !== oldName)) {
                 alert('Ya existe un equipo inactivo con ese nombre.');
                 return;
             }
 
-            const team = teams.find(t => t.name === oldName);
-            if (team) {
-                if (!team.originalName) {
-                    team.originalName = oldName;
-                }
-                
-                team.name = newName;
+            const teamToRename = teams.find(t => t.name === oldName);
+            if (!teamToRename) return;
 
-                const cai = team.quadrants[0]?.cai;
-                if (cai && activityResults[cai] && activityResults[cai][oldName]) {
-                    activityResults[cai][newName] = activityResults[cai][oldName];
-                    delete activityResults[cai][oldName];
-                }
-
-                renderTeams();
-                saveToLocalStorage();
+            const newQuadrantNumbers = newName.startsWith('C-') ? newName.slice(2).split('-').map(n => parseInt(n)) : [];
+            if (newQuadrantNumbers.some(isNaN) || newQuadrantNumbers.length === 0) {
+                alert('El nuevo nombre no tiene un formato de cuadrante válido (ej. C-1, C-10-11).');
+                return;
             }
+
+            const newTargetQuadrants = quadrants.filter(q => newQuadrantNumbers.includes(parseInt(q.name.slice(2))));
+
+            if (newTargetQuadrants.length !== newQuadrantNumbers.length) {
+                alert('Uno o más de los cuadrantes especificados en el nuevo nombre no existen.');
+                return;
+            }
+
+            const takenQuadrants = newTargetQuadrants.filter(q => {
+                return teams.some(team => team !== teamToRename && team.quadrants.some(teamQuad => teamQuad.id === q.id));
+            });
+
+            if (takenQuadrants.length > 0) {
+                const takenNames = takenQuadrants.map(q => q.name).join(', ');
+                alert(`No se puede renombrar. El/los cuadrante(s) ${takenNames} ya está(n) asignado(s) a otro equipo.`);
+                return;
+            }
+
+            if (!teamToRename.originalName) {
+                teamToRename.originalName = oldName;
+            }
+            
+            const oldCai = teamToRename.quadrants[0]?.cai;
+            teamToRename.name = newName;
+            teamToRename.quadrants = newTargetQuadrants;
+            const newCai = newTargetQuadrants[0]?.cai;
+
+            if (oldCai && newCai && activityResults[oldCai] && activityResults[oldCai][oldName]) {
+                if (!activityResults[newCai]) {
+                    activityResults[newCai] = {};
+                }
+                activityResults[newCai][newName] = activityResults[oldCai][oldName];
+                delete activityResults[oldCai][oldName];
+                if (Object.keys(activityResults[oldCai]).length === 0) {
+                    delete activityResults[oldCai];
+                }
+            }
+            
+            renderTeams();
+            renderQuadrants();
+            saveToLocalStorage();
         }
 
         function confirmResetTeamName(teamName) {
@@ -1050,26 +1083,51 @@
                 return;
             }
 
-            if (confirm(`¿Restaurar el nombre original para el equipo "${teamName}"?`)) {
+            const originalQuadrantNumbers = team.originalName.slice(2).split('-').map(n => parseInt(n));
+            const originalTargetQuadrants = quadrants.filter(q => originalQuadrantNumbers.includes(parseInt(q.name.slice(2))));
+            const takenQuadrants = originalTargetQuadrants.filter(q => {
+                return teams.some(t => t !== team && t.quadrants.some(tq => tq.id === q.id));
+            });
+
+            if (takenQuadrants.length > 0) {
+                const takenNames = takenQuadrants.map(q => q.name).join(', ');
+                alert(`No se puede restaurar. El/los cuadrante(s) original(es) ${takenNames} ya está(n) asignado(s) a otro equipo.`);
+                return;
+            }
+
+            if (confirm(`¿Restaurar el nombre y los cuadrantes originales para el equipo "${teamName}"?`)) {
                 resetTeamName(teamName);
             }
         }
 
         function resetTeamName(teamName) {
-            const team = teams.find(t => t.name === teamName);
-            if (team && team.originalName) {
-                const oldName = team.name;
-                const newName = team.originalName;
+            const teamToReset = teams.find(t => t.name === teamName);
+            if (teamToReset && teamToReset.originalName) {
+                const oldName = teamToReset.name;
+                const newName = teamToReset.originalName;
+                
+                const originalQuadrantNumbers = newName.slice(2).split('-').map(n => parseInt(n));
+                const originalTargetQuadrants = quadrants.filter(q => originalQuadrantNumbers.includes(parseInt(q.name.slice(2))));
 
-                team.name = newName;
+                const currentCai = teamToReset.quadrants[0]?.cai;
+                const originalCai = originalTargetQuadrants[0]?.cai;
 
-                const cai = team.quadrants[0]?.cai;
-                if (cai && activityResults[cai] && activityResults[cai][oldName]) {
-                    activityResults[cai][newName] = activityResults[cai][oldName];
-                    delete activityResults[cai][oldName];
+                teamToReset.name = newName;
+                teamToReset.quadrants = originalTargetQuadrants;
+
+                if (currentCai && originalCai && activityResults[currentCai] && activityResults[currentCai][oldName]) {
+                    if (!activityResults[originalCai]) {
+                        activityResults[originalCai] = {};
+                    }
+                    activityResults[originalCai][newName] = activityResults[currentCai][oldName];
+                    delete activityResults[currentCai][oldName];
+                    if (Object.keys(activityResults[currentCai]).length === 0) {
+                        delete activityResults[currentCai];
+                    }
                 }
 
                 renderTeams();
+                renderQuadrants();
                 saveToLocalStorage();
             }
         }
@@ -1205,21 +1263,28 @@
             team.assignedTime = null;
 
             const deactivatedOriginalName = team.originalName;
-            const teamToReset = teams.find(t => t.name === deactivatedOriginalName && t !== team);
+            const conflictingTeam = teams.find(t => t.name === deactivatedOriginalName && t !== team);
 
-            if (teamToReset) {
-                const itsOriginalName = teamToReset.originalName;
-                const isTargetNameFree = !teams.some(t => t !== teamToReset && !t.active && t.name === itsOriginalName);
+            if (conflictingTeam) {
+                const itsOriginalName = conflictingTeam.originalName;
+                const isTargetNameFree = !teams.some(t => t !== conflictingTeam && !t.active && t.name === itsOriginalName);
+                
+                const originalQuadrantNumbers = itsOriginalName.slice(2).split('-').map(n => parseInt(n));
+                const originalTargetQuadrants = quadrants.filter(q => originalQuadrantNumbers.includes(parseInt(q.name.slice(2))));
+                const areQuadrantsFree = !originalTargetQuadrants.some(q => {
+                    return teams.some(t => t !== conflictingTeam && t.quadrants.some(tq => tq.id === q.id));
+                });
 
-                if (isTargetNameFree) {
-                    alert(`Para evitar un conflicto de nombres, el equipo "${teamToReset.name}" ha sido restaurado a su nombre original: "${itsOriginalName}".`);
-                    teamToReset.name = itsOriginalName;
+                if (isTargetNameFree && areQuadrantsFree) {
+                    alert(`Para evitar un conflicto de nombres, el equipo "${conflictingTeam.name}" ha sido restaurado a su nombre y cuadrantes originales: "${itsOriginalName}".`);
+                    resetTeamName(conflictingTeam.name);
                 } else {
-                    alert(`¡Conflicto de nombres! El equipo "${team.name}" ha finalizado su actividad, pero el equipo "${teamToReset.name}" no puede ser restaurado a su nombre original ("${itsOriginalName}") porque ya está en uso. Por favor, renombre manualmente el equipo "${teamToReset.name}".`);
+                    alert(`¡Conflicto de nombres! El equipo "${team.name}" ha finalizado su actividad, pero el equipo en conflicto "${conflictingTeam.name}" no puede ser restaurado a su estado original ("${itsOriginalName}") porque sus cuadrantes o nombre ya están en uso. Por favor, resuelva el conflicto manualmente.`);
                 }
             }
 
             renderTeams();
+            renderQuadrants();
             updateTimers();
             saveToLocalStorage();
         }
