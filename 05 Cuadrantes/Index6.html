@@ -1,0 +1,1717 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión de Cuadrantes Policiales</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.4;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 10px;
+            background-color: #fff;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header h1 {
+            color: #003366;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        header h2 {
+            color: #666;
+            text-align: center;
+            font-size: 1rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        /* Estilos para los paneles */
+        .left-panel, .right-panel {
+            flex: 1;
+            margin-bottom: 10px;
+        }
+        
+        .right-panel h2 {
+            color: #003366;
+            font-size: 1.2rem;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #003366;
+            padding-bottom: 5px;
+        }
+
+        /* Estilos para la carga de archivo */
+        .file-upload-container {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        #uploadButton {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        #uploadButton:hover {
+            background-color: #0056b3;
+        }
+
+        #uploadButton:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        #fileStatus {
+            margin-left: 10px;
+            font-size: 14px;
+        }
+
+        /* Estilos para la selección de funcionarios */
+        .officer-selection {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .officer-search-container {
+            width: 95%;
+            position: relative;
+        }
+
+        .officer-search-container label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #003366;
+        }
+
+        .officer-search {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .officer-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-top: none;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .officer-result-item {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        .officer-result-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Estilos para la lista de CAI */
+        #caiList {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .cai-item {
+            background-color: #e6f2ff;
+            border-left: 3px solid #003366;
+            padding: 5px;
+            border-radius: 3px;
+            flex: 1 1 calc(50% - 5px);
+            font-size: 0.9rem;
+        }
+
+        .cai-item h3 {
+            color: #003366;
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+        }
+
+        /* Estilos para la lista de cuadrantes */
+        .quadrant-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+        }
+
+        .quadrant-item {
+            background-color: #a3c2e6;
+            color: #003366;
+            padding: 3px 6px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            font-size: 0.8rem;
+        }
+
+        .quadrant-item:hover {
+            background-color: #7da7d9;
+        }
+
+        .quadrant-item.selected {
+            background-color: #003366;
+            color: white;
+        }
+
+        /* Estilos para botones */
+        #createTeamButton, #reportButton, #emailButton, #resetButton, #whatsappButton {
+            background-color: #003366;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+
+        #createTeamButton:hover, #reportButton:hover, #emailButton:hover {
+            background-color: #004080;
+        }
+
+        #createTeamButton {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        #createTeamButton:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        #resetButton {
+            background-color: #dc3545;
+        }
+
+        #resetButton:hover {
+            background-color: #c82333;
+        }
+
+        #whatsappButton {
+            background-color: #25D366;
+        }
+
+        #whatsappButton:hover {
+            background-color: #128C7E;
+        }
+
+        /* Estilos para equipos */
+        .team-item {
+            position: relative;
+            background-color: #e6f2ff;
+            border-left: 3px solid #003366;
+            padding: 8px;
+            border-radius: 3px;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+
+        .team-item:hover {
+            background-color: #f0f8ff;
+        }
+
+        .team-header {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+
+        .team-name {
+            font-weight: bold;
+        }
+        
+        .team-observation {
+            font-style: italic;
+            color: #555;
+            font-size: 0.85em;
+            margin-left: 5px;
+        }
+
+        .undo-button, .activate-button, .deactivate-button, .call-button, .view-officers-button, .edit-team-button {
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .undo-button { background-color: #dc3545; }
+        .undo-button:hover { background-color: #c82333; }
+        .edit-team-button { background-color: #6c757d; }
+        .edit-team-button:hover { background-color: #5a6268; }
+        .activate-button { background-color: #28a745; }
+        .activate-button:hover { background-color: #218838; }
+        .deactivate-button { background-color: #ffc107; }
+        .deactivate-button:hover { background-color: #e0a800; }
+        .call-button { background-color: #17a2b8; }
+        .call-button:hover { background-color: #138496; }
+        .view-officers-button { background-color: #007bff; }
+        .view-officers-button:hover { background-color: #0056b3; }
+
+
+        .timer {
+            font-family: monospace;
+            font-size: 0.9em;
+            margin-right: 10px;
+            color: #007bff;
+        }
+
+        /* Estilos para la búsqueda de motivos */
+        .search-container {
+            position: relative;
+            margin-top: 5px;
+        }
+
+        .search-input {
+            width: 95%;
+            padding: 5px;
+            font-size: 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .search-results {
+            position: absolute;
+            top: 95%;
+            left: 0;
+            right: 0;
+            margin-top: 3px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            max-height: 100px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .search-result-item {
+            padding: 3px 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .search-result-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Estilos para la visualización de actividades */
+        .activity-display {
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .assignment-time {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        /* Estilos para el separador de equipos */
+        .teams-separator {
+            border: 0;
+            height: 1px;
+            background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+            margin: 20px 0;
+        }
+
+        /* Estilos para el contenedor de botones */
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* Estilos para los contactos del equipo (en el modal) */
+        .officer-list-dialog ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .officer-list-dialog li {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .officer-list-dialog li:last-child {
+            border-bottom: none;
+        }
+        .officer-list-dialog .officer-details {
+            flex-grow: 1;
+        }
+
+        /* Estilos para el botón de llamada de funcionarios */
+        .call-officer-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+        }
+
+        .call-officer-button:hover {
+            background-color: #218838;
+        }
+
+        .officer-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        /* Estilos para los diálogos emergentes */
+        .dialog-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1999;
+        }
+
+        .dialog-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 2000;
+            max-width: 90%;
+            width: 350px;
+        }
+
+        .dialog-box h3 {
+            margin-top: 0;
+            color: #003366;
+        }
+
+        .dialog-box label {
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .dialog-box input[type="text"],
+        .dialog-box textarea,
+        .dialog-box select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        .dialog-box textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .dialog-box .dialog-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .dialog-box .dialog-list div {
+            padding: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, border-left 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .dialog-box .dialog-list div:hover {
+            background-color: #f0f0f0;
+        }
+
+        .dialog-box .dialog-list div.selected {
+            background-color: #e6f2ff;
+            border-left: 3px solid #003366;
+            font-weight: bold;
+        }
+        
+        .dialog-box .dialog-buttons {
+             display: flex;
+             justify-content: flex-end; /* Alinea los botones a la derecha */
+             gap: 10px;
+             margin-top: 15px;
+        }
+        
+        .dialog-box .dialog-buttons button {
+            flex-grow: 0; /* Evita que los botones crezcan */
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+            width: 44px; /* Ancho fijo para botones de ícono */
+            height: 44px; /* Alto fijo para botones de ícono */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .dialog-box .dialog-buttons .confirm-btn { background-color: #28a745; }
+        .dialog-box .dialog-buttons .confirm-btn:hover { background-color: #218838; }
+        .dialog-box .dialog-buttons .confirm-btn:disabled { background-color: #cccccc; cursor: not-allowed; }
+        
+        .dialog-box .dialog-buttons .cancel-btn { background-color: #6c757d; }
+        .dialog-box .dialog-buttons .cancel-btn:hover { background-color: #5a6268; }
+
+        .dialog-box .dialog-buttons .reset-btn { background-color: #fd7e14; }
+        .dialog-box .dialog-buttons .reset-btn:hover { background-color: #e66a00; }
+
+        /* Estilos responsivos */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 90%;
+                margin: 20px auto;
+                padding: 20px;
+                border-radius: 5px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            }
+
+            .main-content {
+                flex-direction: row;
+                gap: 20px;
+            }
+
+            .left-panel, .right-panel {
+                flex: 1;
+            }
+
+            .cai-item, .team-item {
+                font-size: 1rem;
+            }
+
+            .quadrant-item, .search-input, .search-result-item {
+                font-size: 0.9rem;
+            }
+
+            #createTeamButton, #reportButton, #emailButton {
+                font-size: 1rem;
+            }
+
+            .officer-selection {
+                flex-direction: column;
+            }
+
+            .officer-search-container {
+                width: 95%;
+            }
+
+            .dialog-box {
+                width: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sistema de Gestión de Cuadrantes Policiales</h1>
+            <h2 id="current-date"></h2>
+        </header>
+        <main class="main-content">
+            <div class="left-panel">
+                <div class="file-upload-container">
+                    <button id="uploadButton" class="btn btn-primary">
+                        <i class="fas fa-upload"></i> Cargar lista de funcionarios
+                    </button>
+                    <input type="file" id="contactsFile" accept=".json" style="display: none;">
+                    <span id="fileStatus"></span>
+                </div>
+                <div class="officer-selection">
+                    <div class="officer-search-container">
+                        <label for="officer-search-1">Comandante de Patrulla</label>
+                        <input type="text" id="officer-search-1" class="officer-search" placeholder="Buscar funcionario...">
+                        <div id="officer-results-1" class="officer-results"></div>
+                    </div>
+                    <div class="officer-search-container">
+                        <label for="officer-search-2">Integrante de Patrulla</label>
+                        <input type="text" id="officer-search-2" class="officer-search" placeholder="Buscar funcionario...">
+                        <div id="officer-results-2" class="officer-results"></div>
+                    </div>
+                </div>
+                <div id="caiList"></div>
+                <button id="createTeamButton" class="btn btn-success" disabled>Crear Equipo</button>
+            </div>
+            <div class="right-panel">
+                <div id="teamsList"></div>
+            </div>
+        </main>
+    </div>
+    <script>
+        // Variables globales
+        let quadrants = [];
+        let teams = [];
+        let motivesList = [];
+        let contactsList = [];
+        let selectedQuadrants = [];
+        let selectedOfficers = [null, null];
+        let activityResults = {};
+        let activityResultsList = [];
+
+        // Función principal para cargar datos
+        async function loadData() {
+            try {
+                const localData = loadFromLocalStorage();
+                if (localData) {
+                    ({ quadrants, teams, motivesList, selectedQuadrants, selectedOfficers, activityResults } = localData);
+                    contactsList = JSON.parse(localStorage.getItem('contactsList') || '[]');
+                    
+                    try {
+                        const activityResultsResponse = await fetch('resultados_actividades.json');
+                        activityResultsList = await activityResultsResponse.json();
+                    } catch (error) {
+                        console.error('Error al cargar resultados de actividades:', error);
+                        activityResultsList = getDefaultActivityResults();
+                    }
+                } else {
+                    try {
+                        const [quadrantsResponse, motivesResponse, activityResultsResponse] = await Promise.all([
+                            fetch('cuadrantes.json'),
+                            fetch('claves_policiales.json'),
+                            fetch('resultados_actividades.json')
+                        ]);
+                        quadrants = await quadrantsResponse.json();
+                        motivesList = await motivesResponse.json();
+                        activityResultsList = await activityResultsResponse.json();
+                    } catch (error) {
+                        console.error('Error al cargar archivos JSON:', error);
+                        try {
+                            const quadrantsResponse = await fetch('cuadrantes.json');
+                            quadrants = await quadrantsResponse.json();
+                        } catch (e) { console.error('Error al cargar cuadrantes:', e); quadrants = []; }
+                        
+                        try {
+                            const motivesResponse = await fetch('claves_policiales.json');
+                            motivesList = await motivesResponse.json();
+                        } catch (e) { console.error('Error al cargar claves policiales:', e); motivesList = []; }
+                        
+                        try {
+                            const activityResultsResponse = await fetch('resultados_actividades.json');
+                            activityResultsList = await activityResultsResponse.json();
+                        } catch (e) { console.error('Error al cargar resultados de actividades:', e); activityResultsList = getDefaultActivityResults(); }
+                    }
+                    
+                    quadrants.forEach(q => {
+                        if (q.cai === "SETE DE AGOSTO") q.cai = "SIETE DE AGOSTO";
+                    });
+                    
+                    saveToLocalStorage();
+                }
+                
+                initializeApp();
+            } catch (error) {
+                handleLoadError(error);
+            }
+        }
+
+        function getDefaultActivityResults() {
+            return [
+                { "categoria": "Capturas", "resultados": ["Captura en flagrancia"] },
+                { "categoria": "Medidas correctivas", "resultados": ["Comparendo por infracción al Código de Policía"] }
+            ];
+        }
+
+        function initializeApp() {
+            renderQuadrants();
+            renderTeams();
+            setupEventListeners();
+            startTimers();
+            setupFileUpload();
+            loadOfficerDropdowns();
+            updateCreateTeamButton();
+            toggleCreateTeamElements(quadrants.filter(q => !isQuadrantInTeam(q.id)).length > 0);
+            addStylesToResultDialog();
+            
+            const dateElement = document.getElementById('current-date');
+            if(dateElement) {
+                dateElement.textContent = new Date().toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            }
+        }
+
+        function setupFileUpload() {
+            const uploadButton = document.getElementById('uploadButton');
+            const fileInput = document.getElementById('contactsFile');
+            const fileStatus = document.getElementById('fileStatus');
+
+            uploadButton.addEventListener('click', () => fileInput.click());
+
+            fileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    uploadButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cargando...';
+                    uploadButton.disabled = true;
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            if (!Array.isArray(data)) throw new Error("El archivo no contiene un arreglo válido");
+                            
+                            const requiredProps = ['NOMBRES', 'APELLIDOS', 'GR', 'CC'];
+                            if (!data.every(item => requiredProps.every(prop => prop in item))) {
+                                throw new Error("La estructura de datos no es válida");
+                            }
+                            
+                            contactsList = data;
+                            localStorage.setItem('contactsList', JSON.stringify(contactsList));
+                            fileStatus.textContent = 'Lista de funcionarios cargada y guardada correctamente';
+                            fileStatus.style.color = 'green';
+                            loadOfficerDropdowns();
+                            saveToLocalStorage();
+
+                            uploadButton.innerHTML = '<i class="fas fa-check"></i> Lista cargada';
+                            uploadButton.style.backgroundColor = '#28a745';
+                        } catch (error) {
+                            console.error('Error al parsear el archivo JSON:', error);
+                            fileStatus.textContent = 'Error al cargar el archivo: ' + error.message;
+                            fileStatus.style.color = 'red';
+                            uploadButton.innerHTML = '<i class="fas fa-upload"></i> Cargar lista de funcionarios';
+                            uploadButton.style.backgroundColor = '';
+                        }
+                        uploadButton.disabled = false;
+                    };
+                    reader.readAsText(file);
+                }
+            });
+        }
+
+        function renderQuadrants() {
+            const caiList = document.getElementById('caiList');
+            caiList.innerHTML = '';
+            
+            const availableQuadrants = quadrants.filter(q => !isQuadrantInTeam(q.id));
+            const caiGroups = groupByCai(availableQuadrants);
+            const sortedCais = Object.keys(caiGroups).sort();
+
+            sortedCais.forEach(cai => {
+                const caiDiv = document.createElement('div');
+                caiDiv.className = 'cai-item';
+                caiDiv.innerHTML = `<h3>${cai}</h3>`;
+
+                const quadrantList = document.createElement('div');
+                quadrantList.className = 'quadrant-list';
+
+                const sortedQuadrants = caiGroups[cai].sort((a, b) => parseInt(a.name.slice(2)) - parseInt(b.name.slice(2)));
+
+                sortedQuadrants.forEach(q => {
+                    const quadrantDiv = document.createElement('div');
+                    quadrantDiv.className = 'quadrant-item';
+                    quadrantDiv.dataset.id = q.id.toString();
+                    quadrantDiv.textContent = q.name;
+                    quadrantList.appendChild(quadrantDiv);
+                });
+
+                caiDiv.appendChild(quadrantList);
+                caiList.appendChild(caiDiv);
+            });
+
+            updateCreateTeamButton();
+            toggleCreateTeamElements(availableQuadrants.length > 0);
+        }
+
+        function isQuadrantInTeam(quadrantId) {
+            const id = parseInt(quadrantId);
+            return teams.some(team => team.quadrants.some(q => parseInt(q.id) === id));
+        }
+
+        function createTeamItemElement(team) {
+            const teamItem = document.createElement('div');
+            teamItem.className = 'team-item';
+            teamItem.setAttribute('data-team-name', team.name);
+
+            const observationHTML = team.observation ? `<span class="team-observation">(${team.observation})</span>` : '';
+
+            const inactiveButtons = !team.active ? `
+                <button class="undo-button" onclick="confirmUndoTeam('${team.name}')" title="Deshacer equipo"><i class="fas fa-undo"></i></button>
+            ` : '';
+
+            const postNameButtons = !team.active ? `
+                <button class="edit-team-button" onclick="showEditTeamDialog('${team.name}')" title="Editar Observación / CAI"><i class="fas fa-pencil-alt"></i></button>
+            ` : '';
+
+            const actionButtons = team.active && team.assignedTime ? `
+                <span class="timer" data-start-time="${team.assignedTime.getTime()}">00:00:00</span>
+                <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
+                <button class="deactivate-button" onclick="toggleTeamStatus('${team.name}')" title="Desactivar equipo"><i class="fas fa-power-off"></i></button>
+            ` : `
+                <button class="activate-button" onclick="showMotiveAssignmentDialog('${team.name}')" title="Activar equipo"><i class="fas fa-play"></i></button>
+                <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
+            `;
+
+            teamItem.innerHTML = `
+                <div class="team-header">
+                    ${inactiveButtons}
+                    <span class="team-name">${team.name}</span>
+                    <span class="team-observation">${team.observation ? `(${team.observation})` : ''}</span>
+                    ${postNameButtons}
+                    <div class="spacer" style="flex-grow: 1;"></div>
+                    ${actionButtons}
+                    <button class="call-button" onclick="callTeam('${team.name}')" title="Llamar al cuadrante"><i class="fas fa-phone"></i></button>
+                </div>
+            `;
+
+            if (team.active) {
+                const activityDisplay = document.createElement('div');
+                activityDisplay.className = 'activity-display';
+                activityDisplay.innerHTML = `
+                    <span class="assignment-time">${team.assignedTime ? formatDate(team.assignedTime) : 'Pendiente'}</span>
+                    <span class="activity">Actividad: ${team.selectedMotive || 'No asignada'}</span>
+                `;
+                teamItem.appendChild(activityDisplay);
+            }
+            return teamItem;
+        }
+
+        function renderTeams() {
+            const teamsList = document.getElementById('teamsList');
+            teamsList.innerHTML = '';
+
+            const sortedTeams = teams.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+
+            const activeTeams = sortedTeams.filter(team => team.active);
+            const inactiveTeams = sortedTeams.filter(team => !team.active);
+
+            const activeTeamsByCai = groupTeamsByCai(activeTeams);
+            const inactiveTeamsByCai = groupTeamsByCai(inactiveTeams);
+
+            const allCaiNames = [...new Set(quadrants.map(q => q.cai))].sort();
+
+            teamsList.innerHTML += '<h2>Equipos Inactivos</h2>';
+            allCaiNames.forEach(cai => {
+                const caiTeams = inactiveTeamsByCai[cai];
+                const caiSection = document.createElement('div');
+                caiSection.className = 'cai-teams-section';
+                caiSection.innerHTML = `<h3>CAI ${cai}</h3>`;
+
+                if (caiTeams && caiTeams.length > 0) {
+                    caiTeams.forEach(team => {
+                        caiSection.appendChild(createTeamItemElement(team));
+                    });
+                } else {
+                    const noTeamsMessage = document.createElement('p');
+                    noTeamsMessage.textContent = 'Sin cuadrantes disponibles.';
+                    noTeamsMessage.style.cssText = 'font-size: 0.8rem; font-style: italic; padding-left: 10px; margin: 0;';
+                    caiSection.appendChild(noTeamsMessage);
+                }
+                teamsList.appendChild(caiSection);
+            });
+
+            if (inactiveTeams.length > 0 && activeTeams.length > 0) {
+                const separator = document.createElement('hr');
+                separator.className = 'teams-separator';
+                teamsList.appendChild(separator);
+            }
+            
+            if (activeTeams.length > 0) {
+                teamsList.innerHTML += '<h2>Equipos Activos</h2>';
+                const sortedActiveCais = Object.keys(activeTeamsByCai).sort();
+                sortedActiveCais.forEach(cai => {
+                    const caiSection = document.createElement('div');
+                    caiSection.className = 'cai-teams-section';
+                    caiSection.innerHTML = `<h3>CAI ${cai}</h3>`;
+                    activeTeamsByCai[cai].forEach(team => {
+                        caiSection.appendChild(createTeamItemElement(team));
+                    });
+                    teamsList.appendChild(caiSection);
+                });
+            }
+
+            const buttonsContainer = document.createElement('div');
+            buttonsContainer.className = 'buttons-container';
+            buttonsContainer.appendChild(createButton('resetButton', 'Reiniciar Turno', resetLocalStorage));
+            buttonsContainer.appendChild(createButton('reportButton', 'Reporte', generateReport));
+            buttonsContainer.appendChild(createButton('whatsappButton', '<i class="fab fa-whatsapp"></i>', sendReportWhatsApp));
+            buttonsContainer.appendChild(createButton('emailButton', '<i class="far fa-envelope"></i>', sendReportEmail));
+            teamsList.appendChild(buttonsContainer);
+
+            saveToLocalStorage();
+        }
+
+        function addStylesToResultDialog() {
+            if (document.getElementById('result-dialog-styles')) return;
+            const style = document.createElement('style');
+            style.id = 'result-dialog-styles';
+            style.textContent = `
+                .result-category { margin-bottom: 10px; }
+                .result-category h4 { margin: 0; padding: 5px; background-color: #f0f0f0; border-left: 3px solid #003366; font-size: 12px; }
+                .result-category div { padding: 8px; cursor: pointer; padding-left: 15px; transition: background-color 0.3s, border-left 0.3s; border-left: 3px solid transparent; }
+                .result-category div:hover { background-color: #f0f0f0; }
+                .result-category div.selected { background-color: #e6f2ff; border-left: 3px solid #003366; font-weight: bold; }
+            `;
+            document.head.appendChild(style);
+        }
+
+        function createButton(id, innerHTML, onClickHandler) {
+            const button = document.createElement('button');
+            button.id = id;
+            button.innerHTML = innerHTML;
+            button.onclick = onClickHandler;
+            return button;
+        }
+
+        function setupEventListeners() {
+            document.getElementById('caiList').addEventListener('click', event => {
+                if (event.target.classList.contains('quadrant-item')) toggleQuadrantSelection(event.target.dataset.id);
+            });
+            document.getElementById('caiList').addEventListener('touchend', event => {
+                if (event.target.classList.contains('quadrant-item')) {
+                    toggleQuadrantSelection(event.target.dataset.id);
+                    event.preventDefault();
+                }
+            });
+            document.getElementById('createTeamButton').addEventListener('click', createTeam);
+        }
+
+        function toggleQuadrantSelection(quadrantId) {
+            const stringId = quadrantId.toString();
+            const index = selectedQuadrants.findIndex(id => id.toString() === stringId);
+            if (index > -1) selectedQuadrants.splice(index, 1);
+            else selectedQuadrants.push(stringId);
+            updateQuadrantStyles();
+            updateCreateTeamButton();
+            saveToLocalStorage();
+        }
+
+        function updateQuadrantStyles() {
+            document.querySelectorAll('.quadrant-item').forEach(item => {
+                item.classList.toggle('selected', selectedQuadrants.includes(item.dataset.id.toString()));
+            });
+        }
+
+        function createTeam() {
+            if (selectedOfficers[0] && selectedOfficers[1] && selectedQuadrants.length > 0) {
+                if (selectedOfficers[0].CC === selectedOfficers[1].CC) {
+                    alert('No se puede crear un equipo con el mismo funcionario dos veces.');
+                    return;
+                }
+                const teamQuadrants = selectedQuadrants
+                    .map(id => quadrants.find(q => q.id.toString() === id.toString()))
+                    .filter(q => q)
+                    .sort((a, b) => parseInt(a.name.slice(2)) - parseInt(b.name.slice(2)));
+                if (teamQuadrants.length === 0) {
+                    alert('No se pudo crear el equipo: los cuadrantes seleccionados no son válidos.');
+                    return;
+                }
+                const teamName = 'C-' + teamQuadrants.map(q => q.name.slice(2)).join('-');
+
+                if (teams.some(t => t.name === teamName)) {
+                    alert(`No se puede crear el equipo porque el nombre "${teamName}" ya está en uso. Por favor, resuelva el conflicto de nombres antes de continuar.`);
+                    return;
+                }
+
+                const newTeam = { 
+                    name: teamName, 
+                    quadrants: teamQuadrants, 
+                    active: false, 
+                    selectedMotive: '', 
+                    assignedTime: null, 
+                    activityHistory: [], 
+                    contacts: selectedOfficers.slice(),
+                    observation: '',
+                    originalCai: teamQuadrants[0]?.cai // Nueva propiedad para el CAI original
+                };
+                teams.push(newTeam);
+                alert(`Equipo "${teamName}" creado con éxito.`);
+                selectedOfficers = [null, null];
+                selectedQuadrants = [];
+                updateQuadrantStyles();
+                updateOfficerDropdowns();
+                saveToLocalStorage();
+                renderTeams();
+                renderQuadrants();
+            } else {
+                alert('Por favor, seleccione dos funcionarios y al menos un cuadrante para crear un equipo.');
+            }
+        }
+
+        function confirmUndoTeam(teamName) {
+            if (confirm(`¿Está seguro de que desea deshacer el equipo ${teamName}? Esta acción no se puede deshacer.`)) {
+                undoTeam(teamName);
+            }
+        }
+
+        function undoTeam(teamName) {
+            const teamIndex = teams.findIndex(t => t.name === teamName);
+            if (teamIndex > -1) {
+                teams.splice(teamIndex, 1);
+                renderQuadrants();
+                renderTeams();
+                updateOfficerDropdowns();
+                saveToLocalStorage();
+            }
+        }
+        
+        function showEditTeamDialog(teamName) {
+            const team = teams.find(t => t.name === teamName);
+            if (!team) return;
+
+            const backdrop = document.createElement('div');
+            backdrop.className = 'dialog-backdrop';
+            document.body.appendChild(backdrop);
+
+            const dialog = document.createElement('div');
+            dialog.className = 'dialog-box';
+
+            const allCais = [...new Set(quadrants.map(q => q.cai))].sort();
+            const currentCai = team.quadrants[0]?.cai || '';
+            
+            let caiOptions = allCais.map(cai => 
+                `<option value="${cai}" ${cai === currentCai ? 'selected' : ''}>${cai}</option>`
+            ).join('');
+
+            dialog.innerHTML = `
+                <h3>Editar Equipo ${team.name}</h3>
+                
+                <label for="observationInput">Observación:</label>
+                <textarea id="observationInput" placeholder="Añada una observación...">${team.observation || ''}</textarea>
+                
+                <label for="caiSelector">CAI Actual:</label>
+                <select id="caiSelector">${caiOptions}</select>
+
+                <div class="dialog-buttons">
+                    <button id="resetObservationAndCai" class="reset-btn" title="Borrar observación y restaurar CAI original"><i class="fas fa-history"></i></button>
+                    <button id="cancelEdit" class="cancel-btn" title="Cancelar"><i class="fas fa-times"></i></button>
+                    <button id="confirmEdit" class="confirm-btn" title="Guardar Cambios"><i class="fas fa-check"></i></button>
+                </div>
+            `;
+            document.body.appendChild(dialog);
+
+            const closeDialog = () => {
+                document.body.removeChild(dialog);
+                document.body.removeChild(backdrop);
+            };
+
+            document.getElementById('confirmEdit').onclick = () => {
+                const newObservation = document.getElementById('observationInput').value.trim();
+                const newCai = document.getElementById('caiSelector').value;
+                
+                team.observation = newObservation;
+
+                if (newCai && newCai !== currentCai) {
+                    team.quadrants.forEach(teamQuadrant => {
+                        const mainQuadrant = quadrants.find(q => q.id === teamQuadrant.id);
+                        if (mainQuadrant) mainQuadrant.cai = newCai;
+                        teamQuadrant.cai = newCai;
+                    });
+                }
+
+                renderTeams();
+                saveToLocalStorage();
+                closeDialog();
+            };
+
+            document.getElementById('resetObservationAndCai').onclick = () => {
+                if (confirm('¿Está seguro de que desea borrar la observación y restaurar el CAI original para este equipo?')) {
+                    team.observation = '';
+                    const originalCai = team.originalCai;
+                    if (originalCai && originalCai !== currentCai) {
+                        team.quadrants.forEach(teamQuadrant => {
+                            const mainQuadrant = quadrants.find(q => q.id === teamQuadrant.id);
+                            if (mainQuadrant) mainQuadrant.cai = originalCai;
+                            teamQuadrant.cai = originalCai;
+                        });
+                    }
+                    renderTeams();
+                    saveToLocalStorage();
+                    closeDialog();
+                }
+            };
+            
+            document.getElementById('cancelEdit').onclick = closeDialog;
+            backdrop.onclick = closeDialog;
+        }
+
+        function toggleTeamStatus(teamName) {
+            const team = teams.find(t => t.name === teamName);
+            if (team && team.active) showActivityResultDialog(team);
+        }
+
+        function showActivityResultDialog(team) {
+            const backdrop = document.createElement('div');
+            backdrop.className = 'dialog-backdrop';
+            document.body.appendChild(backdrop);
+
+            const dialog = document.createElement('div');
+            dialog.className = 'dialog-box';
+            dialog.innerHTML = `
+                <h3>Resultado de la actividad</h3>
+                <input type="text" id="resultSearch" placeholder="Buscar resultado...">
+                <div id="resultsList" class="dialog-list"></div>
+                <div class="dialog-buttons" style="justify-content: center;">
+                    <button id="confirmResult" class="confirm-btn" disabled>Confirmar</button>
+                </div>
+            `;
+            document.body.appendChild(dialog);
+
+            const closeDialog = () => {
+                document.body.removeChild(dialog);
+                document.body.removeChild(backdrop);
+            };
+
+            const resultSearch = document.getElementById('resultSearch');
+            const resultsList = document.getElementById('resultsList');
+            const confirmButton = document.getElementById('confirmResult');
+            
+            const showAllResults = () => {
+                resultsList.innerHTML = '';
+                if (!activityResultsList || !Array.isArray(activityResultsList) || activityResultsList.length === 0) {
+                    displayActivityResults(searchActivityResults(''), resultsList);
+                    return;
+                }
+                activityResultsList.forEach(category => {
+                    if (!category.categoria || !category.resultados || !Array.isArray(category.resultados)) return;
+                    const categoryDiv = document.createElement('div');
+                    categoryDiv.className = 'result-category';
+                    categoryDiv.innerHTML = `<h4>${category.categoria}</h4>`;
+                    category.resultados.forEach(result => {
+                        const div = document.createElement('div');
+                        div.textContent = result;
+                        div.addEventListener('click', () => {
+                            resultsList.querySelectorAll('div.selected').forEach(el => el.classList.remove('selected'));
+                            div.classList.add('selected');
+                            confirmButton.disabled = false;
+                        });
+                        categoryDiv.appendChild(div);
+                    });
+                    resultsList.appendChild(categoryDiv);
+                });
+            };
+
+            resultSearch.addEventListener('input', () => {
+                if (resultSearch.value.trim() === '') showAllResults();
+                else displayActivityResults(searchActivityResults(resultSearch.value), resultsList);
+            });
+
+            confirmButton.addEventListener('click', () => {
+                const selectedResult = resultsList.querySelector('.selected');
+                if (selectedResult) {
+                    saveActivityResult(team, selectedResult.textContent);
+                    closeDialog();
+                    completeTeamDeactivation(team);
+                }
+            });
+            
+            backdrop.addEventListener('click', closeDialog);
+            showAllResults();
+        }
+
+        function searchActivityResults(query) {
+            if (!activityResultsList || !Array.isArray(activityResultsList) || activityResultsList.length === 0) {
+                const defaultResults = ["Captura", "Comparendo", "Traslado por Protección", "Cierre de Establecimiento", "Incautación de Arma Blanca", "Incautación de Arma de Fuego"];
+                return defaultResults.filter(result => result.toLowerCase().includes(query.toLowerCase()));
+            }
+            const allResults = [];
+            activityResultsList.forEach(category => {
+                if (category.resultados && Array.isArray(category.resultados)) {
+                    category.resultados.forEach(result => {
+                        if (result.toLowerCase().includes(query.toLowerCase())) allResults.push(result);
+                    });
+                }
+            });
+            return allResults;
+        }
+
+        function displayActivityResults(results, container) {
+            container.innerHTML = '';
+            if (results.length === 0) {
+                container.innerHTML = '<div style="padding: 10px; font-style: italic;">No se encontraron resultados</div>';
+                return;
+            }
+            results.forEach(result => {
+                const div = document.createElement('div');
+                div.textContent = result;
+                div.addEventListener('click', () => {
+                    container.querySelectorAll('div').forEach(el => el.classList.remove('selected'));
+                    div.classList.add('selected');
+                    document.getElementById('confirmResult').disabled = false;
+                });
+                container.appendChild(div);
+            });
+        }
+
+        function saveActivityResult(team, result) {
+            if (!team || !team.quadrants || team.quadrants.length === 0) return;
+            const cai = team.quadrants[0].cai;
+            if (!team.activityHistory || team.activityHistory.length === 0) return;
+            const activityIndex = team.activityHistory.length - 1;
+            if (!activityResults[cai]) activityResults[cai] = {};
+            if (!activityResults[cai][team.name]) activityResults[cai][team.name] = [];
+            while (activityResults[cai][team.name].length <= activityIndex) activityResults[cai][team.name].push(null);
+            activityResults[cai][team.name][activityIndex] = result;
+            saveToLocalStorage();
+        }
+
+        function completeTeamDeactivation(team) {
+            if (!team) return;
+            team.active = false;
+            const endTime = new Date();
+            if (team.activityHistory && team.activityHistory.length > 0) {
+                team.activityHistory[team.activityHistory.length - 1].endTime = endTime;
+            }
+            team.selectedMotive = '';
+            team.assignedTime = null;
+
+            renderTeams();
+            renderQuadrants();
+            updateTimers();
+            saveToLocalStorage();
+        }
+
+        function showMotiveAssignmentDialog(teamName) {
+            const team = teams.find(t => t.name === teamName);
+            if (!team) return;
+
+            const backdrop = document.createElement('div');
+            backdrop.className = 'dialog-backdrop';
+            document.body.appendChild(backdrop);
+
+            const dialog = document.createElement('div');
+            dialog.className = 'dialog-box';
+            dialog.innerHTML = `
+                <h3>Asignar Actividad a ${team.name}</h3>
+                <input type="text" id="motiveSearchInput" class="search-input" placeholder="Buscar motivo...">
+                <div id="motiveSearchResults" class="dialog-list" style="position: static; display: block;"></div>
+                <div class="dialog-buttons">
+                    <button id="cancelMotive" class="cancel-btn">Cancelar</button>
+                    <button id="confirmMotive" class="confirm-btn" disabled>Confirmar y Activar</button>
+                </div>
+            `;
+            document.body.appendChild(dialog);
+
+            const motiveSearchInput = document.getElementById('motiveSearchInput');
+            const motiveSearchResults = document.getElementById('motiveSearchResults');
+            const confirmButton = document.getElementById('confirmMotive');
+            const cancelButton = document.getElementById('cancelMotive');
+
+            let selectedMotive = null;
+
+            const closeDialog = () => {
+                document.body.removeChild(dialog);
+                document.body.removeChild(backdrop);
+            };
+
+            const handleMotiveSearch = () => {
+                const query = motiveSearchInput.value;
+                const filteredMotives = motivesList.filter(m =>
+                    m.text.toLowerCase().includes(query.toLowerCase()) ||
+                    m.value.toLowerCase().includes(query.toLowerCase())
+                );
+                
+                motiveSearchResults.innerHTML = '';
+                if (filteredMotives.length > 0) {
+                    filteredMotives.forEach(motive => {
+                        const item = document.createElement('div');
+                        item.className = 'search-result-item';
+                        item.textContent = motive.text;
+                        item.onclick = () => {
+                            motiveSearchResults.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+                            item.classList.add('selected');
+                            selectedMotive = motive;
+                            confirmButton.disabled = false;
+                        };
+                        motiveSearchResults.appendChild(item);
+                    });
+                } else {
+                    motiveSearchResults.innerHTML = '<div class="search-result-item" style="font-style: italic;">No se encontraron coincidencias</div>';
+                }
+            };
+
+            motiveSearchInput.addEventListener('input', handleMotiveSearch);
+            motiveSearchInput.addEventListener('focus', handleMotiveSearch);
+            handleMotiveSearch();
+
+            cancelButton.addEventListener('click', closeDialog);
+            backdrop.addEventListener('click', closeDialog);
+
+            confirmButton.addEventListener('click', () => {
+                if (!selectedMotive) {
+                    alert('Por favor, seleccione un motivo.');
+                    return;
+                }
+                team.selectedMotive = selectedMotive.text;
+                team.active = true;
+                const startTime = new Date();
+                team.assignedTime = startTime;
+                if (!team.activityHistory) team.activityHistory = [];
+                team.activityHistory.push({ motive: team.selectedMotive, startTime: startTime, endTime: null });
+                renderTeams();
+                updateTimers();
+                saveToLocalStorage();
+                closeDialog();
+            });
+
+            motiveSearchInput.focus();
+        }
+        
+        function showAssignedOfficers(teamName) {
+            const team = teams.find(t => t.name === teamName);
+            if (!team || !team.contacts || team.contacts.length === 0) {
+                alert('No hay funcionarios asignados a este equipo.');
+                return;
+            }
+
+            const backdrop = document.createElement('div');
+            backdrop.className = 'dialog-backdrop';
+            document.body.appendChild(backdrop);
+
+            const dialog = document.createElement('div');
+            dialog.className = 'dialog-box officer-list-dialog';
+            
+            let officersHtml = '<ul>';
+            team.contacts.forEach(contact => {
+                officersHtml += `
+                    <li>
+                        <button class="call-officer-button" onclick="callOfficer('${contact.CELULAR || ''}')" title="Llamar al funcionario">
+                            <i class="fas fa-phone"></i>
+                        </button>
+                        <div class="officer-details">
+                            ${contact.GR || ''} ${contact.NOMBRES || ''} ${contact.APELLIDOS || ''}
+                            ${contact.PLACA ? `<br><small>Placa: ${contact.PLACA}</small>` : ''}
+                        </div>
+                    </li>
+                `;
+            });
+            officersHtml += '</ul>';
+
+            dialog.innerHTML = `
+                <h3>Funcionarios del Equipo ${team.name}</h3>
+                ${officersHtml}
+                <div class="dialog-buttons" style="justify-content: center;">
+                    <button id="closeOfficerList" class="cancel-btn">Cerrar</button>
+                </div>
+            `;
+            document.body.appendChild(dialog);
+
+            const closeDialog = () => {
+                document.body.removeChild(dialog);
+                document.body.removeChild(backdrop);
+            };
+
+            document.getElementById('closeOfficerList').addEventListener('click', closeDialog);
+            backdrop.addEventListener('click', closeDialog);
+        }
+
+
+        function formatDate(date) {
+            if (!(date instanceof Date) || isNaN(date.getTime())) return 'Fecha no disponible';
+            return date.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function groupByCai(items) {
+            if (!items || !Array.isArray(items)) return {};
+            return items.reduce((groups, item) => {
+                if (!item || !item.cai) return groups;
+                if (!groups[item.cai]) groups[item.cai] = [];
+                groups[item.cai].push(item);
+                return groups;
+            }, {});
+        }
+
+        function groupTeamsByCai(teams) {
+            if (!teams || !Array.isArray(teams)) return {};
+            return teams.reduce((groups, team) => {
+                if (!team || !team.quadrants || team.quadrants.length === 0) return groups;
+                const cai = team.quadrants[0]?.cai || 'Unknown CAI';
+                if (!groups[cai]) groups[cai] = [];
+                groups[cai].push(team);
+                return groups;
+            }, {});
+        }
+
+        function startTimers() {
+            updateTimers();
+            setInterval(updateTimers, 1000);
+        }
+
+        function updateTimers() {
+            document.querySelectorAll('.timer').forEach(timer => {
+                const startTime = parseInt(timer.dataset.startTime);
+                if (!isNaN(startTime)) updateTimer(timer, startTime);
+            });
+        }
+
+        function updateTimer(timerElement, startTime) {
+            if (!timerElement || !startTime) return;
+            const difference = new Date().getTime() - startTime;
+            const hours = Math.floor(difference / 3600000);
+            const minutes = Math.floor((difference % 3600000) / 60000);
+            const seconds = Math.floor((difference % 60000) / 1000);
+            timerElement.textContent = [hours, minutes, seconds].map(u => u < 10 ? "0" + u : u).join(":");
+        }
+
+        function callTeam(teamName) {
+            const team = teams.find(t => t.name === teamName);
+            const phoneNumber = team?.quadrants?.[0]?.phone;
+            if (phoneNumber) window.location.href = `tel:${phoneNumber}`;
+            else alert('No se encontró un número de teléfono para este cuadrante.');
+        }
+
+        function callOfficer(phoneNumber) {
+            if (phoneNumber) window.location.href = `tel:${phoneNumber}`;
+            else alert('No se encontró un número de teléfono para este funcionario.');
+        }
+
+        function saveToLocalStorage() {
+            try {
+                const teamsToSave = JSON.parse(JSON.stringify(teams));
+                teamsToSave.forEach(team => {
+                    if (team.assignedTime) team.assignedTime = new Date(team.assignedTime).toISOString();
+                    if (team.activityHistory) {
+                        team.activityHistory.forEach(activity => {
+                            if (activity.startTime) activity.startTime = new Date(activity.startTime).toISOString();
+                            if (activity.endTime) activity.endTime = new Date(activity.endTime).toISOString();
+                        });
+                    }
+                });
+                const dataToSave = { quadrants, teams: teamsToSave, motivesList, selectedQuadrants, selectedOfficers, activityResults };
+                localStorage.setItem('policeQuadrantsData', JSON.stringify(dataToSave));
+                localStorage.setItem('contactsList', JSON.stringify(contactsList));
+            } catch (error) {
+                console.error('Error al guardar datos en localStorage:', error);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const savedData = localStorage.getItem('policeQuadrantsData');
+                if (!savedData) return null;
+                const parsedData = JSON.parse(savedData);
+                if (parsedData.teams) {
+                    parsedData.teams.forEach(team => {
+                        if (team.assignedTime) team.assignedTime = new Date(team.assignedTime);
+                        if (team.activityHistory) {
+                            team.activityHistory.forEach(activity => {
+                                if (activity.startTime) activity.startTime = new Date(activity.startTime);
+                                if (activity.endTime) activity.endTime = new Date(activity.endTime);
+                            });
+                        }
+                        if (typeof team.observation === 'undefined') team.observation = '';
+                        if (typeof team.originalCai === 'undefined') team.originalCai = team.quadrants[0]?.cai;
+                    });
+                }
+                return parsedData;
+            } catch (error) {
+                console.error('Error al cargar datos desde localStorage:', error);
+                return null;
+            }
+        }
+
+        function resetLocalStorage() {
+            if (confirm('¿Está seguro de que desea reiniciar todos los datos para un nuevo turno?')) {
+                localStorage.removeItem('policeQuadrantsData');
+                if (confirm('¿Desea mantener la lista de funcionarios? Presione Cancelar para conservarla o Aceptar para borrarla.')) {
+                    localStorage.removeItem('contactsList');
+                }
+                location.reload();
+            }
+        }
+
+        function generateReport() {
+            try {
+                const reportContent = generateReportContent();
+                const reportWindow = window.open('', 'Reporte', 'width=800,height=600');
+                if (!reportWindow) {
+                    alert('El navegador bloqueó la apertura de la ventana de reporte.');
+                    return;
+                }
+                reportWindow.document.write(reportContent);
+                reportWindow.document.close();
+                reportWindow.print();
+            } catch (error) {
+                console.error('Error al generar reporte:', error);
+            }
+        }
+
+        function generateReportContent() {
+            const reportData = generateReportData();
+            return `
+            <!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Reporte de Actividades</title><style>
+            @page { size: letter; margin: 1.5cm; } body { font-family: Arial, sans-serif; font-size: 10px; line-height: 1.4; }
+            h1, h2 { color: #003366; text-align: center; } h1 { font-size: 16px; } h2 { font-size: 14px; margin-top: 20px; }
+            .report-date { text-align: right; font-style: italic; margin-bottom: 15px; }
+            .cai-section { margin-bottom: 20px; page-break-inside: avoid; }
+            .cai-title { background-color: #003366; color: white; padding: 3px 5px; font-size: 12px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+            th, td { border: 1px solid #ddd; padding: 4px; text-align: left; } th { background-color: #f2f2f2; }
+            .activity-list { padding-left: 20px; margin: 0; } .page-break { page-break-before: always; }
+            .observation { font-style: italic; color: #555; }
+            </style></head><body>
+            <h1>Reporte de Actividades por CAI y Cuadrante</h1><div class="report-date">Fecha: ${new Date().toLocaleString('es-CO')}</div>
+            <h2>1. Conformación de Equipos</h2>${reportData.teamComposition}
+            <div class="page-break"></div><h2>2. Actividades Realizadas</h2>${reportData.activities}
+            <div class="page-break"></div><h2>3. Consolidado de Resultados</h2>${reportData.summaryTable}
+            </body></html>`;
+        }
+
+        function generateReportData() {
+            let teamComposition = '', activities = '', summaryData = {};
+            if (!teams || teams.length === 0) return { teamComposition: '<p>No hay equipos.</p>', activities: '<p>No hay actividades.</p>', summaryTable: '<p>No hay resultados.</p>' };
+            const teamsByCai = groupTeamsByCai(teams);
+            for (const cai in teamsByCai) {
+                teamComposition += `<div class="cai-section"><div class="cai-title">CAI ${cai}</div><table><tr><th>Equipo</th><th>Observación</th><th>Funcionarios</th></tr>`;
+                activities += `<div class="cai-section"><div class="cai-title">CAI ${cai}</div><table><tr><th>Equipo</th><th>Funcionarios</th><th>Actividades</th></tr>`;
+                teamsByCai[cai].forEach(team => {
+                    const officers = team.contacts?.map(c => `${c.GR || ''} ${c.NOMBRES || ''} ${c.APELLIDOS || ''}${c.PLACA ? ` - Placa: ${c.PLACA}` : ''}`).join('<br>') || 'N/A';
+                    const observation = team.observation ? `<span class="observation">${team.observation}</span>` : 'Ninguna';
+                    teamComposition += `<tr><td>${team.name}</td><td>${observation}</td><td>${officers}</td></tr>`;
+                    let activityList = '<ul class="activity-list">';
+                    if (team.activityHistory?.length > 0) {
+                        team.activityHistory.forEach((activity, index) => {
+                            const startTime = activity.startTime ? formatDateTime(activity.startTime) : 'N/A';
+                            const endTime = activity.endTime ? formatDateTime(activity.endTime) : 'En curso';
+                            const duration = activity.startTime && activity.endTime ? calculateDuration(activity.startTime, activity.endTime) : 'N/A';
+                            activityList += `<li>${activity.motive || 'N/A'}<br>Inicio: ${startTime}, Fin: ${endTime}, Duración: ${duration}`;
+                            const result = activityResults?.[cai]?.[team.name]?.[index];
+                            if (result) {
+                                activityList += `<br>Resultado: ${result}`;
+                                if (!summaryData[cai]) summaryData[cai] = {};
+                                if (!summaryData[cai][team.name]) summaryData[cai][team.name] = {};
+                                if (!summaryData[cai][team.name][result]) summaryData[cai][team.name][result] = 0;
+                                summaryData[cai][team.name][result]++;
+                            }
+                            activityList += `</li>`;
+                        });
+                    } else activityList += '<li>No hay actividades</li>';
+                    activityList += '</ul>';
+                    activities += `<tr><td>${team.name} ${team.observation ? `<br><span class='observation'>(${team.observation})</span>` : ''}</td><td>${officers}</td><td>${activityList}</td></tr>`;
+                });
+                teamComposition += `</table></div>`;
+                activities += `</table></div>`;
+            }
+            let summaryTable = `<table><tr><th>CAI</th><th>Equipo</th><th>Resultado</th><th>Cantidad</th></tr>`;
+            let hasSummaryData = false;
+            for (const cai in summaryData) for (const teamName in summaryData[cai]) for (const result in summaryData[cai][teamName]) {
+                hasSummaryData = true;
+                summaryTable += `<tr><td>${cai}</td><td>${teamName}</td><td>${result}</td><td>${summaryData[cai][teamName][result]}</td></tr>`;
+            }
+            if (!hasSummaryData) summaryTable += `<tr><td colspan="4" style="text-align: center;">No hay resultados</td></tr>`;
+            summaryTable += `</table>`;
+            return { teamComposition, activities, summaryTable };
+        }
+
+        function generateSimplifiedReport() {
+            let report = `Reporte de Actividades\nFecha: ${new Date().toLocaleString('es-CO')}\n\n`;
+            if (!teams || teams.length === 0) return report + "No hay equipos o actividades registradas.";
+            const teamsByCai = groupTeamsByCai(teams);
+            let summaryData = {};
+            for (const cai in teamsByCai) {
+                report += `CAI ${cai}:\n${"-".repeat(20)}\n`;
+                teamsByCai[cai].forEach(team => {
+                    report += `\nEquipo ${team.name} ${team.observation ? `(${team.observation})` : ''}:\n`;
+                    report += "Funcionarios:\n";
+                    team.contacts?.forEach(c => {
+                        report += `- ${c.GR || ''} ${c.NOMBRES || ''} ${c.APELLIDOS || ''}${c.PLACA ? ` - Placa: ${c.PLACA}` : ''}\n`;
+                    });
+                    team.activityHistory?.forEach((activity, index) => {
+                        const result = activityResults?.[cai]?.[team.name]?.[index];
+                        report += `- ${activity.motive || 'N/A'}${result ? ` -> ${result}` : ''}\n`;
+                        if (result) {
+                            if (!summaryData[result]) summaryData[result] = 0;
+                            summaryData[result]++;
+                        }
+                    });
+                });
+                report += "\n";
+            }
+            report += `Resumen de Resultados:\n${"=".repeat(20)}\n`;
+            for (const result in summaryData) report += `${result}: ${summaryData[result]}\n`;
+            return report;
+        }
+
+        function calculateDuration(startTime, endTime) {
+            if (!startTime || !(startTime instanceof Date) || !endTime || !(endTime instanceof Date)) return 'N/A';
+            const diff = endTime.getTime() - startTime.getTime();
+            if (diff < 0) return 'N/A';
+            const hours = Math.floor(diff / 3600000);
+            const minutes = Math.floor((diff % 3600000) / 60000);
+            return `${hours}h ${minutes}m`;
+        }
+
+        function formatDateTime(date) {
+            if (!date || !(date instanceof Date)) return 'N/A';
+            return date.toLocaleString('es-CO', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
+        }
+
+        function sendReportWhatsApp() {
+            const report = generateSimplifiedReport();
+            const encodedReport = encodeURIComponent(report);
+            if (encodedReport.length > 4000) {
+                alert('El reporte es demasiado grande para WhatsApp.');
+                return;
+            }
+            const newWindow = window.open(`https://wa.me/?text=${encodedReport}`, '_blank');
+            if (!newWindow) alert('El navegador bloqueó la apertura de WhatsApp.');
+        }
+
+        function sendReportEmail() {
+            const report = generateSimplifiedReport();
+            const subject = encodeURIComponent('Reporte de Actividades por CAI y Cuadrante');
+            const body = encodeURIComponent(report);
+            if (body.length > 8000) {
+                alert('El reporte es demasiado grande para el correo. Genere un reporte PDF.');
+                return;
+            }
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        }
+
+        function loadOfficerDropdowns() {
+            document.querySelectorAll('.officer-search').forEach((input, index) => {
+                const resultsContainer = document.getElementById(`officer-results-${index + 1}`);
+                if (!resultsContainer) return;
+                
+                const filter = () => filterOfficers(input.value, resultsContainer, index);
+                input.addEventListener('input', filter);
+                input.addEventListener('focus', () => { resultsContainer.style.display = 'block'; filter(); });
+                input.addEventListener('touchstart', () => input.focus());
+
+                document.addEventListener('click', (e) => {
+                    if (!input.contains(e.target) && !resultsContainer.contains(e.target)) resultsContainer.style.display = 'none';
+                });
+                document.addEventListener('touchend', (e) => {
+                    if (!input.contains(e.target) && !resultsContainer.contains(e.target)) resultsContainer.style.display = 'none';
+                });
+            });
+        }
+
+        function filterOfficers(query, resultsElement, officerIndex) {
+            if (!contactsList || contactsList.length === 0) {
+                resultsElement.innerHTML = '<div class="officer-result-item">Cargue el archivo de contactos</div>';
+                resultsElement.style.display = 'block';
+                return;
+            }
+            const assignedCcs = new Set(teams.flatMap(team => team.contacts?.map(c => c.CC.toString()) || []));
+            if (selectedOfficers[officerIndex]) assignedCcs.delete(selectedOfficers[officerIndex].CC.toString());
+
+            const filtered = contactsList.filter(officer => {
+                if (!officer || !officer.CC) return false;
+                return !assignedCcs.has(officer.CC.toString()) && 
+                       `${officer.GR || ''} ${officer.APELLIDOS || ''} ${officer.NOMBRES || ''}`.toLowerCase().includes(query.toLowerCase());
+            });
+
+            resultsElement.innerHTML = '';
+            if (filtered.length === 0) {
+                resultsElement.innerHTML = '<div class="officer-result-item">No se encontraron funcionarios</div>';
+            } else {
+                filtered.forEach(officer => {
+                    const item = document.createElement('div');
+                    item.className = 'officer-result-item';
+                    item.textContent = `${officer.GR || ''} ${officer.APELLIDOS || ''} ${officer.NOMBRES || ''}`;
+                    const select = () => { selectOfficer(officer, officerIndex); resultsElement.style.display = 'none'; };
+                    item.onclick = select;
+                    item.ontouchend = (e) => { select(); e.preventDefault(); };
+                    resultsElement.appendChild(item);
+                });
+            }
+            resultsElement.style.display = 'block';
+        }
+
+        function selectOfficer(officer, index) {
+            if (!officer || typeof index !== 'number') return;
+            if (selectedOfficers[1 - index]?.CC === officer.CC) {
+                alert('Este funcionario ya está seleccionado.');
+                return;
+            }
+            selectedOfficers[index] = officer;
+            document.querySelectorAll('.officer-search')[index].value = `${officer.GR || ''} ${officer.APELLIDOS || ''} ${officer.NOMBRES || ''}`;
+            updateCreateTeamButton();
+            saveToLocalStorage();
+        }
+
+        function updateOfficerDropdowns() {
+            document.querySelectorAll('.officer-search').forEach((input, index) => {
+                const officer = selectedOfficers[index];
+                input.value = officer ? `${officer.GR || ''} ${officer.APELLIDOS || ''} ${officer.NOMBRES || ''}` : '';
+            });
+        }
+
+        function updateCreateTeamButton() {
+            const btn = document.getElementById('createTeamButton');
+            if (btn) btn.disabled = !(selectedOfficers[0] && selectedOfficers[1] && selectedQuadrants.length > 0);
+        }
+
+        function toggleCreateTeamElements(show) {
+            const display = show ? 'flex' : 'none';
+            document.querySelector('.officer-selection').style.display = display;
+            document.getElementById('createTeamButton').style.display = show ? 'block' : 'none';
+        }
+
+        function handleLoadError(error) {
+            console.error('Error al cargar los datos:', error);
+            alert('Hubo un error al cargar los datos. Por favor, recargue la página.');
+            quadrants = [], teams = [], motivesList = [], contactsList = [], selectedQuadrants = [], selectedOfficers = [null, null], activityResults = {};
+            fetch('cuadrantes.json').then(res => res.json()).then(data => { quadrants = data; renderQuadrants(); })
+                .catch(() => alert('No se pudieron cargar los datos básicos.'));
+        }
+
+        loadData();
+    </script>
+</body>
+</html>
+
