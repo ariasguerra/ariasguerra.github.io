@@ -781,7 +781,6 @@
                 <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
             `;
 
-            // The team-name span no longer needs flex-grow:1. A spacer div will handle the layout.
             teamItem.innerHTML = `
                 <div class="team-header">
                     ${inactiveButtons}
@@ -809,29 +808,24 @@
             const teamsList = document.getElementById('teamsList');
             teamsList.innerHTML = '';
 
-            const sortedTeams = teams.sort((a, b) => {
-                if (!a.quadrants.length || !b.quadrants.length) return 0;
-                const numA = parseInt(a.quadrants[0].name.replace(/[^0-9]/g, ''));
-                const numB = parseInt(b.quadrants[0].name.replace(/[^0-9]/g, ''));
-                return numA - numB;
-            });
+            // Sort all teams by their current name
+            const sortedTeams = teams.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
 
             // Filter teams into categories
             const activeTeams = sortedTeams.filter(team => team.active);
-            const inactiveEditedTeams = sortedTeams.filter(team => !team.active && team.name !== team.originalName);
-            const inactiveOriginalTeams = sortedTeams.filter(team => !team.active && (team.name === team.originalName || !team.originalName));
+            const inactiveTeams = sortedTeams.filter(team => !team.active);
 
             // Group teams by CAI
             const activeTeamsByCai = groupTeamsByCai(activeTeams);
-            const inactiveOriginalTeamsByCai = groupTeamsByCai(inactiveOriginalTeams);
+            const inactiveTeamsByCai = groupTeamsByCai(inactiveTeams);
 
             // Get all possible CAI names to ensure all are displayed
             const allCaiNames = [...new Set(quadrants.map(q => q.cai))].sort();
 
-            // Render inactive teams section, showing all CAIs
+            // Render inactive teams section
             teamsList.innerHTML += '<h2>Equipos Inactivos</h2>';
             allCaiNames.forEach(cai => {
-                const caiTeams = inactiveOriginalTeamsByCai[cai];
+                const caiTeams = inactiveTeamsByCai[cai];
                 const caiSection = document.createElement('div');
                 caiSection.className = 'cai-teams-section';
                 caiSection.innerHTML = `<h3>CAI ${cai}</h3>`;
@@ -849,20 +843,8 @@
                 teamsList.appendChild(caiSection);
             });
 
-            // Render edited teams in their own section
-            if (inactiveEditedTeams.length > 0) {
-                const editedTeamsSection = document.createElement('div');
-                editedTeamsSection.className = 'cai-teams-section';
-                editedTeamsSection.innerHTML = `<h3>Equipos Editados (E)</h3>`;
-                inactiveEditedTeams.forEach(team => {
-                    editedTeamsSection.appendChild(createTeamItemElement(team));
-                });
-                teamsList.appendChild(editedTeamsSection);
-            }
-
-            // Add separator
-            const hasInactiveContent = allCaiNames.length > 0 || inactiveEditedTeams.length > 0;
-            if (hasInactiveContent && activeTeams.length > 0) {
+            // Add separator if there are both active and inactive teams
+            if (inactiveTeams.length > 0 && activeTeams.length > 0) {
                 const separator = document.createElement('hr');
                 separator.className = 'teams-separator';
                 teamsList.appendChild(separator);
@@ -1002,7 +984,6 @@
             }
         }
 
-        // --- NUEVAS FUNCIONES PARA RENOMBRAR ---
         function showRenameDialog(teamName) {
             const team = teams.find(t => t.name === teamName);
             if (!team) return;
@@ -1049,15 +1030,12 @@
 
             const team = teams.find(t => t.name === oldName);
             if (team) {
-                // Si es la primera vez que se renombra, se guarda el nombre original
                 if (!team.originalName) {
                     team.originalName = oldName;
                 }
                 
-                // Actualizar el nombre del equipo
                 team.name = newName;
 
-                // Actualizar la clave en activityResults si existe
                 const cai = team.quadrants[0]?.cai;
                 if (cai && activityResults[cai] && activityResults[cai][oldName]) {
                     activityResults[cai][newName] = activityResults[cai][oldName];
@@ -1088,7 +1066,6 @@
 
                 team.name = newName;
 
-                // Actualizar la clave en activityResults
                 const cai = team.quadrants[0]?.cai;
                 if (cai && activityResults[cai] && activityResults[cai][oldName]) {
                     activityResults[cai][newName] = activityResults[cai][oldName];
@@ -1099,7 +1076,6 @@
                 saveToLocalStorage();
             }
         }
-        // --- FIN DE NUEVAS FUNCIONES ---
 
         function toggleTeamStatus(teamName) {
             const team = teams.find(t => t.name === teamName);
@@ -1463,7 +1439,6 @@
                                 if (activity.endTime) activity.endTime = new Date(activity.endTime);
                             });
                         }
-                        // Compatibilidad: si un equipo antiguo no tiene originalName, se lo asignamos
                         if (typeof team.originalName === 'undefined') {
                             team.originalName = team.name;
                         }
