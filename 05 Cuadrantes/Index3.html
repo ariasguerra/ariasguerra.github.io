@@ -247,7 +247,7 @@
             flex-grow: 1;
         }
 
-        .undo-button, .activate-button, .deactivate-button, .call-button {
+        .undo-button, .activate-button, .deactivate-button, .call-button, .view-officers-button {
             color: white;
             border: none;
             border-radius: 50%;
@@ -262,37 +262,17 @@
             margin-left: 5px;
         }
 
-        .undo-button {
-            background-color: #dc3545;
-        }
+        .undo-button { background-color: #dc3545; }
+        .undo-button:hover { background-color: #c82333; }
+        .activate-button { background-color: #28a745; }
+        .activate-button:hover { background-color: #218838; }
+        .deactivate-button { background-color: #ffc107; }
+        .deactivate-button:hover { background-color: #e0a800; }
+        .call-button { background-color: #17a2b8; }
+        .call-button:hover { background-color: #138496; }
+        .view-officers-button { background-color: #6c757d; }
+        .view-officers-button:hover { background-color: #5a6268; }
 
-        .undo-button:hover {
-            background-color: #c82333;
-        }
-
-        .activate-button {
-            background-color: #28a745;
-        }
-
-        .activate-button:hover {
-            background-color: #218838;
-        }
-
-        .deactivate-button {
-            background-color: #ffc107;
-        }
-
-        .deactivate-button:hover {
-            background-color: #e0a800;
-        }
-
-        .call-button {
-            background-color: #17a2b8;
-        }
-
-        .call-button:hover {
-            background-color: #138496;
-        }
 
         .timer {
             font-family: monospace;
@@ -367,15 +347,24 @@
             flex-wrap: wrap;
         }
 
-        /* Estilos para los contactos del equipo */
-        .team-contacts {
-            margin-top: 10px;
-            font-size: 0.8rem;
+        /* Estilos para los contactos del equipo (en el modal) */
+        .officer-list-dialog ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
         }
 
-        .team-contacts h4 {
-            margin: 0 0 5px 0;
-            font-size: 0.9rem;
+        .officer-list-dialog li {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .officer-list-dialog li:last-child {
+            border-bottom: none;
+        }
+        .officer-list-dialog .officer-details {
+            flex-grow: 1;
         }
 
         /* Estilos para el botón de llamada de funcionarios */
@@ -384,22 +373,18 @@
             color: white;
             border: none;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 10px;
+            width: 24px;
+            height: 24px;
+            font-size: 12px;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-right: 5px;
+            margin-right: 10px;
         }
 
         .call-officer-button:hover {
             background-color: #218838;
-        }
-
-        .call-officer-button i {
-            font-size: 10px;
         }
 
         .officer-info {
@@ -408,8 +393,18 @@
             margin-bottom: 5px;
         }
 
-        /* Estilos para el diálogo de resultados de actividad y asignación de motivo */
-        .activity-result-dialog {
+        /* Estilos para los diálogos emergentes */
+        .dialog-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1999;
+        }
+
+        .dialog-box {
             position: fixed;
             top: 50%;
             left: 50%;
@@ -420,15 +415,15 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
             z-index: 2000;
             max-width: 90%;
-            width: 300px;
+            width: 350px;
         }
 
-        .activity-result-dialog h3 {
+        .dialog-box h3 {
             margin-top: 0;
             color: #003366;
         }
 
-        .activity-result-dialog input {
+        .dialog-box input {
             width: 100%;
             box-sizing: border-box;
             padding: 8px;
@@ -437,7 +432,7 @@
             border-radius: 4px;
         }
 
-        #resultsList {
+        .dialog-box .dialog-list {
             max-height: 200px;
             overflow-y: auto;
             margin-bottom: 10px;
@@ -445,46 +440,31 @@
             border-radius: 4px;
         }
 
-        #resultsList div {
+        .dialog-box .dialog-list div {
             padding: 8px;
             cursor: pointer;
             transition: background-color 0.3s, border-left 0.3s;
             border-left: 3px solid transparent;
         }
 
-        #resultsList div:hover {
+        .dialog-box .dialog-list div:hover {
             background-color: #f0f0f0;
         }
 
-        #resultsList div.selected {
+        .dialog-box .dialog-list div.selected {
             background-color: #e6f2ff;
             border-left: 3px solid #003366;
             font-weight: bold;
         }
-
-        #confirmResult {
-            width: 100%;
-            padding: 8px;
-            background-color: #003366;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
+        
+        .dialog-box .dialog-buttons {
+             display: flex;
+             gap: 10px;
+             margin-top: 15px;
         }
-
-        #confirmResult:hover {
-            background-color: #004080;
-        }
-
-        #confirmResult:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-
-        /* Estilos para el nuevo modal de asignación de motivo */
-        .motive-assignment-dialog #confirmMotive,
-        .motive-assignment-dialog #cancelMotive {
+        
+        .dialog-box .dialog-buttons button {
+            flex-grow: 1;
             padding: 10px;
             border: none;
             border-radius: 4px;
@@ -493,24 +473,13 @@
             font-size: 1rem;
             transition: background-color 0.3s;
         }
-
-        .motive-assignment-dialog #confirmMotive {
-            background-color: #28a745;
-        }
-        .motive-assignment-dialog #confirmMotive:hover {
-            background-color: #218838;
-        }
-        .motive-assignment-dialog #confirmMotive:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-
-        .motive-assignment-dialog #cancelMotive {
-            background-color: #6c757d;
-        }
-        .motive-assignment-dialog #cancelMotive:hover {
-            background-color: #5a6268;
-        }
+        
+        .dialog-box .dialog-buttons .confirm-btn { background-color: #28a745; }
+        .dialog-box .dialog-buttons .confirm-btn:hover { background-color: #218838; }
+        .dialog-box .dialog-buttons .confirm-btn:disabled { background-color: #cccccc; cursor: not-allowed; }
+        
+        .dialog-box .dialog-buttons .cancel-btn { background-color: #6c757d; }
+        .dialog-box .dialog-buttons .cancel-btn:hover { background-color: #5a6268; }
 
         /* Estilos responsivos */
         @media (min-width: 768px) {
@@ -551,7 +520,7 @@
                 width: 95%;
             }
 
-            .activity-result-dialog {
+            .dialog-box {
                 width: 400px;
             }
         }
@@ -822,6 +791,7 @@
                     <div class="team-header">
                         ${!team.active ? `<button class="undo-button" onclick="confirmUndoTeam('${team.name}')" title="Deshacer equipo"><i class="fas fa-undo"></i></button>` : ''}
                         <span class="team-name">${team.name}</span>
+                        <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
                         ${team.active && team.assignedTime ? `
                             <span class="timer" data-start-time="${team.assignedTime.getTime()}">00:00:00</span>
                             <button class="deactivate-button" onclick="toggleTeamStatus('${team.name}')" title="Desactivar equipo"><i class="fas fa-power-off"></i></button>
@@ -841,23 +811,6 @@
                     `;
                     teamItem.appendChild(activityDisplay);
                 }
-
-                if (team.contacts && team.contacts.length > 0) {
-                    const contactsDisplay = document.createElement('div');
-                    contactsDisplay.className = 'team-contacts';
-                    contactsDisplay.innerHTML = `
-                        <h4>Funcionarios asignados:</h4>
-                        ${team.contacts.map(contact => `
-                            <div class="officer-info">
-                                <button class="call-officer-button" onclick="callOfficer('${contact.CELULAR || ''}')" title="Llamar al funcionario"><i class="fas fa-phone"></i></button>
-                                ${contact.GR || ''} ${contact.NOMBRES || ''} ${contact.APELLIDOS || ''}
-                                ${contact.PLACA ? `<span class="officer-placa"> - Placa: ${contact.PLACA}</span>` : ''}
-                            </div>
-                        `).join('')}
-                    `;
-                    teamItem.appendChild(contactsDisplay);
-                }
-
                 caiSection.appendChild(teamItem);
             });
 
@@ -968,15 +921,26 @@
         }
 
         function showActivityResultDialog(team) {
+            const backdrop = document.createElement('div');
+            backdrop.className = 'dialog-backdrop';
+            document.body.appendChild(backdrop);
+
             const dialog = document.createElement('div');
-            dialog.className = 'activity-result-dialog';
+            dialog.className = 'dialog-box';
             dialog.innerHTML = `
                 <h3>Resultado de la actividad</h3>
                 <input type="text" id="resultSearch" placeholder="Buscar resultado...">
-                <div id="resultsList"></div>
-                <button id="confirmResult" disabled>Confirmar</button>
+                <div id="resultsList" class="dialog-list"></div>
+                <div class="dialog-buttons">
+                    <button id="confirmResult" class="confirm-btn" disabled>Confirmar</button>
+                </div>
             `;
             document.body.appendChild(dialog);
+
+            const closeDialog = () => {
+                document.body.removeChild(dialog);
+                document.body.removeChild(backdrop);
+            };
 
             const resultSearch = document.getElementById('resultSearch');
             const resultsList = document.getElementById('resultsList');
@@ -1016,11 +980,12 @@
                 const selectedResult = resultsList.querySelector('.selected');
                 if (selectedResult) {
                     saveActivityResult(team, selectedResult.textContent);
-                    document.body.removeChild(dialog);
+                    closeDialog();
                     completeTeamDeactivation(team);
                 }
             });
-
+            
+            backdrop.addEventListener('click', closeDialog);
             showAllResults();
         }
 
@@ -1089,18 +1054,18 @@
             if (!team) return;
 
             const backdrop = document.createElement('div');
-            backdrop.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1999;';
+            backdrop.className = 'dialog-backdrop';
             document.body.appendChild(backdrop);
 
             const dialog = document.createElement('div');
-            dialog.className = 'activity-result-dialog motive-assignment-dialog';
+            dialog.className = 'dialog-box';
             dialog.innerHTML = `
                 <h3>Asignar Actividad a ${team.name}</h3>
                 <input type="text" id="motiveSearchInput" class="search-input" placeholder="Buscar motivo...">
-                <div id="motiveSearchResults" class="search-results" style="position: static; max-height: 150px; border-top: 1px solid #ccc; display: block;"></div>
-                <div style="display: flex; gap: 10px; margin-top: 15px;">
-                    <button id="cancelMotive" style="flex-grow: 1;">Cancelar</button>
-                    <button id="confirmMotive" style="flex-grow: 1;" disabled>Confirmar y Activar</button>
+                <div id="motiveSearchResults" class="dialog-list" style="position: static; display: block;"></div>
+                <div class="dialog-buttons">
+                    <button id="cancelMotive" class="cancel-btn">Cancelar</button>
+                    <button id="confirmMotive" class="confirm-btn" disabled>Confirmar y Activar</button>
                 </div>
             `;
             document.body.appendChild(dialog);
@@ -1131,22 +1096,21 @@
                         item.className = 'search-result-item';
                         item.textContent = motive.text;
                         item.onclick = () => {
-                            motiveSearchInput.value = motive.text;
+                            motiveSearchResults.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+                            item.classList.add('selected');
                             selectedMotive = motive;
                             confirmButton.disabled = false;
-                            motiveSearchResults.style.display = 'none';
                         };
                         motiveSearchResults.appendChild(item);
                     });
                 } else {
                     motiveSearchResults.innerHTML = '<div class="search-result-item" style="font-style: italic;">No se encontraron coincidencias</div>';
                 }
-                motiveSearchResults.style.display = 'block';
             };
 
             motiveSearchInput.addEventListener('input', handleMotiveSearch);
             motiveSearchInput.addEventListener('focus', handleMotiveSearch);
-
+            handleMotiveSearch(); // Initial population
 
             cancelButton.addEventListener('click', closeDialog);
             backdrop.addEventListener('click', closeDialog);
@@ -1156,16 +1120,12 @@
                     alert('Por favor, seleccione un motivo.');
                     return;
                 }
-
                 team.selectedMotive = selectedMotive.text;
                 team.active = true;
                 const startTime = new Date();
                 team.assignedTime = startTime;
-                
                 if (!team.activityHistory) team.activityHistory = [];
-                
                 team.activityHistory.push({ motive: team.selectedMotive, startTime: startTime, endTime: null });
-                
                 renderTeams();
                 updateTimers();
                 saveToLocalStorage();
@@ -1174,6 +1134,55 @@
 
             motiveSearchInput.focus();
         }
+        
+        function showAssignedOfficers(teamName) {
+            const team = teams.find(t => t.name === teamName);
+            if (!team || !team.contacts || team.contacts.length === 0) {
+                alert('No hay funcionarios asignados a este equipo.');
+                return;
+            }
+
+            const backdrop = document.createElement('div');
+            backdrop.className = 'dialog-backdrop';
+            document.body.appendChild(backdrop);
+
+            const dialog = document.createElement('div');
+            dialog.className = 'dialog-box officer-list-dialog';
+            
+            let officersHtml = '<ul>';
+            team.contacts.forEach(contact => {
+                officersHtml += `
+                    <li>
+                        <button class="call-officer-button" onclick="callOfficer('${contact.CELULAR || ''}')" title="Llamar al funcionario">
+                            <i class="fas fa-phone"></i>
+                        </button>
+                        <div class="officer-details">
+                            ${contact.GR || ''} ${contact.NOMBRES || ''} ${contact.APELLIDOS || ''}
+                            ${contact.PLACA ? `<br><small>Placa: ${contact.PLACA}</small>` : ''}
+                        </div>
+                    </li>
+                `;
+            });
+            officersHtml += '</ul>';
+
+            dialog.innerHTML = `
+                <h3>Funcionarios del Equipo ${team.name}</h3>
+                ${officersHtml}
+                <div class="dialog-buttons">
+                    <button id="closeOfficerList" class="cancel-btn">Cerrar</button>
+                </div>
+            `;
+            document.body.appendChild(dialog);
+
+            const closeDialog = () => {
+                document.body.removeChild(dialog);
+                document.body.removeChild(backdrop);
+            };
+
+            document.getElementById('closeOfficerList').addEventListener('click', closeDialog);
+            backdrop.addEventListener('click', closeDialog);
+        }
+
 
         function formatDate(date) {
             if (!(date instanceof Date) || isNaN(date.getTime())) return 'Fecha no disponible';
