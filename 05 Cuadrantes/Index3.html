@@ -240,14 +240,22 @@
         .team-header {
             display: flex;
             align-items: center;
-            margin-bottom: 5px;
+            gap: 5px;
         }
 
-        .team-name {
+        .team-name-wrapper {
             flex-grow: 1;
+            display: flex;
+            align-items: center;
         }
 
-        .undo-button, .activate-button, .deactivate-button, .call-button, .view-officers-button {
+        .team-actions-right {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .undo-button, .activate-button, .deactivate-button, .call-button, .view-officers-button, .edit-reassign-button {
             color: white;
             border: none;
             border-radius: 50%;
@@ -259,7 +267,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-left: 5px;
+            flex-shrink: 0;
         }
 
         .undo-button { background-color: #dc3545; }
@@ -272,6 +280,8 @@
         .call-button:hover { background-color: #138496; }
         .view-officers-button { background-color: #6c757d; }
         .view-officers-button:hover { background-color: #5a6268; }
+        .edit-reassign-button { background-color: #ffc107; }
+        .edit-reassign-button:hover { background-color: #e0a800; }
 
 
         .timer {
@@ -281,43 +291,35 @@
             color: #007bff;
         }
 
-        /* Estilos para la búsqueda de motivos */
-        .search-container {
-            position: relative;
-            margin-top: 5px;
+        /* Estilos para reasignación */
+        .reassign-container {
+            display: flex;
+            align-items: center;
+            gap: 3px;
         }
-
-        .search-input {
-            width: 95%;
-            padding: 5px;
+        .reassign-input {
+            width: 80px;
+            padding: 2px 4px;
             font-size: 0.8rem;
             border: 1px solid #ccc;
             border-radius: 3px;
         }
-
-        .search-results {
-            position: absolute;
-            top: 95%;
-            left: 0;
-            right: 0;
-            margin-top: 3px;
-            background-color: white;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            max-height: 100px;
-            overflow-y: auto;
-            z-index: 1000;
-        }
-
-        .search-result-item {
-            padding: 3px 6px;
+        .reassign-container button {
+            width: 22px;
+            height: 22px;
+            font-size: 11px;
+            border-radius: 50%;
+            border: none;
+            color: white;
             cursor: pointer;
-            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-
-        .search-result-item:hover {
-            background-color: #f0f0f0;
-        }
+        .reassign-container button:nth-of-type(1) { background-color: #28a745; }
+        .reassign-container button:nth-of-type(1):hover { background-color: #218838; }
+        .reassign-container button:nth-of-type(2) { background-color: #dc3545; }
+        .reassign-container button:nth-of-type(2):hover { background-color: #c82333; }
 
         /* Estilos para la visualización de actividades */
         .activity-display {
@@ -504,7 +506,7 @@
                 font-size: 1rem;
             }
 
-            .quadrant-item, .search-input, .search-result-item {
+            .quadrant-item, .reassign-input {
                 font-size: 0.9rem;
             }
 
@@ -787,30 +789,45 @@
                 const teamItem = document.createElement('div');
                 teamItem.className = 'team-item';
                 teamItem.setAttribute('data-team-name', team.name);
-                teamItem.innerHTML = `
+
+                let teamHTML = `
                     <div class="team-header">
                         ${!team.active ? `<button class="undo-button" onclick="confirmUndoTeam('${team.name}')" title="Deshacer equipo"><i class="fas fa-undo"></i></button>` : ''}
-                        <span class="team-name">${team.name}</span>
-                        <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
-                        ${team.active && team.assignedTime ? `
-                            <span class="timer" data-start-time="${team.assignedTime.getTime()}">00:00:00</span>
-                            <button class="deactivate-button" onclick="toggleTeamStatus('${team.name}')" title="Desactivar equipo"><i class="fas fa-power-off"></i></button>
-                        ` : `
-                            <button class="activate-button" onclick="showMotiveAssignmentDialog('${team.name}')" title="Activar equipo"><i class="fas fa-play"></i></button>
-                        `}
-                        <button class="call-button" onclick="callTeam('${team.name}')" title="Llamar al cuadrante"><i class="fas fa-phone"></i></button>
+                        
+                        <div class="team-name-wrapper">
+                            <span class="team-name-display">${team.name}</span>
+                            <div class="reassign-container" style="display:none;" data-team-name-reassign="${team.name}">
+                                <input type="text" class="reassign-input" placeholder="Ej: 12-14">
+                                <button onclick="handleReassignment('${team.name}')" title="Guardar"><i class="fas fa-check"></i></button>
+                                <button onclick="toggleReassignUI('${team.name}', false)" title="Cancelar"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>
+                        
+                        <button class="edit-reassign-button" onclick="toggleReassignUI('${team.name}', true)" title="Reasignar cuadrante"><i class="fas fa-edit"></i></button>
+
+                        <div class="team-actions-right">
+                            ${team.active && team.assignedTime ? `
+                                <span class="timer" data-start-time="${team.assignedTime.getTime()}">00:00:00</span>
+                                <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
+                                <button class="deactivate-button" onclick="toggleTeamStatus('${team.name}')" title="Desactivar equipo"><i class="fas fa-power-off"></i></button>
+                            ` : `
+                                <button class="activate-button" onclick="showMotiveAssignmentDialog('${team.name}')" title="Activar equipo"><i class="fas fa-play"></i></button>
+                                <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
+                            `}
+                            <button class="call-button" onclick="callTeam('${team.name}')" title="Llamar al cuadrante"><i class="fas fa-phone"></i></button>
+                        </div>
                     </div>
                 `;
 
                 if (team.active) {
-                    const activityDisplay = document.createElement('div');
-                    activityDisplay.className = 'activity-display';
-                    activityDisplay.innerHTML = `
-                        <span class="assignment-time">${team.assignedTime ? formatDate(team.assignedTime) : 'Pendiente'}</span>
-                        <span class="activity">Actividad: ${team.selectedMotive || 'No asignada'}</span>
+                    teamHTML += `
+                        <div class="activity-display">
+                            <span class="assignment-time">${team.assignedTime ? formatDate(team.assignedTime) : 'Pendiente'}</span>
+                            <span class="activity">Actividad: ${team.selectedMotive || 'No asignada'}</span>
+                        </div>
                     `;
-                    teamItem.appendChild(activityDisplay);
                 }
+                teamItem.innerHTML = teamHTML;
                 caiSection.appendChild(teamItem);
             });
 
@@ -883,7 +900,16 @@
                     return;
                 }
                 const teamName = 'C-' + teamQuadrants.map(q => q.name.slice(2)).join('-');
-                const newTeam = { name: teamName, quadrants: teamQuadrants, active: false, selectedMotive: '', assignedTime: null, activityHistory: [], contacts: selectedOfficers.slice() };
+                const newTeam = { 
+                    name: teamName, 
+                    quadrants: teamQuadrants, 
+                    originalQuadrants: JSON.parse(JSON.stringify(teamQuadrants)), // Deep copy for original assignment
+                    active: false, 
+                    selectedMotive: '', 
+                    assignedTime: null, 
+                    activityHistory: [], 
+                    contacts: selectedOfficers.slice() 
+                };
                 teams.push(newTeam);
                 alert(`Equipo "${teamName}" creado con éxito.`);
                 selectedOfficers = [null, null];
@@ -1183,6 +1209,92 @@
             backdrop.addEventListener('click', closeDialog);
         }
 
+        function toggleReassignUI(teamName, show) {
+            const teamItem = document.querySelector(`.team-item[data-team-name="${teamName}"]`);
+            if (!teamItem) return;
+
+            const nameSpan = teamItem.querySelector('.team-name-display');
+            const editButton = teamItem.querySelector('.edit-reassign-button');
+            const reassignContainer = teamItem.querySelector(`.reassign-container[data-team-name-reassign="${teamName}"]`);
+            
+            if (!nameSpan || !editButton || !reassignContainer) return;
+
+            const reassignInput = reassignContainer.querySelector('.reassign-input');
+            const team = teams.find(t => t.name === teamName);
+
+            if (show) {
+                nameSpan.style.display = 'none';
+                reassignContainer.style.display = 'flex';
+                editButton.style.display = 'none';
+                reassignInput.value = team.quadrants.map(q => q.name.slice(2)).join('-');
+                reassignInput.focus();
+            } else {
+                nameSpan.style.display = 'inline-block';
+                reassignContainer.style.display = 'none';
+                editButton.style.display = 'flex';
+            }
+        }
+
+        function handleReassignment(originalTeamName) {
+            const team = teams.find(t => t.name === originalTeamName);
+            const teamItem = document.querySelector(`.team-item[data-team-name="${originalTeamName}"]`);
+            if (!team || !teamItem) return;
+
+            const reassignInput = teamItem.querySelector('.reassign-input');
+            const newQuadrantStr = reassignInput.value.trim();
+
+            if (newQuadrantStr === '') {
+                if (!team.originalQuadrants) {
+                    alert('No se encontró la asignación original para este equipo.');
+                    return;
+                }
+                const unavailableOriginal = team.originalQuadrants.find(oq => 
+                    teams.some(t => t.name !== team.name && t.quadrants.some(q => q.id === oq.id))
+                );
+
+                if (unavailableOriginal) {
+                    alert(`No se puede revertir. El cuadrante ${unavailableOriginal.name} ya está asignado a otro equipo.`);
+                    return;
+                }
+                team.quadrants = JSON.parse(JSON.stringify(team.originalQuadrants));
+                team.name = 'C-' + team.quadrants.map(q => q.name.slice(2)).join('-');
+                alert(`Equipo revertido a su asignación original: ${team.name}`);
+            } else {
+                const newQuadrantNumbers = newQuadrantStr.split('-').map(s => s.trim()).filter(Boolean);
+                if (newQuadrantNumbers.length === 0) {
+                    alert('Formato de cuadrante no válido. Use números separados por guiones, ej: 12-14.');
+                    return;
+                }
+
+                const newQuadrants = [];
+                let notFound = null;
+                for (const num of newQuadrantNumbers) {
+                    const quadrant = quadrants.find(q => q.name === `C-${num}`);
+                    if (quadrant) newQuadrants.push(quadrant);
+                    else { notFound = num; break; }
+                }
+
+                if (notFound) {
+                    alert(`El cuadrante C-${notFound} no existe.`);
+                    return;
+                }
+                const unavailableNew = newQuadrants.find(nq => 
+                    teams.some(t => t.name !== team.name && t.quadrants.some(q => q.id === nq.id))
+                );
+
+                if (unavailableNew) {
+                    alert(`No se puede reasignar. El cuadrante ${unavailableNew.name} ya está asignado a otro equipo.`);
+                    return;
+                }
+                team.quadrants = newQuadrants;
+                team.name = 'C-' + newQuadrantNumbers.join('-');
+                alert(`Equipo reasignado a: ${team.name}`);
+            }
+
+            saveToLocalStorage();
+            renderQuadrants();
+            renderTeams();
+        }
 
         function formatDate(date) {
             if (!(date instanceof Date) || isNaN(date.getTime())) return 'Fecha no disponible';
@@ -1276,6 +1388,9 @@
                                 if (activity.startTime) activity.startTime = new Date(activity.startTime);
                                 if (activity.endTime) activity.endTime = new Date(activity.endTime);
                             });
+                        }
+                        if (!team.originalQuadrants) {
+                            team.originalQuadrants = JSON.parse(JSON.stringify(team.quadrants));
                         }
                     });
                 }
