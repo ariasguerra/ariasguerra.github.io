@@ -221,18 +221,7 @@
             background-color: #128C7E;
         }
 
-        /* Estilos para equipos y Drag & Drop */
-        .cai-teams-section {
-            padding: 5px;
-            border: 2px dashed transparent;
-            transition: background-color 0.3s, border-color 0.3s;
-            min-height: 50px; /* Ensure drop zone is always available */
-        }
-        .cai-teams-section.drag-over {
-            background-color: #d4edda;
-            border-color: #155724;
-        }
-
+        /* Estilos para equipos */
         .team-item {
             position: relative;
             background-color: #e6f2ff;
@@ -241,15 +230,7 @@
             border-radius: 3px;
             margin-bottom: 5px;
             font-size: 0.9rem;
-            transition: background-color 0.3s, opacity 0.3s;
-        }
-        
-        .team-item.dragging {
-            opacity: 0.5;
-        }
-        
-        .team-item[draggable="true"] {
-            cursor: move;
+            transition: background-color 0.3s;
         }
         
         .team-item.is-covering {
@@ -272,7 +253,7 @@
             font-weight: bold;
         }
 
-        .undo-button, .activate-button, .deactivate-button, .call-button, .view-officers-button {
+        .undo-button, .activate-button, .deactivate-button, .call-button, .view-officers-button, .move-team-button {
             color: white;
             border: none;
             border-radius: 50%;
@@ -297,6 +278,10 @@
         .call-button:hover { background-color: #138496; }
         .view-officers-button { background-color: #6c757d; }
         .view-officers-button:hover { background-color: #5a6268; }
+        .move-team-button { background-color: #5bc0de; }
+        .move-team-button:hover { background-color: #31b0d5; }
+        .move-team-button.return-home { background-color: #f0ad4e; }
+        .move-team-button.return-home:hover { background-color: #ec971f; }
 
 
         .timer {
@@ -774,29 +759,26 @@
 
             const inactiveTeamsByCai = groupTeamsByCurrentCai(inactiveTeams);
             const activeTeamsByCai = groupTeamsByCurrentCai(activeTeams);
-            const allCais = new Set([...Object.keys(inactiveTeamsByCai), ...Object.keys(activeTeamsByCai)]);
-            const sortedCais = Array.from(allCais).sort();
+            
+            const allInactiveCais = Object.keys(inactiveTeamsByCai).sort();
+            const allActiveCais = Object.keys(activeTeamsByCai).sort();
 
-            sortedCais.forEach(cai => {
-                if (inactiveTeamsByCai[cai]) {
-                    teamsList.appendChild(createCaiSection(cai, inactiveTeamsByCai[cai], true));
-                }
+            allInactiveCais.forEach(cai => {
+                teamsList.appendChild(createCaiSection(cai, inactiveTeamsByCai[cai], true));
             });
 
-            if (Object.keys(inactiveTeamsByCai).length > 0 && Object.keys(activeTeamsByCai).length > 0) {
+            if (allInactiveCais.length > 0 && allActiveCais.length > 0) {
                 const separator = document.createElement('hr');
                 separator.className = 'teams-separator';
                 teamsList.appendChild(separator);
             }
 
-            sortedCais.forEach(cai => {
-                if (activeTeamsByCai[cai]) {
-                    teamsList.appendChild(createCaiSection(cai, activeTeamsByCai[cai], false));
-                }
+            allActiveCais.forEach(cai => {
+                teamsList.appendChild(createCaiSection(cai, activeTeamsByCai[cai], false));
             });
 
             const buttonsContainer = document.createElement('div');
-buttonsContainer.className = 'buttons-container';
+            buttonsContainer.className = 'buttons-container';
             buttonsContainer.appendChild(createButton('resetButton', 'Reiniciar Turno', resetLocalStorage));
             buttonsContainer.appendChild(createButton('reportButton', 'Reporte', generateReport));
             buttonsContainer.appendChild(createButton('whatsappButton', '<i class="fab fa-whatsapp"></i>', sendReportWhatsApp));
@@ -812,22 +794,15 @@ buttonsContainer.className = 'buttons-container';
             caiSection.dataset.caiName = cai;
             caiSection.innerHTML = `<h3>CAI ${cai}</h3>`;
 
-            if (isInactiveSection) {
-                caiSection.addEventListener('dragover', handleDragOver);
-                caiSection.addEventListener('dragleave', handleDragLeave);
-                caiSection.addEventListener('drop', handleDrop);
-            }
-
             caiTeams.sort((a,b) => parseInt(a.name.slice(2)) - parseInt(b.name.slice(2))).forEach(team => {
                 const teamItem = document.createElement('div');
                 teamItem.className = 'team-item';
                 if (team.isCovering) teamItem.classList.add('is-covering');
                 teamItem.dataset.teamName = team.name;
 
-                if (!team.active) {
-                    teamItem.draggable = true;
-                    teamItem.addEventListener('dragstart', handleDragStart);
-                }
+                const moveButtonHtml = team.isCovering 
+                    ? `<button class="move-team-button return-home" onclick="confirmReturnHome('${team.name}')" title="Regresar a CAI Original"><i class="fas fa-home"></i></button>`
+                    : `<button class="move-team-button" onclick="showMoveTeamDialog('${team.name}')" title="Mover / Reasignar Equipo"><i class="fas fa-exchange-alt"></i></button>`;
 
                 teamItem.innerHTML = `
                     <div class="team-header">
@@ -838,6 +813,7 @@ buttonsContainer.className = 'buttons-container';
                             <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
                             <button class="deactivate-button" onclick="toggleTeamStatus('${team.name}')" title="Desactivar equipo"><i class="fas fa-power-off"></i></button>
                         ` : `
+                            ${moveButtonHtml}
                             <button class="activate-button" onclick="showMotiveAssignmentDialog('${team.name}')" title="Activar equipo"><i class="fas fa-play"></i></button>
                             <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
                         `}
@@ -1596,53 +1572,77 @@ buttonsContainer.className = 'buttons-container';
                 .catch(() => alert('No se pudieron cargar los datos básicos.'));
         }
         
-        // --- DRAG AND DROP LOGIC (CORRECTED) ---
-        function handleDragStart(e) {
-            const teamItem = e.target.closest('.team-item');
-            e.dataTransfer.setData('text/plain', teamItem.dataset.teamName);
-            e.dataTransfer.effectAllowed = 'move';
-            setTimeout(() => teamItem.classList.add('dragging'), 0);
-        }
+        // --- MOVE TEAM LOGIC (BUTTON-BASED) ---
 
-        function handleDragOver(e) {
-            e.preventDefault();
-            const dropZone = e.target.closest('.cai-teams-section');
-            if (dropZone) {
-                dropZone.classList.add('drag-over');
-                e.dataTransfer.dropEffect = 'move';
-            }
-        }
+        function showMoveTeamDialog(teamName) {
+            const team = teams.find(t => t.name === teamName);
+            if (!team) return;
 
-        function handleDragLeave(e) {
-            const dropZone = e.target.closest('.cai-teams-section');
-            if (dropZone) {
-                dropZone.classList.remove('drag-over');
-            }
-        }
-        
-        function handleDrop(e) {
-            e.preventDefault();
-            const dropZone = e.target.closest('.cai-teams-section');
-            if (!dropZone) return;
-
-            dropZone.classList.remove('drag-over');
-            const draggedTeamName = e.dataTransfer.getData('text/plain');
-            const draggedTeam = teams.find(t => t.name === draggedTeamName);
-            const destinationCai = dropZone.dataset.caiName;
+            const allCais = [...new Set(quadrants.map(q => q.cai))].sort();
             
-            document.querySelector(`[data-team-name="${draggedTeamName}"]`)?.classList.remove('dragging');
-
-            if (!draggedTeam || draggedTeam.currentCAI === destinationCai) {
-                return; 
-            }
-
-            if (draggedTeam.originalCAI === destinationCai) {
-                resetCoverageForTeam(draggedTeam);
-            } else {
-                assignCoverage(draggedTeam, destinationCai);
-            }
+            const backdrop = document.createElement('div');
+            backdrop.className = 'dialog-backdrop';
             
-            renderTeams();
+            const dialog = document.createElement('div');
+            dialog.className = 'dialog-box';
+
+            let caiListHtml = '<div id="caiSelectionList" class="dialog-list">';
+            allCais.forEach(cai => {
+                if (cai !== team.currentCAI) {
+                    caiListHtml += `<div data-cai="${cai}">${cai}</div>`;
+                }
+            });
+            caiListHtml += '</div>';
+
+            dialog.innerHTML = `
+                <h3>Mover Equipo ${team.name}</h3>
+                <p>Seleccione el CAI de destino:</p>
+                ${caiListHtml}
+                <div class="dialog-buttons">
+                    <button id="cancelMove" class="cancel-btn">Cancelar</button>
+                    <button id="confirmMove" class="confirm-btn" disabled>Confirmar</button>
+                </div>
+            `;
+            
+            document.body.appendChild(backdrop);
+            document.body.appendChild(dialog);
+
+            let selectedCai = null;
+            const confirmButton = document.getElementById('confirmMove');
+
+            const closeDialog = () => {
+                document.body.removeChild(dialog);
+                document.body.removeChild(backdrop);
+            };
+
+            document.getElementById('caiSelectionList').addEventListener('click', (e) => {
+                if(e.target.dataset.cai) {
+                    document.querySelectorAll('#caiSelectionList div').forEach(el => el.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                    selectedCai = e.target.dataset.cai;
+                    confirmButton.disabled = false;
+                }
+            });
+
+            confirmButton.addEventListener('click', () => {
+                if (selectedCai) {
+                    assignCoverage(team, selectedCai);
+                    renderTeams();
+                    closeDialog();
+                }
+            });
+
+            document.getElementById('cancelMove').addEventListener('click', closeDialog);
+            backdrop.addEventListener('click', closeDialog);
+        }
+
+        function confirmReturnHome(teamName) {
+            const team = teams.find(t => t.name === teamName);
+            if (!team) return;
+            if (confirm(`¿Desea regresar el equipo ${team.name} a su CAI original (${team.originalCAI}) y deshacer la cobertura actual?`)) {
+                resetCoverageForTeam(team);
+                renderTeams();
+            }
         }
 
         function assignCoverage(draggedTeam, destinationCai) {
@@ -1700,6 +1700,10 @@ buttonsContainer.className = 'buttons-container';
 
             teams.forEach(t => {
                 if (t.coveredByTeamName === teamToReset.name) {
+                    teamsToUpdate.add(t);
+                }
+                const parent = teams.find(p => p.name === t.coveredByTeamName);
+                if (parent && parent.name === teamToReset.name) {
                     teamsToUpdate.add(t);
                 }
             });
