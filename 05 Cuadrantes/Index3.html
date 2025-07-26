@@ -790,12 +790,16 @@
                 teamItem.className = 'team-item';
                 teamItem.setAttribute('data-team-name', team.name);
 
+                const currentDisplayName = 'C-' + team.quadrants.map(q => q.name.slice(2)).join('-');
+                const isReassigned = team.name !== currentDisplayName;
+                const displayHTML = isReassigned ? `${team.name} / ${currentDisplayName}` : team.name;
+
                 let teamHTML = `
                     <div class="team-header">
                         ${!team.active ? `<button class="undo-button" onclick="confirmUndoTeam('${team.name}')" title="Deshacer equipo"><i class="fas fa-undo"></i></button>` : ''}
                         
                         <div class="team-name-wrapper">
-                            <span class="team-name-display">${team.name}</span>
+                            <span class="team-name-display">${displayHTML}</span>
                             <div class="reassign-container" style="display:none;" data-team-name-reassign="${team.name}">
                                 <input type="text" class="reassign-input" placeholder="Ej: 12-14">
                                 <button onclick="handleReassignment('${team.name}')" title="Guardar"><i class="fas fa-check"></i></button>
@@ -1235,15 +1239,15 @@
             }
         }
 
-        function handleReassignment(originalTeamName) {
-            const team = teams.find(t => t.name === originalTeamName);
-            const teamItem = document.querySelector(`.team-item[data-team-name="${originalTeamName}"]`);
+        function handleReassignment(teamName) {
+            const team = teams.find(t => t.name === teamName);
+            const teamItem = document.querySelector(`.team-item[data-team-name="${teamName}"]`);
             if (!team || !teamItem) return;
 
             const reassignInput = teamItem.querySelector('.reassign-input');
             const newQuadrantStr = reassignInput.value.trim();
 
-            if (newQuadrantStr === '') {
+            if (newQuadrantStr === '') { // Revert to original
                 if (!team.originalQuadrants) {
                     alert('No se encontró la asignación original para este equipo.');
                     return;
@@ -1257,9 +1261,8 @@
                     return;
                 }
                 team.quadrants = JSON.parse(JSON.stringify(team.originalQuadrants));
-                team.name = 'C-' + team.quadrants.map(q => q.name.slice(2)).join('-');
-                alert(`Equipo revertido a su asignación original: ${team.name}`);
-            } else {
+                alert(`Equipo ${team.name} ha regresado a su asignación original.`);
+            } else { // Reassign to new
                 const newQuadrantNumbers = newQuadrantStr.split('-').map(s => s.trim()).filter(Boolean);
                 if (newQuadrantNumbers.length === 0) {
                     alert('Formato de cuadrante no válido. Use números separados por guiones, ej: 12-14.');
@@ -1287,8 +1290,8 @@
                     return;
                 }
                 team.quadrants = newQuadrants;
-                team.name = 'C-' + newQuadrantNumbers.join('-');
-                alert(`Equipo reasignado a: ${team.name}`);
+                const newDisplayName = 'C-' + newQuadrantNumbers.join('-');
+                alert(`Equipo ${team.name} reasignado a: ${newDisplayName}`);
             }
 
             saveToLocalStorage();
