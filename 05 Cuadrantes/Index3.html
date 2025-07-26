@@ -222,9 +222,15 @@
         }
 
         /* Estilos para equipos y Drag & Drop */
+        .cai-teams-section {
+            padding: 5px;
+            border: 2px dashed transparent;
+            transition: background-color 0.3s, border-color 0.3s;
+            min-height: 50px; /* Ensure drop zone is always available */
+        }
         .cai-teams-section.drag-over {
             background-color: #d4edda;
-            border: 2px dashed #155724;
+            border-color: #155724;
         }
 
         .team-item {
@@ -235,7 +241,11 @@
             border-radius: 3px;
             margin-bottom: 5px;
             font-size: 0.9rem;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, opacity 0.3s;
+        }
+        
+        .team-item.dragging {
+            opacity: 0.5;
         }
         
         .team-item[draggable="true"] {
@@ -764,10 +774,14 @@
 
             const inactiveTeamsByCai = groupTeamsByCurrentCai(inactiveTeams);
             const activeTeamsByCai = groupTeamsByCurrentCai(activeTeams);
+            const allCais = new Set([...Object.keys(inactiveTeamsByCai), ...Object.keys(activeTeamsByCai)]);
+            const sortedCais = Array.from(allCais).sort();
 
-            for (const cai in inactiveTeamsByCai) {
-                teamsList.appendChild(createCaiSection(cai, inactiveTeamsByCai[cai], true));
-            }
+            sortedCais.forEach(cai => {
+                if (inactiveTeamsByCai[cai]) {
+                    teamsList.appendChild(createCaiSection(cai, inactiveTeamsByCai[cai], true));
+                }
+            });
 
             if (Object.keys(inactiveTeamsByCai).length > 0 && Object.keys(activeTeamsByCai).length > 0) {
                 const separator = document.createElement('hr');
@@ -775,12 +789,14 @@
                 teamsList.appendChild(separator);
             }
 
-            for (const cai in activeTeamsByCai) {
-                teamsList.appendChild(createCaiSection(cai, activeTeamsByCai[cai], false));
-            }
+            sortedCais.forEach(cai => {
+                if (activeTeamsByCai[cai]) {
+                    teamsList.appendChild(createCaiSection(cai, activeTeamsByCai[cai], false));
+                }
+            });
 
             const buttonsContainer = document.createElement('div');
-            buttonsContainer.className = 'buttons-container';
+buttonsContainer.className = 'buttons-container';
             buttonsContainer.appendChild(createButton('resetButton', 'Reiniciar Turno', resetLocalStorage));
             buttonsContainer.appendChild(createButton('reportButton', 'Reporte', generateReport));
             buttonsContainer.appendChild(createButton('whatsappButton', '<i class="fab fa-whatsapp"></i>', sendReportWhatsApp));
@@ -799,10 +815,10 @@
             if (isInactiveSection) {
                 caiSection.addEventListener('dragover', handleDragOver);
                 caiSection.addEventListener('dragleave', handleDragLeave);
-                caiSection.addEventListener('drop', (e) => handleDrop(e, cai));
+                caiSection.addEventListener('drop', handleDrop);
             }
 
-            caiTeams.forEach(team => {
+            caiTeams.sort((a,b) => parseInt(a.name.slice(2)) - parseInt(b.name.slice(2))).forEach(team => {
                 const teamItem = document.createElement('div');
                 teamItem.className = 'team-item';
                 if (team.isCovering) teamItem.classList.add('is-covering');
@@ -810,7 +826,7 @@
 
                 if (!team.active) {
                     teamItem.draggable = true;
-                    teamItem.addEventListener('dragstart', (e) => handleDragStart(e, team.name));
+                    teamItem.addEventListener('dragstart', handleDragStart);
                 }
 
                 teamItem.innerHTML = `
@@ -949,7 +965,6 @@
         function undoTeam(teamName) {
             const teamIndex = teams.findIndex(t => t.name === teamName);
             if (teamIndex > -1) {
-                // Before removing, check if it's part of a coverage scheme and revert it
                 const teamToUndo = teams[teamIndex];
                 if(teamToUndo.isCovering || teamToUndo.coveredByTeamName) {
                     resetCoverageForTeam(teamToUndo);
@@ -1581,37 +1596,49 @@
                 .catch(() => alert('No se pudieron cargar los datos básicos.'));
         }
         
-        // --- DRAG AND DROP LOGIC ---
-        function handleDragStart(e, teamName) {
-            e.dataTransfer.setData('text/plain', teamName);
+        // --- DRAG AND DROP LOGIC (CORRECTED) ---
+        function handleDragStart(e) {
+            const teamItem = e.target.closest('.team-item');
+            e.dataTransfer.setData('text/plain', teamItem.dataset.teamName);
             e.dataTransfer.effectAllowed = 'move';
+            setTimeout(() => teamItem.classList.add('dragging'), 0);
         }
 
         function handleDragOver(e) {
             e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            e.currentTarget.classList.add('drag-over');
+            const dropZone = e.target.closest('.cai-teams-section');
+            if (dropZone) {
+                dropZone.classList.add('drag-over');
+                e.dataTransfer.dropEffect = 'move';
+            }
         }
 
         function handleDragLeave(e) {
-            e.currentTarget.classList.remove('drag-over');
+            const dropZone = e.target.closest('.cai-teams-section');
+            if (dropZone) {
+                dropZone.classList.remove('drag-over');
+            }
         }
-
-        function handleDrop(e, destinationCai) {
+        
+        function handleDrop(e) {
             e.preventDefault();
-            e.currentTarget.classList.remove('drag-over');
+            const dropZone = e.target.closest('.cai-teams-section');
+            if (!dropZone) return;
+
+            dropZone.classList.remove('drag-over');
             const draggedTeamName = e.dataTransfer.getData('text/plain');
             const draggedTeam = teams.find(t => t.name === draggedTeamName);
+            const destinationCai = dropZone.dataset.caiName;
+            
+            document.querySelector(`[data-team-name="${draggedTeamName}"]`)?.classList.remove('dragging');
 
             if (!draggedTeam || draggedTeam.currentCAI === destinationCai) {
-                return; // No action if dropped in the same CAI
+                return; 
             }
 
-            // If the team is being returned to its original CAI, reset it
             if (draggedTeam.originalCAI === destinationCai) {
                 resetCoverageForTeam(draggedTeam);
             } else {
-                // Moving to a new CAI to cover
                 assignCoverage(draggedTeam, destinationCai);
             }
             
@@ -1619,7 +1646,6 @@
         }
 
         function assignCoverage(draggedTeam, destinationCai) {
-            // First, reset the dragged team in case it was already covering something
             resetCoverageForTeam(draggedTeam);
 
             const destinationInactiveTeams = teams.filter(t => 
@@ -1627,49 +1653,58 @@
             );
 
             if (destinationInactiveTeams.length === 0) {
-                // Simple move, no coverage
                 draggedTeam.currentCAI = destinationCai;
                 draggedTeam.isCovering = true;
                 draggedTeam.displayName = `${draggedTeam.name} (Refuerzo en ${destinationCai})`;
             } else {
-                // Complex coverage assignment
-                const getTeamNumber = (name) => parseInt(name.match(/\d+$/)[0], 10);
+                const getTeamNumber = (name) => parseInt(name.match(/\d+/g).pop(), 10);
                 destinationInactiveTeams.sort((a, b) => getTeamNumber(b.name) - getTeamNumber(a.name));
                 
                 const consolidatorTeam = destinationInactiveTeams[0];
-                const otherTeams = destinationInactiveTeams.slice(1);
+                const otherTeamsToCover = destinationInactiveTeams.slice(1);
 
-                // Update dragged team
                 draggedTeam.currentCAI = destinationCai;
                 draggedTeam.isCovering = true;
                 draggedTeam.coveringTeamNames = [consolidatorTeam.name];
                 draggedTeam.displayName = `${draggedTeam.name} (Cubriendo ${consolidatorTeam.name})`;
 
-                // Update consolidator team
                 consolidatorTeam.isCovering = true;
                 consolidatorTeam.coveredByTeamName = draggedTeam.name;
-                const teamsToCoverNames = otherTeams.map(t => t.name);
-                consolidatorTeam.coveringTeamNames = teamsToCoverNames;
-                consolidatorTeam.displayName = `${consolidatorTeam.name} (Cubriendo ${teamsToCoverNames.join(', ')})`;
+                const teamsToCoverNames = otherTeamsToCover.map(t => t.name);
+                if(teamsToCoverNames.length > 0) {
+                    consolidatorTeam.coveringTeamNames = teamsToCoverNames;
+                    consolidatorTeam.displayName = `${consolidatorTeam.name} (Cubriendo ${teamsToCoverNames.join(', ')})`;
+                } else {
+                    consolidatorTeam.displayName = `${consolidatorTeam.name} (Cubierto por ${draggedTeam.name})`;
+                }
 
-                // Update other teams
-                otherTeams.forEach(team => {
+                otherTeamsToCover.forEach(team => {
                     team.coveredByTeamName = consolidatorTeam.name;
                 });
             }
         }
 
         function resetCoverageForTeam(teamToReset) {
-            // Find all teams involved in this team's coverage scheme and reset them.
-            const relatedTeams = teams.filter(t => 
-                t.name === teamToReset.name || 
-                t.coveredByTeamName === teamToReset.name || 
-                teamToReset.coveringTeamNames.includes(t.name) ||
-                (teamToReset.coveredByTeamName && t.name === teamToReset.coveredByTeamName) ||
-                (teamToReset.coveredByTeamName && teams.find(parent => parent.name === teamToReset.coveredByTeamName)?.coveringTeamNames.includes(t.name))
-            );
+            const teamsToUpdate = new Set();
+            teamsToUpdate.add(teamToReset);
 
-            relatedTeams.forEach(team => {
+            if (teamToReset.coveredByTeamName) {
+                const parent = teams.find(t => t.name === teamToReset.coveredByTeamName);
+                if(parent) teamsToUpdate.add(parent);
+            }
+
+            teamToReset.coveringTeamNames.forEach(name => {
+                const child = teams.find(t => t.name === name);
+                if(child) teamsToUpdate.add(child);
+            });
+
+            teams.forEach(t => {
+                if (t.coveredByTeamName === teamToReset.name) {
+                    teamsToUpdate.add(t);
+                }
+            });
+
+            teamsToUpdate.forEach(team => {
                 team.currentCAI = team.originalCAI;
                 team.displayName = team.name;
                 team.isCovering = false;
@@ -1677,7 +1712,6 @@
                 team.coveredByTeamName = null;
             });
         }
-
 
         loadData();
     </script>
