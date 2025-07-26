@@ -1040,12 +1040,12 @@
             }
 
             const takenQuadrants = newTargetQuadrants.filter(q => {
-                return teams.some(team => team !== teamToRename && team.quadrants.some(teamQuad => teamQuad.id === q.id));
+                return teams.some(team => !team.active && team !== teamToRename && team.quadrants.some(teamQuad => teamQuad.id === q.id));
             });
 
             if (takenQuadrants.length > 0) {
                 const takenNames = takenQuadrants.map(q => q.name).join(', ');
-                alert(`No se puede renombrar. El/los cuadrante(s) ${takenNames} ya está(n) asignado(s) a otro equipo.`);
+                alert(`No se puede renombrar. El/los cuadrante(s) ${takenNames} ya está(n) asignado(s) a otro equipo inactivo.`);
                 return;
             }
 
@@ -1086,12 +1086,12 @@
             const originalQuadrantNumbers = team.originalName.slice(2).split('-').map(n => parseInt(n));
             const originalTargetQuadrants = quadrants.filter(q => originalQuadrantNumbers.includes(parseInt(q.name.slice(2))));
             const takenQuadrants = originalTargetQuadrants.filter(q => {
-                return teams.some(t => t !== team && t.quadrants.some(tq => tq.id === q.id));
+                return teams.some(t => !t.active && t !== team && t.quadrants.some(tq => tq.id === q.id));
             });
 
             if (takenQuadrants.length > 0) {
                 const takenNames = takenQuadrants.map(q => q.name).join(', ');
-                alert(`No se puede restaurar. El/los cuadrante(s) original(es) ${takenNames} ya está(n) asignado(s) a otro equipo.`);
+                alert(`No se puede restaurar. El/los cuadrante(s) original(es) ${takenNames} ya está(n) asignado(s) a otro equipo inactivo.`);
                 return;
             }
 
@@ -1272,14 +1272,14 @@
                 const originalQuadrantNumbers = itsOriginalName.slice(2).split('-').map(n => parseInt(n));
                 const originalTargetQuadrants = quadrants.filter(q => originalQuadrantNumbers.includes(parseInt(q.name.slice(2))));
                 const areQuadrantsFree = !originalTargetQuadrants.some(q => {
-                    return teams.some(t => t !== conflictingTeam && t.quadrants.some(tq => tq.id === q.id));
+                    return teams.some(t => t !== conflictingTeam && !t.active && t.quadrants.some(tq => tq.id === q.id));
                 });
 
                 if (isTargetNameFree && areQuadrantsFree) {
                     alert(`Para evitar un conflicto de nombres, el equipo "${conflictingTeam.name}" ha sido restaurado a su nombre y cuadrantes originales: "${itsOriginalName}".`);
                     resetTeamName(conflictingTeam.name);
                 } else {
-                    alert(`¡Conflicto de nombres! El equipo "${team.name}" ha finalizado su actividad, pero el equipo en conflicto "${conflictingTeam.name}" no puede ser restaurado a su estado original ("${itsOriginalName}") porque sus cuadrantes o nombre ya están en uso. Por favor, resuelva el conflicto manualmente.`);
+                    alert(`¡Conflicto de nombres! El equipo "${team.name}" ha finalizado su actividad, pero el equipo en conflicto "${conflictingTeam.name}" no puede ser restaurado a su estado original ("${itsOriginalName}") porque sus cuadrantes o nombre ya están en uso por otro equipo inactivo. Por favor, resuelva el conflicto manualmente.`);
                 }
             }
 
