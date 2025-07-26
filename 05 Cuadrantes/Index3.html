@@ -763,25 +763,28 @@
             const teamsList = document.getElementById('teamsList');
             teamsList.innerHTML = '';
 
-            const inactiveTeams = teams.filter(team => !team.active);
             const activeTeams = teams.filter(team => team.active);
+            const inactiveTeams = teams.filter(team => !team.active);
 
-            const inactiveTeamsByCai = groupTeamsByCurrentCai(inactiveTeams);
             const activeTeamsByCai = groupTeamsByCurrentCai(activeTeams);
+            const inactiveTeamsByCai = groupTeamsByCurrentCai(inactiveTeams);
             
-            const allInactiveCais = Object.keys(inactiveTeamsByCai).sort();
+            const allCais = [...new Set(quadrants.map(q => q.cai))].sort();
             const allActiveCais = Object.keys(activeTeamsByCai).sort();
 
-            allInactiveCais.forEach(cai => {
-                teamsList.appendChild(createCaiSection(cai, inactiveTeamsByCai[cai]));
+            // Render all CAIs in the inactive section
+            allCais.forEach(cai => {
+                const teamsForThisCai = inactiveTeamsByCai[cai] || [];
+                teamsList.appendChild(createCaiSection(cai, teamsForThisCai));
             });
 
-            if (allInactiveCais.length > 0 && allActiveCais.length > 0) {
+            if (teams.some(t => t.active) && teams.some(t => !t.active)) {
                 const separator = document.createElement('hr');
                 separator.className = 'teams-separator';
                 teamsList.appendChild(separator);
             }
 
+            // Render only CAIs with active teams in the active section
             allActiveCais.forEach(cai => {
                 teamsList.appendChild(createCaiSection(cai, activeTeamsByCai[cai]));
             });
@@ -1089,7 +1092,6 @@
         function completeTeamDeactivation(team) {
             if (!team) return;
 
-            // If the deactivated team was being covered, reset the coverage automatically.
             if (team.coveredByTeamName) {
                 const coveringTeam = teams.find(t => t.name === team.coveredByTeamName);
                 if (coveringTeam) {
