@@ -232,11 +232,6 @@
             font-size: 0.9rem;
             transition: background-color 0.3s;
         }
-        
-        .team-item.is-covering {
-            background-color: #fffbe6; /* Un color amarillo claro para indicar cobertura */
-            border-left-color: #ffc107;
-        }
 
         .team-item:hover {
             background-color: #f0f8ff;
@@ -251,25 +246,8 @@
         .team-name {
             flex-grow: 1;
         }
-        
-        .team-status-indicator {
-            font-size: 0.8em;
-            font-style: italic;
-            margin-left: 8px;
-            color: #555;
-        }
-        
-        .team-status-indicator.covering {
-            color: #b58a00;
-            font-weight: bold;
-        }
 
-        .team-status-indicator.covered {
-            color: #218838;
-            font-weight: bold;
-        }
-
-        .undo-button, .activate-button, .deactivate-button, .call-button, .view-officers-button, .reassign-button, .return-assignment-button {
+        .undo-button, .activate-button, .deactivate-button, .call-button, .view-officers-button {
             color: white;
             border: none;
             border-radius: 50%;
@@ -294,10 +272,6 @@
         .call-button:hover { background-color: #138496; }
         .view-officers-button { background-color: #6c757d; }
         .view-officers-button:hover { background-color: #5a6268; }
-        .reassign-button { background-color: #007bff; } /* Azul para reasignar */
-        .reassign-button:hover { background-color: #0056b3; }
-        .return-assignment-button { background-color: #fd7e14; } /* Naranja para volver */
-        .return-assignment-button:hover { background-color: #e66a00; }
 
 
         .timer {
@@ -761,11 +735,7 @@
 
         function isQuadrantInTeam(quadrantId) {
             const id = parseInt(quadrantId);
-            return teams.some(team => {
-                // Un equipo en cobertura no "posee" sus cuadrantes originales temporalmente
-                if (team.isCovering) return false; 
-                return team.quadrants.some(q => parseInt(q.id) === id)
-            });
+            return teams.some(team => team.quadrants.some(q => parseInt(q.id) === id));
         }
 
         function renderTeams() {
@@ -777,10 +747,8 @@
                 return parseInt(a.quadrants[0].name.slice(2)) - parseInt(b.quadrants[0].name.slice(2));
             });
 
-            // Equipos inactivos son los que no están activos y no están cubriendo a nadie
-            const inactiveTeams = sortedTeams.filter(team => !team.active && !team.isCovering);
-            // Equipos activos son los que están activos o están cubriendo a alguien
-            const activeTeams = sortedTeams.filter(team => team.active || team.isCovering);
+            const inactiveTeams = sortedTeams.filter(team => !team.active);
+            const activeTeams = sortedTeams.filter(team => team.active);
 
             const inactiveTeamsByCai = groupTeamsByCai(inactiveTeams);
             const activeTeamsByCai = groupTeamsByCai(activeTeams);
@@ -818,49 +786,24 @@
             caiTeams.forEach(team => {
                 const teamItem = document.createElement('div');
                 teamItem.className = 'team-item';
-                if (team.isCovering) {
-                    teamItem.classList.add('is-covering');
-                }
                 teamItem.setAttribute('data-team-name', team.name);
-
-                let statusIndicator = '';
-                if (team.isCovering) {
-                    statusIndicator = `<span class="team-status-indicator covering">(Cubriendo a ${team.isCovering})</span>`;
-                } else if (team.coveredBy) {
-                    statusIndicator = `<span class="team-status-indicator covered">(Cubierto por ${team.coveredBy})</span>`;
-                }
-
-                let buttons = '';
-                if (team.isCovering) {
-                    // Equipo en modo cobertura
-                    buttons = `
-                        <button class="return-assignment-button" onclick="returnToOriginalAssignment('${team.name}')" title="Volver a asignación original"><i class="fas fa-undo-alt"></i></button>
-                    `;
-                } else if (team.active) {
-                    // Equipo activo normal
-                    buttons = `
-                        <span class="timer" data-start-time="${team.assignedTime.getTime()}">00:00:00</span>
-                        <button class="deactivate-button" onclick="toggleTeamStatus('${team.name}')" title="Desactivar equipo"><i class="fas fa-power-off"></i></button>
-                    `;
-                } else {
-                    // Equipo inactivo
-                    buttons = `
-                        <button class="undo-button" onclick="confirmUndoTeam('${team.name}')" title="Deshacer equipo"><i class="fas fa-undo"></i></button>
-                        <button class="reassign-button" onclick="showReassignmentDialog('${team.name}')" title="Reasignar para cobertura"><i class="fas fa-shield-alt"></i></button>
-                        <button class="activate-button" onclick="showMotiveAssignmentDialog('${team.name}')" title="Activar equipo"><i class="fas fa-play"></i></button>
-                    `;
-                }
-
                 teamItem.innerHTML = `
                     <div class="team-header">
-                        <span class="team-name">${team.name} ${statusIndicator}</span>
-                        <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
-                        ${buttons}
+                        ${!team.active ? `<button class="undo-button" onclick="confirmUndoTeam('${team.name}')" title="Deshacer equipo"><i class="fas fa-undo"></i></button>` : ''}
+                        <span class="team-name">${team.name}</span>
+                        ${team.active && team.assignedTime ? `
+                            <span class="timer" data-start-time="${team.assignedTime.getTime()}">00:00:00</span>
+                            <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
+                            <button class="deactivate-button" onclick="toggleTeamStatus('${team.name}')" title="Desactivar equipo"><i class="fas fa-power-off"></i></button>
+                        ` : `
+                            <button class="activate-button" onclick="showMotiveAssignmentDialog('${team.name}')" title="Activar equipo"><i class="fas fa-play"></i></button>
+                            <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
+                        `}
                         <button class="call-button" onclick="callTeam('${team.name}')" title="Llamar al cuadrante"><i class="fas fa-phone"></i></button>
                     </div>
                 `;
 
-                if (team.active && !team.isCovering) {
+                if (team.active) {
                     const activityDisplay = document.createElement('div');
                     activityDisplay.className = 'activity-display';
                     activityDisplay.innerHTML = `
@@ -874,7 +817,6 @@
 
             return caiSection;
         }
-
 
         function addStylesToResultDialog() {
             if (document.getElementById('result-dialog-styles')) return;
@@ -942,18 +884,7 @@
                     return;
                 }
                 const teamName = 'C-' + teamQuadrants.map(q => q.name.slice(2)).join('-');
-                const newTeam = { 
-                    name: teamName, 
-                    quadrants: teamQuadrants, 
-                    active: false, 
-                    selectedMotive: '', 
-                    assignedTime: null, 
-                    activityHistory: [], 
-                    contacts: selectedOfficers.slice(),
-                    isCovering: null,
-                    coveredBy: null,
-                    originalQuadrants: null
-                };
+                const newTeam = { name: teamName, quadrants: teamQuadrants, active: false, selectedMotive: '', assignedTime: null, activityHistory: [], contacts: selectedOfficers.slice() };
                 teams.push(newTeam);
                 alert(`Equipo "${teamName}" creado con éxito.`);
                 selectedOfficers = [null, null];
@@ -987,9 +918,7 @@
 
         function toggleTeamStatus(teamName) {
             const team = teams.find(t => t.name === teamName);
-            if (team && team.active && !team.isCovering) {
-                showActivityResultDialog(team);
-            }
+            if (team && team.active) showActivityResultDialog(team);
         }
 
         function showActivityResultDialog(team) {
@@ -1000,7 +929,7 @@
             const dialog = document.createElement('div');
             dialog.className = 'dialog-box';
             dialog.innerHTML = `
-                <h3>Resultado de la actividad para ${team.name}</h3>
+                <h3>Resultado de la actividad</h3>
                 <input type="text" id="resultSearch" placeholder="Buscar resultado...">
                 <div id="resultsList" class="dialog-list"></div>
                 <div class="dialog-buttons">
@@ -1033,7 +962,7 @@
                         const div = document.createElement('div');
                         div.textContent = result;
                         div.addEventListener('click', () => {
-                            resultsList.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+                            resultsList.querySelectorAll('div.selected').forEach(el => el.classList.remove('selected'));
                             div.classList.add('selected');
                             confirmButton.disabled = false;
                         });
@@ -1116,16 +1045,6 @@
             }
             team.selectedMotive = '';
             team.assignedTime = null;
-
-            // Si este equipo estaba siendo cubierto, se limpia la referencia en el otro equipo
-            if (team.coveredBy) {
-                const coveringTeam = teams.find(t => t.name === team.coveredBy);
-                if (coveringTeam) {
-                    // No se revierte automáticamente, solo se limpia la referencia
-                }
-                team.coveredBy = null;
-            }
-
             renderTeams();
             updateTimers();
             saveToLocalStorage();
@@ -1265,124 +1184,6 @@
             backdrop.addEventListener('click', closeDialog);
         }
 
-        // --- NUEVAS FUNCIONES PARA REASIGNACIÓN ---
-        function showReassignmentDialog(teamName) {
-            const activeTeams = teams.filter(t => t.active && !t.isCovering);
-            if (activeTeams.length === 0) {
-                alert('No hay equipos activos a los cuales dar cobertura.');
-                return;
-            }
-
-            const backdrop = document.createElement('div');
-            backdrop.className = 'dialog-backdrop';
-            document.body.appendChild(backdrop);
-
-            const dialog = document.createElement('div');
-            dialog.className = 'dialog-box';
-            
-            let teamListHTML = '';
-            activeTeams.forEach(t => {
-                teamListHTML += `<div data-team-name="${t.name}">${t.name} - ${t.selectedMotive || 'Activo'}</div>`;
-            });
-
-            dialog.innerHTML = `
-                <h3>Asignar Cobertura para ${teamName}</h3>
-                <p>Seleccione el equipo activo que desea cubrir:</p>
-                <div id="reassignTeamList" class="dialog-list">${teamListHTML}</div>
-                <div class="dialog-buttons">
-                    <button id="cancelReassign" class="cancel-btn">Cancelar</button>
-                    <button id="confirmReassign" class="confirm-btn" disabled>Confirmar</button>
-                </div>
-            `;
-            document.body.appendChild(dialog);
-
-            const closeDialog = () => {
-                document.body.removeChild(dialog);
-                document.body.removeChild(backdrop);
-            };
-
-            let selectedTargetTeamName = null;
-            const teamListContainer = document.getElementById('reassignTeamList');
-            const confirmButton = document.getElementById('confirmReassign');
-
-            teamListContainer.addEventListener('click', (e) => {
-                if (e.target.dataset.teamName) {
-                    teamListContainer.querySelectorAll('div').forEach(div => div.classList.remove('selected'));
-                    e.target.classList.add('selected');
-                    selectedTargetTeamName = e.target.dataset.teamName;
-                    confirmButton.disabled = false;
-                }
-            });
-
-            document.getElementById('cancelReassign').addEventListener('click', closeDialog);
-            backdrop.addEventListener('click', closeDialog);
-
-            confirmButton.addEventListener('click', () => {
-                if (selectedTargetTeamName) {
-                    confirmReassignment(teamName, selectedTargetTeamName);
-                    closeDialog();
-                }
-            });
-        }
-
-        function confirmReassignment(coveringTeamName, targetTeamName) {
-            const coveringTeam = teams.find(t => t.name === coveringTeamName);
-            const targetTeam = teams.find(t => t.name === targetTeamName);
-
-            if (!coveringTeam || !targetTeam) {
-                alert('Error: No se encontraron los equipos.');
-                return;
-            }
-            
-            if (targetTeam.coveredBy) {
-                alert(`El equipo ${targetTeam.name} ya está siendo cubierto por ${targetTeam.coveredBy}.`);
-                return;
-            }
-
-            // Guardar estado original y reasignar
-            coveringTeam.originalQuadrants = JSON.parse(JSON.stringify(coveringTeam.quadrants));
-            coveringTeam.isCovering = targetTeam.name;
-            targetTeam.coveredBy = coveringTeam.name;
-            
-            // El equipo en cobertura ahora está "activo" pero sin actividad propia
-            coveringTeam.active = false; 
-            coveringTeam.assignedTime = null;
-            coveringTeam.selectedMotive = '';
-
-            alert(`El equipo ${coveringTeam.name} ahora está cubriendo a ${targetTeam.name}.`);
-            
-            renderQuadrants();
-            renderTeams();
-            saveToLocalStorage();
-        }
-
-        function returnToOriginalAssignment(teamName) {
-            const team = teams.find(t => t.name === teamName);
-            if (!team || !team.isCovering || !team.originalQuadrants) {
-                alert('Error: Este equipo no está en modo de cobertura o sus datos originales se han perdido.');
-                return;
-            }
-
-            const coveredTeam = teams.find(t => t.name === team.isCovering);
-            if (coveredTeam) {
-                coveredTeam.coveredBy = null;
-            }
-
-            // Restaurar estado original
-            team.isCovering = null;
-            team.originalQuadrants = null;
-            
-            // El equipo vuelve a ser inactivo
-            team.active = false;
-
-            alert(`El equipo ${team.name} ha vuelto a su asignación original y está inactivo.`);
-
-            renderQuadrants();
-            renderTeams();
-            saveToLocalStorage();
-        }
-        // --- FIN DE NUEVAS FUNCIONES ---
-
 
         function formatDate(date) {
             if (!(date instanceof Date) || isNaN(date.getTime())) return 'Fecha no disponible';
@@ -1403,9 +1204,7 @@
             if (!teams || !Array.isArray(teams)) return {};
             return teams.reduce((groups, team) => {
                 if (!team || !team.quadrants || team.quadrants.length === 0) return groups;
-                // Para equipos en cobertura, usar el CAI de sus cuadrantes originales
-                const quadrantsForCai = team.originalQuadrants || team.quadrants;
-                const cai = quadrantsForCai[0]?.cai || 'Unknown CAI';
+                const cai = team.quadrants[0]?.cai || 'Unknown CAI';
                 if (!groups[cai]) groups[cai] = [];
                 groups[cai].push(team);
                 return groups;
@@ -1539,16 +1338,12 @@
             if (!teams || teams.length === 0) return { teamComposition: '<p>No hay equipos.</p>', activities: '<p>No hay actividades.</p>', summaryTable: '<p>No hay resultados.</p>' };
             const teamsByCai = groupTeamsByCai(teams);
             for (const cai in teamsByCai) {
-                teamComposition += `<div class="cai-section"><div class="cai-title">CAI ${cai}</div><table><tr><th>Cuadrante</th><th>Funcionarios</th><th>Estado</th></tr>`;
+                teamComposition += `<div class="cai-section"><div class="cai-title">CAI ${cai}</div><table><tr><th>Cuadrante</th><th>Funcionarios</th></tr>`;
                 activities += `<div class="cai-section"><div class="cai-title">CAI ${cai}</div><table><tr><th>Cuadrante</th><th>Funcionarios</th><th>Actividades</th></tr>`;
                 teamsByCai[cai].forEach(team => {
-                    const quadrantNumbers = (team.originalQuadrants || team.quadrants).map(q => q.name.slice(2)).join('-');
+                    const quadrantNumbers = team.quadrants.map(q => q.name.slice(2)).join('-');
                     const officers = team.contacts?.map(c => `${c.GR || ''} ${c.NOMBRES || ''} ${c.APELLIDOS || ''}${c.PLACA ? ` - Placa: ${c.PLACA}` : ''}`).join('<br>') || 'N/A';
-                    let teamStatus = team.active ? 'Activo' : 'Inactivo';
-                    if (team.isCovering) teamStatus = `Cubriendo a ${team.isCovering}`;
-                    if (team.coveredBy) teamStatus += ` (Cubierto por ${team.coveredBy})`;
-
-                    teamComposition += `<tr><td>${quadrantNumbers}</td><td>${officers}</td><td>${teamStatus}</td></tr>`;
+                    teamComposition += `<tr><td>${quadrantNumbers}</td><td>${officers}</td></tr>`;
                     let activityList = '<ul class="activity-list">';
                     if (team.activityHistory?.length > 0) {
                         team.activityHistory.forEach((activity, index) => {
@@ -1592,11 +1387,8 @@
             for (const cai in teamsByCai) {
                 report += `CAI ${cai}:\n${"-".repeat(20)}\n`;
                 teamsByCai[cai].forEach(team => {
-                    const quadrantNumbers = (team.originalQuadrants || team.quadrants).map(q => q.name.slice(2)).join('-');
+                    const quadrantNumbers = team.quadrants.map(q => q.name.slice(2)).join('-');
                     report += `\nCuadrante(s) ${quadrantNumbers}:\n`;
-                    if (team.isCovering) {
-                        report += ` -> ESTADO: Cubriendo a ${team.isCovering}\n`;
-                    }
                     report += "Funcionarios:\n";
                     team.contacts?.forEach(c => {
                         report += `- ${c.GR || ''} ${c.NOMBRES || ''} ${c.APELLIDOS || ''}${c.PLACA ? ` - Placa: ${c.PLACA}` : ''}\n`;
@@ -1695,7 +1487,7 @@
                     const item = document.createElement('div');
                     item.className = 'officer-result-item';
                     item.textContent = `${officer.GR || ''} ${officer.APELLIDOS || ''} ${officer.NOMBRES || ''}`;
-                    const select = () => { selectOfficer(officer, index); resultsElement.style.display = 'none'; };
+                    const select = () => { selectOfficer(officer, officerIndex); resultsElement.style.display = 'none'; };
                     item.onclick = select;
                     item.ontouchend = (e) => { select(); e.preventDefault(); };
                     resultsElement.appendChild(item);
