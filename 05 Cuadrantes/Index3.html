@@ -234,7 +234,11 @@
         }
         
         .team-item.is-covering {
-            background-color: #fff3cd; /* Amarillo claro para equipos que cubren */
+            background-color: #d1ecf1; /* Azul claro para equipos que cubren */
+            border-left-color: #0c5460;
+        }
+        .team-item.is-covered {
+            background-color: #fff3cd; /* Amarillo claro para equipos cubiertos */
             border-left-color: #856404;
         }
 
@@ -759,10 +763,8 @@
             const teamsList = document.getElementById('teamsList');
             teamsList.innerHTML = '';
 
-            const visibleTeams = teams.filter(team => !team.coveredByTeamName);
-
-            const inactiveTeams = visibleTeams.filter(team => !team.active);
-            const activeTeams = visibleTeams.filter(team => team.active);
+            const inactiveTeams = teams.filter(team => !team.active);
+            const activeTeams = teams.filter(team => team.active);
 
             const inactiveTeamsByCai = groupTeamsByCurrentCai(inactiveTeams);
             const activeTeamsByCai = groupTeamsByCurrentCai(activeTeams);
@@ -771,7 +773,7 @@
             const allActiveCais = Object.keys(activeTeamsByCai).sort();
 
             allInactiveCais.forEach(cai => {
-                teamsList.appendChild(createCaiSection(cai, inactiveTeamsByCai[cai], true));
+                teamsList.appendChild(createCaiSection(cai, inactiveTeamsByCai[cai]));
             });
 
             if (allInactiveCais.length > 0 && allActiveCais.length > 0) {
@@ -781,7 +783,7 @@
             }
 
             allActiveCais.forEach(cai => {
-                teamsList.appendChild(createCaiSection(cai, activeTeamsByCai[cai], false));
+                teamsList.appendChild(createCaiSection(cai, activeTeamsByCai[cai]));
             });
 
             const buttonsContainer = document.createElement('div');
@@ -795,7 +797,7 @@
             saveToLocalStorage();
         }
         
-        function createCaiSection(cai, caiTeams, isInactiveSection) {
+        function createCaiSection(cai, caiTeams) {
             const caiSection = document.createElement('div');
             caiSection.className = 'cai-teams-section';
             caiSection.dataset.caiName = cai;
@@ -805,11 +807,17 @@
                 const teamItem = document.createElement('div');
                 teamItem.className = 'team-item';
                 if (team.isCovering) teamItem.classList.add('is-covering');
+                if (team.coveredByTeamName) teamItem.classList.add('is-covered');
                 teamItem.dataset.teamName = team.name;
 
-                const moveButtonHtml = team.isCovering 
-                    ? `<button class="move-team-button return-home" onclick="confirmReturnHome('${team.name}')" title="Regresar a CAI Original"><i class="fas fa-home"></i></button>`
-                    : `<button class="move-team-button" onclick="showMoveTeamDialog('${team.name}')" title="Reemplazar a otro equipo"><i class="fas fa-exchange-alt"></i></button>`;
+                let moveButtonHtml = '';
+                if (!team.active) {
+                    if (team.isCovering) {
+                        moveButtonHtml = `<button class="move-team-button return-home" onclick="confirmReturnHome('${team.name}')" title="Regresar a CAI Original"><i class="fas fa-home"></i></button>`;
+                    } else if (!team.coveredByTeamName) {
+                        moveButtonHtml = `<button class="move-team-button" onclick="showMoveTeamDialog('${team.name}')" title="Reemplazar a otro equipo"><i class="fas fa-exchange-alt"></i></button>`;
+                    }
+                }
 
                 teamItem.innerHTML = `
                     <div class="team-header">
@@ -917,7 +925,6 @@
                     originalCAI: teamCAI,
                     currentCAI: teamCAI,
                     isCovering: false,
-                    coveringTeamNames: [],
                     coveredByTeamName: null,
                     active: false, 
                     selectedMotive: '', 
@@ -949,9 +956,7 @@
             const teamIndex = teams.findIndex(t => t.name === teamName);
             if (teamIndex > -1) {
                 const teamToUndo = teams[teamIndex];
-                if(teamToUndo.isCovering || teamToUndo.coveredByTeamName) {
-                    resetCoverageForTeam(teamToUndo);
-                }
+                resetCoverageForTeam(teamToUndo);
 
                 teams.splice(teamIndex, 1);
                 renderQuadrants();
@@ -1083,6 +1088,15 @@
 
         function completeTeamDeactivation(team) {
             if (!team) return;
+
+            // If the deactivated team was being covered, reset the coverage automatically.
+            if (team.coveredByTeamName) {
+                const coveringTeam = teams.find(t => t.name === team.coveredByTeamName);
+                if (coveringTeam) {
+                    resetCoverageForTeam(coveringTeam);
+                }
+            }
+            
             team.active = false;
             const endTime = new Date();
             if (team.activityHistory && team.activityHistory.length > 0) {
@@ -1090,6 +1104,7 @@
             }
             team.selectedMotive = '';
             team.assignedTime = null;
+            
             renderTeams();
             updateTimers();
             saveToLocalStorage();
@@ -1384,7 +1399,7 @@
                 teamComposition += `<div class="cai-section"><div class="cai-title">CAI ${cai}</div><table><tr><th>Cuadrante (Display)</th><th>Funcionarios</th></tr>`;
                 activities += `<div class="cai-section"><div class="cai-title">CAI ${cai}</div><table><tr><th>Cuadrante</th><th>Funcionarios</th><th>Actividades</th></tr>`;
                 
-                const visibleTeamsInCai = teamsByCai[cai].filter(t => !t.coveredByTeamName);
+                const visibleTeamsInCai = teamsByCai[cai];
 
                 visibleTeamsInCai.forEach(team => {
                     const officers = team.contacts?.map(c => `${c.GR || ''} ${c.NOMBRES || ''} ${c.APELLIDOS || ''}${c.PLACA ? ` - Placa: ${c.PLACA}` : ''}`).join('<br>') || 'N/A';
@@ -1431,7 +1446,7 @@
             let summaryData = {};
             for (const cai in teamsByCai) {
                 report += `CAI ${cai}:\n${"-".repeat(20)}\n`;
-                const visibleTeamsInCai = teamsByCai[cai].filter(t => !t.coveredByTeamName);
+                const visibleTeamsInCai = teamsByCai[cai];
                 visibleTeamsInCai.forEach(team => {
                     report += `\nEquipo ${team.displayName}:\n`;
                     report += "Funcionarios:\n";
@@ -1579,7 +1594,7 @@
                 .catch(() => alert('No se pudieron cargar los datos básicos.'));
         }
         
-        // --- MOVE TEAM LOGIC (DIRECT REPLACEMENT) ---
+        // --- MOVE TEAM LOGIC (CORRECTED) ---
 
         function showMoveTeamDialog(coveringTeamName) {
             const coveringTeam = teams.find(t => t.name === coveringTeamName);
@@ -1625,13 +1640,10 @@
                     validationMessage.textContent = 'Equipo no encontrado.';
                     confirmButton.disabled = true;
                 } else if (targetTeam.name === coveringTeam.name) {
-                    validationMessage.textContent = 'No se puede reemplazar a sí mismo.';
-                    confirmButton.disabled = true;
-                } else if (targetTeam.active) {
-                    validationMessage.textContent = 'El equipo objetivo está activo.';
+                    validationMessage.textContent = 'No se puede cubrir a sí mismo.';
                     confirmButton.disabled = true;
                 } else if (targetTeam.coveredByTeamName) {
-                    validationMessage.textContent = 'Equipo ya está siendo cubierto.';
+                    validationMessage.textContent = `Equipo ya cubierto por ${targetTeam.coveredByTeamName}.`;
                     confirmButton.disabled = true;
                 } else {
                     validationMessage.textContent = '';
@@ -1660,16 +1672,15 @@
         }
         
         function assignDirectCoverage(coveringTeam, teamToCover) {
-            resetCoverageForTeam(coveringTeam); // Clear previous state
+            resetCoverageForTeam(coveringTeam);
 
-            // Set covering team's new state
             coveringTeam.isCovering = true;
-            coveringTeam.coveringTeamNames = [teamToCover.name];
-            coveringTeam.displayName = `${coveringTeam.name} (Cubriendo ${teamToCover.name})`;
             coveringTeam.currentCAI = teamToCover.currentCAI;
-
-            // Set covered team's state
+            coveringTeam.displayName = `${coveringTeam.name} (Cubriendo ${teamToCover.name})`;
+            
             teamToCover.coveredByTeamName = coveringTeam.name;
+            const status = teamToCover.active ? "Activo" : "Inactivo";
+            teamToCover.displayName = `${teamToCover.name} (${status} - Cubierto por ${coveringTeam.name})`;
         }
 
         function confirmReturnHome(teamName) {
@@ -1682,20 +1693,15 @@
         }
 
         function resetCoverageForTeam(teamToReset) {
-            // Find the team that was being covered by teamToReset
-            if (teamToReset.coveringTeamNames.length > 0) {
-                const coveredTeamName = teamToReset.coveringTeamNames[0];
-                const coveredTeam = teams.find(t => t.name === coveredTeamName);
-                if (coveredTeam) {
-                    coveredTeam.coveredByTeamName = null;
-                }
+            const coveredTeam = teams.find(t => t.coveredByTeamName === teamToReset.name);
+            if(coveredTeam) {
+                coveredTeam.coveredByTeamName = null;
+                coveredTeam.displayName = coveredTeam.name;
             }
 
-            // Reset the teamToReset itself
             teamToReset.currentCAI = teamToReset.originalCAI;
             teamToReset.displayName = teamToReset.name;
             teamToReset.isCovering = false;
-            teamToReset.coveringTeamNames = [];
         }
 
         loadData();
