@@ -757,21 +757,17 @@
             teamItem.className = 'team-item';
             teamItem.setAttribute('data-team-name', team.name);
 
-            // Apply (E) suffix if edited
             const displayName = team.name !== team.originalName && team.originalName ? `${team.name} (E)` : team.name;
 
-            // Buttons for inactive teams
             const inactiveButtons = !team.active ? `
                 <button class="undo-button" onclick="confirmUndoTeam('${team.name}')" title="Deshacer equipo"><i class="fas fa-undo"></i></button>
             ` : '';
 
-            // Buttons after the name for inactive teams
             const postNameButtons = !team.active ? `
                 <button class="rename-button" onclick="showRenameDialog('${team.name}')" title="Renombrar equipo"><i class="fas fa-edit"></i></button>
                 ${(team.originalName && team.name !== team.originalName) ? `<button class="reset-name-button" onclick="confirmResetTeamName('${team.name}')" title="Restaurar nombre original"><i class="fas fa-history"></i></button>` : ''}
             ` : '';
 
-            // Action buttons (Activate/Deactivate, View, Call)
             const actionButtons = team.active && team.assignedTime ? `
                 <span class="timer" data-start-time="${team.assignedTime.getTime()}">00:00:00</span>
                 <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
@@ -808,21 +804,16 @@
             const teamsList = document.getElementById('teamsList');
             teamsList.innerHTML = '';
 
-            // Sort all teams by their current name
             const sortedTeams = teams.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
 
-            // Filter teams into categories
             const activeTeams = sortedTeams.filter(team => team.active);
             const inactiveTeams = sortedTeams.filter(team => !team.active);
 
-            // Group teams by CAI
             const activeTeamsByCai = groupTeamsByCai(activeTeams);
             const inactiveTeamsByCai = groupTeamsByCai(inactiveTeams);
 
-            // Get all possible CAI names to ensure all are displayed
             const allCaiNames = [...new Set(quadrants.map(q => q.cai))].sort();
 
-            // Render inactive teams section
             teamsList.innerHTML += '<h2>Equipos Inactivos</h2>';
             allCaiNames.forEach(cai => {
                 const caiTeams = inactiveTeamsByCai[cai];
@@ -836,21 +827,19 @@
                     });
                 } else {
                     const noTeamsMessage = document.createElement('p');
-                    noTeamsMessage.textContent = 'Sin equipos asignados en este CAI.';
+                    noTeamsMessage.textContent = 'Sin cuadrantes disponibles.';
                     noTeamsMessage.style.cssText = 'font-size: 0.8rem; font-style: italic; padding-left: 10px; margin: 0;';
                     caiSection.appendChild(noTeamsMessage);
                 }
                 teamsList.appendChild(caiSection);
             });
 
-            // Add separator if there are both active and inactive teams
             if (inactiveTeams.length > 0 && activeTeams.length > 0) {
                 const separator = document.createElement('hr');
                 separator.className = 'teams-separator';
                 teamsList.appendChild(separator);
             }
             
-            // Render active teams
             if (activeTeams.length > 0) {
                 teamsList.innerHTML += '<h2>Equipos Activos</h2>';
                 const sortedActiveCais = Object.keys(activeTeamsByCai).sort();
@@ -865,7 +854,6 @@
                 });
             }
 
-            // Render global buttons
             const buttonsContainer = document.createElement('div');
             buttonsContainer.className = 'buttons-container';
             buttonsContainer.appendChild(createButton('resetButton', 'Reiniciar Turno', resetLocalStorage));
@@ -943,9 +931,15 @@
                     return;
                 }
                 const teamName = 'C-' + teamQuadrants.map(q => q.name.slice(2)).join('-');
+
+                if (teams.some(t => !t.active && t.name === teamName)) {
+                    alert(`No se puede crear el equipo porque el nombre "${teamName}" ya está en uso por otro equipo inactivo. Por favor, resuelva el conflicto de nombres antes de continuar.`);
+                    return;
+                }
+
                 const newTeam = { 
                     name: teamName, 
-                    originalName: teamName, // Guardar el nombre original
+                    originalName: teamName,
                     quadrants: teamQuadrants, 
                     active: false, 
                     selectedMotive: '', 
@@ -1023,8 +1017,8 @@
                 alert('El nombre no puede estar vacío.');
                 return;
             }
-            if (teams.some(t => t.name === newName)) {
-                alert('Ya existe un equipo con ese nombre.');
+            if (teams.some(t => !t.active && t.name === newName && t.name !== oldName)) {
+                alert('Ya existe un equipo inactivo con ese nombre.');
                 return;
             }
 
@@ -1048,6 +1042,14 @@
         }
 
         function confirmResetTeamName(teamName) {
+            const team = teams.find(t => t.name === teamName);
+            if (!team || !team.originalName) return;
+
+            if (teams.some(t => !t.active && t.name === team.originalName && t !== team)) {
+                alert(`No se puede restaurar el nombre original "${team.originalName}" porque ya está en uso por otro equipo inactivo.`);
+                return;
+            }
+
             if (confirm(`¿Restaurar el nombre original para el equipo "${teamName}"?`)) {
                 resetTeamName(teamName);
             }
@@ -1058,11 +1060,6 @@
             if (team && team.originalName) {
                 const oldName = team.name;
                 const newName = team.originalName;
-
-                if (teams.some(t => t.name === newName && t !== team)) {
-                    alert(`No se puede restaurar el nombre "${newName}" porque ya está en uso.`);
-                    return;
-                }
 
                 team.name = newName;
 
@@ -1206,6 +1203,22 @@
             }
             team.selectedMotive = '';
             team.assignedTime = null;
+
+            const deactivatedOriginalName = team.originalName;
+            const teamToReset = teams.find(t => t.name === deactivatedOriginalName && t !== team);
+
+            if (teamToReset) {
+                const itsOriginalName = teamToReset.originalName;
+                const isTargetNameFree = !teams.some(t => t !== teamToReset && !t.active && t.name === itsOriginalName);
+
+                if (isTargetNameFree) {
+                    alert(`Para evitar un conflicto de nombres, el equipo "${teamToReset.name}" ha sido restaurado a su nombre original: "${itsOriginalName}".`);
+                    teamToReset.name = itsOriginalName;
+                } else {
+                    alert(`¡Conflicto de nombres! El equipo "${team.name}" ha finalizado su actividad, pero el equipo "${teamToReset.name}" no puede ser restaurado a su nombre original ("${itsOriginalName}") porque ya está en uso. Por favor, renombre manualmente el equipo "${teamToReset.name}".`);
+                }
+            }
+
             renderTeams();
             updateTimers();
             saveToLocalStorage();
@@ -1272,7 +1285,7 @@
 
             motiveSearchInput.addEventListener('input', handleMotiveSearch);
             motiveSearchInput.addEventListener('focus', handleMotiveSearch);
-            handleMotiveSearch(); // Initial population
+            handleMotiveSearch();
 
             cancelButton.addEventListener('click', closeDialog);
             backdrop.addEventListener('click', closeDialog);
