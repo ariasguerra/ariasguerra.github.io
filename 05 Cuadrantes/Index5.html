@@ -1,1 +1,1306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión de Cuadrantes Policiales</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.4;
+            margin: 0;
+            padding: 0 0 80px 0; /* Add padding to the bottom to avoid overlap with floating bar */
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 10px;
+            background-color: #fff;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            padding-bottom: 10px;
+        }
+
+        /* Estilos para los paneles */
+        .left-panel, .right-panel {
+            flex: 1;
+            margin-bottom: 10px;
+        }
+        
+        .right-panel h2 {
+            color: #003366;
+            font-size: 1.2rem;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #003366;
+            padding-bottom: 5px;
+        }
+
+        /* Estilos para la carga de archivo */
+        .file-upload-container {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        #uploadButton {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        #uploadButton:hover {
+            background-color: #0056b3;
+        }
+
+        #uploadButton:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        #fileStatus {
+            margin-left: 10px;
+            font-size: 14px;
+        }
+
+        /* Estilos para la selección de funcionarios */
+        .officer-selection {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .officer-search-container {
+            width: 95%;
+            position: relative;
+        }
+
+        .officer-search-container label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #003366;
+        }
+
+        .officer-search {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .officer-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-top: none;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .officer-result-item {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        .officer-result-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Estilos para la lista de CAI */
+        #caiList {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .cai-item {
+            background-color: #e6f2ff;
+            border-left: 3px solid #003366;
+            padding: 5px;
+            border-radius: 3px;
+            flex: 1 1 calc(50% - 5px);
+            font-size: 0.9rem;
+        }
+
+        .cai-item h3 {
+            color: #003366;
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+        }
+
+        /* Estilos para la lista de cuadrantes */
+        .quadrant-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+        }
+
+        .quadrant-item {
+            background-color: #a3c2e6;
+            color: #003366;
+            padding: 3px 6px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            font-size: 0.8rem;
+        }
+
+        .quadrant-item:hover {
+            background-color: #7da7d9;
+        }
+
+        .quadrant-item.selected {
+            background-color: #003366;
+            color: white;
+        }
+
+        /* Estilos para botones de acción principales */
+        .action-button {
+            background-color: #003366;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .action-button:hover {
+             background-color: #004080;
+        }
+
+        #createTeamButton {
+            background-color: #003366;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        #createTeamButton:hover {
+            background-color: #004080;
+        }
+
+        #createTeamButton:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        #resetButton { background-color: #dc3545; }
+        #resetButton:hover { background-color: #c82333; }
+        #reportButton { background-color: #17a2b8; }
+        #reportButton:hover { background-color: #138496; }
+        #whatsappButton { background-color: #25D366; }
+        #whatsappButton:hover { background-color: #128C7E; }
+        #emailButton { background-color: #6c757d; }
+        #emailButton:hover { background-color: #5a6268; }
+
+
+        /* Estilos para equipos */
+        .team-item {
+            position: relative;
+            background-color: #e6f2ff;
+            border: 2px solid transparent;
+            padding: 8px;
+            border-radius: 3px;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            transition: background-color 0.3s, border-color 0.3s;
+            cursor: pointer;
+        }
+        
+        .team-item.selected {
+            border-color: #007bff;
+            background-color: #d1e7fd;
+        }
+
+        .team-item:hover {
+            background-color: #d1e7fd;
+        }
+
+        .team-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .team-name {
+            font-weight: bold;
+            flex-grow: 1;
+        }
+        
+        .team-observation {
+            font-style: italic;
+            color: #555;
+            font-size: 0.85em;
+            margin-left: 5px;
+        }
+
+        .timer {
+            font-family: monospace;
+            font-size: 0.9em;
+            color: #007bff;
+            background-color: #fff;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* Estilos para la visualización de actividades */
+        .activity-display {
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+
+        .assignment-time {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        /* Estilos para el separador de equipos */
+        .teams-separator {
+            border: 0;
+            height: 1px;
+            background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+            margin: 20px 0;
+        }
+
+        /* Estilos para el contenedor de botones principales */
+        .main-actions-container {
+            display: flex;
+            justify-content: flex-end; /* Alinea los botones a la derecha */
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* Estilos para los contactos del equipo (en el modal) */
+        .officer-list-dialog ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .officer-list-dialog li {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .officer-list-dialog li:last-child {
+            border-bottom: none;
+        }
+        .officer-list-dialog .officer-details {
+            flex-grow: 1;
+        }
+
+        /* Estilos para el botón de llamada de funcionarios */
+        .call-officer-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+        }
+
+        .call-officer-button:hover {
+            background-color: #218838;
+        }
+
+        /* Estilos para los diálogos emergentes */
+        .dialog-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1999;
+        }
+
+        .dialog-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 2000;
+            max-width: 90%;
+            width: 350px;
+        }
+
+        .dialog-box h3 {
+            margin-top: 0;
+            color: #003366;
+        }
+
+        .dialog-box label {
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .dialog-box input[type="text"],
+        .dialog-box textarea,
+        .dialog-box select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        .dialog-box textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .dialog-box .dialog-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        .dialog-box .dialog-buttons {
+             display: flex;
+             justify-content: flex-end;
+             gap: 10px;
+             margin-top: 15px;
+        }
+        
+        .dialog-box .dialog-buttons button {
+            flex-grow: 0;
+            padding: 10px;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .dialog-box .dialog-buttons .confirm-btn { background-color: #28a745; }
+        .dialog-box .dialog-buttons .confirm-btn:hover { background-color: #218838; }
+        .dialog-box .dialog-buttons .confirm-btn:disabled { background-color: #cccccc; cursor: not-allowed; }
+        .dialog-box .dialog-buttons .cancel-btn { background-color: #6c757d; }
+        .dialog-box .dialog-buttons .cancel-btn:hover { background-color: #5a6268; }
+        .dialog-box .dialog-buttons .reset-btn { background-color: #fd7e14; }
+        .dialog-box .dialog-buttons .reset-btn:hover { background-color: #e66a00; }
+
+        /* Floating Action Bar */
+        .floating-action-bar {
+            position: fixed;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 51, 102, 0.9);
+            padding: 8px 15px;
+            border-radius: 50px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: flex;
+            gap: 10px;
+            z-index: 1001;
+            transition: opacity 0.3s, transform 0.3s, bottom 0.3s;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .floating-action-bar.visible {
+            opacity: 1;
+            pointer-events: auto;
+            bottom: 15px;
+        }
+
+        .floating-action-bar button {
+            background-color: transparent;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .floating-action-bar button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Estilos responsivos */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 90%;
+                margin: 20px auto;
+                padding: 20px;
+                border-radius: 5px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            }
+
+            .main-content {
+                flex-direction: row;
+                gap: 20px;
+            }
+
+            .left-panel, .right-panel {
+                flex: 1;
+            }
+
+            .cai-item, .team-item {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <!-- Date removed as requested -->
+        </header>
+        <main class="main-content">
+            <div class="left-panel">
+                <div class="file-upload-container">
+                    <button id="uploadButton" title="Cargar archivo JSON con la lista de funcionarios">
+                        <i class="fas fa-upload"></i> Cargar lista de funcionarios
+                    </button>
+                    <input type="file" id="contactsFile" accept=".json" style="display: none;">
+                    <span id="fileStatus"></span>
+                </div>
+                <div class="officer-selection">
+                    <div class="officer-search-container">
+                        <label for="officer-search-1">Comandante de Patrulla</label>
+                        <input type="text" id="officer-search-1" class="officer-search" placeholder="Buscar funcionario...">
+                        <div id="officer-results-1" class="officer-results"></div>
+                    </div>
+                    <div class="officer-search-container">
+                        <label for="officer-search-2">Integrante de Patrulla</label>
+                        <input type="text" id="officer-search-2" class="officer-search" placeholder="Buscar funcionario...">
+                        <div id="officer-results-2" class="officer-results"></div>
+                    </div>
+                </div>
+                <div id="caiList"></div>
+                <button id="createTeamButton" class="btn btn-success" disabled>Crear Equipo</button>
+            </div>
+            <div class="right-panel">
+                <div id="teamsList"></div>
+                <div class="main-actions-container"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Floating Action Bar -->
+    <div id="floating-action-bar" class="floating-action-bar"></div>
+
+    <script>
+        // Variables globales
+        let quadrants = [];
+        let teams = [];
+        let motivesList = [];
+        let contactsList = [];
+        let selectedQuadrants = [];
+        let selectedOfficers = [null, null];
+        let activityResults = {};
+        let activityResultsList = [];
+        let selectedTeamName = null;
+
+        // Función principal para cargar datos
+        async function loadData() {
+            try {
+                const localData = loadFromLocalStorage();
+                if (localData) {
+                    // FIX: Robust data loading with fallbacks
+                    quadrants = localData.quadrants || [];
+                    teams = localData.teams || [];
+                    motivesList = localData.motivesList || [];
+                    selectedQuadrants = localData.selectedQuadrants || [];
+                    selectedOfficers = localData.selectedOfficers || [null, null];
+                    activityResults = localData.activityResults || {};
+                    selectedTeamName = localData.selectedTeamName || null;
+                    contactsList = JSON.parse(localStorage.getItem('contactsList') || '[]');
+                } else {
+                    // Carga inicial desde JSON si no hay datos locales
+                    const [quadrantsResponse, motivesResponse, activityResultsResponse] = await Promise.all([
+                        fetch('cuadrantes.json').catch(() => ({ json: () => [] })),
+                        fetch('claves_policiales.json').catch(() => ({ json: () => [] })),
+                        fetch('resultados_actividades.json').catch(() => ({ json: () => getDefaultActivityResults() }))
+                    ]);
+                    quadrants = await quadrantsResponse.json();
+                    motivesList = await motivesResponse.json();
+                    activityResultsList = await activityResultsResponse.json();
+                    quadrants.forEach(q => {
+                        if (q.cai === "SETE DE AGOSTO") q.cai = "SIETE DE AGOSTO";
+                    });
+                }
+                initializeApp();
+            } catch (error) {
+                handleLoadError(error);
+            }
+        }
+
+        function getDefaultActivityResults() {
+            return [
+                { "categoria": "Capturas", "resultados": ["Captura en flagrancia"] },
+                { "categoria": "Medidas correctivas", "resultados": ["Comparendo por infracción al Código de Policía"] }
+            ];
+        }
+
+        function initializeApp() {
+            renderQuadrants();
+            renderTeams();
+            setupEventListeners();
+            startTimers();
+            setupFileUpload();
+            loadOfficerDropdowns();
+            updateCreateTeamButton();
+            toggleCreateTeamElements(quadrants.filter(q => !isQuadrantInTeam(q.id)).length > 0);
+            
+            if (contactsList && contactsList.length > 0) {
+                const uploadContainer = document.querySelector('.file-upload-container');
+                if(uploadContainer) uploadContainer.style.display = 'none';
+            }
+            // FIX: Render floating actions on initial load to reflect saved state
+            renderFloatingActions();
+        }
+
+        function setupFileUpload() {
+            const uploadButton = document.getElementById('uploadButton');
+            const fileInput = document.getElementById('contactsFile');
+            const uploadContainer = document.querySelector('.file-upload-container');
+
+            if (!uploadButton || !fileInput || !uploadContainer) return;
+
+            uploadButton.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                uploadButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                uploadButton.disabled = true;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (!Array.isArray(data) || !data.every(item => 'NOMBRES' in item && 'APELLIDOS' in item && 'GR' in item && 'CC' in item)) {
+                            throw new Error("Estructura de datos no válida");
+                        }
+                        contactsList = data;
+                        localStorage.setItem('contactsList', JSON.stringify(contactsList));
+                        loadOfficerDropdowns();
+                        saveToLocalStorage();
+                        uploadContainer.style.display = 'none';
+                    } catch (error) {
+                        alert('Error al cargar el archivo: ' + error.message);
+                        uploadButton.innerHTML = '<i class="fas fa-upload"></i>';
+                        uploadButton.disabled = false;
+                    }
+                };
+                reader.readAsText(file);
+            });
+        }
+
+        function renderQuadrants() {
+            const caiList = document.getElementById('caiList');
+            caiList.innerHTML = '';
+            const availableQuadrants = quadrants.filter(q => !isQuadrantInTeam(q.id));
+            const caiGroups = groupByCai(availableQuadrants);
+            Object.keys(caiGroups).sort().forEach(cai => {
+                const caiDiv = document.createElement('div');
+                caiDiv.className = 'cai-item';
+                caiDiv.innerHTML = `<h3>${cai}</h3>`;
+                const quadrantList = document.createElement('div');
+                quadrantList.className = 'quadrant-list';
+                caiGroups[cai].sort((a, b) => parseInt(a.name.slice(2)) - parseInt(b.name.slice(2))).forEach(q => {
+                    const quadrantDiv = document.createElement('div');
+                    quadrantDiv.className = 'quadrant-item';
+                    quadrantDiv.dataset.id = q.id.toString();
+                    quadrantDiv.textContent = q.name;
+                    quadrantList.appendChild(quadrantDiv);
+                });
+                caiDiv.appendChild(quadrantList);
+                caiList.appendChild(caiDiv);
+            });
+            updateCreateTeamButton();
+            toggleCreateTeamElements(availableQuadrants.length > 0);
+        }
+
+        function isQuadrantInTeam(quadrantId) {
+            return teams.some(team => team.quadrants.some(q => parseInt(q.id) === parseInt(quadrantId)));
+        }
+
+        function createTeamItemElement(team) {
+            const teamItem = document.createElement('div');
+            teamItem.className = 'team-item';
+            teamItem.setAttribute('data-team-name', team.name);
+            teamItem.onclick = () => selectTeam(team.name);
+
+            const timerHTML = team.active && team.assignedTime ? `<span class="timer" data-start-time="${team.assignedTime.getTime()}">00:00:00</span>` : '';
+            
+            teamItem.innerHTML = `
+                <div class="team-header">
+                    <span class="team-name">${team.name} <span class="team-observation">${team.observation ? `(${team.observation})` : ''}</span></span>
+                    ${timerHTML}
+                </div>
+            `;
+
+            if (team.active) {
+                const activityDisplay = document.createElement('div');
+                activityDisplay.className = 'activity-display';
+                activityDisplay.innerHTML = `
+                    <span class="assignment-time">${formatDate(team.assignedTime)}</span>
+                    <span class="activity">Actividad: ${team.selectedMotive || 'No asignada'}</span>
+                `;
+                teamItem.appendChild(activityDisplay);
+            }
+            return teamItem;
+        }
+
+        function renderTeams() {
+            const teamsList = document.getElementById('teamsList');
+            teamsList.innerHTML = '';
+
+            const sortedTeams = teams.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+            const activeTeams = sortedTeams.filter(team => team.active);
+            const inactiveTeams = sortedTeams.filter(team => !team.active);
+
+            const activeTeamsByCai = groupTeamsByCai(activeTeams);
+            const inactiveTeamsByCai = groupTeamsByCai(inactiveTeams);
+            const allCaiNames = [...new Set(quadrants.map(q => q.cai))].sort();
+
+            teamsList.innerHTML += '<h2>Equipos Inactivos</h2>';
+            allCaiNames.forEach(cai => {
+                const caiTeams = inactiveTeamsByCai[cai];
+                const caiSection = document.createElement('div');
+                caiSection.className = 'cai-teams-section';
+                caiSection.innerHTML = `<h3>CAI ${cai}</h3>`;
+                if (caiTeams && caiTeams.length > 0) {
+                    caiTeams.forEach(team => caiSection.appendChild(createTeamItemElement(team)));
+                } else {
+                    caiSection.innerHTML += '<p style="font-size: 0.8rem; font-style: italic; padding-left: 10px; margin: 0;">Sin cuadrantes disponibles.</p>';
+                }
+                teamsList.appendChild(caiSection);
+            });
+
+            if (inactiveTeams.length > 0 && activeTeams.length > 0) {
+                teamsList.appendChild(document.createElement('hr')).className = 'teams-separator';
+            }
+            
+            if (activeTeams.length > 0) {
+                teamsList.innerHTML += '<h2>Equipos Activos</h2>';
+                Object.keys(activeTeamsByCai).sort().forEach(cai => {
+                    const caiSection = document.createElement('div');
+                    caiSection.className = 'cai-teams-section';
+                    caiSection.innerHTML = `<h3>CAI ${cai}</h3>`;
+                    activeTeamsByCai[cai].forEach(team => caiSection.appendChild(createTeamItemElement(team)));
+                    teamsList.appendChild(caiSection);
+                });
+            }
+
+            const mainActionsContainer = document.querySelector('.main-actions-container');
+            mainActionsContainer.innerHTML = '';
+            mainActionsContainer.appendChild(createButton('resetButton', '<i class="fas fa-sync-alt"></i>', resetLocalStorage, 'Reiniciar Turno'));
+            mainActionsContainer.appendChild(createButton('reportButton', '<i class="fas fa-file-alt"></i>', generateReport, 'Generar Reporte PDF'));
+            mainActionsContainer.appendChild(createButton('whatsappButton', '<i class="fab fa-whatsapp"></i>', sendReportWhatsApp, 'Enviar por WhatsApp'));
+            mainActionsContainer.appendChild(createButton('emailButton', '<i class="far fa-envelope"></i>', sendReportEmail, 'Enviar por Email'));
+            
+            updateTeamSelectionVisuals();
+            saveToLocalStorage();
+        }
+        
+        function selectTeam(teamName) {
+            if (selectedTeamName === teamName) {
+                selectedTeamName = null; // Deselect if clicking the same team
+            } else {
+                selectedTeamName = teamName;
+            }
+            updateTeamSelectionVisuals();
+            renderFloatingActions();
+            saveToLocalStorage();
+        }
+
+        function updateTeamSelectionVisuals() {
+            document.querySelectorAll('.team-item').forEach(item => {
+                item.classList.toggle('selected', item.dataset.teamName === selectedTeamName);
+            });
+        }
+
+        function renderFloatingActions() {
+            const actionBar = document.getElementById('floating-action-bar');
+            if (!selectedTeamName) {
+                actionBar.classList.remove('visible');
+                return;
+            }
+            const team = teams.find(t => t.name === selectedTeamName);
+            if (!team) {
+                actionBar.classList.remove('visible');
+                return;
+            }
+
+            let buttonsHTML = '';
+            if (team.active) {
+                buttonsHTML = `
+                    <button onclick="toggleTeamStatus()" title="Desactivar Equipo"><i class="fas fa-power-off"></i></button>
+                    <button onclick="showAssignedOfficers()" title="Ver Funcionarios"><i class="fas fa-users"></i></button>
+                    <button onclick="callTeam()" title="Llamar al Cuadrante"><i class="fas fa-phone"></i></button>
+                `;
+            } else {
+                buttonsHTML = `
+                    <button onclick="showMotiveAssignmentDialog()" title="Activar Equipo"><i class="fas fa-play"></i></button>
+                    <button onclick="showEditTeamDialog()" title="Editar Observación/CAI"><i class="fas fa-pencil-alt"></i></button>
+                    <button onclick="showAssignedOfficers()" title="Ver Funcionarios"><i class="fas fa-users"></i></button>
+                    <button onclick="callTeam()" title="Llamar al Cuadrante"><i class="fas fa-phone"></i></button>
+                    <button onclick="confirmUndoTeam()" title="Deshacer Equipo"><i class="fas fa-undo"></i></button>
+                `;
+            }
+            actionBar.innerHTML = buttonsHTML;
+            actionBar.classList.add('visible');
+        }
+
+        function createButton(id, innerHTML, onClickHandler, title = '') {
+            const button = document.createElement('button');
+            button.id = id;
+            button.className = 'action-button';
+            button.innerHTML = innerHTML;
+            button.onclick = onClickHandler;
+            if (title) button.title = title;
+            return button;
+        }
+
+        function setupEventListeners() {
+            document.getElementById('caiList').addEventListener('click', event => {
+                if (event.target.classList.contains('quadrant-item')) toggleQuadrantSelection(event.target.dataset.id);
+            });
+            document.getElementById('createTeamButton').addEventListener('click', createTeam);
+        }
+
+        function toggleQuadrantSelection(quadrantId) {
+            const stringId = quadrantId.toString();
+            const index = selectedQuadrants.findIndex(id => id.toString() === stringId);
+            if (index > -1) selectedQuadrants.splice(index, 1);
+            else selectedQuadrants.push(stringId);
+            updateQuadrantStyles();
+            updateCreateTeamButton();
+            saveToLocalStorage();
+        }
+
+        function updateQuadrantStyles() {
+            document.querySelectorAll('.quadrant-item').forEach(item => {
+                item.classList.toggle('selected', selectedQuadrants.includes(item.dataset.id.toString()));
+            });
+        }
+
+        function createTeam() {
+            if (selectedOfficers[0] && selectedOfficers[1] && selectedQuadrants.length > 0) {
+                if (selectedOfficers[0].CC === selectedOfficers[1].CC) {
+                    alert('No se puede crear un equipo con el mismo funcionario dos veces.');
+                    return;
+                }
+                const teamQuadrants = selectedQuadrants.map(id => quadrants.find(q => q.id.toString() === id)).filter(Boolean);
+                if (teamQuadrants.length === 0) return;
+                
+                teamQuadrants.sort((a, b) => parseInt(a.name.slice(2)) - parseInt(b.name.slice(2)));
+                const teamName = 'C-' + teamQuadrants.map(q => q.name.slice(2)).join('-');
+
+                if (teams.some(t => t.name === teamName)) {
+                    alert(`El nombre de equipo "${teamName}" ya existe.`);
+                    return;
+                }
+
+                const newTeam = { 
+                    name: teamName, 
+                    quadrants: teamQuadrants, 
+                    active: false, 
+                    contacts: [...selectedOfficers],
+                    originalCai: teamQuadrants[0]?.cai,
+                    observation: '',
+                    activityHistory: []
+                };
+                teams.push(newTeam);
+                alert(`Equipo "${teamName}" creado.`);
+                selectedOfficers = [null, null];
+                selectedQuadrants = [];
+                updateQuadrantStyles();
+                updateOfficerDropdowns();
+                renderTeams();
+                renderQuadrants();
+            } else {
+                alert('Seleccione dos funcionarios y al menos un cuadrante.');
+            }
+        }
+
+        function confirmUndoTeam() {
+            if (!selectedTeamName) return;
+            if (confirm(`¿Deshacer el equipo ${selectedTeamName}?`)) {
+                undoTeam();
+            }
+        }
+
+        function undoTeam() {
+            if (!selectedTeamName) return;
+            teams = teams.filter(t => t.name !== selectedTeamName);
+            selectedTeamName = null;
+            renderQuadrants();
+            renderTeams();
+            renderFloatingActions();
+            updateOfficerDropdowns();
+        }
+        
+        function showEditTeamDialog() {
+            if (!selectedTeamName) return;
+            const team = teams.find(t => t.name === selectedTeamName);
+            if (!team) return;
+
+            const backdrop = document.createElement('div');
+            backdrop.className = 'dialog-backdrop';
+            const dialog = document.createElement('div');
+            dialog.className = 'dialog-box';
+            
+            const allCais = [...new Set(quadrants.map(q => q.cai))].sort();
+            const currentCai = team.quadrants[0]?.cai || '';
+            let caiOptions = allCais.map(cai => `<option value="${cai}" ${cai === currentCai ? 'selected' : ''}>${cai}</option>`).join('');
+
+            dialog.innerHTML = `
+                <h3>Editar Equipo ${team.name}</h3>
+                <label for="observationInput">Observación:</label>
+                <textarea id="observationInput" placeholder="Añada una observación...">${team.observation || ''}</textarea>
+                <label for="caiSelector">CAI Actual:</label>
+                <select id="caiSelector">${caiOptions}</select>
+                <div class="dialog-buttons">
+                    <button id="resetObservationAndCai" class="reset-btn" title="Restaurar"><i class="fas fa-history"></i></button>
+                    <button id="cancelEdit" class="cancel-btn" title="Cancelar"><i class="fas fa-times"></i></button>
+                    <button id="confirmEdit" class="confirm-btn" title="Guardar"><i class="fas fa-check"></i></button>
+                </div>
+            `;
+            document.body.append(backdrop, dialog);
+
+            const closeDialog = () => { dialog.remove(); backdrop.remove(); };
+            dialog.querySelector('#confirmEdit').onclick = () => {
+                team.observation = dialog.querySelector('#observationInput').value.trim();
+                const newCai = dialog.querySelector('#caiSelector').value;
+                if (newCai && newCai !== currentCai) {
+                    team.quadrants.forEach(tq => {
+                        const mainQ = quadrants.find(q => q.id === tq.id);
+                        if (mainQ) mainQ.cai = newCai;
+                        tq.cai = newCai;
+                    });
+                }
+                renderTeams();
+                closeDialog();
+            };
+            dialog.querySelector('#resetObservationAndCai').onclick = () => {
+                if (!confirm('¿Borrar observación y restaurar CAI original?')) return;
+                team.observation = '';
+                const originalCai = team.originalCai;
+                if (originalCai && originalCai !== currentCai) {
+                    team.quadrants.forEach(tq => {
+                        const mainQ = quadrants.find(q => q.id === tq.id);
+                        if (mainQ) mainQ.cai = originalCai;
+                        tq.cai = originalCai;
+                    });
+                }
+                renderTeams();
+                closeDialog();
+            };
+            dialog.querySelector('#cancelEdit').onclick = closeDialog;
+            backdrop.onclick = closeDialog;
+        }
+
+        function toggleTeamStatus() {
+            if (!selectedTeamName) return;
+            const team = teams.find(t => t.name === selectedTeamName);
+            if (team && team.active) showActivityResultDialog(team);
+        }
+
+        function showActivityResultDialog(team) {
+            const backdrop = document.createElement('div');
+            backdrop.className = 'dialog-backdrop';
+            const dialog = document.createElement('div');
+            dialog.className = 'dialog-box';
+            dialog.innerHTML = `
+                <h3>Resultado de la actividad</h3>
+                <input type="text" id="resultSearch" placeholder="Buscar resultado...">
+                <div id="resultsList" class="dialog-list"></div>
+                <div class="dialog-buttons">
+                    <button id="cancelResult" class="cancel-btn" title="Cancelar"><i class="fas fa-times"></i></button>
+                    <button id="confirmResult" class="confirm-btn" title="Confirmar" disabled><i class="fas fa-check"></i></button>
+                </div>
+            `;
+            document.body.append(backdrop, dialog);
+            const closeDialog = () => { dialog.remove(); backdrop.remove(); };
+            
+            const resultsList = dialog.querySelector('#resultsList');
+            const confirmButton = dialog.querySelector('#confirmResult');
+
+            const displayResults = (filteredResults) => {
+                resultsList.innerHTML = '';
+                if (filteredResults.length === 0) {
+                    resultsList.innerHTML = '<div style="padding: 10px; font-style: italic;">No hay resultados</div>';
+                    return;
+                }
+                filteredResults.forEach(category => {
+                    const categoryDiv = document.createElement('div');
+                    categoryDiv.className = 'result-category';
+                    categoryDiv.innerHTML = `<h4>${category.categoria}</h4>`;
+                    category.resultados.forEach(result => {
+                        const div = document.createElement('div');
+                        div.textContent = result;
+                        div.onclick = () => {
+                            resultsList.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+                            div.classList.add('selected');
+                            confirmButton.disabled = false;
+                        };
+                        categoryDiv.appendChild(div);
+                    });
+                    resultsList.appendChild(categoryDiv);
+                });
+            };
+
+            const filterAndDisplay = () => {
+                const query = dialog.querySelector('#resultSearch').value.toLowerCase();
+                const filtered = activityResultsList.map(cat => {
+                    const filteredRes = cat.resultados.filter(res => res.toLowerCase().includes(query));
+                    return { ...cat, resultados: filteredRes };
+                }).filter(cat => cat.resultados.length > 0);
+                displayResults(filtered);
+            };
+            
+            dialog.querySelector('#resultSearch').oninput = filterAndDisplay;
+            confirmButton.onclick = () => {
+                const selectedResult = resultsList.querySelector('.selected');
+                if (selectedResult) {
+                    saveActivityResult(team, selectedResult.textContent);
+                    closeDialog();
+                    completeTeamDeactivation(team);
+                }
+            };
+            dialog.querySelector('#cancelResult').onclick = closeDialog;
+            backdrop.onclick = closeDialog;
+            filterAndDisplay();
+        }
+
+        function saveActivityResult(team, result) {
+            const cai = team.quadrants[0].cai;
+            const activityIndex = (team.activityHistory || []).length - 1;
+            if (activityIndex < 0) return;
+            if (!activityResults[cai]) activityResults[cai] = {};
+            if (!activityResults[cai][team.name]) activityResults[cai][team.name] = [];
+            activityResults[cai][team.name][activityIndex] = result;
+        }
+
+        function completeTeamDeactivation(team) {
+            team.active = false;
+            if (team.activityHistory && team.activityHistory.length > 0) {
+                team.activityHistory[team.activityHistory.length - 1].endTime = new Date();
+            }
+            team.selectedMotive = '';
+            team.assignedTime = null;
+            renderTeams();
+            renderQuadrants();
+            renderFloatingActions();
+            updateTimers();
+        }
+
+        function showMotiveAssignmentDialog() {
+            if (!selectedTeamName) return;
+            const team = teams.find(t => t.name === selectedTeamName);
+            if (!team) return;
+
+            const backdrop = document.createElement('div');
+            backdrop.className = 'dialog-backdrop';
+            const dialog = document.createElement('div');
+            dialog.className = 'dialog-box';
+            dialog.innerHTML = `
+                <h3>Asignar Actividad a ${team.name}</h3>
+                <input type="text" id="motiveSearchInput" class="search-input" placeholder="Buscar motivo...">
+                <div id="motiveSearchResults" class="dialog-list"></div>
+                <div class="dialog-buttons">
+                    <button id="cancelMotive" class="cancel-btn" title="Cancelar"><i class="fas fa-times"></i></button>
+                    <button id="confirmMotive" class="confirm-btn" title="Confirmar" disabled><i class="fas fa-check"></i></button>
+                </div>
+            `;
+            document.body.append(backdrop, dialog);
+            
+            const closeDialog = () => { dialog.remove(); backdrop.remove(); };
+            const motiveSearchInput = dialog.querySelector('#motiveSearchInput');
+            const motiveSearchResults = dialog.querySelector('#motiveSearchResults');
+            const confirmButton = dialog.querySelector('#confirmMotive');
+            let selectedMotive = null;
+
+            const handleMotiveSearch = () => {
+                const query = motiveSearchInput.value.toLowerCase();
+                const filteredMotives = motivesList.filter(m => m.text.toLowerCase().includes(query) || m.value.toLowerCase().includes(query));
+                motiveSearchResults.innerHTML = '';
+                filteredMotives.forEach(motive => {
+                    const item = document.createElement('div');
+                    item.textContent = motive.text;
+                    item.onclick = () => {
+                        motiveSearchResults.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+                        item.classList.add('selected');
+                        selectedMotive = motive;
+                        confirmButton.disabled = false;
+                    };
+                    motiveSearchResults.appendChild(item);
+                });
+            };
+            
+            motiveSearchInput.oninput = handleMotiveSearch;
+            motiveSearchInput.onfocus = handleMotiveSearch;
+            dialog.querySelector('#cancelMotive').onclick = closeDialog;
+            backdrop.onclick = closeDialog;
+            confirmButton.onclick = () => {
+                if (!selectedMotive) return;
+                team.selectedMotive = selectedMotive.text;
+                team.active = true;
+                team.assignedTime = new Date();
+                if (!team.activityHistory) team.activityHistory = [];
+                team.activityHistory.push({ motive: team.selectedMotive, startTime: team.assignedTime, endTime: null });
+                renderTeams();
+                renderFloatingActions();
+                updateTimers();
+                closeDialog();
+            };
+            handleMotiveSearch();
+            motiveSearchInput.focus();
+        }
+        
+        function showAssignedOfficers() {
+            if (!selectedTeamName) return;
+            const team = teams.find(t => t.name === selectedTeamName);
+            if (!team || !team.contacts || team.contacts.length === 0) return;
+
+            const backdrop = document.createElement('div');
+            backdrop.className = 'dialog-backdrop';
+            const dialog = document.createElement('div');
+            dialog.className = 'dialog-box officer-list-dialog';
+            
+            let officersHtml = '<ul>' + team.contacts.map(c => `
+                <li>
+                    <button class="call-officer-button" onclick="callOfficer('${c.CELULAR || ''}')" title="Llamar"><i class="fas fa-phone"></i></button>
+                    <div class="officer-details">
+                        ${c.GR || ''} ${c.NOMBRES || ''} ${c.APELLIDOS || ''}
+                        ${c.PLACA ? `<br><small>Placa: ${c.PLACA}</small>` : ''}
+                    </div>
+                </li>`).join('') + '</ul>';
+
+            dialog.innerHTML = `
+                <h3>Funcionarios del Equipo ${team.name}</h3>
+                ${officersHtml}
+                <div class="dialog-buttons" style="justify-content: center;">
+                    <button id="closeOfficerList" class="cancel-btn" title="Cerrar"><i class="fas fa-times"></i></button>
+                </div>
+            `;
+            document.body.append(backdrop, dialog);
+            const closeDialog = () => { dialog.remove(); backdrop.remove(); };
+            dialog.querySelector('#closeOfficerList').onclick = closeDialog;
+            backdrop.onclick = closeDialog;
+        }
+
+        function formatDate(date) {
+            return date ? new Date(date).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'N/A';
+        }
+
+        function groupByCai(items) {
+            return items.reduce((groups, item) => {
+                const cai = item.cai || (item.quadrants && item.quadrants[0]?.cai) || 'Desconocido';
+                if (!groups[cai]) groups[cai] = [];
+                groups[cai].push(item);
+                return groups;
+            }, {});
+        }
+
+        function startTimers() {
+            setInterval(updateTimers, 1000);
+        }
+
+        function updateTimers() {
+            document.querySelectorAll('.timer').forEach(timer => {
+                const startTime = parseInt(timer.dataset.startTime);
+                if (!isNaN(startTime)) {
+                    const difference = new Date().getTime() - startTime;
+                    const hours = Math.floor(difference / 3600000);
+                    const minutes = Math.floor((difference % 3600000) / 60000);
+                    const seconds = Math.floor((difference % 60000) / 1000);
+                    timer.textContent = [hours, minutes, seconds].map(u => String(u).padStart(2, '0')).join(":");
+                }
+            });
+        }
+
+        function callTeam() {
+            if (!selectedTeamName) return;
+            const team = teams.find(t => t.name === selectedTeamName);
+            const phoneNumber = team?.quadrants?.[0]?.phone;
+            if (phoneNumber) window.location.href = `tel:${phoneNumber}`;
+            else alert('No hay número de teléfono para este cuadrante.');
+        }
+
+        function callOfficer(phoneNumber) {
+            if (phoneNumber) window.location.href = `tel:${phoneNumber}`;
+            else alert('No hay número de teléfono para este funcionario.');
+        }
+
+        function saveToLocalStorage() {
+            try {
+                const dataToSave = {
+                    quadrants,
+                    teams: teams.map(team => ({
+                        ...team,
+                        assignedTime: team.assignedTime ? new Date(team.assignedTime).toISOString() : null,
+                        activityHistory: (team.activityHistory || []).map(act => ({
+                            ...act,
+                            startTime: act.startTime ? new Date(act.startTime).toISOString() : null,
+                            endTime: act.endTime ? new Date(act.endTime).toISOString() : null,
+                        }))
+                    })),
+                    motivesList,
+                    selectedQuadrants,
+                    selectedOfficers,
+                    activityResults,
+                    selectedTeamName
+                };
+                localStorage.setItem('policeQuadrantsData', JSON.stringify(dataToSave));
+                localStorage.setItem('contactsList', JSON.stringify(contactsList));
+            } catch (error) {
+                console.error('Error al guardar en localStorage:', error);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const savedData = localStorage.getItem('policeQuadrantsData');
+                if (!savedData) return null;
+                const parsedData = JSON.parse(savedData);
+                if (parsedData.teams) {
+                    parsedData.teams.forEach(team => {
+                        if (team.assignedTime) team.assignedTime = new Date(team.assignedTime);
+                        if (team.activityHistory) {
+                            team.activityHistory.forEach(activity => {
+                                if (activity.startTime) activity.startTime = new Date(activity.startTime);
+                                if (activity.endTime) activity.endTime = new Date(activity.endTime);
+                            });
+                        }
+                    });
+                }
+                return parsedData;
+            } catch (error) {
+                console.error('Error al cargar desde localStorage:', error);
+                return null;
+            }
+        }
+
+        function resetLocalStorage() {
+            if (confirm('¿Reiniciar todos los datos para un nuevo turno?')) {
+                localStorage.removeItem('policeQuadrantsData');
+                if (confirm('¿Desea borrar también la lista de funcionarios?')) {
+                    localStorage.removeItem('contactsList');
+                }
+                location.reload();
+            }
+        }
+        
+        function generateReport() { try { const reportContent = generateReportContent(); const reportWindow = window.open('', 'Reporte', 'width=800,height=600'); if (!reportWindow) { alert('El navegador bloqueó la apertura de la ventana de reporte.'); return; } reportWindow.document.write(reportContent); reportWindow.document.close(); reportWindow.print(); } catch (error) { console.error('Error al generar reporte:', error); } }
+        function generateReportContent() { const reportData = generateReportData(); return `
+            <!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Reporte de Actividades</title><style>
+            @page { size: letter; margin: 1.5cm; } body { font-family: Arial, sans-serif; font-size: 10px; line-height: 1.4; }
+            h1, h2 { color: #003366; text-align: center; } h1 { font-size: 16px; } h2 { font-size: 14px; margin-top: 20px; }
+            .report-date { text-align: right; font-style: italic; margin-bottom: 15px; }
+            .cai-section { margin-bottom: 20px; page-break-inside: avoid; }
+            .cai-title { background-color: #003366; color: white; padding: 3px 5px; font-size: 12px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+            th, td { border: 1px solid #ddd; padding: 4px; text-align: left; } th { background-color: #f2f2f2; }
+            .activity-list { padding-left: 20px; margin: 0; } .page-break { page-break-before: always; }
+            .observation { font-style: italic; color: #555; }
+            </style></head><body>
+            <h1>Reporte de Actividades por CAI y Cuadrante</h1><div class="report-date">Fecha: ${new Date().toLocaleString('es-CO')}</div>
+            <h2>1. Conformación de Equipos</h2>${reportData.teamComposition}
+            <div class="page-break"></div><h2>2. Actividades Realizadas</h2>${reportData.activities}
+            <div class="page-break"></div><h2>3. Consolidado de Resultados</h2>${reportData.summaryTable}
+            </body></html>`;}
+        function generateReportData() { let teamComposition = '', activities = '', summaryData = {}; if (!teams || teams.length === 0) return { teamComposition: '<p>No hay equipos.</p>', activities: '<p>No hay actividades.</p>', summaryTable: '<p>No hay resultados.</p>' }; const teamsByCai = groupTeamsByCai(teams); for (const cai in teamsByCai) { teamComposition += `<div class="cai-section"><div class="cai-title">CAI ${cai}</div><table><tr><th>Equipo</th><th>Observación</th><th>Funcionarios</th></tr>`; activities += `<div class="cai-section"><div class="cai-title">CAI ${cai}</div><table><tr><th>Equipo</th><th>Funcionarios</th><th>Actividades</th></tr>`; teamsByCai[cai].forEach(team => { const officers = team.contacts?.map(c => `${c.GR || ''} ${c.NOMBRES || ''} ${c.APELLIDOS || ''}${c.PLACA ? ` - Placa: ${c.PLACA}` : ''}`).join('<br>') || 'N/A'; const observation = team.observation ? `<span class="observation">${team.observation}</span>` : 'Ninguna'; teamComposition += `<tr><td>${team.name}</td><td>${observation}</td><td>${officers}</td></tr>`; let activityList = '<ul class="activity-list">'; if (team.activityHistory?.length > 0) { team.activityHistory.forEach((activity, index) => { const startTime = activity.startTime ? formatDateTime(activity.startTime) : 'N/A'; const endTime = activity.endTime ? formatDateTime(activity.endTime) : 'En curso'; const duration = activity.startTime && activity.endTime ? calculateDuration(activity.startTime, activity.endTime) : 'N/A'; activityList += `<li>${activity.motive || 'N/A'}<br>Inicio: ${startTime}, Fin: ${endTime}, Duración: ${duration}`; const result = activityResults?.[cai]?.[team.name]?.[index]; if (result) { activityList += `<br>Resultado: ${result}`; if (!summaryData[cai]) summaryData[cai] = {}; if (!summaryData[cai][team.name]) summaryData[cai][team.name] = {}; if (!summaryData[cai][team.name][result]) summaryData[cai][team.name][result] = 0; summaryData[cai][team.name][result]++; } activityList += `</li>`; }); } else activityList += '<li>No hay actividades</li>'; activityList += '</ul>'; activities += `<tr><td>${team.name} ${team.observation ? `<br><span class='observation'>(${team.observation})</span>` : ''}</td><td>${officers}</td><td>${activityList}</td></tr>`; }); teamComposition += `</table></div>`; activities += `</table></div>`; } let summaryTable = `<table><tr><th>CAI</th><th>Equipo</th><th>Resultado</th><th>Cantidad</th></tr>`; let hasSummaryData = false; for (const cai in summaryData) for (const teamName in summaryData[cai]) for (const result in summaryData[cai][teamName]) { hasSummaryData = true; summaryTable += `<tr><td>${cai}</td><td>${teamName}</td><td>${result}</td><td>${summaryData[cai][teamName][result]}</td></tr>`; } if (!hasSummaryData) summaryTable += `<tr><td colspan="4" style="text-align: center;">No hay resultados</td></tr>`; summaryTable += `</table>`; return { teamComposition, activities, summaryTable };}
+        function generateSimplifiedReport() { let report = `Reporte de Actividades\nFecha: ${new Date().toLocaleString('es-CO')}\n\n`; if (!teams || teams.length === 0) return report + "No hay equipos o actividades registradas."; const teamsByCai = groupTeamsByCai(teams); let summaryData = {}; for (const cai in teamsByCai) { report += `CAI ${cai}:\n${"-".repeat(20)}\n`; teamsByCai[cai].forEach(team => { report += `\nEquipo ${team.name} ${team.observation ? `(${team.observation})` : ''}:\n`; report += "Funcionarios:\n"; team.contacts?.forEach(c => { report += `- ${c.GR || ''} ${c.NOMBRES || ''} ${c.APELLIDOS || ''}${c.PLACA ? ` - Placa: ${c.PLACA}` : ''}\n`; }); team.activityHistory?.forEach((activity, index) => { const result = activityResults?.[cai]?.[team.name]?.[index]; report += `- ${activity.motive || 'N/A'}${result ? ` -> ${result}` : ''}\n`; if (result) { if (!summaryData[result]) summaryData[result] = 0; summaryData[result]++; } }); }); report += "\n"; } report += `Resumen de Resultados:\n${"=".repeat(20)}\n`; for (const result in summaryData) report += `${result}: ${summaryData[result]}\n`; return report; }
+        function calculateDuration(startTime, endTime) { if (!startTime || !(startTime instanceof Date) || !endTime || !(endTime instanceof Date)) return 'N/A'; const diff = endTime.getTime() - startTime.getTime(); if (diff < 0) return 'N/A'; const hours = Math.floor(diff / 3600000); const minutes = Math.floor((diff % 3600000) / 60000); return `${hours}h ${minutes}m`; }
+        function formatDateTime(date) { if (!date || !(date instanceof Date)) return 'N/A'; return date.toLocaleString('es-CO', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }); }
+        function sendReportWhatsApp() { const report = generateSimplifiedReport(); const encodedReport = encodeURIComponent(report); if (encodedReport.length > 4000) { alert('El reporte es demasiado grande para WhatsApp.'); return; } const newWindow = window.open(`https://wa.me/?text=${encodedReport}`, '_blank'); if (!newWindow) alert('El navegador bloqueó la apertura de WhatsApp.'); }
+        function sendReportEmail() { const report = generateSimplifiedReport(); const subject = encodeURIComponent('Reporte de Actividades por CAI y Cuadrante'); const body = encodeURIComponent(report); if (body.length > 8000) { alert('El reporte es demasiado grande para el correo. Genere un reporte PDF.'); return; } window.location.href = `mailto:?subject=${subject}&body=${body}`; }
+        function loadOfficerDropdowns() { document.querySelectorAll('.officer-search').forEach((input, index) => { const resultsContainer = document.getElementById(`officer-results-${index + 1}`); if (!resultsContainer) return; const filter = () => filterOfficers(input.value, resultsContainer, index); input.addEventListener('input', filter); input.addEventListener('focus', () => { resultsContainer.style.display = 'block'; filter(); }); document.addEventListener('click', (e) => { if (!input.contains(e.target) && !resultsContainer.contains(e.target)) resultsContainer.style.display = 'none'; }); }); }
+        function filterOfficers(query, resultsElement, officerIndex) { if (!contactsList || contactsList.length === 0) { resultsElement.innerHTML = '<div class="officer-result-item">Cargue el archivo de contactos</div>'; resultsElement.style.display = 'block'; return; } const assignedCcs = new Set(teams.flatMap(team => team.contacts?.map(c => c.CC.toString()) || [])); if (selectedOfficers[officerIndex]) assignedCcs.delete(selectedOfficers[officerIndex].CC.toString()); const filtered = contactsList.filter(officer => { if (!officer || !officer.CC) return false; return !assignedCcs.has(officer.CC.toString()) && `${officer.GR || ''} ${officer.APELLIDOS || ''} ${officer.NOMBRES || ''}`.toLowerCase().includes(query.toLowerCase()); }); resultsElement.innerHTML = ''; if (filtered.length === 0) { resultsElement.innerHTML = '<div class="officer-result-item">No se encontraron funcionarios</div>'; } else { filtered.forEach(officer => { const item = document.createElement('div'); item.className = 'officer-result-item'; item.textContent = `${officer.GR || ''} ${officer.APELLIDOS || ''} ${officer.NOMBRES || ''}`; item.onclick = () => { selectOfficer(officer, officerIndex); resultsElement.style.display = 'none'; }; resultsElement.appendChild(item); }); } resultsElement.style.display = 'block'; }
+        function selectOfficer(officer, index) { if (!officer || typeof index !== 'number') return; if (selectedOfficers[1 - index]?.CC === officer.CC) { alert('Este funcionario ya está seleccionado.'); return; } selectedOfficers[index] = officer; document.querySelectorAll('.officer-search')[index].value = `${officer.GR || ''} ${officer.APELLIDOS || ''} ${officer.NOMBRES || ''}`; updateCreateTeamButton(); }
+        function updateOfficerDropdowns() { document.querySelectorAll('.officer-search').forEach((input, index) => { const officer = selectedOfficers[index]; input.value = officer ? `${officer.GR || ''} ${officer.APELLIDOS || ''} ${officer.NOMBRES || ''}` : ''; }); }
+
+        function updateCreateTeamButton() {
+            const btn = document.getElementById('createTeamButton');
+            if (btn) btn.disabled = !(selectedOfficers[0] && selectedOfficers[1] && selectedQuadrants.length > 0);
+        }
+
+        function toggleCreateTeamElements(show) {
+            const display = show ? 'flex' : 'none';
+            document.querySelector('.officer-selection').style.display = display;
+            document.getElementById('createTeamButton').style.display = show ? 'block' : 'none';
+        }
+
+        function handleLoadError(error) {
+            console.error('Error al cargar datos:', error);
+            alert('Error al cargar datos. Por favor, recargue la página.');
+        }
+
+        loadData();
+    </script>
+</body>
+</html>
 
