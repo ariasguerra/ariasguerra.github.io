@@ -565,47 +565,59 @@
         // Función principal para cargar datos
         async function loadData() {
             try {
-                // Los datos de ejemplo se definen aquí para estar disponibles en todo momento.
-                // El usuario puede reemplazar estos datos con los suyos.
-                const sampleQuadrants = [
-                    { "id": 1, "name": "C-1", "cai": "KENNEDY", "phone": "1234567" },
-                    { "id": 2, "name": "C-2", "cai": "KENNEDY", "phone": "1234567" },
-                    { "id": 3, "name": "C-3", "cai": "SUBA", "phone": "2345678" },
-                    { "id": 4, "name": "C-4", "cai": "SUBA", "phone": "2345678" },
-                    { "id": 5, "name": "C-5", "cai": "SIETE DE AGOSTO", "phone": "3456789" }
-                ];
-                const sampleMotives = [
-                    { "text": "Hurto a personas", "value": "HURTO_PERSONAS" },
-                    { "text": "Hurto a residencias", "value": "HURTO_RESIDENCIAS" },
-                    { "text": "Lesiones personales", "value": "LESIONES_PERSONALES" },
-                    { "text": "Rina", "value": "RINA" }
-                ];
-                const sampleActivityResults = [
-                    {
-                        "categoria": "Capturas",
-                        "resultados": ["Captura en flagrancia", "Captura por orden judicial"]
-                    },
-                    {
-                        "categoria": "Medidas correctivas",
-                        "resultados": ["Comparendo por infracción al Código de Policía", "Cierre de establecimiento"]
-                    },
-                    {
-                        "categoria": "Incautaciones",
-                        "resultados": ["Incautación de Arma Blanca", "Incautación de Arma de Fuego", "Incautación de Estupefacientes"]
-                    }
-                ];
-
-                activityResultsList = sampleActivityResults; // Siempre cargar los resultados de actividad
-
                 const localData = loadFromLocalStorage();
                 if (localData) {
                     ({ quadrants, teams, motivesList, selectedQuadrants, selectedOfficers, activityResults } = localData);
                     // Cargar contactsList desde localStorage pero asegurar que sea un array
                     contactsList = JSON.parse(localStorage.getItem('contactsList') || '[]');
+                    
+                    // Cargar resultados de actividades
+                    try {
+                        const activityResultsResponse = await fetch('resultados_actividades.json');
+                        activityResultsList = await activityResultsResponse.json();
+                    } catch (error) {
+                        console.error('Error al cargar resultados de actividades:', error);
+                        // Usar una lista básica si falla la carga
+                        activityResultsList = getDefaultActivityResults();
+                    }
                 } else {
-                    // Si no hay datos locales, usar los datos de ejemplo
-                    quadrants = sampleQuadrants;
-                    motivesList = sampleMotives;
+                    try {
+                        const [quadrantsResponse, motivesResponse, activityResultsResponse] = await Promise.all([
+                            fetch('cuadrantes.json'),
+                            fetch('claves_policiales.json'),
+                            fetch('resultados_actividades.json')
+                        ]);
+                        quadrants = await quadrantsResponse.json();
+                        motivesList = await motivesResponse.json();
+                        activityResultsList = await activityResultsResponse.json();
+                    } catch (error) {
+                        console.error('Error al cargar archivos JSON:', error);
+                        
+                        // Intentar cargar archivos individualmente si falla la carga en paralelo
+                        try {
+                            const quadrantsResponse = await fetch('cuadrantes.json');
+                            quadrants = await quadrantsResponse.json();
+                        } catch (e) {
+                            console.error('Error al cargar cuadrantes:', e);
+                            quadrants = [];
+                        }
+                        
+                        try {
+                            const motivesResponse = await fetch('claves_policiales.json');
+                            motivesList = await motivesResponse.json();
+                        } catch (e) {
+                            console.error('Error al cargar claves policiales:', e);
+                            motivesList = [];
+                        }
+                        
+                        try {
+                            const activityResultsResponse = await fetch('resultados_actividades.json');
+                            activityResultsList = await activityResultsResponse.json();
+                        } catch (e) {
+                            console.error('Error al cargar resultados de actividades:', e);
+                            activityResultsList = getDefaultActivityResults();
+                        }
+                    }
                     
                     // Normalizar el nombre del CAI para consistencia
                     quadrants.forEach(q => {
@@ -622,6 +634,20 @@
             } catch (error) {
                 handleLoadError(error);
             }
+        }
+
+        // Función para obtener una lista predeterminada de resultados en caso de error
+        function getDefaultActivityResults() {
+            return [
+                {
+                    "categoria": "Capturas",
+                    "resultados": ["Captura en flagrancia"]
+                },
+                {
+                    "categoria": "Medidas correctivas",
+                    "resultados": ["Comparendo por infracción al Código de Policía"]
+                }
+            ];
         }
 
         // Inicialización de la aplicación - Función unificada
@@ -2194,9 +2220,9 @@
 
         function handleLoadError(error) {
             console.error('Error al cargar los datos:', error);
-            alert('Hubo un error fatal al cargar los datos. La aplicación podría no funcionar correctamente. Por favor, recargue la página o contacte al administrador.');
+            alert('Hubo un error al cargar los datos. Por favor, recargue la página o contacte al administrador.');
             
-            // Inicializar con valores vacíos para evitar más errores
+            // Inicializar con valores predeterminados para evitar errores fatales
             quadrants = [];
             teams = [];
             motivesList = [];
@@ -2204,8 +2230,17 @@
             selectedQuadrants = [];
             selectedOfficers = [null, null];
             activityResults = {};
-            activityResultsList = [];
-            initializeApp(); // Intentar inicializar la UI de todas formas
+            
+            // Intentar cargar datos mínimos para que la aplicación funcione
+            fetch('cuadrantes.json')
+                .then(response => response.json())
+                .then(data => {
+                    quadrants = data;
+                    renderQuadrants();
+                })
+                .catch(() => {
+                    alert('No se pudieron cargar los datos básicos. La aplicación podría no funcionar correctamente.');
+                });
         }
 
         // Iniciar la aplicación
@@ -2213,3 +2248,4 @@
     </script>
 </body>
 </html>
+
