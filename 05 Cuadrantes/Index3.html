@@ -221,7 +221,12 @@
             background-color: #128C7E;
         }
 
-        /* Estilos para equipos */
+        /* Estilos para equipos y Drag & Drop */
+        .cai-teams-section.drag-over {
+            background-color: #d4edda;
+            border: 2px dashed #155724;
+        }
+
         .team-item {
             position: relative;
             background-color: #e6f2ff;
@@ -232,6 +237,15 @@
             font-size: 0.9rem;
             transition: background-color 0.3s;
         }
+        
+        .team-item[draggable="true"] {
+            cursor: move;
+        }
+        
+        .team-item.is-covering {
+            background-color: #fff3cd; /* Amarillo claro para equipos que cubren */
+            border-left-color: #856404;
+        }
 
         .team-item:hover {
             background-color: #f0f8ff;
@@ -240,22 +254,15 @@
         .team-header {
             display: flex;
             align-items: center;
-            gap: 5px;
+            margin-bottom: 5px;
         }
 
-        .team-name-wrapper {
+        .team-name {
             flex-grow: 1;
-            display: flex;
-            align-items: center;
+            font-weight: bold;
         }
 
-        .team-actions-right {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .undo-button, .activate-button, .deactivate-button, .call-button, .view-officers-button, .edit-reassign-button {
+        .undo-button, .activate-button, .deactivate-button, .call-button, .view-officers-button {
             color: white;
             border: none;
             border-radius: 50%;
@@ -267,7 +274,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            flex-shrink: 0;
+            margin-left: 5px;
         }
 
         .undo-button { background-color: #dc3545; }
@@ -280,8 +287,6 @@
         .call-button:hover { background-color: #138496; }
         .view-officers-button { background-color: #6c757d; }
         .view-officers-button:hover { background-color: #5a6268; }
-        .edit-reassign-button { background-color: #ffc107; }
-        .edit-reassign-button:hover { background-color: #e0a800; }
 
 
         .timer {
@@ -291,35 +296,43 @@
             color: #007bff;
         }
 
-        /* Estilos para reasignación */
-        .reassign-container {
-            display: flex;
-            align-items: center;
-            gap: 3px;
+        /* Estilos para la búsqueda de motivos */
+        .search-container {
+            position: relative;
+            margin-top: 5px;
         }
-        .reassign-input {
-            width: 80px;
-            padding: 2px 4px;
+
+        .search-input {
+            width: 95%;
+            padding: 5px;
             font-size: 0.8rem;
             border: 1px solid #ccc;
             border-radius: 3px;
         }
-        .reassign-container button {
-            width: 22px;
-            height: 22px;
-            font-size: 11px;
-            border-radius: 50%;
-            border: none;
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+
+        .search-results {
+            position: absolute;
+            top: 95%;
+            left: 0;
+            right: 0;
+            margin-top: 3px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            max-height: 100px;
+            overflow-y: auto;
+            z-index: 1000;
         }
-        .reassign-container button:nth-of-type(1) { background-color: #28a745; }
-        .reassign-container button:nth-of-type(1):hover { background-color: #218838; }
-        .reassign-container button:nth-of-type(2) { background-color: #dc3545; }
-        .reassign-container button:nth-of-type(2):hover { background-color: #c82333; }
+
+        .search-result-item {
+            padding: 3px 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .search-result-item:hover {
+            background-color: #f0f0f0;
+        }
 
         /* Estilos para la visualización de actividades */
         .activity-display {
@@ -506,7 +519,7 @@
                 font-size: 1rem;
             }
 
-            .quadrant-item, .reassign-input {
+            .quadrant-item, .search-input, .search-result-item {
                 font-size: 0.9rem;
             }
 
@@ -744,29 +757,26 @@
             const teamsList = document.getElementById('teamsList');
             teamsList.innerHTML = '';
 
-            const sortedTeams = teams.sort((a, b) => {
-                if (!a.quadrants.length || !b.quadrants.length) return 0;
-                return parseInt(a.quadrants[0].name.slice(2)) - parseInt(b.quadrants[0].name.slice(2));
-            });
+            const visibleTeams = teams.filter(team => !team.coveredByTeamName);
 
-            const inactiveTeams = sortedTeams.filter(team => !team.active);
-            const activeTeams = sortedTeams.filter(team => team.active);
+            const inactiveTeams = visibleTeams.filter(team => !team.active);
+            const activeTeams = visibleTeams.filter(team => team.active);
 
-            const inactiveTeamsByCai = groupTeamsByCai(inactiveTeams);
-            const activeTeamsByCai = groupTeamsByCai(activeTeams);
+            const inactiveTeamsByCai = groupTeamsByCurrentCai(inactiveTeams);
+            const activeTeamsByCai = groupTeamsByCurrentCai(activeTeams);
 
             for (const cai in inactiveTeamsByCai) {
-                teamsList.appendChild(createCaiSection(cai, inactiveTeamsByCai[cai]));
+                teamsList.appendChild(createCaiSection(cai, inactiveTeamsByCai[cai], true));
             }
 
-            if (inactiveTeams.length > 0 && activeTeams.length > 0) {
+            if (Object.keys(inactiveTeamsByCai).length > 0 && Object.keys(activeTeamsByCai).length > 0) {
                 const separator = document.createElement('hr');
                 separator.className = 'teams-separator';
                 teamsList.appendChild(separator);
             }
 
             for (const cai in activeTeamsByCai) {
-                teamsList.appendChild(createCaiSection(cai, activeTeamsByCai[cai]));
+                teamsList.appendChild(createCaiSection(cai, activeTeamsByCai[cai], false));
             }
 
             const buttonsContainer = document.createElement('div');
@@ -779,59 +789,55 @@
 
             saveToLocalStorage();
         }
-
-        function createCaiSection(cai, caiTeams) {
+        
+        function createCaiSection(cai, caiTeams, isInactiveSection) {
             const caiSection = document.createElement('div');
             caiSection.className = 'cai-teams-section';
+            caiSection.dataset.caiName = cai;
             caiSection.innerHTML = `<h3>CAI ${cai}</h3>`;
+
+            if (isInactiveSection) {
+                caiSection.addEventListener('dragover', handleDragOver);
+                caiSection.addEventListener('dragleave', handleDragLeave);
+                caiSection.addEventListener('drop', (e) => handleDrop(e, cai));
+            }
 
             caiTeams.forEach(team => {
                 const teamItem = document.createElement('div');
                 teamItem.className = 'team-item';
-                teamItem.setAttribute('data-team-name', team.name);
+                if (team.isCovering) teamItem.classList.add('is-covering');
+                teamItem.dataset.teamName = team.name;
 
-                const currentDisplayName = 'C-' + team.quadrants.map(q => q.name.slice(2)).join('-');
-                const isReassigned = team.name !== currentDisplayName;
-                const displayHTML = isReassigned ? `${team.name} / ${currentDisplayName}` : team.name;
+                if (!team.active) {
+                    teamItem.draggable = true;
+                    teamItem.addEventListener('dragstart', (e) => handleDragStart(e, team.name));
+                }
 
-                let teamHTML = `
+                teamItem.innerHTML = `
                     <div class="team-header">
                         ${!team.active ? `<button class="undo-button" onclick="confirmUndoTeam('${team.name}')" title="Deshacer equipo"><i class="fas fa-undo"></i></button>` : ''}
-                        
-                        <div class="team-name-wrapper">
-                            <span class="team-name-display">${displayHTML}</span>
-                            <div class="reassign-container" style="display:none;" data-team-name-reassign="${team.name}">
-                                <input type="text" class="reassign-input" placeholder="Ej: 12-14">
-                                <button onclick="handleReassignment('${team.name}')" title="Guardar"><i class="fas fa-check"></i></button>
-                                <button onclick="toggleReassignUI('${team.name}', false)" title="Cancelar"><i class="fas fa-times"></i></button>
-                            </div>
-                        </div>
-                        
-                        <button class="edit-reassign-button" onclick="toggleReassignUI('${team.name}', true)" title="Reasignar cuadrante"><i class="fas fa-edit"></i></button>
-
-                        <div class="team-actions-right">
-                            ${team.active && team.assignedTime ? `
-                                <span class="timer" data-start-time="${team.assignedTime.getTime()}">00:00:00</span>
-                                <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
-                                <button class="deactivate-button" onclick="toggleTeamStatus('${team.name}')" title="Desactivar equipo"><i class="fas fa-power-off"></i></button>
-                            ` : `
-                                <button class="activate-button" onclick="showMotiveAssignmentDialog('${team.name}')" title="Activar equipo"><i class="fas fa-play"></i></button>
-                                <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
-                            `}
-                            <button class="call-button" onclick="callTeam('${team.name}')" title="Llamar al cuadrante"><i class="fas fa-phone"></i></button>
-                        </div>
+                        <span class="team-name">${team.displayName}</span>
+                        ${team.active && team.assignedTime ? `
+                            <span class="timer" data-start-time="${team.assignedTime.getTime()}">00:00:00</span>
+                            <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
+                            <button class="deactivate-button" onclick="toggleTeamStatus('${team.name}')" title="Desactivar equipo"><i class="fas fa-power-off"></i></button>
+                        ` : `
+                            <button class="activate-button" onclick="showMotiveAssignmentDialog('${team.name}')" title="Activar equipo"><i class="fas fa-play"></i></button>
+                            <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
+                        `}
+                        <button class="call-button" onclick="callTeam('${team.name}')" title="Llamar al cuadrante"><i class="fas fa-phone"></i></button>
                     </div>
                 `;
 
                 if (team.active) {
-                    teamHTML += `
-                        <div class="activity-display">
-                            <span class="assignment-time">${team.assignedTime ? formatDate(team.assignedTime) : 'Pendiente'}</span>
-                            <span class="activity">Actividad: ${team.selectedMotive || 'No asignada'}</span>
-                        </div>
+                    const activityDisplay = document.createElement('div');
+                    activityDisplay.className = 'activity-display';
+                    activityDisplay.innerHTML = `
+                        <span class="assignment-time">${team.assignedTime ? formatDate(team.assignedTime) : 'Pendiente'}</span>
+                        <span class="activity">Actividad: ${team.selectedMotive || 'No asignada'}</span>
                     `;
+                    teamItem.appendChild(activityDisplay);
                 }
-                teamItem.innerHTML = teamHTML;
                 caiSection.appendChild(teamItem);
             });
 
@@ -904,10 +910,16 @@
                     return;
                 }
                 const teamName = 'C-' + teamQuadrants.map(q => q.name.slice(2)).join('-');
+                const teamCAI = teamQuadrants[0].cai;
                 const newTeam = { 
                     name: teamName, 
+                    displayName: teamName,
                     quadrants: teamQuadrants, 
-                    originalQuadrants: JSON.parse(JSON.stringify(teamQuadrants)), // Deep copy for original assignment
+                    originalCAI: teamCAI,
+                    currentCAI: teamCAI,
+                    isCovering: false,
+                    coveringTeamNames: [],
+                    coveredByTeamName: null,
                     active: false, 
                     selectedMotive: '', 
                     assignedTime: null, 
@@ -937,6 +949,12 @@
         function undoTeam(teamName) {
             const teamIndex = teams.findIndex(t => t.name === teamName);
             if (teamIndex > -1) {
+                // Before removing, check if it's part of a coverage scheme and revert it
+                const teamToUndo = teams[teamIndex];
+                if(teamToUndo.isCovering || teamToUndo.coveredByTeamName) {
+                    resetCoverageForTeam(teamToUndo);
+                }
+
                 teams.splice(teamIndex, 1);
                 renderQuadrants();
                 renderTeams();
@@ -1055,7 +1073,7 @@
 
         function saveActivityResult(team, result) {
             if (!team || !team.quadrants || team.quadrants.length === 0) return;
-            const cai = team.quadrants[0].cai;
+            const cai = team.originalCAI;
             if (!team.activityHistory || team.activityHistory.length === 0) return;
             const activityIndex = team.activityHistory.length - 1;
             if (!activityResults[cai]) activityResults[cai] = {};
@@ -1090,7 +1108,7 @@
             const dialog = document.createElement('div');
             dialog.className = 'dialog-box';
             dialog.innerHTML = `
-                <h3>Asignar Actividad a ${team.name}</h3>
+                <h3>Asignar Actividad a ${team.displayName}</h3>
                 <input type="text" id="motiveSearchInput" class="search-input" placeholder="Buscar motivo...">
                 <div id="motiveSearchResults" class="dialog-list" style="position: static; display: block;"></div>
                 <div class="dialog-buttons">
@@ -1196,7 +1214,7 @@
             officersHtml += '</ul>';
 
             dialog.innerHTML = `
-                <h3>Funcionarios del Equipo ${team.name}</h3>
+                <h3>Funcionarios del Equipo ${team.displayName}</h3>
                 ${officersHtml}
                 <div class="dialog-buttons">
                     <button id="closeOfficerList" class="cancel-btn">Cerrar</button>
@@ -1211,92 +1229,6 @@
 
             document.getElementById('closeOfficerList').addEventListener('click', closeDialog);
             backdrop.addEventListener('click', closeDialog);
-        }
-
-        function toggleReassignUI(teamName, show) {
-            const teamItem = document.querySelector(`.team-item[data-team-name="${teamName}"]`);
-            if (!teamItem) return;
-
-            const nameSpan = teamItem.querySelector('.team-name-display');
-            const editButton = teamItem.querySelector('.edit-reassign-button');
-            const reassignContainer = teamItem.querySelector(`.reassign-container[data-team-name-reassign="${teamName}"]`);
-            
-            if (!nameSpan || !editButton || !reassignContainer) return;
-
-            const reassignInput = reassignContainer.querySelector('.reassign-input');
-            const team = teams.find(t => t.name === teamName);
-
-            if (show) {
-                nameSpan.style.display = 'none';
-                reassignContainer.style.display = 'flex';
-                editButton.style.display = 'none';
-                reassignInput.value = team.quadrants.map(q => q.name.slice(2)).join('-');
-                reassignInput.focus();
-            } else {
-                nameSpan.style.display = 'inline-block';
-                reassignContainer.style.display = 'none';
-                editButton.style.display = 'flex';
-            }
-        }
-
-        function handleReassignment(teamName) {
-            const team = teams.find(t => t.name === teamName);
-            const teamItem = document.querySelector(`.team-item[data-team-name="${teamName}"]`);
-            if (!team || !teamItem) return;
-
-            const reassignInput = teamItem.querySelector('.reassign-input');
-            const newQuadrantStr = reassignInput.value.trim();
-
-            if (newQuadrantStr === '') { // Revert to original
-                if (!team.originalQuadrants) {
-                    alert('No se encontró la asignación original para este equipo.');
-                    return;
-                }
-                const unavailableOriginal = team.originalQuadrants.find(oq => 
-                    teams.some(t => t.name !== team.name && t.quadrants.some(q => q.id === oq.id))
-                );
-
-                if (unavailableOriginal) {
-                    alert(`No se puede revertir. El cuadrante ${unavailableOriginal.name} ya está asignado a otro equipo.`);
-                    return;
-                }
-                team.quadrants = JSON.parse(JSON.stringify(team.originalQuadrants));
-                alert(`Equipo ${team.name} ha regresado a su asignación original.`);
-            } else { // Reassign to new
-                const newQuadrantNumbers = newQuadrantStr.split('-').map(s => s.trim()).filter(Boolean);
-                if (newQuadrantNumbers.length === 0) {
-                    alert('Formato de cuadrante no válido. Use números separados por guiones, ej: 12-14.');
-                    return;
-                }
-
-                const newQuadrants = [];
-                let notFound = null;
-                for (const num of newQuadrantNumbers) {
-                    const quadrant = quadrants.find(q => q.name === `C-${num}`);
-                    if (quadrant) newQuadrants.push(quadrant);
-                    else { notFound = num; break; }
-                }
-
-                if (notFound) {
-                    alert(`El cuadrante C-${notFound} no existe.`);
-                    return;
-                }
-                const unavailableNew = newQuadrants.find(nq => 
-                    teams.some(t => t.name !== team.name && t.quadrants.some(q => q.id === nq.id))
-                );
-
-                if (unavailableNew) {
-                    alert(`No se puede reasignar. El cuadrante ${unavailableNew.name} ya está asignado a otro equipo.`);
-                    return;
-                }
-                team.quadrants = newQuadrants;
-                const newDisplayName = 'C-' + newQuadrantNumbers.join('-');
-                alert(`Equipo ${team.name} reasignado a: ${newDisplayName}`);
-            }
-
-            saveToLocalStorage();
-            renderQuadrants();
-            renderTeams();
         }
 
         function formatDate(date) {
@@ -1314,11 +1246,10 @@
             }, {});
         }
 
-        function groupTeamsByCai(teams) {
+        function groupTeamsByCurrentCai(teams) {
             if (!teams || !Array.isArray(teams)) return {};
             return teams.reduce((groups, team) => {
-                if (!team || !team.quadrants || team.quadrants.length === 0) return groups;
-                const cai = team.quadrants[0]?.cai || 'Unknown CAI';
+                const cai = team.currentCAI || 'Unknown CAI';
                 if (!groups[cai]) groups[cai] = [];
                 groups[cai].push(team);
                 return groups;
@@ -1392,9 +1323,6 @@
                                 if (activity.endTime) activity.endTime = new Date(activity.endTime);
                             });
                         }
-                        if (!team.originalQuadrants) {
-                            team.originalQuadrants = JSON.parse(JSON.stringify(team.quadrants));
-                        }
                     });
                 }
                 return parsedData;
@@ -1444,7 +1372,7 @@
             .activity-list { padding-left: 20px; margin: 0; } .page-break { page-break-before: always; }
             </style></head><body>
             <h1>Reporte de Actividades por CAI y Cuadrante</h1><div class="report-date">Fecha: ${new Date().toLocaleString('es-CO')}</div>
-            <h2>1. Conformación de Equipos</h2>${reportData.teamComposition}
+            <h2>1. Conformación y Cobertura de Equipos</h2>${reportData.teamComposition}
             <div class="page-break"></div><h2>2. Actividades Realizadas</h2>${reportData.activities}
             <div class="page-break"></div><h2>3. Consolidado de Resultados</h2>${reportData.summaryTable}
             </body></html>`;
@@ -1453,14 +1381,16 @@
         function generateReportData() {
             let teamComposition = '', activities = '', summaryData = {};
             if (!teams || teams.length === 0) return { teamComposition: '<p>No hay equipos.</p>', activities: '<p>No hay actividades.</p>', summaryTable: '<p>No hay resultados.</p>' };
-            const teamsByCai = groupTeamsByCai(teams);
+            const teamsByCai = groupTeamsByCurrentCai(teams);
             for (const cai in teamsByCai) {
-                teamComposition += `<div class="cai-section"><div class="cai-title">CAI ${cai}</div><table><tr><th>Cuadrante</th><th>Funcionarios</th></tr>`;
+                teamComposition += `<div class="cai-section"><div class="cai-title">CAI ${cai}</div><table><tr><th>Cuadrante (Display)</th><th>Funcionarios</th></tr>`;
                 activities += `<div class="cai-section"><div class="cai-title">CAI ${cai}</div><table><tr><th>Cuadrante</th><th>Funcionarios</th><th>Actividades</th></tr>`;
-                teamsByCai[cai].forEach(team => {
-                    const quadrantNumbers = team.quadrants.map(q => q.name.slice(2)).join('-');
+                
+                const visibleTeamsInCai = teamsByCai[cai].filter(t => !t.coveredByTeamName);
+
+                visibleTeamsInCai.forEach(team => {
                     const officers = team.contacts?.map(c => `${c.GR || ''} ${c.NOMBRES || ''} ${c.APELLIDOS || ''}${c.PLACA ? ` - Placa: ${c.PLACA}` : ''}`).join('<br>') || 'N/A';
-                    teamComposition += `<tr><td>${quadrantNumbers}</td><td>${officers}</td></tr>`;
+                    teamComposition += `<tr><td>${team.displayName}</td><td>${officers}</td></tr>`;
                     let activityList = '<ul class="activity-list">';
                     if (team.activityHistory?.length > 0) {
                         team.activityHistory.forEach((activity, index) => {
@@ -1468,28 +1398,28 @@
                             const endTime = activity.endTime ? formatDateTime(activity.endTime) : 'En curso';
                             const duration = activity.startTime && activity.endTime ? calculateDuration(activity.startTime, activity.endTime) : 'N/A';
                             activityList += `<li>${activity.motive || 'N/A'}<br>Inicio: ${startTime}, Fin: ${endTime}, Duración: ${duration}`;
-                            const result = activityResults?.[cai]?.[team.name]?.[index];
+                            const result = activityResults?.[team.originalCAI]?.[team.name]?.[index];
                             if (result) {
                                 activityList += `<br>Resultado: ${result}`;
                                 if (!summaryData[cai]) summaryData[cai] = {};
-                                if (!summaryData[cai][quadrantNumbers]) summaryData[cai][quadrantNumbers] = {};
-                                if (!summaryData[cai][quadrantNumbers][result]) summaryData[cai][quadrantNumbers][result] = 0;
-                                summaryData[cai][quadrantNumbers][result]++;
+                                if (!summaryData[cai][team.name]) summaryData[cai][team.name] = {};
+                                if (!summaryData[cai][team.name][result]) summaryData[cai][team.name][result] = 0;
+                                summaryData[cai][team.name][result]++;
                             }
                             activityList += `</li>`;
                         });
                     } else activityList += '<li>No hay actividades</li>';
                     activityList += '</ul>';
-                    activities += `<tr><td>${quadrantNumbers}</td><td>${officers}</td><td>${activityList}</td></tr>`;
+                    activities += `<tr><td>${team.displayName}</td><td>${officers}</td><td>${activityList}</td></tr>`;
                 });
                 teamComposition += `</table></div>`;
                 activities += `</table></div>`;
             }
-            let summaryTable = `<table><tr><th>CAI</th><th>Cuadrante</th><th>Resultado</th><th>Cantidad</th></tr>`;
+            let summaryTable = `<table><tr><th>CAI</th><th>Cuadrante Original</th><th>Resultado</th><th>Cantidad</th></tr>`;
             let hasSummaryData = false;
-            for (const cai in summaryData) for (const quadrant in summaryData[cai]) for (const result in summaryData[cai][quadrant]) {
+            for (const cai in summaryData) for (const teamName in summaryData[cai]) for (const result in summaryData[cai][teamName]) {
                 hasSummaryData = true;
-                summaryTable += `<tr><td>${cai}</td><td>${quadrant}</td><td>${result}</td><td>${summaryData[cai][quadrant][result]}</td></tr>`;
+                summaryTable += `<tr><td>${cai}</td><td>${teamName}</td><td>${result}</td><td>${summaryData[cai][teamName][result]}</td></tr>`;
             }
             if (!hasSummaryData) summaryTable += `<tr><td colspan="4" style="text-align: center;">No hay resultados</td></tr>`;
             summaryTable += `</table>`;
@@ -1499,19 +1429,19 @@
         function generateSimplifiedReport() {
             let report = `Reporte de Actividades\nFecha: ${new Date().toLocaleString('es-CO')}\n\n`;
             if (!teams || teams.length === 0) return report + "No hay equipos o actividades registradas.";
-            const teamsByCai = groupTeamsByCai(teams);
+            const teamsByCai = groupTeamsByCurrentCai(teams);
             let summaryData = {};
             for (const cai in teamsByCai) {
                 report += `CAI ${cai}:\n${"-".repeat(20)}\n`;
-                teamsByCai[cai].forEach(team => {
-                    const quadrantNumbers = team.quadrants.map(q => q.name.slice(2)).join('-');
-                    report += `\nCuadrante(s) ${quadrantNumbers}:\n`;
+                const visibleTeamsInCai = teamsByCai[cai].filter(t => !t.coveredByTeamName);
+                visibleTeamsInCai.forEach(team => {
+                    report += `\nEquipo ${team.displayName}:\n`;
                     report += "Funcionarios:\n";
                     team.contacts?.forEach(c => {
                         report += `- ${c.GR || ''} ${c.NOMBRES || ''} ${c.APELLIDOS || ''}${c.PLACA ? ` - Placa: ${c.PLACA}` : ''}\n`;
                     });
                     team.activityHistory?.forEach((activity, index) => {
-                        const result = activityResults?.[cai]?.[team.name]?.[index];
+                        const result = activityResults?.[team.originalCAI]?.[team.name]?.[index];
                         report += `- ${activity.motive || 'N/A'}${result ? ` -> ${result}` : ''}\n`;
                         if (result) {
                             if (!summaryData[result]) summaryData[result] = 0;
@@ -1650,6 +1580,104 @@
             fetch('cuadrantes.json').then(res => res.json()).then(data => { quadrants = data; renderQuadrants(); })
                 .catch(() => alert('No se pudieron cargar los datos básicos.'));
         }
+        
+        // --- DRAG AND DROP LOGIC ---
+        function handleDragStart(e, teamName) {
+            e.dataTransfer.setData('text/plain', teamName);
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e, destinationCai) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            const draggedTeamName = e.dataTransfer.getData('text/plain');
+            const draggedTeam = teams.find(t => t.name === draggedTeamName);
+
+            if (!draggedTeam || draggedTeam.currentCAI === destinationCai) {
+                return; // No action if dropped in the same CAI
+            }
+
+            // If the team is being returned to its original CAI, reset it
+            if (draggedTeam.originalCAI === destinationCai) {
+                resetCoverageForTeam(draggedTeam);
+            } else {
+                // Moving to a new CAI to cover
+                assignCoverage(draggedTeam, destinationCai);
+            }
+            
+            renderTeams();
+        }
+
+        function assignCoverage(draggedTeam, destinationCai) {
+            // First, reset the dragged team in case it was already covering something
+            resetCoverageForTeam(draggedTeam);
+
+            const destinationInactiveTeams = teams.filter(t => 
+                !t.active && t.currentCAI === destinationCai && !t.coveredByTeamName && t.name !== draggedTeam.name
+            );
+
+            if (destinationInactiveTeams.length === 0) {
+                // Simple move, no coverage
+                draggedTeam.currentCAI = destinationCai;
+                draggedTeam.isCovering = true;
+                draggedTeam.displayName = `${draggedTeam.name} (Refuerzo en ${destinationCai})`;
+            } else {
+                // Complex coverage assignment
+                const getTeamNumber = (name) => parseInt(name.match(/\d+$/)[0], 10);
+                destinationInactiveTeams.sort((a, b) => getTeamNumber(b.name) - getTeamNumber(a.name));
+                
+                const consolidatorTeam = destinationInactiveTeams[0];
+                const otherTeams = destinationInactiveTeams.slice(1);
+
+                // Update dragged team
+                draggedTeam.currentCAI = destinationCai;
+                draggedTeam.isCovering = true;
+                draggedTeam.coveringTeamNames = [consolidatorTeam.name];
+                draggedTeam.displayName = `${draggedTeam.name} (Cubriendo ${consolidatorTeam.name})`;
+
+                // Update consolidator team
+                consolidatorTeam.isCovering = true;
+                consolidatorTeam.coveredByTeamName = draggedTeam.name;
+                const teamsToCoverNames = otherTeams.map(t => t.name);
+                consolidatorTeam.coveringTeamNames = teamsToCoverNames;
+                consolidatorTeam.displayName = `${consolidatorTeam.name} (Cubriendo ${teamsToCoverNames.join(', ')})`;
+
+                // Update other teams
+                otherTeams.forEach(team => {
+                    team.coveredByTeamName = consolidatorTeam.name;
+                });
+            }
+        }
+
+        function resetCoverageForTeam(teamToReset) {
+            // Find all teams involved in this team's coverage scheme and reset them.
+            const relatedTeams = teams.filter(t => 
+                t.name === teamToReset.name || 
+                t.coveredByTeamName === teamToReset.name || 
+                teamToReset.coveringTeamNames.includes(t.name) ||
+                (teamToReset.coveredByTeamName && t.name === teamToReset.coveredByTeamName) ||
+                (teamToReset.coveredByTeamName && teams.find(parent => parent.name === teamToReset.coveredByTeamName)?.coveringTeamNames.includes(t.name))
+            );
+
+            relatedTeams.forEach(team => {
+                team.currentCAI = team.originalCAI;
+                team.displayName = team.name;
+                team.isCovering = false;
+                team.coveringTeamNames = [];
+                team.coveredByTeamName = null;
+            });
+        }
+
 
         loadData();
     </script>
