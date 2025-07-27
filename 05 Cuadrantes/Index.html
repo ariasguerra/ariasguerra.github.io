@@ -44,8 +44,6 @@
             margin-bottom: 10px;
             border-bottom: 1px solid #ccc;
             padding-bottom: 5px;
-            display: flex;
-            align-items: center;
         }
 
         /* Estilos para la carga de archivo */
@@ -667,43 +665,12 @@
         let activityResults = {};
         let activityResultsList = [];
         let selectedTeamName = null;
-        let caiQuadrantMap = {}; // NUEVO: Mapa para almacenar cuadrantes por CAI
-
-        // NUEVA FUNCIÓN: Formatea la lista de cuadrantes para el título del CAI
-        function formatQuadrantRanges(quadrantNames) {
-            if (!quadrantNames || quadrantNames.length === 0) return '';
-            const numbers = quadrantNames
-                .map(name => parseInt(name.replace('C-', '')))
-                .filter(n => !isNaN(n))
-                .sort((a, b) => a - b);
-            
-            if (numbers.length === 0) return '';
-
-            let ranges = [];
-            if (numbers.length > 0) {
-                let start = numbers[0];
-                let end = numbers[0];
-
-                for (let i = 1; i < numbers.length; i++) {
-                    if (numbers[i] === end + 1) {
-                        end = numbers[i];
-                    } else {
-                        ranges.push(start === end ? `${start}` : `${start}-${end}`);
-                        start = numbers[i];
-                        end = numbers[i];
-                    }
-                }
-                ranges.push(start === end ? `${start}` : `${start}-${end}`);
-            }
-            
-            return `(${ranges.join(', ')})`;
-        }
 
         async function loadData() {
             try {
                 const localData = loadFromLocalStorage();
                 if (localData) {
-                    ({ quadrants, teams, motivesList, selectedQuadrants, selectedOfficers, activityResults, caiQuadrantMap } = localData);
+                    ({ quadrants, teams, motivesList, selectedQuadrants, selectedOfficers, activityResults } = localData);
                     contactsList = JSON.parse(localStorage.getItem('contactsList') || '[]');
                     
                     try {
@@ -733,15 +700,6 @@
                     quadrants.forEach(q => {
                         if (q.cai === "SETE DE AGOSTO") q.cai = "SIETE DE AGOSTO";
                     });
-
-                    // Construir el mapa de cuadrantes por CAI
-                    caiQuadrantMap = quadrants.reduce((acc, q) => {
-                        if (!acc[q.cai]) {
-                            acc[q.cai] = [];
-                        }
-                        acc[q.cai].push(q.name);
-                        return acc;
-                    }, {});
                     
                     saveToLocalStorage();
                 }
@@ -752,6 +710,7 @@
             }
         }
 
+        // MODIFICADO: Se añade la opción "Sin resultados operativos"
         function getDefaultActivityResults() {
             return [
                 { "categoria": "Capturas", "resultados": ["Captura en flagrancia"] },
@@ -909,69 +868,78 @@
             return teamItem;
         }
 
+        // --- FUNCIÓN MODIFICADA ---
         function renderTeams() {
             const teamsList = document.getElementById('teamsList');
             teamsList.innerHTML = '';
 
-            const activeTeams = teams.filter(team => team.active);
-            const inactiveTeams = teams.filter(team => !team.active);
+            const sortedTeams = teams.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+
+            const activeTeams = sortedTeams.filter(team => team.active);
+            const inactiveTeams = sortedTeams.filter(team => !team.active);
 
             const activeTeamsByCai = groupTeamsByCai(activeTeams);
             const inactiveTeamsByCai = groupTeamsByCai(inactiveTeams);
 
-            const allCaiNames = Object.keys(caiQuadrantMap).sort();
-
-            const inactiveContainer = document.createElement('div');
+            const allCaiNames = [...new Set(quadrants.map(q => q.cai))].sort();
+            
+            // Renderizar la sección de equipos INACTIVOS
             allCaiNames.forEach(cai => {
-                const caiTeams = inactiveTeamsByCai[cai] || [];
+                // Obtener los números de todos los cuadrantes que pertenecen a este CAI
+                const caiQuadrants = quadrants.filter(q => q.cai === cai);
+                const quadrantNumbers = caiQuadrants
+                    .map(q => parseInt(q.name.slice(2))) // Extrae el número del nombre 'C-XX'
+                    .sort((a, b) => a - b)
+                    .join('-'); // Une los números con un guion
+
                 const caiSection = document.createElement('div');
                 caiSection.className = 'cai-teams-section';
                 
-                const quadrantRanges = formatQuadrantRanges(caiQuadrantMap[cai]);
-                const titleHTML = `<span style="color: #28a745; font-weight: normal; font-size: 0.9em; margin-left: 8px;">${quadrantRanges}</span>`;
-                
-                caiSection.innerHTML = `<h3>CAI ${cai} ${titleHTML}</h3>`;
+                // Título con el nuevo formato: "CAI [Nombre] ([Cuadrantes]) (Inactivos)"
+                caiSection.innerHTML = `<h3>CAI ${cai} (${quadrantNumbers}) (Inactivos)</h3>`;
 
-                if (caiTeams.length > 0) {
+                const caiInactiveTeams = inactiveTeamsByCai[cai];
+                if (caiInactiveTeams && caiInactiveTeams.length > 0) {
+                    // Si hay equipos inactivos, los muestra en la grilla
                     const gridContainer = document.createElement('div');
                     gridContainer.className = 'inactive-teams-grid';
-                    caiTeams.sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric: true})).forEach(team => {
+                    caiInactiveTeams.forEach(team => {
                         gridContainer.appendChild(createTeamItemElement(team));
                     });
                     caiSection.appendChild(gridContainer);
                 } else {
-                    const noTeamsMessage = document.createElement('p');
-                    noTeamsMessage.textContent = 'Sin cuadrantes disponibles.';
-                    noTeamsMessage.style.cssText = 'font-size: 0.8rem; font-style: italic; padding-left: 10px; margin: 0; color: #8B0000;';
-                    caiSection.appendChild(noTeamsMessage);
+                    // Si no hay equipos, muestra el mensaje de no disponibilidad
+                    const unavailableMessage = document.createElement('div');
+                    unavailableMessage.textContent = 'Cuadrante no disponible';
+                    unavailableMessage.style.color = 'red';
+                    unavailableMessage.style.paddingLeft = '8px'; // Añade un poco de sangría
+                    caiSection.appendChild(unavailableMessage);
                 }
-                inactiveContainer.appendChild(caiSection);
+                teamsList.appendChild(caiSection);
             });
-            teamsList.appendChild(inactiveContainer);
 
+            // Separador si hay equipos de ambos tipos
             if (inactiveTeams.length > 0 && activeTeams.length > 0) {
                 const separator = document.createElement('hr');
                 separator.className = 'teams-separator';
                 teamsList.appendChild(separator);
             }
             
-            const activeContainer = document.createElement('div');
+            // Renderizar la sección de equipos ACTIVOS (sin cambios)
             if (activeTeams.length > 0) {
                 const sortedActiveCais = Object.keys(activeTeamsByCai).sort();
                 sortedActiveCais.forEach(cai => {
                     const caiSection = document.createElement('div');
                     caiSection.className = 'cai-teams-section';
-                    const quadrantRanges = formatQuadrantRanges(caiQuadrantMap[cai]);
-                    const titleHTML = `<span style="color: #28a745; font-weight: normal; font-size: 0.9em; margin-left: 8px;">${quadrantRanges}</span>`;
-                    caiSection.innerHTML = `<h3>CAI ${cai} ${titleHTML}</h3>`;
-                    activeTeamsByCai[cai].sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric: true})).forEach(team => {
+                    caiSection.innerHTML = `<h3>CAI ${cai} (Activos)</h3>`;
+                    activeTeamsByCai[cai].forEach(team => {
                         caiSection.appendChild(createTeamItemElement(team));
                     });
-                    activeContainer.appendChild(caiSection);
+                    teamsList.appendChild(caiSection);
                 });
             }
-            teamsList.appendChild(activeContainer);
 
+            // Contenedor de botones (sin cambios)
             const buttonsContainer = document.createElement('div');
             buttonsContainer.className = 'buttons-container';
             buttonsContainer.appendChild(createButton('resetButton', '<i class="fas fa-sync-alt"></i>', resetLocalStorage, 'Reiniciar Turno'));
@@ -1595,7 +1563,7 @@
                         });
                     }
                 });
-                const dataToSave = { quadrants, teams: teamsToSave, motivesList, selectedQuadrants, selectedOfficers, activityResults, caiQuadrantMap };
+                const dataToSave = { quadrants, teams: teamsToSave, motivesList, selectedQuadrants, selectedOfficers, activityResults };
                 localStorage.setItem('policeQuadrantsData', JSON.stringify(dataToSave));
                 localStorage.setItem('contactsList', JSON.stringify(contactsList));
             } catch (error) {
@@ -1675,6 +1643,7 @@
             </body></html>`;
         }
 
+        // MODIFICADO: Filtra "Sin resultados operativos" del resumen
         function generateReportData() {
             let teamComposition = '', activities = '', summaryData = {};
             if (!teams || teams.length === 0) return { teamComposition: '<p>No hay equipos.</p>', activities: '<p>No hay actividades.</p>', summaryTable: '<p>No hay resultados.</p>' };
@@ -1723,6 +1692,7 @@
             return { teamComposition, activities, summaryTable };
         }
 
+        // MODIFICADO: Filtra "Sin resultados operativos" del resumen
         function generateSimplifiedReport() {
             let report = `Reporte de Actividades\nFecha: ${new Date().toLocaleString('es-CO')}\n\n`;
             if (!teams || teams.length === 0) return report + "No hay equipos o actividades registradas.";
