@@ -248,6 +248,16 @@
             background-color: #d4eaf7;
         }
 
+        /* --- INICIO DE LA MODIFICACIÓN --- */
+        .team-item.active-team-card {
+            background-color: #e6ffed; /* Fondo verde claro */
+            border-left-color: #28a745; /* Borde verde oscuro */
+        }
+        .team-item.active-team-card:hover {
+            background-color: #d1f7e0; /* Verde un poco más oscuro al pasar el mouse */
+        }
+        /* --- FIN DE LA MODIFICACIÓN --- */
+
         .team-item.selected-team {
             background-color: #cce5ff;
             border-left-color: #0056b3;
@@ -830,10 +840,16 @@
             return teams.some(team => team.quadrants.some(q => parseInt(q.id) === id));
         }
 
+        // --- INICIO DE LA MODIFICACIÓN ---
         function createTeamItemElement(team) {
             const teamItem = document.createElement('div');
             teamItem.className = 'team-item';
             teamItem.setAttribute('data-team-name', team.name);
+
+            // Añadir clase específica si el equipo está activo
+            if (team.active) {
+                teamItem.classList.add('active-team-card');
+            }
 
             const timerHTML = team.active && team.assignedTime ? `
                 <span class="timer" data-start-time="${team.assignedTime.getTime()}">00:00:00</span>
@@ -867,8 +883,9 @@
             }
             return teamItem;
         }
+        // --- FIN DE LA MODIFICACIÓN ---
 
-        // MODIFICADO: Se eliminan los H2 de "Equipos Activos/Inactivos"
+        // --- INICIO DE LA MODIFICACIÓN ---
         function renderTeams() {
             const teamsList = document.getElementById('teamsList');
             teamsList.innerHTML = '';
@@ -882,35 +899,48 @@
             const inactiveTeamsByCai = groupTeamsByCai(inactiveTeams);
 
             const allCaiNames = [...new Set(quadrants.map(q => q.cai))].sort();
-
+            
+            // Renderizar la sección de equipos inactivos
             allCaiNames.forEach(cai => {
-                const caiTeams = inactiveTeamsByCai[cai];
-                if (caiTeams && caiTeams.length > 0) {
-                    const caiSection = document.createElement('div');
-                    caiSection.className = 'cai-teams-section';
-                    caiSection.innerHTML = `<h3>CAI ${cai} (Inactivos)</h3>`;
+                const caiSection = document.createElement('div');
+                caiSection.className = 'cai-teams-section';
+                
+                // Título del CAI sin los números de cuadrante
+                caiSection.innerHTML = `<h3>CAI ${cai}</h3>`;
+
+                const caiInactiveTeams = inactiveTeamsByCai[cai];
+                if (caiInactiveTeams && caiInactiveTeams.length > 0) {
                     const gridContainer = document.createElement('div');
                     gridContainer.className = 'inactive-teams-grid';
-                    caiTeams.forEach(team => {
+                    caiInactiveTeams.forEach(team => {
                         gridContainer.appendChild(createTeamItemElement(team));
                     });
                     caiSection.appendChild(gridContainer);
-                    teamsList.appendChild(caiSection);
+                } else {
+                    // Mensaje de no disponibilidad en rojo oscuro
+                    const unavailableMessage = document.createElement('div');
+                    unavailableMessage.textContent = 'Cuadrante no disponible';
+                    unavailableMessage.style.color = '#8B0000'; // Rojo oscuro
+                    unavailableMessage.style.paddingLeft = '8px';
+                    caiSection.appendChild(unavailableMessage);
                 }
+                teamsList.appendChild(caiSection);
             });
 
+            // Separador si hay equipos de ambos tipos
             if (inactiveTeams.length > 0 && activeTeams.length > 0) {
                 const separator = document.createElement('hr');
                 separator.className = 'teams-separator';
                 teamsList.appendChild(separator);
             }
             
+            // Renderizar la sección de equipos activos
             if (activeTeams.length > 0) {
                 const sortedActiveCais = Object.keys(activeTeamsByCai).sort();
                 sortedActiveCais.forEach(cai => {
                     const caiSection = document.createElement('div');
                     caiSection.className = 'cai-teams-section';
-                    caiSection.innerHTML = `<h3>CAI ${cai} (Activos)</h3>`;
+                    caiSection.innerHTML = `<h3>CAI ${cai}</h3>`;
                     activeTeamsByCai[cai].forEach(team => {
                         caiSection.appendChild(createTeamItemElement(team));
                     });
@@ -918,6 +948,7 @@
                 });
             }
 
+            // Contenedor de botones
             const buttonsContainer = document.createElement('div');
             buttonsContainer.className = 'buttons-container';
             buttonsContainer.appendChild(createButton('resetButton', '<i class="fas fa-sync-alt"></i>', resetLocalStorage, 'Reiniciar Turno'));
@@ -928,6 +959,7 @@
 
             saveToLocalStorage();
         }
+        // --- FIN DE LA MODIFICACIÓN ---
 
         function addStylesToResultDialog() {
             if (document.getElementById('result-dialog-styles')) return;
