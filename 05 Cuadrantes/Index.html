@@ -34,15 +34,18 @@
         .left-panel, .right-panel {
             flex: 1;
             margin-bottom: 10px;
+            transition: all 0.3s ease-in-out;
         }
         
-        .right-panel h2 {
+        .right-panel h3 { /* Estilo para los títulos de CAI */
             color: #003366;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             margin-top: 10px;
             margin-bottom: 10px;
-            border-bottom: 2px solid #003366;
+            border-bottom: 1px solid #ccc;
             padding-bottom: 5px;
+            display: flex;
+            align-items: center;
         }
 
         /* Estilos para la carga de archivo */
@@ -128,7 +131,7 @@
             background-color: #f0f0f0;
         }
 
-        /* Estilos para la lista de CAI */
+        /* Estilos para la lista de CAI (Optimizados) */
         #caiList {
             display: flex;
             flex-wrap: wrap;
@@ -139,33 +142,32 @@
         .cai-item {
             background-color: #e6f2ff;
             border-left: 3px solid #003366;
-            padding: 5px;
+            padding: 4px 8px;
             border-radius: 3px;
             flex: 1 1 calc(50% - 5px);
-            font-size: 0.9rem;
         }
 
         .cai-item h3 {
             color: #003366;
-            margin: 0 0 5px 0;
-            font-size: 1rem;
+            margin: 0 0 4px 0;
+            font-size: 0.9rem;
         }
 
-        /* Estilos para la lista de cuadrantes */
+        /* Estilos para la lista de cuadrantes (Optimizados) */
         .quadrant-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 3px;
+            gap: 2px;
         }
 
         .quadrant-item {
             background-color: #a3c2e6;
             color: #003366;
-            padding: 3px 6px;
+            padding: 2px 5px;
             border-radius: 3px;
             cursor: pointer;
             transition: background-color 0.3s, color 0.3s;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
         }
 
         .quadrant-item:hover {
@@ -239,11 +241,19 @@
             border-radius: 3px;
             margin-bottom: 5px;
             font-size: 0.9rem;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, border-left-color 0.3s;
+            cursor: pointer;
+            box-sizing: border-box;
         }
 
         .team-item:hover {
-            background-color: #f0f8ff;
+            background-color: #d4eaf7;
+        }
+
+        .team-item.selected-team {
+            background-color: #cce5ff;
+            border-left-color: #0056b3;
+            font-weight: bold;
         }
 
         .team-header {
@@ -263,35 +273,24 @@
             font-size: 0.85em;
             margin-left: 5px;
         }
-
-        .undo-button, .activate-button, .deactivate-button, .call-button, .view-officers-button, .edit-team-button {
-            color: white;
-            border: none;
+        
+        /* Estilos para indicadores */
+        .status-dot {
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-shrink: 0;
+            display: inline-block;
+            margin-right: 2px;
         }
-
-        .undo-button { background-color: #dc3545; }
-        .undo-button:hover { background-color: #c82333; }
-        .edit-team-button { background-color: #6c757d; }
-        .edit-team-button:hover { background-color: #5a6268; }
-        .activate-button { background-color: #28a745; }
-        .activate-button:hover { background-color: #218838; }
-        .deactivate-button { background-color: #ffc107; }
-        .deactivate-button:hover { background-color: #e0a800; }
-        .call-button { background-color: #17a2b8; }
-        .call-button:hover { background-color: #138496; }
-        .view-officers-button { background-color: #007bff; }
-        .view-officers-button:hover { background-color: #0056b3; }
-
+        .status-dot.active {
+            background-color: #28a745;
+            box-shadow: 0 0 5px #28a745;
+        }
+        .observation-icon {
+            color: #fd7e14;
+            font-size: 0.9em;
+            margin-right: 4px;
+        }
 
         .timer {
             font-family: monospace;
@@ -300,6 +299,17 @@
             color: #007bff;
         }
 
+        /* Grid para equipos inactivos */
+        .inactive-teams-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .inactive-teams-grid .team-item {
+            flex: 1 1 calc(50% - 3px);
+            min-width: 150px;
+        }
+        
         /* Estilos para la búsqueda de motivos */
         .search-container {
             position: relative;
@@ -360,7 +370,7 @@
         /* Estilos para el contenedor de botones */
         .buttons-container {
             display: flex;
-            justify-content: flex-end; /* Alinea los botones a la derecha */
+            justify-content: flex-end;
             gap: 10px;
             margin-top: 20px;
             flex-wrap: wrap;
@@ -493,13 +503,13 @@
         
         .dialog-box .dialog-buttons {
              display: flex;
-             justify-content: flex-end; /* Alinea los botones a la derecha */
+             justify-content: flex-end;
              gap: 10px;
              margin-top: 15px;
         }
         
         .dialog-box .dialog-buttons button {
-            flex-grow: 0; /* Evita que los botones crezcan */
+            flex-grow: 0;
             padding: 10px;
             border: none;
             border-radius: 50%;
@@ -507,8 +517,8 @@
             cursor: pointer;
             font-size: 1rem;
             transition: background-color 0.3s;
-            width: 44px; /* Ancho fijo para botones de ícono */
-            height: 44px; /* Alto fijo para botones de ícono */
+            width: 44px;
+            height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -523,6 +533,36 @@
 
         .dialog-box .dialog-buttons .reset-btn { background-color: #fd7e14; }
         .dialog-box .dialog-buttons .reset-btn:hover { background-color: #e66a00; }
+
+        /* Estilos para el menú de acciones flotante */
+        #floating-action-menu {
+            position: fixed;
+            top: 50%;
+            right: 25px;
+            transform: translateY(-50%);
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 1500;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 22px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            backdrop-filter: blur(5px);
+        }
+
+        #floatingUndoBtn { background-color: #dc3545; }
+        #floatingUndoBtn:hover { background-color: #c82333; }
+        #floatingEditBtn { background-color: #6c757d; }
+        #floatingEditBtn:hover { background-color: #5a6268; }
+        #floatingActivateBtn { background-color: #28a745; }
+        #floatingActivateBtn:hover { background-color: #218838; }
+        #floatingDeactivateBtn { background-color: #ffc107; }
+        #floatingDeactivateBtn:hover { background-color: #e0a800; }
+        #floatingCallBtn { background-color: #17a2b8; }
+        #floatingCallBtn:hover { background-color: #138496; }
+        #floatingViewOfficersBtn { background-color: #007bff; }
+        #floatingViewOfficersBtn:hover { background-color: #0056b3; }
 
         /* Estilos responsivos */
         @media (min-width: 768px) {
@@ -566,13 +606,16 @@
             .dialog-box {
                 width: 400px;
             }
+
+            .inactive-teams-grid .team-item {
+                flex-basis: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <!-- Date removed as requested -->
         </header>
         <main class="main-content">
             <div class="left-panel">
@@ -603,6 +646,16 @@
             </div>
         </main>
     </div>
+
+    <div id="floating-action-menu">
+        <button id="floatingActivateBtn" class="action-button" title="Activar equipo"><i class="fas fa-play"></i></button>
+        <button id="floatingDeactivateBtn" class="action-button" title="Desactivar equipo"><i class="fas fa-power-off"></i></button>
+        <button id="floatingEditBtn" class="action-button" title="Editar Observación / CAI"><i class="fas fa-pencil-alt"></i></button>
+        <button id="floatingViewOfficersBtn" class="action-button" title="Ver funcionarios"><i class="fas fa-users"></i></button>
+        <button id="floatingCallBtn" class="action-button" title="Llamar al cuadrante"><i class="fas fa-phone"></i></button>
+        <button id="floatingUndoBtn" class="action-button" title="Deshacer equipo"><i class="fas fa-undo"></i></button>
+    </div>
+
     <script>
         // Variables globales
         let quadrants = [];
@@ -613,13 +666,44 @@
         let selectedOfficers = [null, null];
         let activityResults = {};
         let activityResultsList = [];
+        let selectedTeamName = null;
+        let caiQuadrantMap = {}; // NUEVO: Mapa para almacenar cuadrantes por CAI
 
-        // Función principal para cargar datos
+        // NUEVA FUNCIÓN: Formatea la lista de cuadrantes para el título del CAI
+        function formatQuadrantRanges(quadrantNames) {
+            if (!quadrantNames || quadrantNames.length === 0) return '';
+            const numbers = quadrantNames
+                .map(name => parseInt(name.replace('C-', '')))
+                .filter(n => !isNaN(n))
+                .sort((a, b) => a - b);
+            
+            if (numbers.length === 0) return '';
+
+            let ranges = [];
+            if (numbers.length > 0) {
+                let start = numbers[0];
+                let end = numbers[0];
+
+                for (let i = 1; i < numbers.length; i++) {
+                    if (numbers[i] === end + 1) {
+                        end = numbers[i];
+                    } else {
+                        ranges.push(start === end ? `${start}` : `${start}-${end}`);
+                        start = numbers[i];
+                        end = numbers[i];
+                    }
+                }
+                ranges.push(start === end ? `${start}` : `${start}-${end}`);
+            }
+            
+            return `(${ranges.join(', ')})`;
+        }
+
         async function loadData() {
             try {
                 const localData = loadFromLocalStorage();
                 if (localData) {
-                    ({ quadrants, teams, motivesList, selectedQuadrants, selectedOfficers, activityResults } = localData);
+                    ({ quadrants, teams, motivesList, selectedQuadrants, selectedOfficers, activityResults, caiQuadrantMap } = localData);
                     contactsList = JSON.parse(localStorage.getItem('contactsList') || '[]');
                     
                     try {
@@ -641,25 +725,23 @@
                         activityResultsList = await activityResultsResponse.json();
                     } catch (error) {
                         console.error('Error al cargar archivos JSON:', error);
-                        try {
-                            const quadrantsResponse = await fetch('cuadrantes.json');
-                            quadrants = await quadrantsResponse.json();
-                        } catch (e) { console.error('Error al cargar cuadrantes:', e); quadrants = []; }
-                        
-                        try {
-                            const motivesResponse = await fetch('claves_policiales.json');
-                            motivesList = await motivesResponse.json();
-                        } catch (e) { console.error('Error al cargar claves policiales:', e); motivesList = []; }
-                        
-                        try {
-                            const activityResultsResponse = await fetch('resultados_actividades.json');
-                            activityResultsList = await activityResultsResponse.json();
-                        } catch (e) { console.error('Error al cargar resultados de actividades:', e); activityResultsList = getDefaultActivityResults(); }
+                        try { quadrants = await (await fetch('cuadrantes.json')).json(); } catch (e) { quadrants = []; }
+                        try { motivesList = await (await fetch('claves_policiales.json')).json(); } catch (e) { motivesList = []; }
+                        try { activityResultsList = await (await fetch('resultados_actividades.json')).json(); } catch (e) { activityResultsList = getDefaultActivityResults(); }
                     }
                     
                     quadrants.forEach(q => {
                         if (q.cai === "SETE DE AGOSTO") q.cai = "SIETE DE AGOSTO";
                     });
+
+                    // Construir el mapa de cuadrantes por CAI
+                    caiQuadrantMap = quadrants.reduce((acc, q) => {
+                        if (!acc[q.cai]) {
+                            acc[q.cai] = [];
+                        }
+                        acc[q.cai].push(q.name);
+                        return acc;
+                    }, {});
                     
                     saveToLocalStorage();
                 }
@@ -673,7 +755,8 @@
         function getDefaultActivityResults() {
             return [
                 { "categoria": "Capturas", "resultados": ["Captura en flagrancia"] },
-                { "categoria": "Medidas correctivas", "resultados": ["Comparendo por infracción al Código de Policía"] }
+                { "categoria": "Medidas correctivas", "resultados": ["Comparendo por infracción al Código de Policía"] },
+                { "categoria": "Administrativo", "resultados": ["Sin resultados operativos"] }
             ];
         }
 
@@ -685,10 +768,8 @@
             setupFileUpload();
             loadOfficerDropdowns();
             updateCreateTeamButton();
-            toggleCreateTeamElements(quadrants.filter(q => !isQuadrantInTeam(q.id)).length > 0);
             addStylesToResultDialog();
             
-            // Hide upload button if contacts are already loaded
             if (contactsList && contactsList.length > 0) {
                 const uploadContainer = document.querySelector('.file-upload-container');
                 if(uploadContainer) uploadContainer.style.display = 'none';
@@ -727,7 +808,6 @@
                             loadOfficerDropdowns();
                             saveToLocalStorage();
                             
-                            // Hide the upload container on successful load
                             uploadContainer.style.display = 'none';
 
                         } catch (error) {
@@ -746,9 +826,18 @@
 
         function renderQuadrants() {
             const caiList = document.getElementById('caiList');
+            const leftPanel = document.querySelector('.left-panel');
             caiList.innerHTML = '';
             
             const availableQuadrants = quadrants.filter(q => !isQuadrantInTeam(q.id));
+
+            if (availableQuadrants.length === 0) {
+                if (leftPanel) leftPanel.style.display = 'none';
+                return;
+            }
+            
+            if (leftPanel) leftPanel.style.display = 'block';
+
             const caiGroups = groupByCai(availableQuadrants);
             const sortedCais = Object.keys(caiGroups).sort();
 
@@ -775,7 +864,6 @@
             });
 
             updateCreateTeamButton();
-            toggleCreateTeamElements(availableQuadrants.length > 0);
         }
 
         function isQuadrantInTeam(quadrantId) {
@@ -788,32 +876,24 @@
             teamItem.className = 'team-item';
             teamItem.setAttribute('data-team-name', team.name);
 
-            const undoButtonHTML = !team.active ? `
-                <button class="undo-button" onclick="confirmUndoTeam('${team.name}')" title="Deshacer equipo"><i class="fas fa-undo"></i></button>
-            ` : '';
-
-            const editButtonHTML = !team.active ? `
-                <button class="edit-team-button" onclick="showEditTeamDialog('${team.name}')" title="Editar Observación / CAI"><i class="fas fa-pencil-alt"></i></button>
-            ` : '';
-
-            const actionButtons = team.active && team.assignedTime ? `
+            const timerHTML = team.active && team.assignedTime ? `
                 <span class="timer" data-start-time="${team.assignedTime.getTime()}">00:00:00</span>
-                <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
-                <button class="deactivate-button" onclick="toggleTeamStatus('${team.name}')" title="Desactivar equipo"><i class="fas fa-power-off"></i></button>
-            ` : `
-                <button class="activate-button" onclick="showMotiveAssignmentDialog('${team.name}')" title="Activar equipo"><i class="fas fa-play"></i></button>
-                <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
-            `;
+            ` : '';
+            
+            const observationIndicatorHTML = team.observation ? 
+                `<i class="fas fa-comment-alt observation-icon" title="Tiene una observación"></i>` : '';
+            
+            const statusIndicatorHTML = team.active ? 
+                `<span class="status-dot active" title="Equipo Activo"></span>` : '';
 
             teamItem.innerHTML = `
                 <div class="team-header">
-                    ${undoButtonHTML}
-                    ${editButtonHTML}
+                    ${observationIndicatorHTML}
+                    ${statusIndicatorHTML}
                     <span class="team-name">${team.name}</span>
                     <span class="team-observation">${team.observation ? `(${team.observation})` : ''}</span>
                     <div class="spacer" style="flex-grow: 1;"></div>
-                    ${actionButtons}
-                    <button class="call-button" onclick="callTeam('${team.name}')" title="Llamar al cuadrante"><i class="fas fa-phone"></i></button>
+                    ${timerHTML}
                 </div>
             `;
 
@@ -833,35 +913,41 @@
             const teamsList = document.getElementById('teamsList');
             teamsList.innerHTML = '';
 
-            const sortedTeams = teams.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
-
-            const activeTeams = sortedTeams.filter(team => team.active);
-            const inactiveTeams = sortedTeams.filter(team => !team.active);
+            const activeTeams = teams.filter(team => team.active);
+            const inactiveTeams = teams.filter(team => !team.active);
 
             const activeTeamsByCai = groupTeamsByCai(activeTeams);
             const inactiveTeamsByCai = groupTeamsByCai(inactiveTeams);
 
-            const allCaiNames = [...new Set(quadrants.map(q => q.cai))].sort();
+            const allCaiNames = Object.keys(caiQuadrantMap).sort();
 
-            teamsList.innerHTML += '<h2>Equipos Inactivos</h2>';
+            const inactiveContainer = document.createElement('div');
             allCaiNames.forEach(cai => {
-                const caiTeams = inactiveTeamsByCai[cai];
+                const caiTeams = inactiveTeamsByCai[cai] || [];
                 const caiSection = document.createElement('div');
                 caiSection.className = 'cai-teams-section';
-                caiSection.innerHTML = `<h3>CAI ${cai}</h3>`;
+                
+                const quadrantRanges = formatQuadrantRanges(caiQuadrantMap[cai]);
+                const titleHTML = `<span style="color: #28a745; font-weight: normal; font-size: 0.9em; margin-left: 8px;">${quadrantRanges}</span>`;
+                
+                caiSection.innerHTML = `<h3>CAI ${cai} ${titleHTML}</h3>`;
 
-                if (caiTeams && caiTeams.length > 0) {
-                    caiTeams.forEach(team => {
-                        caiSection.appendChild(createTeamItemElement(team));
+                if (caiTeams.length > 0) {
+                    const gridContainer = document.createElement('div');
+                    gridContainer.className = 'inactive-teams-grid';
+                    caiTeams.sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric: true})).forEach(team => {
+                        gridContainer.appendChild(createTeamItemElement(team));
                     });
+                    caiSection.appendChild(gridContainer);
                 } else {
                     const noTeamsMessage = document.createElement('p');
                     noTeamsMessage.textContent = 'Sin cuadrantes disponibles.';
-                    noTeamsMessage.style.cssText = 'font-size: 0.8rem; font-style: italic; padding-left: 10px; margin: 0;';
+                    noTeamsMessage.style.cssText = 'font-size: 0.8rem; font-style: italic; padding-left: 10px; margin: 0; color: #8B0000;';
                     caiSection.appendChild(noTeamsMessage);
                 }
-                teamsList.appendChild(caiSection);
+                inactiveContainer.appendChild(caiSection);
             });
+            teamsList.appendChild(inactiveContainer);
 
             if (inactiveTeams.length > 0 && activeTeams.length > 0) {
                 const separator = document.createElement('hr');
@@ -869,19 +955,22 @@
                 teamsList.appendChild(separator);
             }
             
+            const activeContainer = document.createElement('div');
             if (activeTeams.length > 0) {
-                teamsList.innerHTML += '<h2>Equipos Activos</h2>';
                 const sortedActiveCais = Object.keys(activeTeamsByCai).sort();
                 sortedActiveCais.forEach(cai => {
                     const caiSection = document.createElement('div');
                     caiSection.className = 'cai-teams-section';
-                    caiSection.innerHTML = `<h3>CAI ${cai}</h3>`;
-                    activeTeamsByCai[cai].forEach(team => {
+                    const quadrantRanges = formatQuadrantRanges(caiQuadrantMap[cai]);
+                    const titleHTML = `<span style="color: #28a745; font-weight: normal; font-size: 0.9em; margin-left: 8px;">${quadrantRanges}</span>`;
+                    caiSection.innerHTML = `<h3>CAI ${cai} ${titleHTML}</h3>`;
+                    activeTeamsByCai[cai].sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric: true})).forEach(team => {
                         caiSection.appendChild(createTeamItemElement(team));
                     });
-                    teamsList.appendChild(caiSection);
+                    activeContainer.appendChild(caiSection);
                 });
             }
+            teamsList.appendChild(activeContainer);
 
             const buttonsContainer = document.createElement('div');
             buttonsContainer.className = 'buttons-container';
@@ -929,6 +1018,78 @@
                 }
             });
             document.getElementById('createTeamButton').addEventListener('click', createTeam);
+            
+            document.getElementById('teamsList').addEventListener('click', handleTeamSelection);
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#teamsList') && !e.target.closest('#floating-action-menu')) {
+                     handleTeamSelection(e);
+                }
+            });
+            setupFloatingMenuListeners();
+        }
+
+        function handleTeamSelection(event) {
+            const clickedItem = event.target.closest('.team-item');
+            
+            if (!clickedItem) {
+                if (selectedTeamName) {
+                    const previouslySelected = document.querySelector('.team-item.selected-team');
+                    if (previouslySelected) {
+                        previouslySelected.classList.remove('selected-team');
+                    }
+                    selectedTeamName = null;
+                    updateFloatingMenu();
+                }
+                return;
+            }
+
+            const teamName = clickedItem.dataset.teamName;
+
+            if (teamName === selectedTeamName) {
+                clickedItem.classList.remove('selected-team');
+                selectedTeamName = null;
+            } else {
+                const previouslySelected = document.querySelector('.team-item.selected-team');
+                if (previouslySelected) {
+                    previouslySelected.classList.remove('selected-team');
+                }
+                clickedItem.classList.add('selected-team');
+                selectedTeamName = teamName;
+            }
+            updateFloatingMenu();
+        }
+
+        function updateFloatingMenu() {
+            const menu = document.getElementById('floating-action-menu');
+            if (!selectedTeamName) {
+                menu.style.display = 'none';
+                return;
+            }
+
+            const team = teams.find(t => t.name === selectedTeamName);
+            if (!team) {
+                menu.style.display = 'none';
+                return;
+            }
+
+            document.getElementById('floatingActivateBtn').style.display = !team.active ? 'flex' : 'none';
+            document.getElementById('floatingDeactivateBtn').style.display = team.active ? 'flex' : 'none';
+            document.getElementById('floatingEditBtn').style.display = !team.active ? 'flex' : 'none';
+            document.getElementById('floatingUndoBtn').style.display = !team.active ? 'flex' : 'none';
+            
+            document.getElementById('floatingViewOfficersBtn').style.display = 'flex';
+            document.getElementById('floatingCallBtn').style.display = 'flex';
+
+            menu.style.display = 'flex';
+        }
+
+        function setupFloatingMenuListeners() {
+            document.getElementById('floatingActivateBtn').onclick = () => { if(selectedTeamName) showMotiveAssignmentDialog(selectedTeamName); };
+            document.getElementById('floatingDeactivateBtn').onclick = () => { if(selectedTeamName) toggleTeamStatus(selectedTeamName); };
+            document.getElementById('floatingEditBtn').onclick = () => { if(selectedTeamName) showEditTeamDialog(selectedTeamName); };
+            document.getElementById('floatingViewOfficersBtn').onclick = () => { if(selectedTeamName) showAssignedOfficers(selectedTeamName); };
+            document.getElementById('floatingCallBtn').onclick = () => { if(selectedTeamName) callTeam(selectedTeamName); };
+            document.getElementById('floatingUndoBtn').onclick = () => { if(selectedTeamName) confirmUndoTeam(selectedTeamName); };
         }
 
         function toggleQuadrantSelection(quadrantId) {
@@ -977,7 +1138,7 @@
                     activityHistory: [], 
                     contacts: selectedOfficers.slice(),
                     observation: '',
-                    originalCai: teamQuadrants[0]?.cai // Nueva propiedad para el CAI original
+                    originalCai: teamQuadrants[0]?.cai
                 };
                 teams.push(newTeam);
                 alert(`Equipo "${teamName}" creado con éxito.`);
@@ -1006,6 +1167,10 @@
                 renderQuadrants();
                 renderTeams();
                 updateOfficerDropdowns();
+                
+                selectedTeamName = null;
+                updateFloatingMenu();
+                
                 saveToLocalStorage();
             }
         }
@@ -1030,13 +1195,10 @@
 
             dialog.innerHTML = `
                 <h3>Editar Equipo ${team.name}</h3>
-                
                 <label for="observationInput">Observación:</label>
                 <textarea id="observationInput" placeholder="Añada una observación...">${team.observation || ''}</textarea>
-                
                 <label for="caiSelector">CAI Actual:</label>
                 <select id="caiSelector">${caiOptions}</select>
-
                 <div class="dialog-buttons">
                     <button id="resetObservationAndCai" class="reset-btn" title="Borrar observación y restaurar CAI original"><i class="fas fa-history"></i></button>
                     <button id="cancelEdit" class="cancel-btn" title="Cancelar"><i class="fas fa-times"></i></button>
@@ -1224,7 +1386,6 @@
             team.assignedTime = null;
 
             renderTeams();
-            renderQuadrants();
             updateTimers();
             saveToLocalStorage();
         }
@@ -1363,7 +1524,6 @@
             backdrop.addEventListener('click', closeDialog);
         }
 
-
         function formatDate(date) {
             if (!(date instanceof Date) || isNaN(date.getTime())) return 'Fecha no disponible';
             return date.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
@@ -1435,7 +1595,7 @@
                         });
                     }
                 });
-                const dataToSave = { quadrants, teams: teamsToSave, motivesList, selectedQuadrants, selectedOfficers, activityResults };
+                const dataToSave = { quadrants, teams: teamsToSave, motivesList, selectedQuadrants, selectedOfficers, activityResults, caiQuadrantMap };
                 localStorage.setItem('policeQuadrantsData', JSON.stringify(dataToSave));
                 localStorage.setItem('contactsList', JSON.stringify(contactsList));
             } catch (error) {
@@ -1536,10 +1696,12 @@
                             const result = activityResults?.[cai]?.[team.name]?.[index];
                             if (result) {
                                 activityList += `<br>Resultado: ${result}`;
-                                if (!summaryData[cai]) summaryData[cai] = {};
-                                if (!summaryData[cai][team.name]) summaryData[cai][team.name] = {};
-                                if (!summaryData[cai][team.name][result]) summaryData[cai][team.name][result] = 0;
-                                summaryData[cai][team.name][result]++;
+                                if (result !== "Sin resultados operativos") {
+                                    if (!summaryData[cai]) summaryData[cai] = {};
+                                    if (!summaryData[cai][team.name]) summaryData[cai][team.name] = {};
+                                    if (!summaryData[cai][team.name][result]) summaryData[cai][team.name][result] = 0;
+                                    summaryData[cai][team.name][result]++;
+                                }
                             }
                             activityList += `</li>`;
                         });
@@ -1556,7 +1718,7 @@
                 hasSummaryData = true;
                 summaryTable += `<tr><td>${cai}</td><td>${teamName}</td><td>${result}</td><td>${summaryData[cai][teamName][result]}</td></tr>`;
             }
-            if (!hasSummaryData) summaryTable += `<tr><td colspan="4" style="text-align: center;">No hay resultados</td></tr>`;
+            if (!hasSummaryData) summaryTable += `<tr><td colspan="4" style="text-align: center;">No hay resultados operativos</td></tr>`;
             summaryTable += `</table>`;
             return { teamComposition, activities, summaryTable };
         }
@@ -1577,7 +1739,7 @@
                     team.activityHistory?.forEach((activity, index) => {
                         const result = activityResults?.[cai]?.[team.name]?.[index];
                         report += `- ${activity.motive || 'N/A'}${result ? ` -> ${result}` : ''}\n`;
-                        if (result) {
+                        if (result && result !== "Sin resultados operativos") {
                             if (!summaryData[result]) summaryData[result] = 0;
                             summaryData[result]++;
                         }
@@ -1586,7 +1748,14 @@
                 report += "\n";
             }
             report += `Resumen de Resultados:\n${"=".repeat(20)}\n`;
-            for (const result in summaryData) report += `${result}: ${summaryData[result]}\n`;
+            let hasSummaryData = false;
+            for (const result in summaryData) {
+                hasSummaryData = true;
+                report += `${result}: ${summaryData[result]}\n`;
+            }
+            if (!hasSummaryData) {
+                report += "No hay resultados operativos para reportar.\n";
+            }
             return report;
         }
 
@@ -1701,12 +1870,6 @@
             if (btn) btn.disabled = !(selectedOfficers[0] && selectedOfficers[1] && selectedQuadrants.length > 0);
         }
 
-        function toggleCreateTeamElements(show) {
-            const display = show ? 'flex' : 'none';
-            document.querySelector('.officer-selection').style.display = display;
-            document.getElementById('createTeamButton').style.display = show ? 'block' : 'none';
-        }
-
         function handleLoadError(error) {
             console.error('Error al cargar los datos:', error);
             alert('Hubo un error al cargar los datos. Por favor, recargue la página.');
@@ -1719,5 +1882,4 @@
     </script>
 </body>
 </html>
-
 
