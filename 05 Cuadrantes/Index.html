@@ -883,24 +883,22 @@
 
             const allCaiNames = [...new Set(quadrants.map(q => q.cai))].sort();
             
-            // Renderizar la sección de equipos INACTIVOS
+            // Renderizar la sección de equipos (antes inactivos)
             allCaiNames.forEach(cai => {
-                // Obtener los números de todos los cuadrantes que pertenecen a este CAI
                 const caiQuadrants = quadrants.filter(q => q.cai === cai);
                 const quadrantNumbers = caiQuadrants
-                    .map(q => parseInt(q.name.slice(2))) // Extrae el número del nombre 'C-XX'
+                    .map(q => parseInt(q.name.slice(2)))
                     .sort((a, b) => a - b)
-                    .join('-'); // Une los números con un guion
+                    .join('-');
 
                 const caiSection = document.createElement('div');
                 caiSection.className = 'cai-teams-section';
                 
-                // Título con el nuevo formato: "CAI [Nombre] ([Cuadrantes]) (Inactivos)"
-                caiSection.innerHTML = `<h3>CAI ${cai} (${quadrantNumbers}) (Inactivos)</h3>`;
+                // Título SIN el texto "(Inactivos)"
+                caiSection.innerHTML = `<h3>CAI ${cai} (${quadrantNumbers})</h3>`;
 
                 const caiInactiveTeams = inactiveTeamsByCai[cai];
                 if (caiInactiveTeams && caiInactiveTeams.length > 0) {
-                    // Si hay equipos inactivos, los muestra en la grilla
                     const gridContainer = document.createElement('div');
                     gridContainer.className = 'inactive-teams-grid';
                     caiInactiveTeams.forEach(team => {
@@ -908,11 +906,11 @@
                     });
                     caiSection.appendChild(gridContainer);
                 } else {
-                    // Si no hay equipos, muestra el mensaje de no disponibilidad
+                    // Mensaje de no disponibilidad en rojo oscuro
                     const unavailableMessage = document.createElement('div');
                     unavailableMessage.textContent = 'Cuadrante no disponible';
-                    unavailableMessage.style.color = 'red';
-                    unavailableMessage.style.paddingLeft = '8px'; // Añade un poco de sangría
+                    unavailableMessage.style.color = '#8B0000'; // Rojo oscuro
+                    unavailableMessage.style.paddingLeft = '8px';
                     caiSection.appendChild(unavailableMessage);
                 }
                 teamsList.appendChild(caiSection);
@@ -925,13 +923,14 @@
                 teamsList.appendChild(separator);
             }
             
-            // Renderizar la sección de equipos ACTIVOS (sin cambios)
+            // Renderizar la sección de equipos (antes activos)
             if (activeTeams.length > 0) {
                 const sortedActiveCais = Object.keys(activeTeamsByCai).sort();
                 sortedActiveCais.forEach(cai => {
                     const caiSection = document.createElement('div');
                     caiSection.className = 'cai-teams-section';
-                    caiSection.innerHTML = `<h3>CAI ${cai} (Activos)</h3>`;
+                    // Título SIN el texto "(Activos)"
+                    caiSection.innerHTML = `<h3>CAI ${cai}</h3>`;
                     activeTeamsByCai[cai].forEach(team => {
                         caiSection.appendChild(createTeamItemElement(team));
                     });
