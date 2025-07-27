@@ -26,24 +26,24 @@
             flex-direction: column;
         }
         
-        header h1 {
-            color: #003366;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-
-        header h2 {
-            color: #666;
-            text-align: center;
-            font-size: 1rem;
-            margin-top: 0;
-            margin-bottom: 20px;
+        header {
+            padding-bottom: 10px;
         }
 
         /* Estilos para los paneles */
         .left-panel, .right-panel {
             flex: 1;
             margin-bottom: 10px;
+            transition: all 0.3s ease-in-out; /* Transición para ocultar/mostrar */
+        }
+        
+        .right-panel h2 {
+            color: #003366;
+            font-size: 1.2rem;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #003366;
+            padding-bottom: 5px;
         }
 
         /* Estilos para la carga de archivo */
@@ -129,7 +129,7 @@
             background-color: #f0f0f0;
         }
 
-        /* Estilos para la lista de CAI */
+        /* Estilos para la lista de CAI (Optimizados) */
         #caiList {
             display: flex;
             flex-wrap: wrap;
@@ -140,33 +140,32 @@
         .cai-item {
             background-color: #e6f2ff;
             border-left: 3px solid #003366;
-            padding: 5px;
+            padding: 4px 8px; /* Reducido */
             border-radius: 3px;
             flex: 1 1 calc(50% - 5px);
-            font-size: 0.9rem;
         }
 
         .cai-item h3 {
             color: #003366;
-            margin: 0 0 5px 0;
-            font-size: 1rem;
+            margin: 0 0 4px 0; /* Reducido */
+            font-size: 0.9rem; /* Reducido */
         }
 
-        /* Estilos para la lista de cuadrantes */
+        /* Estilos para la lista de cuadrantes (Optimizados) */
         .quadrant-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 3px;
+            gap: 2px; /* Reducido */
         }
 
         .quadrant-item {
             background-color: #a3c2e6;
             color: #003366;
-            padding: 3px 6px;
+            padding: 2px 5px; /* Reducido */
             border-radius: 3px;
             cursor: pointer;
             transition: background-color 0.3s, color 0.3s;
-            font-size: 0.8rem;
+            font-size: 0.75rem; /* Reducido */
         }
 
         .quadrant-item:hover {
@@ -179,7 +178,26 @@
         }
 
         /* Estilos para botones */
-        #createTeamButton, #reportButton, #emailButton, #resetButton, #whatsappButton {
+        .action-button {
+            background-color: #003366;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .action-button:hover {
+             background-color: #004080;
+        }
+
+        #createTeamButton {
             background-color: #003366;
             color: white;
             border: none;
@@ -188,38 +206,29 @@
             cursor: pointer;
             font-size: 0.9rem;
             transition: background-color 0.3s;
-        }
-
-        #createTeamButton:hover, #reportButton:hover, #emailButton:hover {
-            background-color: #004080;
-        }
-
-        #createTeamButton {
             display: block;
             width: 100%;
             margin: 10px 0;
+        }
+
+        #createTeamButton:hover {
+            background-color: #004080;
         }
 
         #createTeamButton:disabled {
             background-color: #cccccc;
             cursor: not-allowed;
         }
+        
+        #resetButton { background-color: #dc3545; }
+        #resetButton:hover { background-color: #c82333; }
+        #reportButton { background-color: #17a2b8; }
+        #reportButton:hover { background-color: #138496; }
+        #whatsappButton { background-color: #25D366; }
+        #whatsappButton:hover { background-color: #128C7E; }
+        #emailButton { background-color: #6c757d; }
+        #emailButton:hover { background-color: #5a6268; }
 
-        #resetButton {
-            background-color: #dc3545;
-        }
-
-        #resetButton:hover {
-            background-color: #c82333;
-        }
-
-        #whatsappButton {
-            background-color: #25D366;
-        }
-
-        #whatsappButton:hover {
-            background-color: #128C7E;
-        }
 
         /* Estilos para equipos */
         .team-item {
@@ -230,54 +239,55 @@
             border-radius: 3px;
             margin-bottom: 5px;
             font-size: 0.9rem;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, border-left-color 0.3s;
+            cursor: pointer;
         }
 
         .team-item:hover {
-            background-color: #f0f8ff;
+            background-color: #d4eaf7;
+        }
+
+        .team-item.selected-team {
+            background-color: #cce5ff;
+            border-left-color: #0056b3;
+            font-weight: bold;
         }
 
         .team-header {
             display: flex;
             align-items: center;
+            gap: 5px;
             margin-bottom: 5px;
         }
 
         .team-name {
-            flex-grow: 1;
             font-weight: bold;
         }
-
-        .undo-button, .activate-button, .deactivate-button, .call-button, .view-officers-button, .rename-button, .reset-name-button {
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        
+        .team-observation {
+            font-style: italic;
+            color: #555;
+            font-size: 0.85em;
             margin-left: 5px;
         }
-
-        .undo-button { background-color: #dc3545; }
-        .undo-button:hover { background-color: #c82333; }
-        .rename-button { background-color: #6c757d; }
-        .rename-button:hover { background-color: #5a6268; }
-        .reset-name-button { background-color: #fd7e14; }
-        .reset-name-button:hover { background-color: #e66a00; }
-        .activate-button { background-color: #28a745; }
-        .activate-button:hover { background-color: #218838; }
-        .deactivate-button { background-color: #ffc107; }
-        .deactivate-button:hover { background-color: #e0a800; }
-        .call-button { background-color: #17a2b8; }
-        .call-button:hover { background-color: #138496; }
-        .view-officers-button { background-color: #007bff; }
-        .view-officers-button:hover { background-color: #0056b3; }
-
+        
+        /* NUEVOS Estilos para indicadores */
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 2px;
+        }
+        .status-dot.active {
+            background-color: #28a745; /* Verde */
+            box-shadow: 0 0 5px #28a745;
+        }
+        .observation-icon {
+            color: #5a6268; /* Gris oscuro */
+            font-size: 0.9em;
+            margin-right: 4px;
+        }
 
         .timer {
             font-family: monospace;
@@ -346,7 +356,7 @@
         /* Estilos para el contenedor de botones */
         .buttons-container {
             display: flex;
-            justify-content: center;
+            justify-content: flex-end;
             gap: 10px;
             margin-top: 20px;
             flex-wrap: wrap;
@@ -428,13 +438,28 @@
             color: #003366;
         }
 
-        .dialog-box input[type="text"] {
+        .dialog-box label {
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .dialog-box input[type="text"],
+        .dialog-box textarea,
+        .dialog-box select {
             width: 100%;
             box-sizing: border-box;
             padding: 8px;
             margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
+        }
+        
+        .dialog-box textarea {
+            resize: vertical;
+            min-height: 60px;
         }
 
         .dialog-box .dialog-list {
@@ -464,19 +489,25 @@
         
         .dialog-box .dialog-buttons {
              display: flex;
+             justify-content: flex-end;
              gap: 10px;
              margin-top: 15px;
         }
         
         .dialog-box .dialog-buttons button {
-            flex-grow: 1;
+            flex-grow: 0;
             padding: 10px;
             border: none;
-            border-radius: 4px;
+            border-radius: 50%;
             color: white;
             cursor: pointer;
             font-size: 1rem;
             transition: background-color 0.3s;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .dialog-box .dialog-buttons .confirm-btn { background-color: #28a745; }
@@ -485,6 +516,39 @@
         
         .dialog-box .dialog-buttons .cancel-btn { background-color: #6c757d; }
         .dialog-box .dialog-buttons .cancel-btn:hover { background-color: #5a6268; }
+
+        .dialog-box .dialog-buttons .reset-btn { background-color: #fd7e14; }
+        .dialog-box .dialog-buttons .reset-btn:hover { background-color: #e66a00; }
+
+        /* Estilos para el menú de acciones flotante */
+        #floating-action-menu {
+            position: fixed;
+            top: 50%;
+            right: 25px;
+            transform: translateY(-50%);
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 1500;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 22px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            backdrop-filter: blur(5px);
+        }
+
+        #floatingUndoBtn { background-color: #dc3545; }
+        #floatingUndoBtn:hover { background-color: #c82333; }
+        #floatingEditBtn { background-color: #6c757d; }
+        #floatingEditBtn:hover { background-color: #5a6268; }
+        #floatingActivateBtn { background-color: #28a745; }
+        #floatingActivateBtn:hover { background-color: #218838; }
+        #floatingDeactivateBtn { background-color: #ffc107; }
+        #floatingDeactivateBtn:hover { background-color: #e0a800; }
+        #floatingCallBtn { background-color: #17a2b8; }
+        #floatingCallBtn:hover { background-color: #138496; }
+        #floatingViewOfficersBtn { background-color: #007bff; }
+        #floatingViewOfficersBtn:hover { background-color: #0056b3; }
 
         /* Estilos responsivos */
         @media (min-width: 768px) {
@@ -513,7 +577,7 @@
                 font-size: 0.9rem;
             }
 
-            #createTeamButton, #reportButton, #emailButton {
+            #createTeamButton {
                 font-size: 1rem;
             }
 
@@ -534,13 +598,12 @@
 <body>
     <div class="container">
         <header>
-            <h1>Sistema de Gestión de Cuadrantes Policiales</h1>
-            <h2 id="current-date"></h2>
+            <!-- Date removed as requested -->
         </header>
         <main class="main-content">
             <div class="left-panel">
                 <div class="file-upload-container">
-                    <button id="uploadButton" class="btn btn-primary">
+                    <button id="uploadButton" title="Cargar archivo JSON con la lista de funcionarios">
                         <i class="fas fa-upload"></i> Cargar lista de funcionarios
                     </button>
                     <input type="file" id="contactsFile" accept=".json" style="display: none;">
@@ -566,6 +629,16 @@
             </div>
         </main>
     </div>
+
+    <div id="floating-action-menu">
+        <button id="floatingActivateBtn" class="action-button" title="Activar equipo"><i class="fas fa-play"></i></button>
+        <button id="floatingDeactivateBtn" class="action-button" title="Desactivar equipo"><i class="fas fa-power-off"></i></button>
+        <button id="floatingEditBtn" class="action-button" title="Editar Observación / CAI"><i class="fas fa-pencil-alt"></i></button>
+        <button id="floatingViewOfficersBtn" class="action-button" title="Ver funcionarios"><i class="fas fa-users"></i></button>
+        <button id="floatingCallBtn" class="action-button" title="Llamar al cuadrante"><i class="fas fa-phone"></i></button>
+        <button id="floatingUndoBtn" class="action-button" title="Deshacer equipo"><i class="fas fa-undo"></i></button>
+    </div>
+
     <script>
         // Variables globales
         let quadrants = [];
@@ -576,8 +649,8 @@
         let selectedOfficers = [null, null];
         let activityResults = {};
         let activityResultsList = [];
+        let selectedTeamName = null;
 
-        // Función principal para cargar datos
         async function loadData() {
             try {
                 const localData = loadFromLocalStorage();
@@ -648,12 +721,11 @@
             setupFileUpload();
             loadOfficerDropdowns();
             updateCreateTeamButton();
-            toggleCreateTeamElements(quadrants.filter(q => !isQuadrantInTeam(q.id)).length > 0);
             addStylesToResultDialog();
             
-            const dateElement = document.getElementById('current-date');
-            if(dateElement) {
-                dateElement.textContent = new Date().toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            if (contactsList && contactsList.length > 0) {
+                const uploadContainer = document.querySelector('.file-upload-container');
+                if(uploadContainer) uploadContainer.style.display = 'none';
             }
         }
 
@@ -661,6 +733,9 @@
             const uploadButton = document.getElementById('uploadButton');
             const fileInput = document.getElementById('contactsFile');
             const fileStatus = document.getElementById('fileStatus');
+            const uploadContainer = document.querySelector('.file-upload-container');
+
+            if (!uploadButton || !fileInput || !fileStatus || !uploadContainer) return;
 
             uploadButton.addEventListener('click', () => fileInput.click());
 
@@ -683,32 +758,40 @@
                             
                             contactsList = data;
                             localStorage.setItem('contactsList', JSON.stringify(contactsList));
-                            fileStatus.textContent = 'Lista de funcionarios cargada y guardada correctamente';
-                            fileStatus.style.color = 'green';
                             loadOfficerDropdowns();
                             saveToLocalStorage();
+                            
+                            uploadContainer.style.display = 'none';
 
-                            uploadButton.innerHTML = '<i class="fas fa-check"></i> Lista cargada';
-                            uploadButton.style.backgroundColor = '#28a745';
                         } catch (error) {
                             console.error('Error al parsear el archivo JSON:', error);
                             fileStatus.textContent = 'Error al cargar el archivo: ' + error.message;
                             fileStatus.style.color = 'red';
                             uploadButton.innerHTML = '<i class="fas fa-upload"></i> Cargar lista de funcionarios';
                             uploadButton.style.backgroundColor = '';
+                            uploadButton.disabled = false;
                         }
-                        uploadButton.disabled = false;
                     };
                     reader.readAsText(file);
                 }
             });
         }
 
+        // MODIFICADO: Ahora también oculta el panel izquierdo si no hay cuadrantes
         function renderQuadrants() {
             const caiList = document.getElementById('caiList');
+            const leftPanel = document.querySelector('.left-panel');
             caiList.innerHTML = '';
             
             const availableQuadrants = quadrants.filter(q => !isQuadrantInTeam(q.id));
+
+            if (availableQuadrants.length === 0) {
+                leftPanel.style.display = 'none';
+                return;
+            }
+            
+            leftPanel.style.display = 'block';
+
             const caiGroups = groupByCai(availableQuadrants);
             const sortedCais = Object.keys(caiGroups).sort();
 
@@ -735,7 +818,6 @@
             });
 
             updateCreateTeamButton();
-            toggleCreateTeamElements(availableQuadrants.length > 0);
         }
 
         function isQuadrantInTeam(quadrantId) {
@@ -743,97 +825,109 @@
             return teams.some(team => team.quadrants.some(q => parseInt(q.id) === id));
         }
 
+        // MODIFICADO: Añade indicadores de estado y observación
+        function createTeamItemElement(team) {
+            const teamItem = document.createElement('div');
+            teamItem.className = 'team-item';
+            teamItem.setAttribute('data-team-name', team.name);
+
+            const timerHTML = team.active && team.assignedTime ? `
+                <span class="timer" data-start-time="${team.assignedTime.getTime()}">00:00:00</span>
+            ` : '';
+            
+            const observationIndicatorHTML = team.observation ? 
+                `<i class="fas fa-comment-alt observation-icon" title="Tiene una observación"></i>` : '';
+            
+            const statusIndicatorHTML = team.active ? 
+                `<span class="status-dot active" title="Equipo Activo"></span>` : '';
+
+            teamItem.innerHTML = `
+                <div class="team-header">
+                    ${observationIndicatorHTML}
+                    ${statusIndicatorHTML}
+                    <span class="team-name">${team.name}</span>
+                    <span class="team-observation">${team.observation ? `(${team.observation})` : ''}</span>
+                    <div class="spacer" style="flex-grow: 1;"></div>
+                    ${timerHTML}
+                </div>
+            `;
+
+            if (team.active) {
+                const activityDisplay = document.createElement('div');
+                activityDisplay.className = 'activity-display';
+                activityDisplay.innerHTML = `
+                    <span class="assignment-time">${team.assignedTime ? formatDate(team.assignedTime) : 'Pendiente'}</span>
+                    <span class="activity">Actividad: ${team.selectedMotive || 'No asignada'}</span>
+                `;
+                teamItem.appendChild(activityDisplay);
+            }
+            return teamItem;
+        }
+
         function renderTeams() {
             const teamsList = document.getElementById('teamsList');
             teamsList.innerHTML = '';
 
-            const sortedTeams = teams.sort((a, b) => {
-                if (!a.quadrants.length || !b.quadrants.length) return 0;
-                return parseInt(a.quadrants[0].name.slice(2)) - parseInt(b.quadrants[0].name.slice(2));
-            });
+            const sortedTeams = teams.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
 
-            const inactiveTeams = sortedTeams.filter(team => !team.active);
             const activeTeams = sortedTeams.filter(team => team.active);
+            const inactiveTeams = sortedTeams.filter(team => !team.active);
 
-            const inactiveTeamsByCai = groupTeamsByCai(inactiveTeams);
             const activeTeamsByCai = groupTeamsByCai(activeTeams);
+            const inactiveTeamsByCai = groupTeamsByCai(inactiveTeams);
 
-            for (const cai in inactiveTeamsByCai) {
-                teamsList.appendChild(createCaiSection(cai, inactiveTeamsByCai[cai]));
-            }
+            const allCaiNames = [...new Set(quadrants.map(q => q.cai))].sort();
+
+            teamsList.innerHTML += '<h2>Equipos Inactivos</h2>';
+            allCaiNames.forEach(cai => {
+                const caiTeams = inactiveTeamsByCai[cai];
+                const caiSection = document.createElement('div');
+                caiSection.className = 'cai-teams-section';
+                caiSection.innerHTML = `<h3>CAI ${cai}</h3>`;
+
+                if (caiTeams && caiTeams.length > 0) {
+                    caiTeams.forEach(team => {
+                        caiSection.appendChild(createTeamItemElement(team));
+                    });
+                } else {
+                    const noTeamsMessage = document.createElement('p');
+                    noTeamsMessage.textContent = 'Sin cuadrantes disponibles.';
+                    noTeamsMessage.style.cssText = 'font-size: 0.8rem; font-style: italic; padding-left: 10px; margin: 0;';
+                    caiSection.appendChild(noTeamsMessage);
+                }
+                teamsList.appendChild(caiSection);
+            });
 
             if (inactiveTeams.length > 0 && activeTeams.length > 0) {
                 const separator = document.createElement('hr');
                 separator.className = 'teams-separator';
                 teamsList.appendChild(separator);
             }
-
-            for (const cai in activeTeamsByCai) {
-                teamsList.appendChild(createCaiSection(cai, activeTeamsByCai[cai]));
+            
+            if (activeTeams.length > 0) {
+                teamsList.innerHTML += '<h2>Equipos Activos</h2>';
+                const sortedActiveCais = Object.keys(activeTeamsByCai).sort();
+                sortedActiveCais.forEach(cai => {
+                    const caiSection = document.createElement('div');
+                    caiSection.className = 'cai-teams-section';
+                    caiSection.innerHTML = `<h3>CAI ${cai}</h3>`;
+                    activeTeamsByCai[cai].forEach(team => {
+                        caiSection.appendChild(createTeamItemElement(team));
+                    });
+                    teamsList.appendChild(caiSection);
+                });
             }
 
             const buttonsContainer = document.createElement('div');
             buttonsContainer.className = 'buttons-container';
-            buttonsContainer.appendChild(createButton('resetButton', 'Reiniciar Turno', resetLocalStorage));
-            buttonsContainer.appendChild(createButton('reportButton', 'Reporte', generateReport));
-            buttonsContainer.appendChild(createButton('whatsappButton', '<i class="fab fa-whatsapp"></i>', sendReportWhatsApp));
-            buttonsContainer.appendChild(createButton('emailButton', '<i class="far fa-envelope"></i>', sendReportEmail));
+            buttonsContainer.appendChild(createButton('resetButton', '<i class="fas fa-sync-alt"></i>', resetLocalStorage, 'Reiniciar Turno'));
+            buttonsContainer.appendChild(createButton('reportButton', '<i class="fas fa-file-alt"></i>', generateReport, 'Generar Reporte PDF'));
+            buttonsContainer.appendChild(createButton('whatsappButton', '<i class="fab fa-whatsapp"></i>', sendReportWhatsApp, 'Enviar Reporte por WhatsApp'));
+            buttonsContainer.appendChild(createButton('emailButton', '<i class="far fa-envelope"></i>', sendReportEmail, 'Enviar Reporte por Email'));
             teamsList.appendChild(buttonsContainer);
 
             saveToLocalStorage();
         }
-
-        function createCaiSection(cai, caiTeams) {
-            const caiSection = document.createElement('div');
-            caiSection.className = 'cai-teams-section';
-            caiSection.innerHTML = `<h3>CAI ${cai}</h3>`;
-
-            caiTeams.forEach(team => {
-                const teamItem = document.createElement('div');
-                teamItem.className = 'team-item';
-                teamItem.setAttribute('data-team-name', team.name);
-
-                // Botones para equipos inactivos
-                const inactiveButtons = !team.active ? `
-                    <button class="undo-button" onclick="confirmUndoTeam('${team.name}')" title="Deshacer equipo"><i class="fas fa-undo"></i></button>
-                    <button class="rename-button" onclick="showRenameDialog('${team.name}')" title="Renombrar equipo"><i class="fas fa-edit"></i></button>
-                    ${(team.originalName && team.name !== team.originalName) ? `<button class="reset-name-button" onclick="confirmResetTeamName('${team.name}')" title="Restaurar nombre original"><i class="fas fa-history"></i></button>` : ''}
-                ` : '';
-
-                // Botones de acción (Activar/Desactivar, Ver, Llamar)
-                const actionButtons = team.active && team.assignedTime ? `
-                    <span class="timer" data-start-time="${team.assignedTime.getTime()}">00:00:00</span>
-                    <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
-                    <button class="deactivate-button" onclick="toggleTeamStatus('${team.name}')" title="Desactivar equipo"><i class="fas fa-power-off"></i></button>
-                ` : `
-                    <button class="activate-button" onclick="showMotiveAssignmentDialog('${team.name}')" title="Activar equipo"><i class="fas fa-play"></i></button>
-                    <button class="view-officers-button" onclick="showAssignedOfficers('${team.name}')" title="Ver funcionarios"><i class="fas fa-users"></i></button>
-                `;
-
-                teamItem.innerHTML = `
-                    <div class="team-header">
-                        ${inactiveButtons}
-                        <span class="team-name">${team.name}</span>
-                        ${actionButtons}
-                        <button class="call-button" onclick="callTeam('${team.name}')" title="Llamar al cuadrante"><i class="fas fa-phone"></i></button>
-                    </div>
-                `;
-
-                if (team.active) {
-                    const activityDisplay = document.createElement('div');
-                    activityDisplay.className = 'activity-display';
-                    activityDisplay.innerHTML = `
-                        <span class="assignment-time">${team.assignedTime ? formatDate(team.assignedTime) : 'Pendiente'}</span>
-                        <span class="activity">Actividad: ${team.selectedMotive || 'No asignada'}</span>
-                    `;
-                    teamItem.appendChild(activityDisplay);
-                }
-                caiSection.appendChild(teamItem);
-            });
-
-            return caiSection;
-        }
-
 
         function addStylesToResultDialog() {
             if (document.getElementById('result-dialog-styles')) return;
@@ -849,11 +943,13 @@
             document.head.appendChild(style);
         }
 
-        function createButton(id, innerHTML, onClickHandler) {
+        function createButton(id, innerHTML, onClickHandler, title = '') {
             const button = document.createElement('button');
             button.id = id;
+            button.className = 'action-button';
             button.innerHTML = innerHTML;
             button.onclick = onClickHandler;
+            if (title) button.title = title;
             return button;
         }
 
@@ -868,6 +964,78 @@
                 }
             });
             document.getElementById('createTeamButton').addEventListener('click', createTeam);
+            
+            document.getElementById('teamsList').addEventListener('click', handleTeamSelection);
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#teamsList') && !e.target.closest('#floating-action-menu')) {
+                     handleTeamSelection(e);
+                }
+            });
+            setupFloatingMenuListeners();
+        }
+
+        function handleTeamSelection(event) {
+            const clickedItem = event.target.closest('.team-item');
+            
+            if (!clickedItem) {
+                if (selectedTeamName) {
+                    const previouslySelected = document.querySelector('.team-item.selected-team');
+                    if (previouslySelected) {
+                        previouslySelected.classList.remove('selected-team');
+                    }
+                    selectedTeamName = null;
+                    updateFloatingMenu();
+                }
+                return;
+            }
+
+            const teamName = clickedItem.dataset.teamName;
+
+            if (teamName === selectedTeamName) {
+                clickedItem.classList.remove('selected-team');
+                selectedTeamName = null;
+            } else {
+                const previouslySelected = document.querySelector('.team-item.selected-team');
+                if (previouslySelected) {
+                    previouslySelected.classList.remove('selected-team');
+                }
+                clickedItem.classList.add('selected-team');
+                selectedTeamName = teamName;
+            }
+            updateFloatingMenu();
+        }
+
+        function updateFloatingMenu() {
+            const menu = document.getElementById('floating-action-menu');
+            if (!selectedTeamName) {
+                menu.style.display = 'none';
+                return;
+            }
+
+            const team = teams.find(t => t.name === selectedTeamName);
+            if (!team) {
+                menu.style.display = 'none';
+                return;
+            }
+
+            document.getElementById('floatingActivateBtn').style.display = !team.active ? 'flex' : 'none';
+            document.getElementById('floatingDeactivateBtn').style.display = team.active ? 'flex' : 'none';
+            document.getElementById('floatingEditBtn').style.display = !team.active ? 'flex' : 'none';
+            document.getElementById('floatingUndoBtn').style.display = !team.active ? 'flex' : 'none';
+            
+            document.getElementById('floatingViewOfficersBtn').style.display = 'flex';
+            document.getElementById('floatingCallBtn').style.display = 'flex';
+
+            menu.style.display = 'flex';
+        }
+
+        function setupFloatingMenuListeners() {
+            document.getElementById('floatingActivateBtn').onclick = () => { if(selectedTeamName) showMotiveAssignmentDialog(selectedTeamName); };
+            document.getElementById('floatingDeactivateBtn').onclick = () => { if(selectedTeamName) toggleTeamStatus(selectedTeamName); };
+            document.getElementById('floatingEditBtn').onclick = () => { if(selectedTeamName) showEditTeamDialog(selectedTeamName); };
+            document.getElementById('floatingViewOfficersBtn').onclick = () => { if(selectedTeamName) showAssignedOfficers(selectedTeamName); };
+            document.getElementById('floatingCallBtn').onclick = () => { if(selectedTeamName) callTeam(selectedTeamName); };
+            document.getElementById('floatingUndoBtn').onclick = () => { if(selectedTeamName) confirmUndoTeam(selectedTeamName); };
         }
 
         function toggleQuadrantSelection(quadrantId) {
@@ -901,15 +1069,22 @@
                     return;
                 }
                 const teamName = 'C-' + teamQuadrants.map(q => q.name.slice(2)).join('-');
+
+                if (teams.some(t => t.name === teamName)) {
+                    alert(`No se puede crear el equipo porque el nombre "${teamName}" ya está en uso. Por favor, resuelva el conflicto de nombres antes de continuar.`);
+                    return;
+                }
+
                 const newTeam = { 
                     name: teamName, 
-                    originalName: teamName, // Guardar el nombre original
                     quadrants: teamQuadrants, 
                     active: false, 
                     selectedMotive: '', 
                     assignedTime: null, 
                     activityHistory: [], 
-                    contacts: selectedOfficers.slice() 
+                    contacts: selectedOfficers.slice(),
+                    observation: '',
+                    originalCai: teamQuadrants[0]?.cai
                 };
                 teams.push(newTeam);
                 alert(`Equipo "${teamName}" creado con éxito.`);
@@ -938,12 +1113,15 @@
                 renderQuadrants();
                 renderTeams();
                 updateOfficerDropdowns();
+                
+                selectedTeamName = null;
+                updateFloatingMenu();
+                
                 saveToLocalStorage();
             }
         }
-
-        // --- NUEVAS FUNCIONES PARA RENOMBRAR ---
-        function showRenameDialog(teamName) {
+        
+        function showEditTeamDialog(teamName) {
             const team = teams.find(t => t.name === teamName);
             if (!team) return;
 
@@ -953,12 +1131,27 @@
 
             const dialog = document.createElement('div');
             dialog.className = 'dialog-box';
+
+            const allCais = [...new Set(quadrants.map(q => q.cai))].sort();
+            const currentCai = team.quadrants[0]?.cai || '';
+            
+            let caiOptions = allCais.map(cai => 
+                `<option value="${cai}" ${cai === currentCai ? 'selected' : ''}>${cai}</option>`
+            ).join('');
+
             dialog.innerHTML = `
-                <h3>Renombrar Equipo</h3>
-                <input type="text" id="renameInput" value="${team.name}" placeholder="Nuevo nombre para el equipo">
+                <h3>Editar Equipo ${team.name}</h3>
+                
+                <label for="observationInput">Observación:</label>
+                <textarea id="observationInput" placeholder="Añada una observación...">${team.observation || ''}</textarea>
+                
+                <label for="caiSelector">CAI Actual:</label>
+                <select id="caiSelector">${caiOptions}</select>
+
                 <div class="dialog-buttons">
-                    <button id="cancelRename" class="cancel-btn">Cancelar</button>
-                    <button id="confirmRename" class="confirm-btn">Confirmar</button>
+                    <button id="resetObservationAndCai" class="reset-btn" title="Borrar observación y restaurar CAI original"><i class="fas fa-history"></i></button>
+                    <button id="cancelEdit" class="cancel-btn" title="Cancelar"><i class="fas fa-times"></i></button>
+                    <button id="confirmEdit" class="confirm-btn" title="Guardar Cambios"><i class="fas fa-check"></i></button>
                 </div>
             `;
             document.body.appendChild(dialog);
@@ -968,78 +1161,45 @@
                 document.body.removeChild(backdrop);
             };
 
-            document.getElementById('confirmRename').onclick = () => {
-                const newName = document.getElementById('renameInput').value.trim();
-                renameTeam(teamName, newName);
+            document.getElementById('confirmEdit').onclick = () => {
+                const newObservation = document.getElementById('observationInput').value.trim();
+                const newCai = document.getElementById('caiSelector').value;
+                
+                team.observation = newObservation;
+
+                if (newCai && newCai !== currentCai) {
+                    team.quadrants.forEach(teamQuadrant => {
+                        const mainQuadrant = quadrants.find(q => q.id === teamQuadrant.id);
+                        if (mainQuadrant) mainQuadrant.cai = newCai;
+                        teamQuadrant.cai = newCai;
+                    });
+                }
+
+                renderTeams();
+                saveToLocalStorage();
                 closeDialog();
             };
-            document.getElementById('cancelRename').onclick = closeDialog;
+
+            document.getElementById('resetObservationAndCai').onclick = () => {
+                if (confirm('¿Está seguro de que desea borrar la observación y restaurar el CAI original para este equipo?')) {
+                    team.observation = '';
+                    const originalCai = team.originalCai;
+                    if (originalCai && originalCai !== currentCai) {
+                        team.quadrants.forEach(teamQuadrant => {
+                            const mainQuadrant = quadrants.find(q => q.id === teamQuadrant.id);
+                            if (mainQuadrant) mainQuadrant.cai = originalCai;
+                            teamQuadrant.cai = originalCai;
+                        });
+                    }
+                    renderTeams();
+                    saveToLocalStorage();
+                    closeDialog();
+                }
+            };
+            
+            document.getElementById('cancelEdit').onclick = closeDialog;
             backdrop.onclick = closeDialog;
         }
-
-        function renameTeam(oldName, newName) {
-            if (!newName) {
-                alert('El nombre no puede estar vacío.');
-                return;
-            }
-            if (teams.some(t => t.name === newName)) {
-                alert('Ya existe un equipo con ese nombre.');
-                return;
-            }
-
-            const team = teams.find(t => t.name === oldName);
-            if (team) {
-                // Si es la primera vez que se renombra, se guarda el nombre original
-                if (!team.originalName) {
-                    team.originalName = oldName;
-                }
-                
-                // Actualizar el nombre del equipo
-                team.name = newName;
-
-                // Actualizar la clave en activityResults si existe
-                const cai = team.quadrants[0]?.cai;
-                if (cai && activityResults[cai] && activityResults[cai][oldName]) {
-                    activityResults[cai][newName] = activityResults[cai][oldName];
-                    delete activityResults[cai][oldName];
-                }
-
-                renderTeams();
-                saveToLocalStorage();
-            }
-        }
-
-        function confirmResetTeamName(teamName) {
-            if (confirm(`¿Restaurar el nombre original para el equipo "${teamName}"?`)) {
-                resetTeamName(teamName);
-            }
-        }
-
-        function resetTeamName(teamName) {
-            const team = teams.find(t => t.name === teamName);
-            if (team && team.originalName) {
-                const oldName = team.name;
-                const newName = team.originalName;
-
-                if (teams.some(t => t.name === newName && t !== team)) {
-                    alert(`No se puede restaurar el nombre "${newName}" porque ya está en uso.`);
-                    return;
-                }
-
-                team.name = newName;
-
-                // Actualizar la clave en activityResults
-                const cai = team.quadrants[0]?.cai;
-                if (cai && activityResults[cai] && activityResults[cai][oldName]) {
-                    activityResults[cai][newName] = activityResults[cai][oldName];
-                    delete activityResults[cai][oldName];
-                }
-
-                renderTeams();
-                saveToLocalStorage();
-            }
-        }
-        // --- FIN DE NUEVAS FUNCIONES ---
 
         function toggleTeamStatus(teamName) {
             const team = teams.find(t => t.name === teamName);
@@ -1058,7 +1218,8 @@
                 <input type="text" id="resultSearch" placeholder="Buscar resultado...">
                 <div id="resultsList" class="dialog-list"></div>
                 <div class="dialog-buttons">
-                    <button id="confirmResult" class="confirm-btn" disabled>Confirmar</button>
+                    <button id="cancelResult" class="cancel-btn" title="Cancelar"><i class="fas fa-times"></i></button>
+                    <button id="confirmResult" class="confirm-btn" title="Confirmar Resultado" disabled><i class="fas fa-check"></i></button>
                 </div>
             `;
             document.body.appendChild(dialog);
@@ -1071,6 +1232,7 @@
             const resultSearch = document.getElementById('resultSearch');
             const resultsList = document.getElementById('resultsList');
             const confirmButton = document.getElementById('confirmResult');
+            const cancelButton = document.getElementById('cancelResult');
             
             const showAllResults = () => {
                 resultsList.innerHTML = '';
@@ -1111,6 +1273,7 @@
                 }
             });
             
+            cancelButton.onclick = closeDialog;
             backdrop.addEventListener('click', closeDialog);
             showAllResults();
         }
@@ -1170,6 +1333,7 @@
             }
             team.selectedMotive = '';
             team.assignedTime = null;
+
             renderTeams();
             updateTimers();
             saveToLocalStorage();
@@ -1190,8 +1354,8 @@
                 <input type="text" id="motiveSearchInput" class="search-input" placeholder="Buscar motivo...">
                 <div id="motiveSearchResults" class="dialog-list" style="position: static; display: block;"></div>
                 <div class="dialog-buttons">
-                    <button id="cancelMotive" class="cancel-btn">Cancelar</button>
-                    <button id="confirmMotive" class="confirm-btn" disabled>Confirmar y Activar</button>
+                    <button id="cancelMotive" class="cancel-btn" title="Cancelar"><i class="fas fa-times"></i></button>
+                    <button id="confirmMotive" class="confirm-btn" title="Confirmar y Activar" disabled><i class="fas fa-check"></i></button>
                 </div>
             `;
             document.body.appendChild(dialog);
@@ -1236,7 +1400,7 @@
 
             motiveSearchInput.addEventListener('input', handleMotiveSearch);
             motiveSearchInput.addEventListener('focus', handleMotiveSearch);
-            handleMotiveSearch(); // Initial population
+            handleMotiveSearch();
 
             cancelButton.addEventListener('click', closeDialog);
             backdrop.addEventListener('click', closeDialog);
@@ -1294,8 +1458,8 @@
             dialog.innerHTML = `
                 <h3>Funcionarios del Equipo ${team.name}</h3>
                 ${officersHtml}
-                <div class="dialog-buttons">
-                    <button id="closeOfficerList" class="cancel-btn">Cerrar</button>
+                <div class="dialog-buttons" style="justify-content: center;">
+                    <button id="closeOfficerList" class="cancel-btn" title="Cerrar"><i class="fas fa-times"></i></button>
                 </div>
             `;
             document.body.appendChild(dialog);
@@ -1403,10 +1567,8 @@
                                 if (activity.endTime) activity.endTime = new Date(activity.endTime);
                             });
                         }
-                        // Compatibilidad: si un equipo antiguo no tiene originalName, se lo asignamos
-                        if (typeof team.originalName === 'undefined') {
-                            team.originalName = team.name;
-                        }
+                        if (typeof team.observation === 'undefined') team.observation = '';
+                        if (typeof team.originalCai === 'undefined') team.originalCai = team.quadrants[0]?.cai;
                     });
                 }
                 return parsedData;
@@ -1454,6 +1616,7 @@
             table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
             th, td { border: 1px solid #ddd; padding: 4px; text-align: left; } th { background-color: #f2f2f2; }
             .activity-list { padding-left: 20px; margin: 0; } .page-break { page-break-before: always; }
+            .observation { font-style: italic; color: #555; }
             </style></head><body>
             <h1>Reporte de Actividades por CAI y Cuadrante</h1><div class="report-date">Fecha: ${new Date().toLocaleString('es-CO')}</div>
             <h2>1. Conformación de Equipos</h2>${reportData.teamComposition}
@@ -1467,11 +1630,12 @@
             if (!teams || teams.length === 0) return { teamComposition: '<p>No hay equipos.</p>', activities: '<p>No hay actividades.</p>', summaryTable: '<p>No hay resultados.</p>' };
             const teamsByCai = groupTeamsByCai(teams);
             for (const cai in teamsByCai) {
-                teamComposition += `<div class="cai-section"><div class="cai-title">CAI ${cai}</div><table><tr><th>Equipo</th><th>Funcionarios</th></tr>`;
+                teamComposition += `<div class="cai-section"><div class="cai-title">CAI ${cai}</div><table><tr><th>Equipo</th><th>Observación</th><th>Funcionarios</th></tr>`;
                 activities += `<div class="cai-section"><div class="cai-title">CAI ${cai}</div><table><tr><th>Equipo</th><th>Funcionarios</th><th>Actividades</th></tr>`;
                 teamsByCai[cai].forEach(team => {
                     const officers = team.contacts?.map(c => `${c.GR || ''} ${c.NOMBRES || ''} ${c.APELLIDOS || ''}${c.PLACA ? ` - Placa: ${c.PLACA}` : ''}`).join('<br>') || 'N/A';
-                    teamComposition += `<tr><td>${team.name}</td><td>${officers}</td></tr>`;
+                    const observation = team.observation ? `<span class="observation">${team.observation}</span>` : 'Ninguna';
+                    teamComposition += `<tr><td>${team.name}</td><td>${observation}</td><td>${officers}</td></tr>`;
                     let activityList = '<ul class="activity-list">';
                     if (team.activityHistory?.length > 0) {
                         team.activityHistory.forEach((activity, index) => {
@@ -1491,7 +1655,7 @@
                         });
                     } else activityList += '<li>No hay actividades</li>';
                     activityList += '</ul>';
-                    activities += `<tr><td>${team.name}</td><td>${officers}</td><td>${activityList}</td></tr>`;
+                    activities += `<tr><td>${team.name} ${team.observation ? `<br><span class='observation'>(${team.observation})</span>` : ''}</td><td>${officers}</td><td>${activityList}</td></tr>`;
                 });
                 teamComposition += `</table></div>`;
                 activities += `</table></div>`;
@@ -1515,7 +1679,7 @@
             for (const cai in teamsByCai) {
                 report += `CAI ${cai}:\n${"-".repeat(20)}\n`;
                 teamsByCai[cai].forEach(team => {
-                    report += `\nEquipo ${team.name}:\n`;
+                    report += `\nEquipo ${team.name} ${team.observation ? `(${team.observation})` : ''}:\n`;
                     report += "Funcionarios:\n";
                     team.contacts?.forEach(c => {
                         report += `- ${c.GR || ''} ${c.NOMBRES || ''} ${c.APELLIDOS || ''}${c.PLACA ? ` - Placa: ${c.PLACA}` : ''}\n`;
@@ -1645,12 +1809,6 @@
         function updateCreateTeamButton() {
             const btn = document.getElementById('createTeamButton');
             if (btn) btn.disabled = !(selectedOfficers[0] && selectedOfficers[1] && selectedQuadrants.length > 0);
-        }
-
-        function toggleCreateTeamElements(show) {
-            const display = show ? 'flex' : 'none';
-            document.querySelector('.officer-selection').style.display = display;
-            document.getElementById('createTeamButton').style.display = show ? 'block' : 'none';
         }
 
         function handleLoadError(error) {
