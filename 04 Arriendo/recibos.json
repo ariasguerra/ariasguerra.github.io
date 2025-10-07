@@ -712,5 +712,26 @@
     "periodoFin": "2025-10-05",
     "nombreQuienRecibe": "Manuel Antonio Arias Guerra",
     "cedulaQuienRecibe": "1.057.736.060"
+  },
+  {
+    "numeroRecibo": "TAPP2025010",
+    "lugarExpedicion": "Bogotá D.C.",
+    "fechaExpedicion": "7 de octubre de 2025",
+    "nombreArrendatario": "Carlos Arturo Serrano Rodriguez",
+    "documentoArrendatario": "6759525",
+    "telefonoArrendatario": "3107981224",
+    "emailArrendatario": "csrodriguez2011@gmail.com",
+    "montoPagado": "720000",
+    "montoEnLetras": "setecientos veinti mil pesos M/CTE",
+    "formaPago": "Consignación bancaria",
+    "fechaPago": "2025-10-06",
+    "horaPago": "15:59",
+    "concepto": "Canon de arrendamiento",
+    "direccionInmueble": "CARRERA 19 N° 30-13 BARRIO ALTAMIRA, TUNJA (BOYACÁ) PRIMER PISO",
+    "parteArrendada": "Primer piso, exceptuando habitación a la calle y puerta de acceso al segundo piso",
+    "periodoInicio": "2025-10-06",
+    "periodoFin": "2025-11-05",
+    "nombreQuienRecibe": "Manuel Antonio Arias Guerra",
+    "cedulaQuienRecibe": "1.057.736.060"
   }
 ]
