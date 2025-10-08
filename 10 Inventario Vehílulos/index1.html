@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dividir MP3</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align to the top */
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        p {
+            color: #555;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            background-color: #fafafa;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+
+        input[type="file"]:hover {
+            border-color: #3498db;
+            background-color: #f0f8ff;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: 10px;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        #addTimestampBtn {
+            background-color: #95a5a6;
+        }
+
+        #addTimestampBtn:hover:not(:disabled) {
+            background-color: #7f8c8d;
+        }
+
+        .timestamp-entry {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap; /* For smaller screens */
+        }
+        
+        .timestamp-entry span {
+            font-weight: 500;
+            color: #34495e;
+        }
+
+        .timestamp-entry input {
+            width: 100px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+
+        #outputFiles a {
+            display: block;
+            background-color: #2ecc71;
+            color: white;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            text-align: center;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        #outputFiles a:hover {
+            background-color: #27ae60;
+        }
+
+        #loader {
+            font-size: 1.2rem;
+            color: #555;
+            padding: 20px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✂️ Divisor de Archivos MP3</h1>
+        <p>Sube un archivo MP3 y define los tiempos para cortarlo en varios segmentos.</p>
+
+        <div class="card">
+            <h2>1. Sube tu archivo MP3</h2>
+            <input type="file" id="fileInput" accept=".mp3">
+        </div>
+
+        <div class="card" id="editor" style="display: none;">
+            <h2>2. Define los Puntos de Corte (en segundos)</h2>
+            <div id="timestamps">
+                <div class="timestamp-entry">
+                    <span>Segmento 1: </span>
+                    <input type="number" class="start" placeholder="Inicio" value="0" min="0"> -
+                    <input type="number" class="end" placeholder="Fin" min="0">
+                </div>
+            </div>
+            <button id="addTimestampBtn">Añadir Otro Segmento</button>
+            <button id="splitBtn">Dividir Archivo</button>
+        </div>
+        
+        <div id="loader" style="display: none;">Procesando, por favor espera...</div>
+
+        <div class="card" id="output" style="display: none;">
+            <h2>3. Descarga tus Archivos</h2>
+            <div id="outputFiles"></div>
+        </div>
+    </div>
+
+    <!-- Librería para codificar a MP3 en el navegador -->
+    <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const fileInput = document.getElementById('fileInput');
+            const editor = document.getElementById('editor');
+            const timestampsContainer = document.getElementById('timestamps');
+            const addTimestampBtn = document.getElementById('addTimestampBtn');
+            const splitBtn = document.getElementById('splitBtn');
+            const outputDiv = document.getElementById('output');
+            const outputFiles = document.getElementById('outputFiles');
+            const loader = document.getElementById('loader');
+
+            let audioBuffer = null;
+            let segmentCount = 1;
+            const originalFileName = (name) => name.replace(/\.[^/.]+$/, "");
+
+            // 1. Handle file upload
+            fileInput.addEventListener('change', async (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                showLoader(true);
+                editor.style.display = 'none';
+                outputDiv.style.display = 'none';
+                outputFiles.innerHTML = '';
+                
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const arrayBuffer = await file.arrayBuffer();
+                    audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+                    // Update max values for time inputs
+                    const duration = Math.floor(audioBuffer.duration);
+                    document.querySelectorAll('.end').forEach(input => {
+                        input.max = duration;
+                        if (!input.value) {
+                           input.placeholder = `Fin (max ${duration}s)`;
+                        }
+                    });
+                    document.querySelectorAll('.start').forEach(input => input.max = duration);
+                    editor.style.display = 'block';
+
+                } catch (error) {
+                    console.error("Error decoding audio data:", error);
+                    alert("No se pudo procesar el archivo. Asegúrate de que es un MP3 válido.");
+                } finally {
+                    showLoader(false);
+                }
+            });
+
+            // 2. Add more segment fields
+            addTimestampBtn.addEventListener('click', () => {
+                segmentCount++;
+                const newTimestampEntry = document.createElement('div');
+                newTimestampEntry.classList.add('timestamp-entry');
+                
+                const lastEntry = timestampsContainer.querySelector('.timestamp-entry:last-child .end');
+                const newStartTime = lastEntry ? lastEntry.value : '0';
+
+                newTimestampEntry.innerHTML = `
+                    <span>Segmento ${segmentCount}: </span>
+                    <input type="number" class="start" placeholder="Inicio" min="0" value="${newStartTime}"> - 
+                    <input type="number" class="end" placeholder="Fin" min="0">
+                `;
+                timestampsContainer.appendChild(newTimestampEntry);
+                
+                // Update max value if audio is loaded
+                if (audioBuffer) {
+                    const duration = Math.floor(audioBuffer.duration);
+                    newTimestampEntry.querySelector('.start').max = duration;
+                    const endInput = newTimestampEntry.querySelector('.end');
+                    endInput.max = duration;
+                    endInput.placeholder = `Fin (max ${duration}s)`;
+                }
+            });
+
+            // 3. Process the audio splitting
+            splitBtn.addEventListener('click', async () => {
+                if (!audioBuffer) {
+                    alert('Por favor, sube un archivo MP3 primero.');
+                    return;
+                }
+
+                showLoader(true);
+                outputFiles.innerHTML = '';
+                outputDiv.style.display = 'none';
+                
+                const entries = document.querySelectorAll('.timestamp-entry');
+                const fileName = originalFileName(fileInput.files[0].name);
+
+                // Use a for...of loop to process sequentially
+                let segmentIndex = 1;
+                for (const entry of entries) {
+                    const startInput = entry.querySelector('.start');
+                    const endInput = entry.querySelector('.end');
+                    const startTime = parseFloat(startInput.value);
+                    const endTime = parseFloat(endInput.value);
+
+                    if (isNaN(startTime) || isNaN(endTime) || startTime < 0 || endTime <= startTime) {
+                        alert(`Tiempos inválidos para el Segmento ${segmentIndex}. El inicio debe ser menor que el fin y ambos deben ser números positivos.`);
+                        continue;
+                    }
+                     if (endTime > audioBuffer.duration) {
+                        alert(`El tiempo final del Segmento ${segmentIndex} (${endTime}s) excede la duración del audio (${Math.floor(audioBuffer.duration)}s).`);
+                        continue;
+                    }
+
+                    try {
+                        // Extract the segment from the original audio buffer
+                        const segment = extractSegment(audioBuffer, startTime, endTime);
+                        
+                        // Encode the segment to MP3
+                        const mp3Blob = encodeToMp3(segment);
+
+                        // Create the download link
+                        const downloadUrl = URL.createObjectURL(mp3Blob);
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = downloadUrl;
+                        downloadLink.download = `${fileName}_segmento_${segmentIndex}.mp3`;
+                        downloadLink.textContent = `Descargar Segmento ${segmentIndex} (${startTime}s - ${endTime}s)`;
+                        outputFiles.appendChild(downloadLink);
+
+                    } catch(error) {
+                        console.error(`Error procesando el segmento ${segmentIndex}:`, error);
+                        alert(`Ocurrió un error al procesar el segmento ${segmentIndex}.`);
+                    }
+                    segmentIndex++;
+                }
+
+                if (outputFiles.children.length > 0) {
+                    outputDiv.style.display = 'block';
+                }
+                showLoader(false);
+            });
+            
+            // Function to extract a portion of the audio
+            function extractSegment(originalBuffer, startTime, endTime) {
+                const sampleRate = originalBuffer.sampleRate;
+                const startOffset = Math.floor(startTime * sampleRate);
+                const endOffset = Math.floor(endTime * sampleRate);
+                const frameCount = endOffset - startOffset;
+
+                if (frameCount <= 0) throw new Error("Frame count is zero or negative.");
+
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const newBuffer = audioContext.createBuffer(
+                    originalBuffer.numberOfChannels,
+                    frameCount,
+                    sampleRate
+                );
+
+                for (let i = 0; i < originalBuffer.numberOfChannels; i++) {
+                    const channelData = originalBuffer.getChannelData(i);
+                    const newChannelData = newBuffer.getChannelData(i);
+                    newChannelData.set(channelData.subarray(startOffset, endOffset));
+                }
+                return newBuffer;
+            }
+
+            // Function to encode an audio buffer to MP3 using lamejs
+            function encodeToMp3(audioBuffer) {
+                const channels = audioBuffer.numberOfChannels;
+                const sampleRate = audioBuffer.sampleRate;
+                const kbps = 128;
+                const mp3encoder = new lamejs.Mp3Encoder(channels, sampleRate, kbps);
+                
+                const mp3Data = [];
+                const sampleBlockSize = 1152;
+                
+                const pcmLeft = audioBuffer.getChannelData(0);
+                const pcmRight = channels > 1 ? audioBuffer.getChannelData(1) : pcmLeft;
+                
+                const dataLength = pcmLeft.length;
+
+                for (let i = 0; i < dataLength; i += sampleBlockSize) {
+                    const leftChunk = pcmLeft.subarray(i, i + sampleBlockSize);
+                    const rightChunk = pcmRight.subarray(i, i + sampleBlockSize);
+                    
+                    const mp3buf = mp3encoder.encodeBuffer(leftChunk, rightChunk);
+                    if (mp3buf.length > 0) {
+                        mp3Data.push(mp3buf);
+                    }
+                }
+                
+                const mp3buf = mp3encoder.flush();
+                if (mp3buf.length > 0) {
+                    mp3Data.push(mp3buf);
+                }
+
+                return new Blob(mp3Data, { type: 'audio/mp3' });
+            }
+            
+            // Show or hide the loader and disable buttons
+            function showLoader(visible) {
+                loader.style.display = visible ? 'block' : 'none';
+                splitBtn.disabled = visible;
+                addTimestampBtn.disabled = visible;
+                fileInput.disabled = visible;
+            }
+        });
+    </script>
+</body>
+</html>
+
