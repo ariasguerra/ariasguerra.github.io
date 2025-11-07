@@ -796,5 +796,26 @@
     "periodoFin": "2025-11-19",
     "nombreQuienRecibe": "Manuel Antonio Arias Guerra",
     "cedulaQuienRecibe": "1.057.736.060"
+  },  
+  {
+    "numeroRecibo": "PVPP2025011",
+    "lugarExpedicion": "Bogotá D.C.",
+    "fechaExpedicion": "7 de noviembre de 2025",
+    "nombreArrendatario": "Laura Marcela Diaz Salcedo",
+    "documentoArrendatario": "1053616703",
+    "telefonoArrendatario": "3208849093",
+    "emailArrendatario": "lauradiaz.salcedo04@gmail.com",
+    "montoPagado": "450000",
+    "montoEnLetras": "cuatrocientos cincuenta mil pesos M/CTE",
+    "formaPago": "Consignación bancaria",
+    "fechaPago": "2025-11-07",
+    "horaPago": "11:01",
+    "concepto": "Canon de arrendamiento",
+    "direccionInmueble": "CALLE 33 NO. 14-145 MZ A CASA 20 URBANIZACIÓN VILLA PRADO, PAIPA (BOYACÁ)",
+    "parteArrendada": "Primer piso, exceptuando el garaje",
+    "periodoInicio": "2025-11-07",
+    "periodoFin": "2025-12-06",
+    "nombreQuienRecibe": "Manuel Antonio Arias Guerra",
+    "cedulaQuienRecibe": "1.057.736.060"
   }
 ]
