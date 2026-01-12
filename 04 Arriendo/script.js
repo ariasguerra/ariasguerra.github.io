@@ -280,10 +280,10 @@ function obtenerSiguienteNumeroRecibo(direccionInmueble) {
         const ultimoRecibo = recibosPropiedad[recibosPropiedad.length - 1];
         const codigoPropiedad = ultimoRecibo.numeroRecibo.substring(0, 4);
         const ultimoNumero = parseInt(ultimoRecibo.numeroRecibo.slice(-3));
-        return `${codigoPropiedad}2025${String(ultimoNumero + 1).padStart(3, '0')}`;
+        return `${codigoPropiedad}2026${String(ultimoNumero + 1).padStart(3, '0')}`;
     } else {
         const propiedad = propiedades.find(p => p.direccion === direccionInmueble);
-        return propiedad ? `${propiedad.codigo}2025001` : 'XXXX2025001';
+        return propiedad ? `${propiedad.codigo}2026001` : 'XXXX2026001';
     }
 }
 
@@ -499,3 +499,4 @@ function inicializarApp() {
 
 // Cargar datos al iniciar la aplicación
 window.addEventListener('load', inicializarApp);
+
