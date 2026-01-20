@@ -387,4 +387,138 @@
             render();
         }
 
-        window.clearSearch =
+        window.clearSearch = function() {
+            state.search = '';
+            els.input.value = '';
+            els.input.focus();
+            toggleClearBtn();
+            render();
+        }
+
+        function toggleClearBtn() {
+            if(state.search.length > 0) els.clearBtn.classList.remove('hidden');
+            else els.clearBtn.classList.add('hidden');
+        }
+
+        function highlight(text, query) {
+            if (!query || query.length < 2) return text;
+            const regex = new RegExp(`(${query})`, 'gi');
+            return text.replace(regex, '<span class="hl">$1</span>');
+        }
+
+        function render() {
+            els.content.innerHTML = '';
+            const q = state.search.trim().toLowerCase();
+            const fragment = document.createDocumentFragment();
+            let hasContent = false;
+
+            // --- PESTAÑA CÓDIGOS ---
+            if (state.activeTab === 'codes') {
+                const data = policlaves.filter(item => {
+                    const matchSearch = q === '' || item.code.toLowerCase().includes(q) || item.desc.toLowerCase().includes(q);
+                    const matchFilter = state.filter === 'all' || item.type === state.filter;
+                    return matchSearch && matchFilter;
+                });
+
+                els.count.textContent = `${data.length} Registro${data.length !== 1 ? 's' : ''}`;
+                
+                if (data.length > 0) hasContent = true;
+
+                data.forEach(item => {
+                    const el = document.createElement('div');
+                    const is5 = item.type === '5';
+                    // Nota: badge-5 ahora es Azul Claro, badge-9 Rojo, para alinear con semántica limpia
+                    el.className = `card p-4 flex items-center justify-between border-l-[4px] ${is5 ? 'border-blue-500' : 'border-red-500'}`;
+                    
+                    el.innerHTML = `
+                        <div class="flex items-center gap-4 w-full">
+                            <div class="${is5 ? 'badge-5' : 'badge-9'} min-w-[3.5rem] h-11 flex items-center justify-center rounded-lg font-black text-lg tracking-tight shadow-sm">
+                                ${highlight(item.code, q)}
+                            </div>
+                            <div class="flex-grow">
+                                <div class="text-gray-800 font-bold text-base leading-tight">${highlight(item.desc, q)}</div>
+                            </div>
+                        </div>
+                    `;
+                    fragment.appendChild(el);
+                });
+            } 
+            // --- PESTAÑA ALFABETO ---
+            else {
+                // Traductor
+                if (q.length > 0) {
+                    hasContent = true;
+                    
+                    const translationDiv = document.createElement('div');
+                    translationDiv.className = "mb-4 bg-blue-900 text-white rounded-lg p-4 shadow-md overflow-hidden relative border-t-4 border-blue-400"; // Borde cambiado a azul claro
+                    
+                    const chars = state.search.toUpperCase().split('');
+                    let translationHTML = '';
+                    
+                    chars.forEach(char => {
+                        const item = alphabet.find(a => a.letter === char);
+                        if (item) {
+                            translationHTML += `
+                                <div class="flex items-center gap-3 py-1.5 border-b border-blue-800 last:border-0">
+                                    <span class="font-mono text-xl font-bold text-blue-200 w-6 text-center">${char}</span>
+                                    <span class="font-black text-lg tracking-wider text-white">${item.word}</span>
+                                </div>`;
+                        } else if (char.trim() !== '') {
+                             translationHTML += `
+                                <div class="flex items-center gap-3 py-1.5 border-b border-blue-800 last:border-0">
+                                    <span class="font-mono text-xl font-bold text-blue-200 w-6 text-center">${char}</span>
+                                    <span class="font-bold text-lg">${char}</span>
+                                </div>`;
+                        }
+                    });
+
+                    translationDiv.innerHTML = `
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-[10px] uppercase tracking-widest font-bold text-blue-200">Traducción AFI</h3>
+                        </div>
+                        <div>${translationHTML}</div>
+                    `;
+                    fragment.appendChild(translationDiv);
+                    
+                    els.count.textContent = "Traducción Activa";
+                } else {
+                    els.count.textContent = "Diccionario AFI";
+                }
+
+                // Lista de Letras
+                const alphaData = alphabet.filter(item => {
+                    return q === '' || item.letter.toLowerCase().includes(q) || item.word.toLowerCase().includes(q);
+                });
+
+                if (alphaData.length > 0 && q.length === 0) {
+                    hasContent = true;
+                    alphaData.forEach(item => {
+                        const el = document.createElement('div');
+                        el.className = `card p-3 flex items-center gap-4 mb-2 border-l-[4px] border-blue-500`;
+                        el.innerHTML = `
+                            <div class="badge-alpha w-12 h-12 flex items-center justify-center rounded-lg font-black text-2xl font-mono shadow-sm">
+                                ${item.letter}
+                            </div>
+                            <div class="flex-grow flex flex-col justify-center">
+                                <span class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-0.5">Letra ${item.letter}</span>
+                                <div class="text-blue-900 font-black text-xl tracking-wide">${item.word}</div>
+                            </div>
+                            <div class="opacity-10 pr-2">
+                                <i class="fas fa-${item.icon} text-2xl text-blue-900"></i>
+                            </div>
+                        `;
+                        fragment.appendChild(el);
+                    });
+                }
+            }
+
+            els.content.appendChild(fragment);
+            els.empty.classList.toggle('hidden', hasContent);
+        }
+
+        init();
+    </script>
+</body>
+</html>
+
+
