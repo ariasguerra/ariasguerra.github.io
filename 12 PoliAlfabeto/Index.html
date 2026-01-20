@@ -1,1 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Policlaves - Imagen Institucional</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            /* Identidad Visual */
+            --police-blue: #0033A0; 
+            --police-neon: #D0FF00; 
+            --police-white: #FFFFFF;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            overscroll-behavior-y: none;
+        }
 
+        /* --- Header --- */
+        .header-container {
+            background-color: var(--police-blue);
+            color: var(--police-white);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 4px 15px rgba(0, 51, 160, 0.3);
+            border-bottom: 4px solid var(--police-neon); /* Línea sólida neón en lugar del damero */
+        }
+
+        /* --- Tabs --- */
+        .nav-tabs {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 4px;
+        }
+        .tab-btn {
+            transition: all 0.2s ease;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .tab-btn.active {
+            background-color: var(--police-white);
+            color: var(--police-blue);
+            font-weight: 900;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* --- Cards --- */
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.1s;
+        }
+        .card:active {
+            transform: scale(0.99);
+        }
+
+        .filter-chip {
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .filter-chip.active {
+            background-color: var(--police-blue);
+            color: white;
+            border-color: var(--police-blue);
+            font-weight: bold;
+        }
+        .filter-chip.inactive {
+            background-color: white;
+            color: #555;
+            border-color: #ddd;
+        }
+
+        /* Badges */
+        .badge-5 { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
+        .badge-9 { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+        .badge-alpha { background: #f0f4ff; color: var(--police-blue); border: 1px solid #dbeafe; }
+
+        /* Highlight modificado (Sin fondo amarillo) */
+        .hl { 
+            background-color: transparent; 
+            color: inherit; 
+            font-weight: 900; 
+            text-decoration: underline;
+            text-decoration-color: var(--police-blue);
+            text-decoration-thickness: 2px;
+        }
+
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .text-neon { color: var(--police-neon); }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen pb-safe">
+
+    <!-- Header -->
+    <header class="header-container">
+        
+        <div class="max-w-3xl mx-auto px-4 pt-6 pb-4">
+            <!-- Logo Area -->
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white/10 p-2 rounded-lg border border-white/20 backdrop-blur-sm">
+                        <!-- Icono en blanco para ser más sobrio -->
+                        <i id="appIcon" class="fas fa-shield-halved text-2xl text-white"></i>
+                    </div>
+                    <div>
+                        <!-- Texto todo en blanco -->
+                        <h1 class="text-2xl font-black italic tracking-tighter leading-none text-white">
+                            POLICÍA NACIONAL
+                        </h1>
+                        <p class="text-[10px] text-gray-300 font-bold tracking-widest uppercase">Consulta de Códigos</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navegación -->
+            <div class="nav-tabs flex gap-1 mb-4">
+                <button onclick="switchTab('codes')" id="tab-codes" class="tab-btn active flex-1 py-2 rounded-md text-sm font-bold text-center flex items-center justify-center gap-2">
+                    <i class="fas fa-list-ol"></i> Policlaves
+                </button>
+                <button onclick="switchTab('phonetic')" id="tab-phonetic" class="tab-btn flex-1 py-2 rounded-md text-sm font-bold text-center flex items-center justify-center gap-2">
+                    <i class="fas fa-headset"></i> Alfabeto F.I.
+                </button>
+            </div>
+
+            <!-- Buscador -->
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400"></i>
+                </div>
+                <input type="text" id="searchInput" 
+                    class="block w-full pl-10 pr-10 py-3 rounded-md border-0 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 shadow-sm"
+                    placeholder="Buscar código, nombre o deletrear..." autocomplete="off">
+                <button id="clearBtn" onclick="clearSearch()" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-red-500">
+                    <i class="fas fa-circle-xmark"></i>
+                </button>
+            </div>
+            
+            <!-- Filtros -->
+            <div id="filterContainer" class="flex gap-2 mt-3 overflow-x-auto no-scrollbar pb-1">
+                <button onclick="filterCodes('all')" class="filter-chip active px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap shadow-sm" data-filter="all">Todas</button>
+                <button onclick="filterCodes('5')" class="filter-chip inactive px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap shadow-sm" data-filter="5">Serie 5</button>
+                <button onclick="filterCodes('9')" class="filter-chip inactive px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap shadow-sm" data-filter="9">Serie 9</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido -->
+    <main class="flex-grow max-w-3xl mx-auto w-full p-4">
+        
+        <div class="flex justify-between items-center mb-2 px-1">
+            <span id="resultCount" class="text-xs font-bold text-gray-500 uppercase">Listo para consulta</span>
+        </div>
+
+        <div id="contentArea" class="space-y-2">
+            <!-- Resultados -->
+        </div>
+
+        <div id="emptyState" class="hidden flex flex-col items-center justify-center py-12 text-center opacity-50">
+            <i class="fas fa-magnifying-glass text-4xl text-gray-300 mb-2"></i>
+            <p class="text-gray-500 font-medium">Sin coincidencias</p>
+        </div>
+
+    </main>
+
+    <script>
+        // --- DATOS ---
+        const policlaves = [
+            // SERIE 5
+            { code: "5.1", desc: "Recepción mala", type: "5" },
+            { code: "5.2", desc: "Recepción buena", type: "5" },
+            { code: "5.3", desc: "Suspenda comunicado", type: "5" },
+            { code: "5.4", desc: "Entendido", type: "5" },
+            { code: "5.5", desc: "Pase comunicado", type: "5" },
+            { code: "5.6", desc: "Ocupado, espere por favor", type: "5" },
+            { code: "5.7", desc: "Fuera de servicio", type: "5" },
+            { code: "5.8", desc: "Disponible para el servicio", type: "5" },
+            { code: "5.9", desc: "Repita comunicado", type: "5" },
+            { code: "5.10", desc: "Para casos urgentes", type: "5" },
+            { code: "5.11", desc: "Farmacia disponible", type: "5" },
+            { code: "5.12", desc: "Informe novedades", type: "5" },
+            { code: "5.13", desc: "Alerta, observe el orden", type: "5" },
+            { code: "5.14", desc: "Hora exacta", type: "5" },
+            { code: "5.15", desc: "Nombre y grado", type: "5" },
+            { code: "5.16", desc: "Indicativo", type: "5" },
+            { code: "5.17", desc: "Cumpla misión", type: "5" },
+            { code: "5.18", desc: "Preséntese en", type: "5" },
+            { code: "5.19", desc: "Informe policial", type: "5" },
+            { code: "5.20", desc: "Lugar de ubicación", type: "5" },
+            { code: "5.21", desc: "Realice llamada telefónica", type: "5" },
+            { code: "5.22", desc: "Anule el último comunicado", type: "5" },
+            { code: "5.23", desc: "Llegué al sitio indicado", type: "5" },
+            { code: "5.24", desc: "Misión cumplida", type: "5" },
+            { code: "5.25", desc: "Permiso para comunicarme", type: "5" },
+            { code: "5.26", desc: "Permiso autorizado", type: "5" },
+            { code: "5.27", desc: "Reunión urgente", type: "5" },
+            { code: "5.28", desc: "Si hay otra unidad hacer 538", type: "5" },
+            { code: "5.29", desc: "Cumpla la orden", type: "5" },
+            { code: "5.30", desc: "No reglamentado", type: "5" },
+            { code: "5.31", desc: "Oficial de policía enfermo", type: "5" },
+            { code: "5.32", desc: "Apoyo urgente", type: "5" },
+            { code: "5.33", desc: "Emergencia", type: "5" },
+            { code: "5.34", desc: "Alarma general", type: "5" },
+            { code: "5.35", desc: "Información confidencial", type: "5" },
+            { code: "5.36", desc: "Controles salida ciudad", type: "5" },
+            { code: "5.37", desc: "Apoyo policía judicial", type: "5" },
+            { code: "5.38", desc: "Reacción en la zona 513", type: "5" },
+            { code: "5.39", desc: "Oficial de policía 901-953", type: "5" },
+            { code: "5.40", desc: "Oficial de policía 532", type: "5" },
+            { code: "5.41", desc: "Inicio turno", type: "5" },
+            { code: "5.42", desc: "Finalizo turno", type: "5" },
+            { code: "5.43", desc: "Deje jefe de turno", type: "5" },
+            { code: "5.44", desc: "Recoja jefe de turno", type: "5" },
+            { code: "5.45", desc: "Deje tripulante", type: "5" },
+            { code: "5.46", desc: "Recoja tripulante", type: "5" },
+            { code: "5.47", desc: "Que misión cumple", type: "5" },
+            { code: "5.48", desc: "Rectifico", type: "5" },
+            { code: "5.49", desc: "Como me escucha", type: "5" },
+            { code: "5.50", desc: "Vehículo policial accidentado", type: "5" },
+            { code: "5.51", desc: "Grúa", type: "5" },
+            { code: "5.52", desc: "Ambulancia", type: "5" },
+            { code: "5.53", desc: "Patrulla policial de vigilancia", type: "5" },
+            { code: "5.54", desc: "Policía de tránsito", type: "5" },
+            { code: "5.55", desc: "Carro - taller", type: "5" },
+            { code: "5.56", desc: "Policía judicial", type: "5" },
+            { code: "5.57", desc: "Bomberos", type: "5" },
+            { code: "5.58", desc: "Comisario o inspector", type: "5" },
+            { code: "5.59", desc: "Escolta", type: "5" },
+            { code: "5.60", desc: "Afirmativo", type: "5" },
+            // SERIE 9
+            { code: "9.01", desc: "Homicidio", type: "9" },
+            { code: "9.02", desc: "Secuestro", type: "9" },
+            { code: "9.03", desc: "Rapto secuestro simple", type: "9" },
+            { code: "9.04", desc: "Hurto calificado", type: "9" },
+            { code: "9.05", desc: "Atraco", type: "9" },
+            { code: "9.06", desc: "Violación carnal", type: "9" },
+            { code: "9.07", desc: "Asalto instalaciones policiales", type: "9" },
+            { code: "9.08", desc: "Hurto simple o raponazo", type: "9" },
+            { code: "9.09", desc: "Exhibiciones obscenas", type: "9" },
+            { code: "9.10", desc: "Herido o lesionado", type: "9" },
+            { code: "9.11", desc: "Disparos", type: "9" },
+            { code: "9.12", desc: "Daños en propiedad pública", type: "9" },
+            { code: "9.13", desc: "Vehículo hurtado", type: "9" },
+            { code: "9.14", desc: "Vehículo abandonado", type: "9" },
+            { code: "9.15", desc: "Persona tratando de entrar", type: "9" },
+            { code: "9.16", desc: "Persona sospechosa", type: "9" },
+            { code: "9.17", desc: "Suicidio", type: "9" },
+            { code: "9.18", desc: "Intento de suicidio", type: "9" },
+            { code: "9.19", desc: "Persona pidiendo auxilio", type: "9" },
+            { code: "9.20", desc: "Desvalijadores en acción", type: "9" },
+            { code: "9.21", desc: "Violación de domicilio", type: "9" },
+            { code: "9.22", desc: "Narcóticos", type: "9" },
+            { code: "9.23", desc: "Vagancia", type: "9" },
+            { code: "9.24", desc: "Enfermo", type: "9" },
+            { code: "9.25", desc: "Gestante", type: "9" },
+            { code: "9.26", desc: "Embriaguez", type: "9" },
+            { code: "9.27", desc: "Quemas en vía publica", type: "9" },
+            { code: "9.28", desc: "Inundación", type: "9" },
+            { code: "9.29", desc: "Explosión", type: "9" },
+            { code: "9.30", desc: "Derrumbe", type: "9" },
+            { code: "9.31", desc: "Incendio", type: "9" },
+            { code: "9.32", desc: "Alteración tranquilidad publica", type: "9" },
+            { code: "9.33", desc: "Delincuente capturado", type: "9" },
+            { code: "9.34", desc: "Riña", type: "9" },
+            { code: "9.35", desc: "Compruebe solicitud", type: "9" },
+            { code: "9.36", desc: "Persona tendida en la vía", type: "9" },
+            { code: "9.37", desc: "Animales extraviados", type: "9" },
+            { code: "9.38", desc: "Animal peligroso", type: "9" },
+            { code: "9.39", desc: "Mordeduras de animales", type: "9" },
+            { code: "9.40", desc: "Actos traviesos juego en la vía", type: "9" },
+            { code: "9.41", desc: "Demencia", type: "9" },
+            { code: "9.42", desc: "Accidente de tránsito", type: "9" },
+            { code: "9.43", desc: "Congestión vehicular", type: "9" },
+            { code: "9.44", desc: "Manifestaciones", type: "9" },
+            { code: "9.45", desc: "Motines", type: "9" },
+            { code: "9.46", desc: "Remisiones de valores", type: "9" },
+            { code: "9.47", desc: "Suena alarma", type: "9" },
+            { code: "9.48", desc: "Propaganda subversiva", type: "9" },
+            { code: "9.49", desc: "Cuentas", type: "9" },
+            { code: "9.50", desc: "Acción subversiva", type: "9" },
+            { code: "9.51", desc: "Invasiones", type: "9" },
+            { code: "9.52", desc: "Abandono de menores", type: "9" },
+            { code: "9.53", desc: "Muerte natural", type: "9" },
+            { code: "9.54", desc: "Conduzca retenido", type: "9" },
+            { code: "9.55", desc: "Abuso de confianza", type: "9" },
+            { code: "9.56", desc: "Acaparamiento y especulación", type: "9" },
+            { code: "9.57", desc: "Actos contra símbolos patrios", type: "9" },
+            { code: "9.58", desc: "Actos contra recursos naturales", type: "9" },
+            { code: "9.59", desc: "Asonada", type: "9" },
+            { code: "9.60", desc: "Sabotaje espectáculos públicos", type: "9" }
+        ];
+
+        const alphabet = [
+            { letter: "A", word: "ALFA", icon: "paper-plane" },
+            { letter: "B", word: "BRAVO", icon: "thumbs-up" },
+            { letter: "C", word: "CHARLIE", icon: "user-secret" },
+            { letter: "D", word: "DELTA", icon: "exclamation" },
+            { letter: "E", word: "ECO", icon: "leaf" },
+            { letter: "F", word: "FOXTROT", icon: "running" },
+            { letter: "G", word: "GOLF", icon: "flag" },
+            { letter: "H", word: "HOTEL", icon: "bed" },
+            { letter: "I", word: "INDIA", icon: "map-marker-alt" },
+            { letter: "J", word: "JULIET", icon: "female" },
+            { letter: "K", word: "KILO", icon: "weight-hanging" },
+            { letter: "L", word: "LIMA", icon: "lemon" },
+            { letter: "M", word: "MIKE", icon: "microphone-alt" },
+            { letter: "N", word: "NOVIEMBRE", icon: "calendar" },
+            { letter: "O", word: "OSCAR", icon: "star" },
+            { letter: "P", word: "PAPA", icon: "user-tie" },
+            { letter: "Q", word: "QUEBEC", icon: "chess-queen" },
+            { letter: "R", word: "ROMEO", icon: "heart" },
+            { letter: "S", word: "SIERRA", icon: "mountain" },
+            { letter: "T", word: "TANGO", icon: "music" },
+            { letter: "U", word: "UNIFORM", icon: "tshirt" },
+            { letter: "V", word: "VICTOR", icon: "trophy" },
+            { letter: "W", word: "WHISKY", icon: "glass-whiskey" },
+            { letter: "X", word: "X-RAY", icon: "bone" },
+            { letter: "Y", word: "YANQUI", icon: "hat-cowboy" },
+            { letter: "Z", word: "ZULÚ", icon: "shield-alt" }
+        ];
+
+        // --- LÓGICA ---
+        let state = { activeTab: 'codes', filter: 'all', search: '' };
+
+        const els = {
+            input: document.getElementById('searchInput'),
+            clearBtn: document.getElementById('clearBtn'),
+            content: document.getElementById('contentArea'),
+            count: document.getElementById('resultCount'),
+            empty: document.getElementById('emptyState'),
+            filters: document.getElementById('filterContainer'),
+            tabCodes: document.getElementById('tab-codes'),
+            tabPhonetic: document.getElementById('tab-phonetic'),
+            appIcon: document.getElementById('appIcon')
+        };
+
+        function init() {
+            render();
+            els.input.addEventListener('input', (e) => {
+                state.search = e.target.value;
+                toggleClearBtn();
+                render();
+            });
+        }
+
+        function switchTab(tabName) {
+            state.activeTab = tabName;
+            
+            // UI Toggle
+            const activeClass = "active flex-1 py-2 rounded-md text-sm font-bold text-center flex items-center justify-center gap-2";
+            const inactiveClass = "tab-btn flex-1 py-2 rounded-md text-sm font-bold text-center flex items-center justify-center gap-2";
+
+            if(tabName === 'codes') {
+                els.tabCodes.className = activeClass;
+                els.tabPhonetic.className = inactiveClass;
+                els.filters.style.display = 'flex';
+                els.input.placeholder = "Buscar código (Ej: 9.01) o nombre...";
+                els.appIcon.className = "fas fa-shield-halved text-2xl text-white";
+            } else {
+                els.tabPhonetic.className = activeClass;
+                els.tabCodes.className = inactiveClass;
+                els.filters.style.display = 'none';
+                els.input.placeholder = "Escribe para deletrear (Ej: PLACA)...";
+                els.appIcon.className = "fas fa-headset text-2xl text-white";
+            }
+            render();
+        }
+
+        window.filterCodes = function(type) {
+            state.filter = type;
+            // UI Filtros
+            document.querySelectorAll('.filter-chip').forEach(btn => {
+                const btnType = btn.dataset.filter;
+                if(btnType === type) {
+                    btn.className = "filter-chip active px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap shadow-sm";
+                } else {
+                    btn.className = "filter-chip inactive px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap shadow-sm";
+                }
+            });
+            render();
+        }
+
+        window.clearSearch =
