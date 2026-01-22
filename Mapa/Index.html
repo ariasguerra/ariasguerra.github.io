@@ -11,55 +11,78 @@
             height: 100%;
             font-family: 'Segoe UI', Arial, sans-serif;
             overflow: hidden;
-            background-color: #2c3e50;
+            background-color: #ffffff;
             overscroll-behavior: none;
         }
 
-        /* ÁREA DEL VISOR (Pantalla Completa) */
+        /* ÁREA DEL VISOR */
         #viewer-stage {
             position: relative;
             width: 100vw;
             height: 100vh;
-            background: #1a252f;
+            background: #ffffff;
             overflow: hidden;
             cursor: grab;
             touch-action: none;
         }
         #viewer-stage:active { cursor: grabbing; }
 
-        /* PANEL DE CONTROL FLOTANTE (HUD) */
-        #hud-controls {
+        /* --- CONTENEDOR DE UI DERECHA --- */
+        #right-ui-container {
             position: absolute;
             top: 20px;
-            left: 20px;
-            width: 220px;
-            background: rgba(26, 37, 47, 0.9);
-            backdrop-filter: blur(8px);
-            padding: 15px;
-            border-radius: 10px;
-            color: white;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
             z-index: 100;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: width 0.3s, height 0.3s;
+            pointer-events: none;
         }
 
-        /* Cabecera del HUD con botón de minimizar */
+        #right-ui-container > * {
+            pointer-events: auto;
+        }
+
+        /* --- 1. PANEL DE CONTROL (AJUSTES) --- */
+        #hud-controls {
+            width: 200px;
+            height: auto;
+            background: rgba(30, 40, 50, 0.9);
+            backdrop-filter: blur(5px);
+            padding: 10px 15px;
+            border-radius: 12px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Cabecera del Panel */
         .hud-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
+            width: 100%;
+            margin-bottom: 10px;
             padding-bottom: 8px;
-            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            min-height: 24px;
         }
 
         .hud-header h2 {
             margin: 0;
-            font-size: 14px;
+            font-size: 13px;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #ecf0f1;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 1;
+            transition: opacity 0.2s;
         }
 
         .toggle-btn {
@@ -67,84 +90,168 @@
             border: none;
             color: white;
             font-size: 18px;
-            line-height: 1;
             cursor: pointer;
-            padding: 0 5px;
-            font-weight: bold;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s;
         }
         .toggle-btn:hover { color: #3498db; }
 
-        /* Contenido del HUD (lo que se oculta) */
         #hud-content {
-            display: block;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
             opacity: 1;
-            transition: opacity 0.3s;
+            transition: opacity 0.3s delay 0.1s;
         }
 
-        /* Clase para estado minimizado */
+        /* ESTADO MINIMIZADO (Botón Redondo - Engranaje) */
         #hud-controls.minimized {
-            width: auto;
-            min-width: 120px;
-        }
-        #hud-controls.minimized #hud-content {
-            display: none;
-            opacity: 0;
-        }
-        #hud-controls.minimized .hud-header {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-
-        .control-group { margin-bottom: 12px; }
-        .control-group label { 
-            display: flex; 
-            justify-content: space-between;
-            font-size: 12px; 
-            margin-bottom: 4px; 
-            color: #bdc3c7; 
-            font-weight: bold; 
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            padding: 0;
+            cursor: pointer;
         }
         
+        #hud-controls.minimized:hover {
+            background: #34495e;
+            transform: scale(1.05);
+        }
+
+        #hud-controls.minimized .hud-header {
+            margin: 0;
+            padding: 0;
+            border: none;
+            height: 100%;
+            justify-content: center;
+        }
+
+        #hud-controls.minimized h2, 
+        #hud-controls.minimized #hud-content { 
+            display: none; 
+            opacity: 0; 
+        }
+
+        /* Sliders */
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 5px;
+            color: #bdc3c7;
+            font-weight: 600;
+        }
         input[type=range] {
             width: 100%;
             cursor: pointer;
             accent-color: #3498db;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+            -webkit-appearance: none;
         }
-
-        #fileInput { display: none; }
-        .upload-btn {
-            display: block;
-            background: #27ae60; 
-            color: white; 
-            padding: 8px; 
-            border-radius: 5px;
-            cursor: pointer; 
-            font-size: 12px; 
-            text-align: center;
-            margin-top: 15px;
-            transition: background 0.2s;
-        }
-        .upload-btn:hover { background: #2ecc71; }
-
-        .center-btn {
-            width: 100%;
-            padding: 8px;
-            background: #34495e;
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white;
-            border-radius: 5px;
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 14px;
+            width: 14px;
+            border-radius: 50%;
+            background: #3498db;
             cursor: pointer;
-            font-size: 12px;
+            border: 2px solid white;
+        }
+
+        /* Upload Section */
+        .upload-section {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 10px;
             margin-top: 5px;
         }
-        .center-btn:hover { background: #4b6584; }
+        .upload-hint {
+            font-size: 11px;
+            color: #95a5a6;
+            margin: 0 0 8px 0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .panel-upload-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 8px 0;
+            background: rgba(39, 174, 96, 0.8);
+            color: white;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.2s;
+            box-sizing: border-box;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .panel-upload-btn:hover { background: rgba(46, 204, 113, 1); }
+        #fileInput { display: none; }
 
+
+        /* --- 2. BOTONES SECUNDARIOS (HERRAMIENTAS) --- */
+        .secondary-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: all 0.3s ease;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .secondary-buttons.hidden {
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+            visibility: hidden;
+        }
+
+        /* Estilo Botón Cuadrado Redondeado */
+        .map-tool-btn {
+            width: 44px;
+            height: 44px;
+            background: rgba(30, 40, 50, 0.9);
+            backdrop-filter: blur(5px);
+            border-radius: 10px;
+            color: white;
+            font-size: 20px;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 2px;
+        }
+
+        .map-tool-btn:hover {
+            background: #34495e;
+            transform: scale(1.1);
+            border-color: rgba(255,255,255,0.4);
+            color: #3498db;
+        }
+
+        .map-tool-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* --- IMAGEN Y ERROR --- */
         #map-image {
             position: absolute;
             transform-origin: 0 0;
             transition: transform 0.1s linear;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
             user-select: none;
             -webkit-user-drag: none;
             will-change: transform; 
@@ -152,8 +259,9 @@
         
         #error-msg {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            text-align: center; color: rgba(255,255,255,0.5); display: none;
+            text-align: center; color: #7f8c8d; display: none;
         }
+        #error-msg h3 { color: #2c3e50; margin-bottom: 5px; }
         
     </style>
 </head>
@@ -162,34 +270,51 @@
 <!-- VISOR -->
 <div id="viewer-stage">
     
-    <!-- PANEL FLOTANTE DE AJUSTES -->
-    <div id="hud-controls">
-        <div class="hud-header">
-            <h2></h2>
-            <button class="toggle-btn" onclick="toggleHud()" id="hud-toggle-icon">−</button>
-        </div>
+    <!-- UI DERECHA -->
+    <div id="right-ui-container">
         
-        <div id="hud-content">
-            <div class="control-group">
-                <label><span>Nitidez</span> <span>👁️</span></label>
-                <input type="range" min="0" max="3" step="0.5" value="0" oninput="updateFilters()">
+        <!-- 1. PANEL DE AJUSTES -->
+        <div id="hud-controls" class="minimized" onclick="handlePanelClick(event)">
+            <div class="hud-header">
+                <h2>Ajustes</h2>
+                <button class="toggle-btn" id="hud-toggle-icon">⚙️</button>
             </div>
             
-            <div class="control-group">
-                <label><span>Contraste</span> <span>🌗</span></label>
-                <input type="range" min="1" max="2" step="0.1" value="1" oninput="updateFilters()">
-            </div>
+            <div id="hud-content">
+                <div class="control-group">
+                    <label><span>Nitidez</span> <span>👁️</span></label>
+                    <input type="range" min="0" max="10" step="0.5" value="0" oninput="updateFilters()">
+                </div>
+                
+                <div class="control-group">
+                    <label><span>Contraste</span> <span>🌗</span></label>
+                    <input type="range" min="0.5" max="2" step="0.1" value="1" oninput="updateFilters()">
+                </div>
 
-            <button onclick="centerImage()" class="center-btn">↺ Restaurar Vista</button>
-            
-            <label for="fileInput" class="upload-btn">📂 Cambiar Imagen</label>
-            <input type="file" id="fileInput" accept="image/*" onchange="loadImage(this)">
+                <div class="upload-section">
+                    <p class="upload-hint">Gestión de Archivo</p>
+                    <label for="fileInput" class="panel-upload-btn" id="upload-btn-label">
+                        📂 Cargar Mapa
+                    </label>
+                    <input type="file" id="fileInput" accept="image/*" onchange="loadImage(this)">
+                </div>
+            </div>
         </div>
+
+        <!-- 2. BOTONES SECUNDARIOS (SOLO MIRA) -->
+        <div class="secondary-buttons" id="secondary-group">
+            <!-- Restaurar Vista (MIRA) -->
+            <button onclick="centerImage()" class="map-tool-btn" title="Centrar Mapa">
+                ⌖
+            </button>
+        </div>
+
     </div>
 
+    <!-- MENSAJE SIN IMAGEN -->
     <div id="error-msg">
-        <h3>⚠️ No hay imagen</h3>
-        <p>Usa el botón "Cambiar Imagen"</p>
+        <h3>⚠️ Sin Imagen</h3>
+        <p>Abre Ajustes (⚙️) y carga un mapa</p>
     </div>
 
     <!-- IMAGEN -->
@@ -199,12 +324,10 @@
 <script>
     let state = { scale: 1, pointX: 0, pointY: 0 };
     
-    // Variables de control de gestos
     let isDragging = false;
     let hasMoved = false; 
     let startX = 0, startY = 0;
     
-    // Variables Pinch Zoom
     let initialPinchDistance = 0;
     let initialScale = 1;
     let isPinching = false;
@@ -212,61 +335,112 @@
     const img = document.getElementById('map-image');
     const stage = document.getElementById('viewer-stage');
 
+    // --- CARGA INICIAL Y PERSISTENCIA ---
     window.onload = () => {
-        centerImage();
+        loadStoredData(); // Cargar imagen y ajustes guardados
         setupEvents();
     };
     window.onresize = centerImage;
 
-    // --- FUNCIÓN MINIMIZAR HUD ---
-    function toggleHud() {
-        const hud = document.getElementById('hud-controls');
-        const icon = document.getElementById('hud-toggle-icon');
+    // Función para recuperar datos del localStorage
+    function loadStoredData() {
+        // 1. Cargar Ajustes (Filtros)
+        const savedSettings = localStorage.getItem('mapSettings');
+        if (savedSettings) {
+            try {
+                const settings = JSON.parse(savedSettings);
+                const inputs = document.querySelectorAll('#hud-content input[type=range]');
+                if(settings.sharpness !== undefined) inputs[0].value = settings.sharpness;
+                if(settings.contrast !== undefined) inputs[1].value = settings.contrast;
+            } catch (e) { console.error("Error al cargar ajustes:", e); }
+        }
         
-        hud.classList.toggle('minimized');
-        
-        if (hud.classList.contains('minimized')) {
-            icon.textContent = '+';
-            icon.title = "Mostrar controles";
+        // Aplicar filtros iniciales (hayan cambiado o no)
+        updateFilters(false); // false = no guardar de nuevo inmediatamente
+
+        // 2. Cargar Imagen Guardada
+        const savedImage = localStorage.getItem('mapImage');
+        if (savedImage) {
+             img.src = savedImage;
+             img.style.display = 'block';
+             document.getElementById('error-msg').style.display = 'none';
+             document.getElementById('upload-btn-label').innerHTML = '📂 Cambiar Mapa';
+             
+             img.onload = () => {
+                 centerImage();
+             };
         } else {
-            icon.textContent = '−';
-            icon.title = "Ocultar controles";
+             // Si no hay imagen guardada, verifica si carga la por defecto o muestra error
+             // centerImage se llamará si la imagen por defecto carga, o showError si falla
+             centerImage(); 
         }
     }
 
-    // --- ZOOM INTELIGENTE AL CLIC (AHORA 1.2x) ---
+    // --- LÓGICA DEL PANEL ---
+    function handlePanelClick(e) {
+        const hud = document.getElementById('hud-controls');
+        if (hud.classList.contains('minimized')) {
+            toggleHud();
+            return;
+        }
+        if (e.target.closest('.toggle-btn') || e.target.closest('.hud-header')) {
+            toggleHud();
+        }
+    }
+
+    function toggleHud() {
+        const hud = document.getElementById('hud-controls');
+        const icon = document.getElementById('hud-toggle-icon');
+        const secondary = document.getElementById('secondary-group');
+        
+        const isClosed = hud.classList.toggle('minimized');
+        
+        if (isClosed) {
+            icon.textContent = '⚙️';
+            icon.title = "Abrir ajustes";
+            secondary.classList.remove('hidden');
+        } else {
+            icon.textContent = '×';
+            icon.title = "Cerrar ajustes";
+            secondary.classList.add('hidden');
+        }
+    }
+
+    // --- FILTROS Y GUARDADO ---
+    function updateFilters(shouldSave = true) {
+        const inputs = document.querySelectorAll('#hud-content input[type=range]');
+        const sharp = inputs[0].value;
+        const contrast = inputs[1].value;
+        
+        img.style.filter = `contrast(${contrast}) grayscale(${sharp > 2 ? 0.3 : 0}) drop-shadow(0 0 ${sharp}px rgba(0,0,0,0.3))`;
+
+        // Guardar ajustes en localStorage cada vez que cambian
+        if (shouldSave) {
+            const settings = { sharpness: sharp, contrast: contrast };
+            localStorage.setItem('mapSettings', JSON.stringify(settings));
+        }
+    }
+
+    // --- ZOOM INTELIGENTE ---
     function handleClickZoom(clientX, clientY) {
-        // 1. Coordenadas relativas a la imagen actual
         const imgX = (clientX - state.pointX) / state.scale;
         const imgY = (clientY - state.pointY) / state.scale;
-
-        // 2. Zoom objetivo: 1.2x (120%)
-        const targetScale = 1.2;
-
-        // 3. Centrar el punto clicado
+        const targetScale = 1.2; 
         const stageW = stage.offsetWidth;
         const stageH = stage.offsetHeight;
-        
-        // Fórmula: NuevoCentro - (PuntoImagen * NuevoEscala)
         const newX = (stageW / 2) - (imgX * targetScale);
         const newY = (stageH / 2) - (imgY * targetScale);
-
-        // 4. Aplicar transición
         img.style.transition = 'transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)';
-        
         state.scale = targetScale;
         state.pointX = newX;
         state.pointY = newY;
-        
         updateTransform();
-
         setTimeout(() => { img.style.transition = 'transform 0.1s linear'; }, 600);
     }
 
-    // --- EVENTOS MOUSE/TACTIL ---
     function setupEvents() {
         stage.addEventListener('mousedown', (e) => {
-            if (e.target.closest('#hud-controls')) return;
+            if (e.target.closest('#right-ui-container')) return;
             e.preventDefault();
             isDragging = true;
             hasMoved = false;
@@ -304,8 +478,7 @@
     }
 
     function handleTouchStart(e) {
-        if (e.target.closest('#hud-controls')) return;
-        
+        if (e.target.closest('#right-ui-container')) return;
         if (e.touches.length === 1) {
             isDragging = true;
             hasMoved = false;
@@ -324,18 +497,13 @@
     }
 
     function handleTouchMove(e) {
-        if (e.target.closest('#hud-controls')) return;
+        if (e.target.closest('#right-ui-container')) return;
         e.preventDefault();
-
         if (isDragging && e.touches.length === 1) {
             const currentX = e.touches[0].clientX;
             const currentY = e.touches[0].clientY;
-            
             if (Math.abs(currentX - (startX + state.pointX)) > 5 || 
-                Math.abs(currentY - (startY + state.pointY)) > 5) {
-                hasMoved = true;
-            }
-
+                Math.abs(currentY - (startY + state.pointY)) > 5) hasMoved = true;
             state.pointX = currentX - startX;
             state.pointY = currentY - startY;
             updateTransform();
@@ -346,11 +514,9 @@
                 let newScale = initialScale * factor;
                 if (newScale < 0.1) newScale = 0.1;
                 if (newScale > 20) newScale = 20;
-
                 const center = getMidpoint(e.touches[0], e.touches[1]);
                 const xs = (center.x - state.pointX) / state.scale;
                 const ys = (center.y - state.pointY) / state.scale;
-
                 state.pointX = center.x - xs * newScale;
                 state.pointY = center.y - ys * newScale;
                 state.scale = newScale;
@@ -381,11 +547,9 @@
         const imgW = img.naturalWidth || 800;
         const imgH = img.naturalHeight || 600;
         const scale = Math.min(stageW / imgW, stageH / imgH) * 0.95;
-        
         state.scale = scale;
         state.pointX = (stageW - imgW * scale) / 2;
         state.pointY = (stageH - imgH * scale) / 2;
-
         img.style.transition = 'transform 0.5s ease';
         updateTransform();
         setTimeout(() => { img.style.transition = 'transform 0.1s linear'; }, 500);
@@ -397,49 +561,28 @@
         const ys = (e.clientY - state.pointY) / state.scale;
         const delta = -e.deltaY;
         const factor = (delta > 0) ? 1.1 : 0.9;
-        
         let newScale = state.scale * factor;
         if(newScale < 0.1) newScale = 0.1;
         if(newScale > 20) newScale = 20;
-
         state.scale = newScale;
         state.pointX = e.clientX - xs * state.scale;
         state.pointY = e.clientY - ys * state.scale;
         updateTransform();
     }
 
-    function updateFilters() {
-        const inputs = document.querySelectorAll('#hud-content input[type=range]');
-        const sharp = inputs[0].value;
-        const contrast = inputs[1].value;
-        img.style.filter = `contrast(${contrast}) grayscale(${sharp > 1 ? 0.5 : 0}) drop-shadow(0 0 ${sharp}px rgba(0,0,0,0.5))`;
-    }
-
     function showError() {
         document.getElementById('error-msg').style.display = 'block';
         img.style.display = 'none';
+        document.getElementById('upload-btn-label').innerHTML = '📂 Cargar Mapa';
     }
 
+    // --- CARGA DE IMAGEN (Con guardado en localStorage) ---
     function loadImage(input) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();
             reader.onload = function (e) {
-                img.src = e.target.result;
+                const imageData = e.target.result;
+                img.src = imageData;
                 img.style.display = 'block';
                 document.getElementById('error-msg').style.display = 'none';
-                img.onload = () => centerImage();
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    function getDistance(t1, t2) { return Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY); }
-    function getMidpoint(t1, t2) { return { x: (t1.clientX + t2.clientX)/2, y: (t1.clientY + t2.clientY)/2 }; }
-
-</script>
-</body>
-</html>
-
-
-
-
+                document.getElementById('upload-btn
