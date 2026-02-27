@@ -1,237 +1,248 @@
-import React, { useState, useMemo } from 'react';
-import { Search, Phone, MessageSquare, MapPin, IdCard, Hash, Building2, Smartphone, UserPlus, Users, Download } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directorio FSL - Barrios Unidos</title>
+    <!-- Tailwind CSS para un diseño moderno y rápido -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons para los iconos -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .card-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05); }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen pb-20">
 
-const DATA = [
-  { id: 17948, nombre: "LAURA FERNANDA ROMERO SUEZCUN", cc: "1015418881", direccion: "CALLE 72A ENTRE LAS CARRERAS 20c Y 22", telefono: "3185605493", cai: "POLO CLUB" },
-  { id: 9929, nombre: "JULIO CESAR WELMMAN MARTINEZ", cc: "80409967", direccion: "CARRERA 24 ENTRE CALLES 74 Y 74A", telefono: "3108193844", cai: "POLO CLUB" },
-  { id: 17935, nombre: "PARMENIO GONZALEZ ROLDAN", cc: "17155220", direccion: "CARRERA 29 ENTRE LAS CALLES 72 Y 73", telefono: "3118441776", cai: "POLO CLUB" },
-  { id: 22530, nombre: "MARCO ALEJANDRO SASTOQUE FORERO", cc: "79566530", direccion: "CARRERA 22 ENTRE 80 Y 81", telefono: "3007840197", cai: "POLO CLUB" },
-  { id: 24024, nombre: "MARIA FERNANDA PUENTES", cc: "52346897", direccion: "CALLE 78 Y 79 ENTRE CARRERA 28A Y 28B", telefono: "3158113905", cai: "POLO CLUB" },
-  { id: 27308, nombre: "JOHANNA MORALES", cc: "371018", direccion: "CALLE 75 ENTE CARRERA 20C Y 22", telefono: "3133737185", cai: "POLO CLUB" },
-  { id: 27815, nombre: "LEIDY OSPICIO", cc: "1016014059", direccion: "CARRERA 21 # 87 - 96", telefono: "3115707048", cai: "POLO CLUB" },
-  { id: 28515, nombre: "MARTHA MERCEDES RODRIGUEZ", cc: "51721567", direccion: "CALLE 72 CARRERA 20C- 20", telefono: "3108264042", cai: "POLO CLUB" },
-  { id: 31282, nombre: "LUIS EDUARDO ABONDANO DAVILA", cc: "80409082", direccion: "CALLE 87 ENTRE CARRERAS 20 A LA 22", telefono: "3175384474", cai: "POLO CLUB" },
-  { id: 32405, nombre: "HENRY LEGUIZAMON SANCHEZ", cc: "19304431", direccion: "CALLE 74A Y 75B ENTRE CARRERAS 29B BI", telefono: "3118113439", cai: "POLO CLUB" },
-  { id: 32502, nombre: "VICTOR MANUEL PEREZ ANGARITA", cc: "1095700858", direccion: "CALLE 74A A LA 75 ENTRE CARRERAS 22", telefono: "3234379797", cai: "POLO CLUB" },
-  { id: 33388, nombre: "YOLANDA ELKIZABETH SOTO ALFONSO", cc: "41785902", direccion: "CALLE 87 CON CARRERA 22", telefono: "3202090240", cai: "POLO CLUB" },
-  { id: 33387, nombre: "GUILLERMO RUIZ INFANTE", cc: "19100515", direccion: "CARRERA 27 CON CALLE 72 A LA 74", telefono: "3123867924", cai: "POLO CLUB" },
-  { id: 35520, nombre: "INGRID TATIANA PABON MORENO", cc: "1024468609", direccion: "CALLE 78 Y 79 CON CARRERA 27 Y 27 A", telefono: "3143154899", cai: "POLO CLUB" },
-  { id: 35114, nombre: "HECTOR SAHIM JARAMILLO", cc: "91012349", direccion: "CARRERA 24 #TRANSVERSAL 24 CON DIAGC", telefono: "3107820382", cai: "POLO CLUB" },
-  { id: 35624, nombre: "PAOLA ROJAS", cc: "52351237", direccion: "CARRERA 28 CALLE 74 A", telefono: "3014389000", cai: "POLO CLUB" },
-  { id: 35886, nombre: "LIDA CONSTANZA DEL RIO ECHEVERRIA", cc: "51837435", direccion: "CARRERA 28 A CALLE 72 33", telefono: "3142243983", cai: "POLO CLUB" },
-  { id: 35887, nombre: "LUZ YANIRA CARDENAS BALAGUERA", cc: "23324809", direccion: "CARRERA 27A # 78-03", telefono: "3133133018", cai: "POLO CLUB" },
-  { id: 36726, nombre: "JULIO CESAR PARRADO", cc: "80188464", direccion: "CARRERA 29 CON CALLE 73", telefono: "3108813205", cai: "POLO CLUB" }
-];
-
-const App = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const filteredData = useMemo(() => {
-    const term = searchTerm.toLowerCase();
-    return DATA.filter(item => 
-      item.nombre.toLowerCase().includes(term) ||
-      item.cc.includes(term) ||
-      item.id.toString().includes(term) ||
-      item.telefono.includes(term)
-    );
-  }, [searchTerm]);
-
-  const handleCall = (phone) => {
-    window.location.href = `tel:${phone}`;
-  };
-
-  const handleWhatsApp = (phone) => {
-    window.open(`https://wa.me/57${phone}`, '_blank');
-  };
-
-  // Función para crear el contenido de un vCard
-  const generateVCardString = (item) => {
-    return [
-      "BEGIN:VCARD",
-      "VERSION:3.0",
-      `FN:${item.nombre}`,
-      `TEL;TYPE=CELL:${item.telefono}`,
-      `ADR;TYPE=WORK:;;${item.direccion};;;;`,
-      `ORG:FSL - CAI ${item.cai}`,
-      `NOTE:CC: ${item.cc} | SIPCI: ${item.id}`,
-      "END:VCARD"
-    ].join("\n");
-  };
-
-  const handleSaveContact = (item) => {
-    const vCardData = generateVCardString(item);
-    const blob = new Blob([vCardData], { type: "text/vcard" });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", `${item.nombre.split(' ')[0]}_FSL.vcf`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const handleSaveAllContacts = () => {
-    const allVCards = DATA.map(item => generateVCardString(item)).join("\n");
-    const blob = new Blob([allVCards], { type: "text/vcard" });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", `TODOS_LOS_COORDINADORES_FSL.vcf`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8 font-sans">
-      <div className="max-w-6xl mx-auto">
-        {/* Header Section */}
-        <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div>
-            <h1 className="text-4xl font-black text-slate-900 tracking-tighter mb-2">Directorio FSL</h1>
-            <p className="text-slate-500 font-medium bg-white inline-block px-3 py-1 rounded-lg border border-slate-100 shadow-sm">
-              Barrios Unidos · Sector Polo Club
-            </p>
-          </div>
-          
-          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-            <button 
-              onClick={handleSaveAllContacts}
-              className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 rounded-2xl font-bold transition-all shadow-lg shadow-blue-100 active:scale-95"
-            >
-              <Users size={20} />
-              Exportar Todo a Google
-            </button>
-            
-            <div className="relative group flex-1 md:w-80">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" size={20} />
-              <input 
-                type="text" 
-                placeholder="Buscar por nombre, CC o móvil..."
-                className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl shadow-sm focus:ring-4 focus:ring-blue-50 focus:border-blue-500 outline-none transition-all"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+    <div class="max-w-6xl mx-auto p-4 md:p-8">
+        <!-- Encabezado -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+            <div>
+                <h1 class="text-4xl font-extrabold text-slate-900 tracking-tighter mb-2">Directorio FSL</h1>
+                <p class="text-slate-500 font-medium bg-white inline-block px-3 py-1 rounded-lg border border-slate-100 shadow-sm">
+                    Barrios Unidos · Sector Polo Club
+                </p>
             </div>
-          </div>
+            
+            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                <button onclick="exportAllContacts()" class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 rounded-2xl font-bold transition-all shadow-lg shadow-blue-100 active:scale-95">
+                    <i data-lucide="users"></i>
+                    Exportar Todo a Google
+                </button>
+                
+                <div class="relative flex-1 md:w-80">
+                    <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size="20"></i>
+                    <input 
+                        type="text" 
+                        id="searchInput"
+                        placeholder="Buscar nombre, CC o móvil..."
+                        class="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl shadow-sm focus:ring-4 focus:ring-blue-50 focus:border-blue-500 outline-none transition-all"
+                    >
+                </div>
+            </div>
         </div>
 
-        {/* Status bar */}
-        <div className="flex items-center gap-4 mb-8 bg-white p-4 rounded-3xl border border-slate-100 shadow-sm">
-           <div className="flex -space-x-2">
-              {[1,2,3].map(i => <div key={i} className="w-8 h-8 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-500">F</div>)}
+        <!-- Barra de estado -->
+        <div class="flex items-center gap-4 mb-8 bg-white p-4 rounded-3xl border border-slate-100 shadow-sm">
+           <div class="flex -space-x-2">
+              <div class="w-8 h-8 rounded-full bg-blue-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-blue-600">F</div>
+              <div class="w-8 h-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-400">S</div>
+              <div class="w-8 h-8 rounded-full bg-slate-50 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-300">L</div>
            </div>
-           <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-             {filteredData.length} registros listos para gestionar
+           <p id="counter" class="text-xs font-bold text-slate-500 uppercase tracking-widest">
+             Cargando registros...
            </p>
         </div>
 
-        {/* Grid Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredData.map((item) => (
-            <div 
-              key={item.id} 
-              className="group bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 hover:shadow-2xl hover:shadow-blue-900/5 hover:-translate-y-2 transition-all duration-500 flex flex-col justify-between relative overflow-hidden"
-            >
-              {/* Decorative side bar */}
-              <div className="absolute left-0 top-12 bottom-12 w-1.5 bg-blue-600 rounded-r-full group-hover:h-24 transition-all duration-500"></div>
-
-              <div className="relative z-10">
-                <div className="flex justify-between items-center mb-6">
-                  <div className="px-4 py-1.5 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black text-slate-400 tracking-[0.2em] uppercase">
-                    ID: {item.id}
-                  </div>
-                  <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">
-                    {item.cai}
-                  </span>
-                </div>
-
-                <h3 className="text-xl font-black text-slate-800 leading-tight mb-6 uppercase">
-                  {item.nombre}
-                </h3>
-
-                <div className="space-y-5">
-                  <div className="flex items-start gap-4">
-                    <div className="p-2.5 bg-slate-50 rounded-xl text-slate-400">
-                      <IdCard size={18} />
-                    </div>
-                    <div>
-                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Identificación</p>
-                      <p className="text-sm font-bold text-slate-700">{item.cc}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4">
-                    <div className="p-2.5 bg-slate-50 rounded-xl text-slate-400">
-                      <MapPin size={18} />
-                    </div>
-                    <div>
-                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Ubicación</p>
-                      <p className="text-xs text-slate-600 leading-relaxed font-medium">{item.direccion}</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-8 pt-6 border-t border-slate-50">
-                    <div className="flex items-center gap-4">
-                       <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
-                          <Smartphone size={24} />
-                       </div>
-                       <div>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Número Móvil</p>
-                          <p className="text-2xl font-black text-slate-900 tracking-tighter">{item.telefono}</p>
-                       </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-10 flex gap-2 relative z-10">
-                <button 
-                  onClick={() => handleCall(item.telefono)}
-                  className="flex-[2.5] bg-slate-900 hover:bg-blue-600 text-white py-4 px-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-slate-200"
-                >
-                  <Phone size={18} />
-                  Llamar
-                </button>
-                
-                <button 
-                  onClick={() => handleWhatsApp(item.telefono)}
-                  className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-2xl flex items-center justify-center transition-all active:scale-95 shadow-lg shadow-emerald-100"
-                  title="WhatsApp"
-                >
-                  <MessageSquare size={22} />
-                </button>
-
-                <button 
-                  onClick={() => handleSaveContact(item)}
-                  className="flex-1 bg-white hover:bg-blue-50 text-slate-400 hover:text-blue-600 p-4 rounded-2xl flex items-center justify-center transition-all active:scale-95 border border-slate-200"
-                  title="Guardar este contacto"
-                >
-                  <Download size={20} />
-                </button>
-              </div>
-            </div>
-          ))}
+        <!-- Rejilla de tarjetas -->
+        <div id="gridContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Las tarjetas se generan con JavaScript -->
         </div>
 
-        {filteredData.length === 0 && (
-          <div className="text-center py-32 bg-white rounded-[3rem] shadow-sm border border-slate-100 mt-12">
-            <div className="bg-slate-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Search className="text-slate-300" size={48} />
+        <div id="emptyState" class="hidden text-center py-32 bg-white rounded-[3rem] shadow-sm border border-slate-100 mt-12">
+            <div class="bg-slate-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
+                <i data-lucide="search" size="48"></i>
             </div>
-            <h3 className="text-2xl font-black text-slate-800">No hay coincidencias</h3>
-            <p className="text-slate-400 max-w-sm mx-auto mt-2">Prueba buscando por nombre o número de teléfono.</p>
-          </div>
-        )}
+            <h3 class="text-2xl font-black text-slate-800">No hay coincidencias</h3>
+            <p class="text-slate-400 max-w-sm mx-auto mt-2">Prueba buscando por nombre o número de teléfono.</p>
+        </div>
 
-        <footer className="mt-20 py-8 border-t border-slate-200 text-center">
-            <p className="text-slate-400 text-sm font-medium">© Directorio de Coordinadores de Seguridad FSL - Barrios Unidos</p>
+        <footer class="mt-20 py-8 border-t border-slate-200 text-center">
+            <p class="text-slate-400 text-sm font-medium">© Directorio de Coordinadores de Seguridad FSL - Barrios Unidos</p>
         </footer>
-      </div>
     </div>
-  );
-};
 
-export default App;
+    <script>
+        const DATA = [
+            { id: 17948, nombre: "LAURA FERNANDA ROMERO SUEZCUN", cc: "1015418881", direccion: "CALLE 72A ENTRE LAS CARRERAS 20c Y 22", telefono: "3185605493", cai: "POLO CLUB" },
+            { id: 9929, nombre: "JULIO CESAR WELMMAN MARTINEZ", cc: "80409967", direccion: "CARRERA 24 ENTRE CALLES 74 Y 74A", telefono: "3108193844", cai: "POLO CLUB" },
+            { id: 17935, nombre: "PARMENIO GONZALEZ ROLDAN", cc: "17155220", direccion: "CARRERA 29 ENTRE LAS CALLES 72 Y 73", telefono: "3118441776", cai: "POLO CLUB" },
+            { id: 22530, nombre: "MARCO ALEJANDRO SASTOQUE FORERO", cc: "79566530", direccion: "CARRERA 22 ENTRE 80 Y 81", telefono: "3007840197", cai: "POLO CLUB" },
+            { id: 24024, nombre: "MARIA FERNANDA PUENTES", cc: "52346897", direccion: "CALLE 78 Y 79 ENTRE CARRERA 28A Y 28B", telefono: "3158113905", cai: "POLO CLUB" },
+            { id: 27308, nombre: "JOHANNA MORALES", cc: "371018", direccion: "CALLE 75 ENTE CARRERA 20C Y 22", telefono: "3133737185", cai: "POLO CLUB" },
+            { id: 27815, nombre: "LEIDY OSPICIO", cc: "1016014059", direccion: "CARRERA 21 # 87 - 96", telefono: "3115707048", cai: "POLO CLUB" },
+            { id: 28515, nombre: "MARTHA MERCEDES RODRIGUEZ", cc: "51721567", direccion: "CALLE 72 CARRERA 20C- 20", telefono: "3108264042", cai: "POLO CLUB" },
+            { id: 31282, nombre: "LUIS EDUARDO ABONDANO DAVILA", cc: "80409082", direccion: "CALLE 87 ENTRE CARRERAS 20 A LA 22", telefono: "3175384474", cai: "POLO CLUB" },
+            { id: 32405, nombre: "HENRY LEGUIZAMON SANCHEZ", cc: "19304431", direccion: "CALLE 74A Y 75B ENTRE CARRERAS 29B BI", telefono: "3118113439", cai: "POLO CLUB" },
+            { id: 32502, nombre: "VICTOR MANUEL PEREZ ANGARITA", cc: "1095700858", direccion: "CALLE 74A A LA 75 ENTRE CARRERAS 22", telefono: "3234379797", cai: "POLO CLUB" },
+            { id: 33388, nombre: "YOLANDA ELKIZABETH SOTO ALFONSO", cc: "41785902", direccion: "CALLE 87 CON CARRERA 22", telefono: "3202090240", cai: "POLO CLUB" },
+            { id: 33387, nombre: "GUILLERMO RUIZ INFANTE", cc: "19100515", direccion: "CARRERA 27 CON CALLE 72 A LA 74", telefono: "3123867924", cai: "POLO CLUB" },
+            { id: 35520, nombre: "INGRID TATIANA PABON MORENO", cc: "1024468609", direccion: "CALLE 78 Y 79 CON CARRERA 27 Y 27 A", telefono: "3143154899", cai: "POLO CLUB" },
+            { id: 35114, nombre: "HECTOR SAHIM JARAMILLO", cc: "91012349", direccion: "CARRERA 24 #TRANSVERSAL 24 CON DIAGC", telefono: "3107820382", cai: "POLO CLUB" },
+            { id: 35624, nombre: "PAOLA ROJAS", cc: "52351237", direccion: "CARRERA 28 CALLE 74 A", telefono: "3014389000", cai: "POLO CLUB" },
+            { id: 35886, nombre: "LIDA CONSTANZA DEL RIO ECHEVERRIA", cc: "51837435", direccion: "CARRERA 28 A CALLE 72 33", telefono: "3142243983", cai: "POLO CLUB" },
+            { id: 35887, nombre: "LUZ YANIRA CARDENAS BALAGUERA", cc: "23324809", direccion: "CARRERA 27A # 78-03", telefono: "3133133018", cai: "POLO CLUB" },
+            { id: 36726, nombre: "JULIO CESAR PARRADO", cc: "80188464", direccion: "CARRERA 29 CON CALLE 73", telefono: "3108813205", cai: "POLO CLUB" }
+        ];
 
+        function generateVCard(item) {
+            return [
+                "BEGIN:VCARD",
+                "VERSION:3.0",
+                `FN:${item.nombre}`,
+                `TEL;TYPE=CELL:${item.telefono}`,
+                `ADR;TYPE=WORK:;;${item.direccion};;;;`,
+                `ORG:FSL - CAI ${item.cai}`,
+                `NOTE:CC: ${item.cc} | SIPCI: ${item.id}`,
+                "END:VCARD"
+            ].join("\n");
+        }
+
+        function downloadFile(filename, content) {
+            const blob = new Blob([content], { type: "text/vcard" });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function exportSingle(id) {
+            const item = DATA.find(d => d.id === id);
+            const content = generateVCard(item);
+            downloadFile(`${item.nombre.split(' ')[0]}_FSL.vcf`, content);
+        }
+
+        function exportAllContacts() {
+            const content = DATA.map(item => generateVCard(item)).join("\n");
+            downloadFile("TODOS_LOS_COORDINADORES_FSL.vcf", content);
+        }
+
+        function renderCards(filter = "") {
+            const container = document.getElementById('gridContainer');
+            const emptyState = document.getElementById('emptyState');
+            const counter = document.getElementById('counter');
+            
+            const filtered = DATA.filter(item => 
+                item.nombre.toLowerCase().includes(filter.toLowerCase()) ||
+                item.cc.includes(filter) ||
+                item.telefono.includes(filter) ||
+                item.id.toString().includes(filter)
+            );
+
+            counter.innerText = `${filtered.length} registros listos para gestionar`;
+            
+            if (filtered.length === 0) {
+                container.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            container.innerHTML = "";
+
+            filtered.forEach(item => {
+                const card = `
+                    <div class="group bg-white rounded-[2.5rem] p-8 card-shadow border border-slate-100 hover:shadow-2xl transition-all duration-500 flex flex-col justify-between relative overflow-hidden">
+                        <div class="absolute left-0 top-12 bottom-12 w-1.5 bg-blue-600 rounded-r-full"></div>
+                        
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-center mb-6">
+                                <div class="px-4 py-1.5 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black text-slate-400 tracking-[0.2em] uppercase">
+                                    ID: ${item.id}
+                                </div>
+                                <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">
+                                    ${item.cai}
+                                </span>
+                            </div>
+
+                            <h3 class="text-xl font-black text-slate-800 leading-tight mb-6 uppercase">
+                                ${item.nombre}
+                            </h3>
+
+                            <div class="space-y-5">
+                                <div class="flex items-start gap-4">
+                                    <div class="p-2.5 bg-slate-50 rounded-xl text-slate-400">
+                                        <i data-lucide="id-card" size="18"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Identificación</p>
+                                        <p class="text-sm font-bold text-slate-700">${item.cc}</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start gap-4">
+                                    <div class="p-2.5 bg-slate-50 rounded-xl text-slate-400">
+                                        <i data-lucide="map-pin" size="18"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Ubicación</p>
+                                        <p class="text-xs text-slate-600 leading-relaxed font-medium">${item.direccion}</p>
+                                    </div>
+                                </div>
+
+                                <div class="mt-8 pt-6 border-t border-slate-50">
+                                    <div class="flex items-center gap-4">
+                                       <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
+                                          <i data-lucide="smartphone" size="24"></i>
+                                       </div>
+                                       <div>
+                                          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Número Móvil</p>
+                                          <p class="text-2xl font-black text-slate-900 tracking-tighter">${item.telefono}</p>
+                                       </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-10 flex gap-2 relative z-10">
+                            <a href="tel:${item.telefono}" class="flex-[2.5] bg-slate-900 hover:bg-blue-600 text-white py-4 px-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-slate-200">
+                                <i data-lucide="phone" size="18"></i>
+                                Llamar
+                            </a>
+                            
+                            <a href="https://wa.me/57${item.telefono}" target="_blank" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-2xl flex items-center justify-center transition-all active:scale-95 shadow-lg shadow-emerald-100">
+                                <i data-lucide="message-square" size="22"></i>
+                            </a>
+
+                            <button onclick="exportSingle(${item.id})" class="flex-1 bg-white hover:bg-blue-50 text-slate-400 hover:text-blue-600 p-4 rounded-2xl flex items-center justify-center transition-all active:scale-95 border border-slate-200">
+                                <i data-lucide="download" size="20"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += card;
+            });
+            
+            // Refrescar iconos de Lucide
+            lucide.createIcons();
+        }
+
+        // Listener para la búsqueda
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            renderCards(e.target.value);
+        });
+
+        // Carga inicial
+        window.onload = () => {
+            renderCards();
+        };
+    </script>
+</body>
+</html>
 
