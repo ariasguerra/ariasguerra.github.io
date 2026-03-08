@@ -1,1 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Mi Estrellita: Judith Andrea</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Birthstone+Bounce&family=Outfit:wght@100;300;600&family=Parisienne&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --rose-600: #e11d48;
+            --rose-400: #fb7185;
+            --night-sky: #0f172a;
+        }
 
+        body {
+            background-color: var(--night-sky);
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .font-cursive { font-family: 'Parisienne', cursive; }
+        .font-magic { font-family: 'Birthstone Bounce', cursive; }
+
+        /* Estrellas de fondo */
+        #star-container {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.5;
+            animation: twinkle var(--duration) infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2rem;
+        }
+
+        /* Secciones de Scroll */
+        .section-scroll {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        /* El Rincón de los Crespos */
+        .curl-svg {
+            stroke: #fb7185;
+            stroke-width: 2;
+            fill: none;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            transition: stroke-dashoffset 0.5s;
+        }
+
+        .curl-card:hover .curl-svg {
+            stroke-dashoffset: 0;
+        }
+
+        /* Botón Maestro */
+        .btn-pulse {
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(225, 29, 72, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
+        }
+
+        #player-ui { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="star-container"></div>
+
+    <!-- ACTO 0: Sintonización Emocional -->
+    <div id="gatekeeper" class="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center text-center p-6">
+        <div class="mb-8 animate-bounce">
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#fb7185" stroke-width="1.5">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+        </div>
+        <h2 class="text-3xl font-light tracking-widest text-white mb-4">¿Estás lista, Judith Andrea?</h2>
+        <p class="text-rose-300 mb-10 italic">Toca el corazón para entrar en nuestro universo</p>
+        <button onclick="startExperience()" class="btn-pulse bg-rose-600 text-white px-10 py-4 rounded-full font-bold text-xl tracking-tighter hover:bg-rose-500 transition-all">
+            ABRIR MI CORAZÓN
+        </button>
+    </div>
+
+    <!-- Reproductor Oculto -->
+    <div id="player-ui">
+        <div id="youtube-audio"></div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div id="main-content" class="opacity-0">
+        
+        <!-- ACTO 1: Hero - Estrellita Errante -->
+        <section class="section-scroll">
+            <div class="text-center z-10">
+                <h3 class="text-rose-400 uppercase tracking-[0.5em] text-sm mb-4">8 de Marzo - Para la mujer de mi vida</h3>
+                <h1 class="font-magic text-8xl md:text-[12rem] text-white mb-6 leading-none">Judith Andrea</h1>
+                <p class="font-light text-2xl md:text-3xl text-rose-100 max-w-2xl mx-auto italic">
+                    "Encontré mi norte en tu mirada, mi <span class="text-rose-400 font-semibold">Estrellita Errante</span>."
+                </p>
+                <div class="mt-12 opacity-50 text-xs tracking-widest uppercase">Desliza hacia abajo, mi amor</div>
+            </div>
+        </section>
+
+        <!-- ACTO 2: La Belleza de tus Crespos -->
+        <section class="section-scroll">
+            <div class="glass p-8 md:p-16 max-w-5xl w-full grid md:grid-cols-2 gap-12 items-center">
+                <div class="curl-card relative group">
+                    <!-- Arte SVG de Crespos -->
+                    <svg viewBox="0 0 200 200" class="w-full h-auto">
+                        <circle cx="100" cy="100" r="80" stroke="rgba(255,255,255,0.1)" stroke-width="1" fill="none" />
+                        <!-- Rizos generados -->
+                        <path class="curl-svg" d="M100 40 C 120 40, 120 60, 100 60 C 80 60, 80 80, 100 80 C 120 80, 120 100, 100 100" />
+                        <path class="curl-svg" d="M70 50 C 90 50, 90 70, 70 70 C 50 70, 50 90, 70 90" />
+                        <path class="curl-svg" d="M130 50 C 150 50, 150 70, 130 70 C 110 70, 110 90, 130 90" />
+                        <path class="curl-svg" d="M100 120 C 120 120, 120 140, 100 140 C 80 140, 80 160, 100 160" />
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span class="font-cursive text-4xl text-rose-300">Tus Rulos...</span>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="font-cursive text-6xl text-rose-400 mb-6">Tus Crespos Bellos</h2>
+                    <p class="text-lg text-slate-300 leading-relaxed mb-6 font-light">
+                        Me fascina despertarme y ver cómo cada uno de tus crespos adorna tu almohada. Son la espiral en la que decido perderme cada día. Son el marco perfecto de la mujer más hermosa que mis ojos han visto.
+                    </p>
+                    <div class="h-px w-24 bg-rose-500 opacity-50"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ACTO 3: Nuestro Hogar, Nuestro Mundo -->
+        <section class="section-scroll bg-rose-950/20">
+            <div class="max-w-4xl text-center">
+                <div class="mb-8 inline-block p-4 rounded-full bg-rose-600/20">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                </div>
+                <h2 class="text-4xl md:text-5xl font-light mb-8 tracking-tighter">Compartir la vida contigo es mi éxito</h2>
+                <div class="glass p-10 text-left relative overflow-hidden">
+                    <div class="absolute -right-10 -top-10 text-9xl opacity-5 font-bold">CASA</div>
+                    <p class="text-xl text-rose-100 leading-loose">
+                        Vivir juntos no es solo compartir un techo, Judith Andrea. Es compartir sueños, miedos, risas en la cocina y el silencio más cómodo del mundo. Gracias por hacer de nuestro espacio un refugio sagrado. 
+                        <br><br>
+                        <span class="font-bold text-rose-400">Judith Andrea Paez Caro</span>, eres mi hogar.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ACTO 4: La Promesa -->
+        <section class="section-scroll">
+            <div class="text-center">
+                <div id="heart-burst" class="text-9xl mb-10 cursor-pointer hover:scale-110 transition-transform">❤</div>
+                <h2 class="font-cursive text-7xl text-rose-500 mb-4">Te Amo Infinitamente</h2>
+                <p class="text-slate-400 uppercase tracking-widest text-sm mb-12">Hoy y cada segundo que nos quede</p>
+                <button onclick="rainHearts()" class="border border-rose-500 text-rose-500 px-8 py-3 rounded-full hover:bg-rose-500 hover:text-white transition-all uppercase text-xs font-bold tracking-[0.3em]">
+                    Presiona para recibir mi amor
+                </button>
+                <div class="mt-32 opacity-20 text-xs">Para: Judith Andrea Paez Caro | De: El hombre que más te ama</div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // Inicializar estrellas
+        function createStars() {
+            const container = document.getElementById('star-container');
+            for(let i=0; i<150; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 3 + 'px';
+                star.style.width = size;
+                star.style.height = size;
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+                container.appendChild(star);
+            }
+        }
+        createStars();
+
+        // YouTube API para "Estrellita Errante"
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        var player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtube-audio', {
+                height: '0',
+                width: '0',
+                videoId: 'Y-X19hWv9oY', // Estrellita Errante - Maelo Ruiz
+                playerVars: {
+                    'autoplay': 0,
+                    'loop': 1,
+                    'playlist': 'Y-X19hWv9oY'
+                },
+                events: {
+                    'onReady': onPlayerReady
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            console.log("Música lista");
+        }
+
+        function startExperience() {
+            // Desvanecer gatekeeper
+            gsap.to("#gatekeeper", {
+                duration: 1.5,
+                opacity: 0,
+                scale: 1.5,
+                onComplete: () => {
+                    document.getElementById('gatekeeper').style.display = 'none';
+                    document.getElementById('main-content').classList.remove('opacity-0');
+                    gsap.from("#main-content", { duration: 2, opacity: 0 });
+                }
+            });
+
+            // Play music
+            if(player && player.playVideo) {
+                player.unMute();
+                player.playVideo();
+            }
+
+            // Iniciar animaciones de scroll
+            initScrollAnimations();
+        }
+
+        function initScrollAnimations() {
+            gsap.registerPlugin(ScrollTrigger);
+
+            gsap.utils.toArray('.section-scroll').forEach(section => {
+                gsap.from(section.children, {
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top 80%",
+                        toggleActions: "play none none reverse"
+                    },
+                    y: 50,
+                    opacity: 0,
+                    duration: 1.2,
+                    stagger: 0.2,
+                    ease: "power2.out"
+                });
+            });
+        }
+
+        function rainHearts() {
+            const scalar = 2;
+            const triangle = confetti.shapeFromPath({ path: 'M0 10 L5 0 L10 10z' });
+
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#e11d48', '#fb7185', '#ffffff']
+            });
+            
+            // Efecto especial
+            const end = Date.now() + (3 * 1000);
+            (function frame() {
+              confetti({
+                particleCount: 2,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 },
+                colors: ['#e11d48']
+              });
+              confetti({
+                particleCount: 2,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 },
+                colors: ['#fb7185']
+              });
+
+              if (Date.now() < end) {
+                requestAnimationFrame(frame);
+              }
+            }());
+        }
+
+        // Interacción del corazón central
+        document.getElementById('heart-burst').onclick = rainHearts;
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</body>
+</html>
+
+  
