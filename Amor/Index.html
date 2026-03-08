@@ -5,232 +5,207 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Judith Andrea - Mi Estrellita Errante</title>
     
-    <!-- Librerías Externas de Alta Calidad -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:ital,wght@0,700;1,400&family=Montserrat:wght@300;400;600&family=Parisienne&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Birthstone+Bounce&family=Parisienne&family=Quicksand:wght@300;500&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
-    
+
     <style>
         :root {
-            --rose-gold: #e0a3a3;
-            --deep-red: #8b0000;
-            --soft-pink: #fff0f3;
-            --gold-accent: #d4af37;
+            --bg-deep: #0a0612;
+            --accent: #ff2d55;
+            --gold: #d4af37;
         }
 
         body {
-            background: radial-gradient(circle at center, #2d0b13 0%, #0f0505 100%);
-            font-family: 'Montserrat', sans-serif;
-            overflow: hidden;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background-color: var(--bg-deep);
             color: white;
-        }
-
-        .cursive-name {
-            font-family: 'Parisienne', cursive;
-            background: linear-gradient(to right, #fbb03b, #d4145a);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .font-love { font-family: 'Dancing Script', cursive; }
-
-        /* Sobre Realista Animado */
-        .envelope-wrapper {
-            position: relative;
-            cursor: pointer;
-            perspective: 1000px;
-        }
-
-        .envelope {
-            position: relative;
-            width: 320px;
-            height: 220px;
-            background: #ff4d6d;
-            border-radius: 0 0 10px 10px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-
-        .envelope::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            z-index: 2;
-            border-left: 160px solid transparent;
-            border-right: 160px solid transparent;
-            border-top: 120px solid #ff758c;
-            transform-origin: top;
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .envelope.open::before {
-            transform: rotateX(180deg);
-            z-index: 0;
-        }
-
-        .wax-seal {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 70px;
-            height: 70px;
-            background: radial-gradient(#d4145a, #8b0000);
-            border-radius: 50%;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #ffd700;
-            font-size: 30px;
-            box-shadow: 0 0 20px rgba(212, 20, 90, 0.6);
-            border: 2px solid #a30b42;
-        }
-
-        /* Tarjeta Principal Glassmorphism */
-        #inner-card {
-            display: none;
-            position: fixed;
-            width: 95%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-            z-index: 100;
+            font-family: 'Quicksand', sans-serif;
+            overflow-x: hidden;
             scrollbar-width: none;
         }
-        #inner-card::-webkit-scrollbar { display: none; }
 
-        .glass-morphism {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(20px);
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-            padding: 3rem 2rem;
-            text-align: center;
-            position: relative;
-        }
+        body::-webkit-scrollbar { display: none; }
 
-        /* Animación de Estrellas */
+        .font-magic { font-family: 'Birthstone Bounce', cursive; }
+        .font-cursive { font-family: 'Parisienne', cursive; }
+
+        /* Estrellas dinámicas */
         .star {
             position: absolute;
             background: white;
             border-radius: 50%;
-            opacity: 0;
-            animation: twinkle var(--d) infinite;
+            filter: blur(1px);
+            animation: twinkle var(--t) infinite ease-in-out;
         }
 
         @keyframes twinkle {
-            0%, 100% { opacity: 0.1; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.3); }
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.4); }
         }
 
-        #youtube-player { position: absolute; top: -1000px; left: -1000px; }
-
-        .gold-button {
-            background: linear-gradient(45deg, #d4af37, #f9d976);
-            color: #4a3400;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
-            transition: all 0.3s;
+        /* Capas de Cristal */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 40px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.5);
         }
 
-        .gold-button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
+        /* El Sobre Místico */
+        #gatekeeper {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: radial-gradient(circle at center, #1a0b2e 0%, #050208 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
+
+        .mystic-seal {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(45deg, #ff2d55, #d4af37);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 50px rgba(255, 45, 85, 0.4);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .mystic-seal:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 0 80px rgba(255, 45, 85, 0.7);
+        }
+
+        /* Secciones de Scroll */
+        .scene {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            position: relative;
+        }
+
+        #youtube-player { position: absolute; top: -1000px; }
     </style>
 </head>
 <body>
 
-    <!-- Fondo de Estrellas -->
-    <div id="star-field" class="fixed inset-0 pointer-events-none"></div>
+    <div id="star-container" class="fixed inset-0 pointer-events-none"></div>
 
-    <!-- Pantalla de Entrada -->
-    <div id="intro-screen" class="text-center z-50 animate__animated animate__fadeIn">
-        <h2 class="text-rose-200 mb-8 text-2xl tracking-[0.3em] uppercase font-light">Para mi amor eterno</h2>
-        <h1 class="cursive-name text-5xl md:text-7xl mb-12 drop-shadow-lg">Judith Andrea Paez Caro</h1>
-        
-        <div class="envelope-wrapper" onclick="openGift()">
-            <div class="envelope" id="envelope-element">
-                <div class="wax-seal animate__animated animate__pulse animate__infinite">❤</div>
-            </div>
-            <p class="mt-10 text-rose-300 font-light tracking-widest animate__animated animate__fadeInUp animate__delay-1s">
-                Toca el sello para entrar a nuestro mundo
-            </p>
+    <div id="gatekeeper">
+        <div class="text-center mb-16 animate__animated animate__fadeIn">
+            <h2 class="text-gold tracking-[0.4em] uppercase text-sm mb-4">Un mensaje de tu amor</h2>
+            <h1 class="text-white text-4xl md:text-6xl font-cursive">Para Judith Andrea</h1>
         </div>
+        
+        <div class="mystic-seal" onclick="launchExperience()">
+            <svg width="60" height="60" viewBox="0 0 24 24" fill="white">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+        </div>
+        
+        <p class="text-white/40 mt-12 animate-pulse text-xs tracking-widest uppercase">Toca el corazón para sintonizar nuestro amor</p>
     </div>
 
-    <!-- Música Oculta: Estrellita Errante (Maelo Ruiz) -->
-    <div id="youtube-player"></div>
+    <div id="youtube-player">
+        <div id="audio-anchor"></div>
+    </div>
 
-    <!-- Tarjeta Principal (Experiencia Interactiva) -->
-    <div id="inner-card">
-        <div class="glass-morphism">
-            <!-- Icono decorativo -->
-            <div class="mb-6 flex justify-center">
-                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" class="animate__animated animate__heartBeat animate__infinite">
-                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="url(#grad1)"/>
-                    <defs>
-                        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#ff4d6d;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#d4145a;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                </svg>
-            </div>
-
-            <h2 class="text-3xl md:text-5xl font-love text-rose-400 mb-6">Mi Estrellita Errante</h2>
-            
-            <!-- Foto estilo Polaroid -->
-            <div class="inline-block bg-white p-3 pb-10 shadow-2xl transform rotate-2 mb-8 border border-gray-200">
-                <img src="https://images.unsplash.com/photo-1516589174184-c685ca6d5c5d?auto=format&fit=crop&w=400&q=80" 
-                     alt="" 
-                     class="w-64 h-64 object-cover">
-                <p class="mt-4 text-gray-800 font-love text-2xl">Nuestro Hogar</p>
-            </div>
-
-            <!-- Carta Animada -->
-            <div class="px-4 text-left">
-                <div id="typed-text" class="text-lg md:text-xl text-rose-50 leading-relaxed font-light min-h-[250px]"></div>
-            </div>
-
-            <!-- Sección de Convivencia -->
-            <div class="mt-10 p-6 rounded-2xl bg-white/5 border border-white/10">
-                <h3 class="font-serif italic text-rose-300 text-2xl mb-4">La mujer más hermosa...</h3>
-                <p class="text-rose-100 italic leading-relaxed">
-                    Vivir contigo es el viaje más hermoso de mi vida. Compartir cada mañana, nuestras charlas y nuestro hogar es lo que me hace el hombre más afortunado del mundo.
+    <main id="content-wrap" class="opacity-0">
+        
+        <section class="scene">
+            <div class="text-center z-10">
+                <h3 class="text-accent uppercase tracking-[0.6em] text-xs mb-8 opacity-70">8 de Marzo • Nuestro Día</h3>
+                <h1 class="font-magic text-8xl md:text-[14rem] text-white leading-none mb-4">Judith Andrea</h1>
+                <div class="w-24 h-px bg-accent mx-auto mb-8 shadow-[0_0_15px_#ff2d55]"></div>
+                <p class="text-2xl md:text-4xl font-light text-white/80 italic max-w-3xl mx-auto">
+                    "Gracias por ser mi norte en este viaje infinito."
                 </p>
             </div>
+        </section>
 
-            <div class="mt-10 flex flex-col gap-4 items-center">
-                <button onclick="launchLoveBurst()" class="gold-button px-10 py-4 rounded-full text-lg uppercase tracking-widest animate__animated animate__pulse animate__infinite">
-                    ¡TE AMO JUDITH! ❤
-                </button>
-                <p class="text-xs text-rose-400 opacity-70 tracking-tighter italic">Para Judith Andrea Paez Caro | Con todo mi amor</p>
+        <section class="scene" id="hogar">
+            <div class="glass-panel p-10 md:p-20 max-w-5xl w-full grid md:grid-cols-2 gap-16 items-center">
+                <div class="relative flex justify-center">
+                    <div class="bg-gradient-to-tr from-accent to-purple-600 p-1 rounded-3xl rotate-3 shadow-2xl">
+                        <div class="bg-slate-900 rounded-3xl p-10">
+                            <svg width="150" height="150" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="font-cursive text-6xl text-accent mb-8">Nuestra Vida Juntos</h2>
+                    <p class="text-xl text-white/70 leading-relaxed font-light">
+                        Vivir contigo es descubrir que el paraíso tiene dirección propia. Compartir el café de la mañana, nuestras risas cómplices y el calor de nuestro hogar es mi mayor bendición. 
+                        <br><br>
+                        Eres la mujer que llena de vida cada metro cuadrado de nuestro mundo compartido.
+                    </p>
+                </div>
             </div>
-        </div>
-    </div>
+        </section>
+
+        <section class="scene">
+            <div class="glass-panel p-12 md:p-24 max-w-4xl w-full relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 text-[25rem] text-accent opacity-5 font-bold">❤</div>
+                <h2 class="font-magic text-5xl text-gold mb-12">Desde mi corazón...</h2>
+                <div id="typewriter" class="text-2xl md:text-3xl text-white/90 leading-loose min-h-[400px]"></div>
+            </div>
+        </section>
+
+        <section class="scene">
+            <div class="text-center">
+                <div class="mb-12 inline-block animate-pulse">
+                    <svg width="100" height="100" viewBox="0 0 24 24" fill="#ff2d55">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                </div>
+                <h2 class="font-cursive text-7xl text-white mb-6">Te Amo, Judith Andrea Paez Caro</h2>
+                <p class="text-gold uppercase tracking-[1em] text-xs mb-16 opacity-60 italic">Por siempre y para siempre</p>
+                
+                <button onclick="finalCelebration()" class="bg-white text-black px-16 py-5 rounded-full text-xl font-bold hover:bg-accent hover:text-white transition-all transform hover:scale-110 shadow-[0_0_40px_rgba(255,255,255,0.2)] active:scale-95">
+                    CELEBRAR NUESTRO AMOR
+                </button>
+                
+                <div class="mt-40 opacity-20 text-[10px] tracking-widest uppercase">
+                    Eternamente tuyo • Marzo 2026
+                </div>
+            </div>
+        </section>
+
+    </main>
 
     <script>
-        // Generar Estrellas
-        const starField = document.getElementById('star-field');
-        for(let i=0; i<100; i++) {
-            const star = document.createElement('div');
-            star.className = 'star';
-            star.style.left = Math.random() * 100 + 'vw';
-            star.style.top = Math.random() * 100 + 'vh';
-            star.style.width = star.style.height = (Math.random() * 3 + 1) + 'px';
-            star.style.setProperty('--d', (Math.random() * 3 + 2) + 's');
-            starField.appendChild(star);
+        // Generador de Estrellas
+        function generateStars() {
+            const container = document.getElementById('star-container');
+            for(let i=0; i<200; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 3 + 'px';
+                star.style.width = size;
+                star.style.height = size;
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.setProperty('--t', (Math.random() * 4 + 2) + 's');
+                container.appendChild(star);
+            }
         }
+        generateStars();
 
-        // Configuración de YouTube (Maelo Ruiz - Estrellita Errante)
+        // YouTube API - Estrellita Errante (Maelo Ruiz)
         var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName('script')[0];
@@ -238,93 +213,92 @@
 
         var player;
         function onYouTubeIframeAPIReady() {
-            player = new YT.Player('youtube-player', {
+            player = new YT.Player('audio-anchor', {
                 height: '0', width: '0',
-                videoId: 'Y-X19hWv9oY', // Estrellita Errante
-                playerVars: {
-                    'autoplay': 0, 'controls': 0, 'modestbranding': 1, 'loop': 1, 'playlist': 'Y-X19hWv9oY'
-                }
+                videoId: 'Y-X19hWv9oY',
+                playerVars: { 'autoplay': 0, 'loop': 1, 'playlist': 'Y-X19hWv9oY' }
             });
         }
 
-        function openGift() {
-            const env = document.getElementById('envelope-element');
-            const intro = document.getElementById('intro-screen');
-            const card = document.getElementById('inner-card');
-
-            // Abrir sobre y música
-            env.classList.add('open');
-            if (player && player.playVideo) {
+        // ACTIVACIÓN DE LA EXPERIENCIA
+        function launchExperience() {
+            // Reproducir música inmediatamente (tras interacción)
+            if(player && player.playVideo) {
                 player.unMute();
+                player.setVolume(100);
                 player.playVideo();
             }
 
-            // Confetti inicial
+            // Animación de salida del gatekeeper
+            gsap.to("#gatekeeper", {
+                duration: 1.5,
+                opacity: 0,
+                y: -100,
+                ease: "power4.inOut",
+                onComplete: () => {
+                    document.getElementById('gatekeeper').style.display = 'none';
+                    document.getElementById('content-wrap').classList.remove('opacity-0');
+                    initAnimations();
+                    startTyped();
+                }
+            });
+
+            // Explosión de corazones inicial
             confetti({
-                particleCount: 150, spread: 70, origin: { y: 0.6 },
-                colors: ['#ff4d6d', '#ffd700', '#ffffff']
+                particleCount: 150, spread: 100, origin: { y: 0.6 },
+                colors: ['#ff2d55', '#d4af37', '#ffffff']
             });
-
-            // Transición
-            setTimeout(() => {
-                intro.classList.add('animate__fadeOut');
-                setTimeout(() => {
-                    intro.style.display = 'none';
-                    card.style.display = 'block';
-                    card.classList.add('animate__zoomIn');
-                    startTyping();
-                }, 500);
-            }, 800);
         }
 
-        function startTyping() {
-            new Typed('#typed-text', {
+        // CARTA ANIMADA
+        function startTyped() {
+            new Typed('#typewriter', {
                 strings: [
-                    'Para la mujer que ilumina mi vida...^1000',
-                    'Mi amada <span class="text-rose-400 font-bold">Judith Andrea Paez Caro</span>,^1000',
-                    'Eres mi <i>Estrellita Errante</i>, la que guía mis pasos y llena de magia cada rincón de nuestro hogar.^1000',
-                    'No hay día que pase sin que agradezca a la vida por tenerte a mi lado, por vivir juntos este sueño y por ser mi compañera eterna.^1000',
-                    'Eres la mujer más hermosa, por dentro y por fuera. ¡Feliz día, mi amor!'
+                    'Para mi <span class="text-accent">Judith Andrea</span>...^1000',
+                    'Desde que compartimos la vida, cada día es una nueva oportunidad para amarte más.^1000',
+                    'Eres mi <span class="text-accent italic">Estrellita Errante</span>, la que guía mi alma a casa cada noche.^1000',
+                    'Gracias por construir este hogar conmigo, por tu paciencia, tu ternura y por ser la mujer más hermosa que jamás ha existido.^1000',
+                    'Judith Andrea Paez Caro, eres mi vida entera. <br><span class="text-accent">¡Feliz Día de la Mujer!</span>'
                 ],
-                typeSpeed: 50,
-                backSpeed: 20,
-                showCursor: true,
-                cursorChar: '❤',
-                contentType: 'html'
+                typeSpeed: 50, backSpeed: 20, loop: false, contentType: 'html'
             });
         }
 
-        function launchLoveBurst() {
-            const duration = 5 * 1000;
-            const end = Date.now() + duration;
+        // ANIMACIONES DE SCROLL
+        function initAnimations() {
+            gsap.registerPlugin(ScrollTrigger);
+            
+            gsap.utils.toArray('section').forEach(section => {
+                gsap.from(section.children, {
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top 80%",
+                        toggleActions: "play none none reverse"
+                    },
+                    y: 60,
+                    opacity: 0,
+                    duration: 1.5,
+                    stagger: 0.3,
+                    ease: "power3.out"
+                });
+            });
+        }
 
+        // CELEBRACIÓN FINAL
+        function finalCelebration() {
+            const end = Date.now() + (7 * 1000);
             (function frame() {
-              confetti({
-                particleCount: 5,
-                angle: 60,
-                spread: 55,
-                origin: { x: 0 },
-                colors: ['#ff4d6d', '#ffd700']
-              });
-              confetti({
-                particleCount: 5,
-                angle: 120,
-                spread: 55,
-                origin: { x: 1 },
-                colors: ['#ff4d6d', '#ffd700']
-              });
-
-              if (Date.now() < end) {
-                requestAnimationFrame(frame);
-              }
+              confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ff2d55', '#d4af37'] });
+              confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ff2d55', '#d4af37'] });
+              if (Date.now() < end) requestAnimationFrame(frame);
             }());
 
             confetti({
-                particleCount: 40,
-                spread: 70,
-                origin: { y: 0.8 },
+                particleCount: 100,
+                spread: 160,
+                origin: { y: 0.6 },
                 shapes: ['circle'],
-                colors: ['#ff0000', '#ffd700']
+                colors: ['#ff2d55', '#ffffff']
             });
         }
     </script>
