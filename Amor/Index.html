@@ -5,18 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Judith Andrea - Mi Estrellita Errante</title>
     
+    <!-- Librerías de Alto Rendimiento -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Birthstone+Bounce&family=Parisienne&family=Quicksand:wght@300;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Birthstone+Bounce&family=Parisienne&family=Quicksand:wght@300;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
 
     <style>
         :root {
-            --bg-deep: #0a0612;
+            --bg-deep: #050208;
             --accent: #ff2d55;
             --gold: #d4af37;
+            --purple-love: #2e1065;
         }
 
         body {
@@ -32,30 +34,30 @@
         .font-magic { font-family: 'Birthstone Bounce', cursive; }
         .font-cursive { font-family: 'Parisienne', cursive; }
 
-        /* Estrellas dinámicas */
+        /* Fondo de Estrellas Dinámicas */
         .star {
             position: absolute;
             background: white;
             border-radius: 50%;
-            filter: blur(1px);
+            filter: blur(0.5px);
             animation: twinkle var(--t) infinite ease-in-out;
         }
 
         @keyframes twinkle {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.4); }
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
         }
 
         /* Capas de Cristal */
         .glass-panel {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(25px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 40px;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+            border-radius: 50px;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.6);
         }
 
-        /* El Sobre Místico */
+        /* El Activador de Emociones */
         #gatekeeper {
             position: fixed;
             inset: 0;
@@ -65,122 +67,154 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            transition: all 1s ease-in-out;
         }
 
-        .mystic-seal {
-            width: 120px;
-            height: 120px;
+        .mystic-heart {
+            width: 140px;
+            height: 140px;
             background: linear-gradient(45deg, #ff2d55, #d4af37);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 0 50px rgba(255, 45, 85, 0.4);
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 60px rgba(255, 45, 85, 0.5);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .mystic-seal:hover {
-            transform: scale(1.1) rotate(10deg);
-            box-shadow: 0 0 80px rgba(255, 45, 85, 0.7);
+        .mystic-heart:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 100px rgba(255, 45, 85, 0.8);
         }
 
-        /* Secciones de Scroll */
+        /* Secciones */
         .scene {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 4rem 2rem;
+            padding: 4rem 1.5rem;
             position: relative;
         }
 
-        #youtube-player { position: absolute; top: -1000px; }
+        #youtube-player-container {
+            position: fixed;
+            top: -500px;
+            left: -500px;
+            pointer-events: none;
+        }
+
+        .day-badge {
+            background: linear-gradient(to right, rgba(255, 45, 85, 0.2), transparent);
+            border-left: 4px solid var(--accent);
+            padding: 0.5rem 1.5rem;
+        }
     </style>
 </head>
 <body>
 
+    <!-- Contenedor de Estrellas -->
     <div id="star-container" class="fixed inset-0 pointer-events-none"></div>
 
+    <!-- PANTALLA DE ACCESO (Activa Audio) -->
     <div id="gatekeeper">
         <div class="text-center mb-16 animate__animated animate__fadeIn">
-            <h2 class="text-gold tracking-[0.4em] uppercase text-sm mb-4">Un mensaje de tu amor</h2>
-            <h1 class="text-white text-4xl md:text-6xl font-cursive">Para Judith Andrea</h1>
+            <h2 class="text-gold tracking-[0.5em] uppercase text-xs mb-4">Marzo 8 • Día Internacional de la Mujer</h2>
+            <h1 class="text-white text-4xl md:text-6xl font-cursive mb-2">Para Mi Vida Entera</h1>
+            <p class="text-white/60 italic">Judith Andrea Paez Caro</p>
         </div>
         
-        <div class="mystic-seal" onclick="launchExperience()">
-            <svg width="60" height="60" viewBox="0 0 24 24" fill="white">
+        <div class="mystic-heart" onclick="launchExperience()">
+            <svg width="70" height="70" viewBox="0 0 24 24" fill="white">
                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
             </svg>
         </div>
         
-        <p class="text-white/40 mt-12 animate-pulse text-xs tracking-widest uppercase">Toca el corazón para sintonizar nuestro amor</p>
+        <p class="text-white/30 mt-12 animate-pulse text-xs tracking-widest uppercase">Toca el corazón para iniciar la melodía de nuestro amor</p>
     </div>
 
-    <div id="youtube-player">
-        <div id="audio-anchor"></div>
+    <!-- REPRODUCTOR OCULTO (Estrellita Errante - Maelo Ruiz) -->
+    <div id="youtube-player-container">
+        <div id="audio-player"></div>
     </div>
 
+    <!-- CONTENIDO PRINCIPAL -->
     <main id="content-wrap" class="opacity-0">
         
+        <!-- ACTO 1: Bienvenida Galáctica -->
         <section class="scene">
             <div class="text-center z-10">
-                <h3 class="text-accent uppercase tracking-[0.6em] text-xs mb-8 opacity-70">8 de Marzo • Nuestro Día</h3>
-                <h1 class="font-magic text-8xl md:text-[14rem] text-white leading-none mb-4">Judith Andrea</h1>
-                <div class="w-24 h-px bg-accent mx-auto mb-8 shadow-[0_0_15px_#ff2d55]"></div>
-                <p class="text-2xl md:text-4xl font-light text-white/80 italic max-w-3xl mx-auto">
-                    "Gracias por ser mi norte en este viaje infinito."
+                <div class="day-badge mb-10 inline-block">
+                    <span class="text-accent font-bold tracking-widest uppercase text-sm">Feliz Día Internacional de la Mujer</span>
+                </div>
+                <h1 class="font-magic text-8xl md:text-[15rem] text-white leading-none mb-6 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">Judith Andrea</h1>
+                <div class="w-32 h-1 bg-gradient-to-r from-accent to-gold mx-auto mb-10"></div>
+                <p class="text-2xl md:text-5xl font-light text-white/90 italic max-w-4xl mx-auto leading-tight px-4">
+                    "Tú eres mi <span class="text-gold font-bold">Estrellita Errante</span>, la que le dio sentido a mi caminar."
                 </p>
             </div>
         </section>
 
-        <section class="scene" id="hogar">
-            <div class="glass-panel p-10 md:p-20 max-w-5xl w-full grid md:grid-cols-2 gap-16 items-center">
-                <div class="relative flex justify-center">
-                    <div class="bg-gradient-to-tr from-accent to-purple-600 p-1 rounded-3xl rotate-3 shadow-2xl">
-                        <div class="bg-slate-900 rounded-3xl p-10">
-                            <svg width="150" height="150" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                            </svg>
-                        </div>
+        <!-- ACTO 2: La Belleza de Vivir Juntos -->
+        <section class="scene">
+            <div class="glass-panel p-10 md:p-24 max-w-6xl w-full grid lg:grid-cols-2 gap-20 items-center">
+                <div class="relative">
+                    <!-- Representación Visual de Hogar y Amor -->
+                    <div class="bg-gradient-to-br from-purple-900 to-black p-12 rounded-[3rem] shadow-[0_0_50px_rgba(255,45,85,0.2)] transform -rotate-2">
+                        <svg width="180" height="180" viewBox="0 0 24 24" fill="none" stroke="url(#goldGrad)" stroke-width="1">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <circle cx="12" cy="13" r="3" fill="rgba(255,45,85,0.3)"></circle>
+                            <defs>
+                                <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#d4af37;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#f9d976;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <p class="mt-10 font-cursive text-4xl text-gold">Nuestro refugio</p>
                     </div>
                 </div>
                 <div>
-                    <h2 class="font-cursive text-6xl text-accent mb-8">Nuestra Vida Juntos</h2>
-                    <p class="text-xl text-white/70 leading-relaxed font-light">
-                        Vivir contigo es descubrir que el paraíso tiene dirección propia. Compartir el café de la mañana, nuestras risas cómplices y el calor de nuestro hogar es mi mayor bendición. 
+                    <h2 class="text-4xl md:text-5xl font-bold text-accent mb-8 leading-tight">El Honor de Compartir Mi Vida Contigo</h2>
+                    <p class="text-xl text-white/80 leading-loose font-light">
+                        Vivir juntos es el regalo más grande que la vida me ha dado. Cada mañana a tu lado, Judith Andrea, es una confirmación de que elegí el camino correcto. 
                         <br><br>
-                        Eres la mujer que llena de vida cada metro cuadrado de nuestro mundo compartido.
+                        Gracias por hacer de nuestra casa un hogar lleno de paz, por tus risas y por ser la mujer extraordinaria que me inspira a ser mejor cada segundo.
                     </p>
                 </div>
             </div>
         </section>
 
+        <!-- ACTO 3: La Carta Eterna -->
         <section class="scene">
             <div class="glass-panel p-12 md:p-24 max-w-4xl w-full relative overflow-hidden">
-                <div class="absolute -top-10 -right-10 text-[25rem] text-accent opacity-5 font-bold">❤</div>
-                <h2 class="font-magic text-5xl text-gold mb-12">Desde mi corazón...</h2>
-                <div id="typewriter" class="text-2xl md:text-3xl text-white/90 leading-loose min-h-[400px]"></div>
+                <div class="absolute -top-20 -right-20 text-[28rem] text-accent opacity-5 font-bold pointer-events-none">❤</div>
+                <h2 class="font-magic text-6xl text-gold mb-16">Desde mi alma...</h2>
+                <div id="typewriter" class="text-2xl md:text-3xl text-white/90 leading-relaxed min-h-[450px]"></div>
             </div>
         </section>
 
+        <!-- ACTO 4: El Gran Final -->
         <section class="scene">
-            <div class="text-center">
-                <div class="mb-12 inline-block animate-pulse">
-                    <svg width="100" height="100" viewBox="0 0 24 24" fill="#ff2d55">
+            <div class="text-center px-4">
+                <div class="mb-14 inline-block">
+                    <svg width="120" height="120" viewBox="0 0 24 24" fill="#ff2d55" class="animate__animated animate__heartBeat animate__infinite">
                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                     </svg>
                 </div>
-                <h2 class="font-cursive text-7xl text-white mb-6">Te Amo, Judith Andrea Paez Caro</h2>
-                <p class="text-gold uppercase tracking-[1em] text-xs mb-16 opacity-60 italic">Por siempre y para siempre</p>
+                <h2 class="text-gold tracking-[0.3em] uppercase text-sm mb-6 font-bold">Hoy te celebramos a ti</h2>
+                <h1 class="font-cursive text-6xl md:text-8xl text-white mb-10">Te Amo, Judith Andrea Paez Caro</h1>
+                <p class="text-white/60 text-xl italic mb-20 max-w-xl mx-auto">
+                    "Feliz Día Internacional de la Mujer a la reina de mi corazón y dueña de mi hogar."
+                </p>
                 
-                <button onclick="finalCelebration()" class="bg-white text-black px-16 py-5 rounded-full text-xl font-bold hover:bg-accent hover:text-white transition-all transform hover:scale-110 shadow-[0_0_40px_rgba(255,255,255,0.2)] active:scale-95">
-                    CELEBRAR NUESTRO AMOR
+                <button onclick="finalCelebration()" class="bg-gradient-to-r from-accent to-gold text-white px-20 py-6 rounded-full text-2xl font-bold shadow-[0_15px_50px_rgba(255,45,85,0.4)] hover:scale-105 transition-all active:scale-95 uppercase tracking-widest">
+                    ¡CELEBREMOS JUNTOS!
                 </button>
                 
-                <div class="mt-40 opacity-20 text-[10px] tracking-widest uppercase">
-                    Eternamente tuyo • Marzo 2026
+                <div class="mt-40 text-white/20 text-[10px] tracking-[1em] uppercase font-bold">
+                    Tu amor eterno • 8 de Marzo
                 </div>
             </div>
         </section>
@@ -188,24 +222,24 @@
     </main>
 
     <script>
-        // Generador de Estrellas
+        // Sistema de Estrellas
         function generateStars() {
             const container = document.getElementById('star-container');
-            for(let i=0; i<200; i++) {
+            for(let i=0; i<250; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
-                const size = Math.random() * 3 + 'px';
+                const size = Math.random() * 2.5 + 'px';
                 star.style.width = size;
                 star.style.height = size;
                 star.style.left = Math.random() * 100 + '%';
                 star.style.top = Math.random() * 100 + '%';
-                star.style.setProperty('--t', (Math.random() * 4 + 2) + 's');
+                star.style.setProperty('--t', (Math.random() * 4 + 1.5) + 's');
                 container.appendChild(star);
             }
         }
         generateStars();
 
-        // YouTube API - Estrellita Errante (Maelo Ruiz)
+        // Integración YouTube API - Estrellita Errante
         var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName('script')[0];
@@ -213,72 +247,79 @@
 
         var player;
         function onYouTubeIframeAPIReady() {
-            player = new YT.Player('audio-anchor', {
+            player = new YT.Player('audio-player', {
                 height: '0', width: '0',
                 videoId: 'Y-X19hWv9oY',
-                playerVars: { 'autoplay': 0, 'loop': 1, 'playlist': 'Y-X19hWv9oY' }
+                playerVars: { 
+                    'autoplay': 0, 
+                    'loop': 1, 
+                    'playlist': 'Y-X19hWv9oY',
+                    'enablejsapi': 1,
+                    'origin': window.location.origin
+                }
             });
         }
 
-        // ACTIVACIÓN DE LA EXPERIENCIA
+        // ACCIÓN DE INICIO
         function launchExperience() {
-            // Reproducir música inmediatamente (tras interacción)
+            // Reproducción de audio (se permite tras click)
             if(player && player.playVideo) {
                 player.unMute();
                 player.setVolume(100);
                 player.playVideo();
             }
 
-            // Animación de salida del gatekeeper
+            // Ocultar gatekeeper
             gsap.to("#gatekeeper", {
-                duration: 1.5,
+                duration: 1.2,
                 opacity: 0,
-                y: -100,
+                scale: 1.5,
                 ease: "power4.inOut",
                 onComplete: () => {
                     document.getElementById('gatekeeper').style.display = 'none';
                     document.getElementById('content-wrap').classList.remove('opacity-0');
-                    initAnimations();
-                    startTyped();
+                    gsap.from("#content-wrap", { duration: 2, opacity: 0 });
+                    initScrollEffects();
+                    startTypedEffect();
                 }
             });
 
-            // Explosión de corazones inicial
+            // Confetti inicial
             confetti({
-                particleCount: 150, spread: 100, origin: { y: 0.6 },
+                particleCount: 200, spread: 120, origin: { y: 0.6 },
                 colors: ['#ff2d55', '#d4af37', '#ffffff']
             });
         }
 
-        // CARTA ANIMADA
-        function startTyped() {
+        // TEXTO AUTOMÁTICO
+        function startTypedEffect() {
             new Typed('#typewriter', {
                 strings: [
-                    'Para mi <span class="text-accent">Judith Andrea</span>...^1000',
-                    'Desde que compartimos la vida, cada día es una nueva oportunidad para amarte más.^1000',
-                    'Eres mi <span class="text-accent italic">Estrellita Errante</span>, la que guía mi alma a casa cada noche.^1000',
-                    'Gracias por construir este hogar conmigo, por tu paciencia, tu ternura y por ser la mujer más hermosa que jamás ha existido.^1000',
-                    'Judith Andrea Paez Caro, eres mi vida entera. <br><span class="text-accent">¡Feliz Día de la Mujer!</span>'
+                    'Para mi compañera de vida, <span class="text-accent font-bold">Judith Andrea</span>...^1000',
+                    'Hoy, en el <span class="text-gold">Día Internacional de la Mujer</span>, quiero honrar tu fuerza, tu inteligencia y tu infinito amor.^1000',
+                    'Eres mi <span class="text-accent italic">Estrellita Errante</span>, la luz que ilumina cada rincón de nuestro hogar y cada espacio de mi alma.^1000',
+                    'Gracias por elegir vivir conmigo, por construir este refugio sagrado y por ser la mujer más extraordinaria que ha pisado este mundo.^1000',
+                    'Judith Andrea Paez Caro, eres mi hoy, mi mañana y mi siempre. <br><br><span class="text-accent text-4xl">¡Te Amo Eternamente!</span>'
                 ],
-                typeSpeed: 50, backSpeed: 20, loop: false, contentType: 'html'
+                typeSpeed: 45, backSpeed: 15, loop: false, contentType: 'html'
             });
         }
 
-        // ANIMACIONES DE SCROLL
-        function initAnimations() {
+        // ANIMACIONES GSAP
+        function initScrollEffects() {
             gsap.registerPlugin(ScrollTrigger);
             
             gsap.utils.toArray('section').forEach(section => {
                 gsap.from(section.children, {
                     scrollTrigger: {
                         trigger: section,
-                        start: "top 80%",
+                        start: "top 85%",
                         toggleActions: "play none none reverse"
                     },
-                    y: 60,
+                    y: 80,
                     opacity: 0,
                     duration: 1.5,
-                    stagger: 0.3,
+                    stagger: 0.2,
                     ease: "power3.out"
                 });
             });
@@ -286,17 +327,19 @@
 
         // CELEBRACIÓN FINAL
         function finalCelebration() {
-            const end = Date.now() + (7 * 1000);
+            const end = Date.now() + (8 * 1000);
+            const colors = ['#ff2d55', '#d4af37', '#ffffff'];
+
             (function frame() {
-              confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ff2d55', '#d4af37'] });
-              confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ff2d55', '#d4af37'] });
+              confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: colors });
+              confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: colors });
               if (Date.now() < end) requestAnimationFrame(frame);
             }());
 
             confetti({
-                particleCount: 100,
-                spread: 160,
-                origin: { y: 0.6 },
+                particleCount: 150,
+                spread: 180,
+                origin: { y: 0.5 },
                 shapes: ['circle'],
                 colors: ['#ff2d55', '#ffffff']
             });
