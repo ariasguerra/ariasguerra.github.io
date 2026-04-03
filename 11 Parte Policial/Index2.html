@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Informe Policial</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome CDN para íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        /* Estilos base (móvil primero) */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0.5rem;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 10px auto;
+            padding: 1rem;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        /* Títulos de sección y subsección */
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        .cai-section-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding-bottom: 0.25rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .subsection-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #374151;
+            margin-top: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        /* Campos de entrada y áreas de texto */
+        .input-field {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 0.6rem 0.8rem;
+            font-size: 0.9rem;
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+        /* Estilos para botones */
+        .btn {
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-width: 38px;
+            min-height: 38px;
+        }
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            gap: 0.3rem;
+            min-width: 32px;
+            min-height: 32px;
+        }
+        .btn-float {
+            border-radius: 9999px;
+            width: 56px;
+            height: 56px;
+            padding: 0;
+            font-size: 1.25rem;
+        }
+        .btn-primary { background-color: #2563eb; color: #ffffff; }
+        .btn-primary:hover { background-color: #1d4ed8; transform: translateY(-1px); }
+        .btn-secondary { background-color: #6b7280; color: #ffffff; }
+        .btn-secondary:hover { background-color: #4b5563; transform: translateY(-1px); }
+        .btn-danger { background-color: #ef4444; color: #ffffff; }
+        .btn-danger:hover { background-color: #dc2626; transform: translateY(-1px); }
+        .btn-success { background-color: #22c55e; color: #ffffff; }
+        .btn-success:hover { background-color: #16a34a; }
+        
+        .btn-dark-blue { background-color: #1e40af; color: #ffffff; }
+        .btn-dark-blue:hover { background-color: #1e3a8a; }
+
+        /* Estilos para tarjetas de contenido */
+        .card {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        /* Estilos para la salida del informe */
+        .report-output {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background-color: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+            min-height: 150px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: #374151;
+        }
+        
+        /* Búsqueda de Personal */
+        .search-result-item {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            background-color: #fff;
+        }
+        .search-result-item .info {
+            font-size: 0.9rem;
+            flex-grow: 1;
+        }
+        .search-result-item .status {
+             font-size: 0.8rem;
+             width: 100%;
+             margin-top: 0.25rem;
+        }
+        .search-result-item .status-assigned { color: #ef4444; font-weight: 600; }
+        .search-result-item .status-free { color: #22c55e; font-weight: 600; }
+
+        /* Estilos para el Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content {
+            background-color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 500px;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+        .modal-message {
+            font-size: 0.9rem;
+            color: #4b5563;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .modal-input {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        .copy-feedback {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 1001;
+        }
+        .copy-feedback.show { opacity: 1; visibility: visible; }
+
+        /* SELECTOR CON BÚSQUEDA */
+        .search-select-container {
+            position: relative;
+            width: 100%;
+        }
+        .search-select-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border: 1px solid #d1d5db;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1010;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .search-select-option {
+            padding: 0.6rem 0.8rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .search-select-option:hover {
+            background-color: #f0f2f5;
+        }
+        .search-select-clear-btn {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0 0.25rem;
+        }
+        .search-select-clear-btn:hover {
+            color: #374151;
+        }
+
+        /* Botones de Filtro en Búsqueda */
+        .filter-pill {
+            padding: 0.4rem 0.8rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e5e7eb;
+            background: white;
+            color: #6b7280;
+        }
+        .filter-pill.active {
+            background: #1e40af;
+            color: white;
+            border-color: #1e40af;
+        }
+
+        @media (min-width: 640px) {
+            body { padding: 2rem; }
+            .container { margin: 20px auto; padding: 20px; }
+            .section-title { font-size: 1.5rem; }
+            .cai-section-title { font-size: 1.25rem; }
+            .subsection-title { font-size: 1.25rem; }
+            .input-field { padding: 0.75rem 1rem; font-size: 1rem; }
+            .btn { padding: 0.75rem 1.25rem; font-size: 1rem; min-width: 44px; min-height: 44px; }
+            .btn-sm { padding: 0.5rem 1rem; font-size: 0.9rem; }
+            .report-output { padding: 1.5rem; min-height: 200px; font-size: 1rem; }
+            .modal-content { padding: 2rem; }
+            .modal-title { font-size: 1.75rem; }
+            .modal-message { font-size: 1rem; }
+            .modal-input { padding: 0.75rem 1rem; font-size: 1rem; }
+            .search-result-item .status { width: auto; margin-top: 0; }
+        }
+
+        @media (max-width: 639px) {
+            .btn-float {
+                width: 45px;
+                height: 45px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="p-4">
+
+    <!-- Botones Flotantes -->
+    <div style="position: fixed; top: 50%; left: 20px; transform: translateY(-50%); z-index: 999;" class="flex flex-col gap-3">
+        <button onclick="openConfigModal()" class="btn btn-dark-blue btn-float shadow-lg" title="Configuración">
+            <i class="fas fa-cog"></i>
+        </button>
+        <button onclick="downloadData()" class="btn btn-dark-blue btn-float shadow-lg" title="Descargar Datos">
+            <i class="fas fa-download"></i>
+        </button>
+        <label for="uploadFile" class="btn btn-dark-blue btn-float shadow-lg cursor-pointer" title="Cargar Datos">
+            <i class="fas fa-upload"></i>
+        </label>
+        <input type="file" id="uploadFile" class="hidden" accept=".json" onchange="handleFileUpload(event)">
+        <button onclick="openSearchModal()" class="btn btn-dark-blue btn-float shadow-lg" title="Buscar Personal">
+            <i class="fas fa-search"></i>
+        </button>
+        <button onclick="openReportModal()" class="btn btn-dark-blue btn-float shadow-lg" title="Generar Informe">
+            <i class="fas fa-file-alt"></i>
+        </button>
+    </div>
+
+    <div class="container">
+        <!-- Sección de Equipos y Grupos -->
+        <div class="mb-8 p-6 bg-green-50 rounded-lg shadow-inner">
+            <h2 class="section-title text-green-800">
+                Zonas de Atención
+            </h2>
+            <div id="assignmentSectionContent">
+                <div id="caiSectionsContainer">
+                    <!-- Secciones CAI se renderizan aquí -->
+                </div>
+                <button onclick="addCaiSection()" class="btn btn-primary mt-4"><i class="fas fa-plus"></i></button>
+
+                <div class="mt-8">
+                    <h3 class="subsection-title">Otros Grupos</h3>
+                    <div id="otherGroupsContainer">
+                        <!-- Otros grupos se renderizan aquí -->
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-4 mt-4">
+                        <input type="text" id="newGroupName" class="input-field flex-grow" placeholder="Nombre del nuevo grupo" aria-label="Nuevo Nombre del Grupo">
+                        <button onclick="addOtherGroup()" class="btn btn-primary"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación/Prompt -->
+    <div id="customModalOverlay" class="modal-overlay" onclick="if(event.target === this) closeModal()">
+        <div class="modal-content">
+            <h3 id="modalTitle" class="modal-title"></h3>
+            <p id="modalMessage" class="modal-message"></p>
+            <input type="text" id="modalInput" class="modal-input hidden">
+            <div class="modal-buttons">
+                <button id="modalConfirmBtn" class="btn btn-primary hidden">Aceptar</button>
+                <button id="modalCancelBtn" class="btn btn-secondary hidden">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Búsqueda Mejorado -->
+    <div id="searchModalOverlay" class="modal-overlay" onclick="if(event.target === this) closeSearchModal()">
+        <div class="modal-content w-full max-w-lg">
+             <div class="flex justify-between items-center mb-4">
+                <h3 class="modal-title text-left !mb-0">Búsqueda de Personal</h3>
+                <button onclick="closeSearchModal()" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+            </div>
+            
+            <div class="mb-4">
+                <input type="text" id="personnelSearch" class="input-field" placeholder="Buscar grado o nombre..." oninput="renderPersonnelSearch()">
+            </div>
+            
+            <div class="flex flex-wrap gap-2 mb-4">
+                <button id="filter-all" onclick="setSearchFilter('all')" class="filter-pill active">Todos <span id="count-all">0</span></button>
+                <button id="filter-free" onclick="setSearchFilter('free')" class="filter-pill">Disponibles <span id="count-free">0</span></button>
+                <button id="filter-assigned" onclick="setSearchFilter('assigned')" class="filter-pill">Asignados <span id="count-assigned">0</span></button>
+            </div>
+
+            <div id="personnelSearchResults" class="mt-4 max-h-[50vh] overflow-y-auto pr-1">
+                <!-- Los resultados de la búsqueda aparecerán aquí -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Configuración -->
+    <div id="configModalOverlay" class="modal-overlay" onclick="if(event.target === this) closeConfigModal()">
+        <div class="modal-content w-full max-w-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="modal-title text-left !mb-0">Configuración</h3>
+                <button onclick="closeConfigModal()" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+            </div>
+            <div class="max-h-[70vh] overflow-y-auto pr-2">
+                <div class="mb-4">
+                    <label for="commanderRank" class="block text-gray-700 font-medium mb-2">Grado del Comandante:</label>
+                    <input type="text" id="commanderRank" class="input-field" value="" onchange="saveData()">
+                </div>
+                <div class="mb-4">
+                    <label for="commanderName" class="block text-gray-700 font-medium mb-2">Nombre del Comandante:</label>
+                    <input type="text" id="commanderName" class="input-field" value="" onchange="saveData()">
+                </div>
+                <div class="mb-6">
+                    <h3 class="subsection-title">Servicios de Importancia <span class="text-sm text-gray-500">(uno por línea)</span></h3>
+                    <textarea id="importantServices" class="input-field min-h-[120px]" onchange="saveData()"></textarea>
+                </div>
+                <div class="mb-6">
+                    <h3 class="subsection-title">Gestión de Personal <span class="text-sm text-gray-500">(uno por línea: GRADO NOMBRE)</span></h3>
+                    <div class="flex gap-4 mb-4">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="personnelListSelector" value="list1" class="form-radio" onchange="switchPersonnelList('list1')">
+                            <span class="ml-2 text-gray-700">Lista 1</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="personnelListSelector" value="list2" class="form-radio" onchange="switchPersonnelList('list2')">
+                            <span class="ml-2 text-gray-700">Lista 2</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="personnelListSelector" value="list3" class="form-radio" onchange="switchPersonnelList('list3')">
+                            <span class="ml-2 text-gray-700">Lista 3</span>
+                        </label>
+                    </div>
+                    <textarea id="personnelTextarea" class="input-field min-h-[150px]" onchange="saveData()"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Informe Generado -->
+    <div id="reportModalOverlay" class="modal-overlay" onclick="if(event.target === this) closeReportModal()">
+        <div class="modal-content w-full max-w-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="modal-title text-left !mb-0">Informe Generado</h3>
+                <div class="flex gap-2">
+                    <button onclick="copyReport()" class="btn btn-secondary btn-sm" title="Copiar informe">
+                        <i class="fas fa-copy"></i> Copiar
+                    </button>
+                    <button onclick="closeReportModal()" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+                </div>
+            </div>
+            <pre id="reportOutput" class="report-output max-h-[60vh] overflow-y-auto"></pre>
+        </div>
+    </div>
+
+    <!-- Feedback de copiado -->
+    <div id="copyFeedback" class="copy-feedback">¡Copiado!</div>
+
+    <script>
+        let scrollPosition = 0;
+        let searchFilter = 'all'; // all, free, assigned
+
+        const customModalOverlay = document.getElementById('customModalOverlay');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalInput = document.getElementById('modalInput');
+        const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+        const searchModalOverlay = document.getElementById('searchModalOverlay');
+        const configModalOverlay = document.getElementById('configModalOverlay');
+        const reportModalOverlay = document.getElementById('reportModalOverlay');
+
+        function generateUniqueId() {
+            return 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function getPersonnelCategory(grade) {
+            const oficiales = ["CR", "TC", "MY", "CT", "TE", "ST"];
+            const suboficiales = ["CM", "SC", "IJ", "IT", "SI"];
+            const patrulleros = ["PT", "PP", "CO", "PC"];
+            const g = grade.toUpperCase()
