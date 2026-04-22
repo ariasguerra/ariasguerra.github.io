@@ -250,5 +250,27 @@
     "periodoFin": "2026-05-06",
     "nombreQuienRecibe": "Manuel Antonio Arias Guerra",
     "cedulaQuienRecibe": "1.057.736.060"
+  },
+  {
+    "numeroRecibo": "PVJC2026002",
+    "lugarExpedicion": "Bogotá D.C.",
+    "fechaExpedicion": "22 de abril de 2026",
+    "nombreArrendatario": "Yudi Patricia Romero Ramos",
+    "documentoArrendatario": "1053608403",
+    "telefonoArrendatario": "3124788689",
+    "emailArrendatario": "yudyromero92@gmail.com",
+    "montoPagado": "900000",
+    "montoEnLetras": "novecientos mil pesos M/CTE",
+    "formaPago": "Consignación bancaria",
+    "fechaPago": "2026-04-22",
+    "horaPago": "08:12",
+    "concepto": "Canon de arrendamiento",
+    "direccionInmueble": "CALLE 31A NO. 12B-14 BARRIO VILLA JARDÍN, PAIPA (BOYACÁ)",
+    "parteArrendada": "Inmueble completo",
+    "periodoInicio": "2026-04-21",
+    "periodoFin": "2026-05-20",
+    "nombreQuienRecibe": "Manuel Antonio Arias Guerra",
+    "cedulaQuienRecibe": "1.057.736.060"
   }
+]
 ]
