@@ -1,0 +1,17 @@
+{
+  "name": "Barrios Unidos - Generador de Informes",
+  "short_name": "Informes BU",
+  "description": "Herramienta para gestión de personal y generación de informes policiales.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#004d40",
+  "icons": [
+    {
+      "src": "./app-icon.svg",
+      "sizes": "192x192 512x512 any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
