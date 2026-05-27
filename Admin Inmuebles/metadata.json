@@ -1,0 +1,6 @@
+{
+  "name": "Administración Inmobiliaria Arias Guerra",
+  "description": "Plataforma integral lícita para la gestión de inmuebles, contratos de arrendamiento, fianzas, emisión de recibos y actas de liquidación final.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
